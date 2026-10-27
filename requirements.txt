@@ -1,0 +1,7 @@
+# Versions used to produce the results in the paper (Python 3.13).
+# Newer versions should work; CPU-only PyTorch is sufficient.
+numpy>=2.0
+scipy>=1.11        # scipy.optimize.milp (HiGHS) is required
+scikit-learn>=1.4
+torch>=2.2
+matplotlib>=3.8

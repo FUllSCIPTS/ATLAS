@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+# certificates are generated locally by prototype/proto_run.py — never commit keys
+prototype/certs/
+*.key
+*.csr
+*.srl
+# full one-year trace (export_datasets.py --full, ~525k rows)
+data/traffic_trace.csv
