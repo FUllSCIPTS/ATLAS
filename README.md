@@ -3,8 +3,8 @@
 Code, data, trained models and raw results for the article
 
 > **ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems**
-> Basker Palaniswamy and Paolo Palmieri, University College Cork.
-> *Future Internet* (MDPI), under review.
+> Basker Palaniswamy and Paolo Palmieri, Dept. of C.S. & I.T., University College Cork (UCC), Ireland, European Union.
+> *Future Internet* (MDPI).
 
 The repository reproduces every table and data-driven figure of the evaluation:
 forecasting (LSTM, Bi-LSTM and statistical baselines), out-of-distribution and
