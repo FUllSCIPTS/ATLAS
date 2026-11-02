@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite the article below."
+title: "ATLAS supplementary code and data"
+authors:
+  - family-names: Palaniswamy
+    given-names: Basker
+    orcid: "https://orcid.org/0000-0002-3661-6048"
+    affiliation: "University College Cork"
+  - family-names: Palmieri
+    given-names: Paolo
+    orcid: "https://orcid.org/0000-0002-9819-4880"
+    affiliation: "University College Cork"
+license: MIT
+preferred-citation:
+  type: article
+  title: "ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems"
+  authors:
+    - family-names: Palaniswamy
+      given-names: Basker
+    - family-names: Palmieri
+      given-names: Paolo
+  journal: "Future Internet"
+  publisher:
+    name: MDPI
+  year: 2026
+  notes: "Under review"
