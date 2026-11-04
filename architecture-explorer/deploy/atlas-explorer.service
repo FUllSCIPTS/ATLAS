@@ -1,0 +1,19 @@
+[Unit]
+Description=ATLAS Architecture Explorer
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/atlas-architecture-explorer/architecture-explorer
+ExecStart=/usr/bin/env node /opt/atlas-architecture-explorer/architecture-explorer/server.mjs
+Environment=PORT=8080
+DynamicUser=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
