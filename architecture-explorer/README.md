@@ -1,6 +1,6 @@
 # ATLAS Architecture Explorer
 
-**Live demo** · [Open the ATLAS Architecture Explorer](https://atlas-architecture-explorer.suppleshrimp.chatgpt.site/)
+**Live demo** · [Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/)
 
 A self-hosted copy of the interactive ride-hailing reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
 
