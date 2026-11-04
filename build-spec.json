@@ -6,6 +6,8 @@
   "repository": "https://github.com/FUllSCIPTS/ATLAS.git",
   "branch": "architecture-explorer",
   "root": "architecture-explorer/starter",
+  "uml_blueprint": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md",
+  "uml_inventory": "https://raw.githubusercontent.com/FUllSCIPTS/ATLAS/architecture-explorer/architecture-explorer/starter/docs/uml-blueprint.json",
   "profiles": {
     "compose": {
       "start": "docker compose up -d --build",
