@@ -246,3 +246,23 @@ h1, h2, h3, p { margin: 0; }
   .playback, .mobile-inspect { margin-inline: 8px; }
   .mobile-inspect { width: calc(100% - 16px); }
 }
+
+.guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 13px; }
+.guide-link { display: inline-flex; align-items: center; gap: 7px; min-height: 33px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: #172232; font-size: 12px; font-weight: 650; }
+.guide-link:hover { border-color: var(--green); }
+.guide-link.primary { background: var(--green); border-color: var(--green); color: #142118; }
+.guide-link.primary:hover { background: #d9ff9b; }
+.guide-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.guide-card { min-width: 0; padding: 17px; }
+.guide-card h2 { margin: 5px 0 11px; font-size: 21px; }
+.guide-card p:not(.section-kicker), .guide-card li, .guide-card dd, .copy-status { color: var(--muted); font-size: 13px; line-height: 1.55; }
+.guide-card p + p { margin-top: 9px; }
+.guide-card p a, .folder-details li a:hover { color: var(--green); text-decoration: underline; }
+.guide-card pre, .guide-card textarea { width: 100%; background: #0c141f; border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 10px; font: 12px/1.6 var(--mono); }
+.guide-card pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.guide-card textarea { resize: vertical; }
+.guide-card ol { padding-left: 18px; }
+.guide-card li + li { margin-top: 7px; }
+.guide-models dt { margin-top: 8px; font-weight: 650; font-size: 13px; }
+.guide-models dd { margin: 2px 0 0; }
+@media (max-width: 790px) { .guide-grid { grid-template-columns: 1fr; } }

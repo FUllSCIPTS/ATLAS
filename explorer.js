@@ -30,7 +30,7 @@ const $ = (id) => document.getElementById(id);
 const icon = (name, size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
 const linkById = Object.fromEntries(links.map((link) => [link.id, link]));
 const kindLabels = { sync: "Request / state", event: "Kafka event", learn: "Model / policy data" };
-const folderById = Object.fromEntries(folders.flatMap((group) => group.children.map((entry) => [entry.id, { ...entry, path: group.name + "/" + entry.name }])));
+const folderById = Object.fromEntries(folders.flatMap((group) => group.children.map((entry) => [entry.id, { ...entry, path: group.root ? "" : group.name + "/" + (entry.name.endsWith("/") ? entry.name : "") }])));
 const state = { view: "architecture", selected: "trip", trace: null, step: 0, focus: false, category: "all", query: "", folder: "trip", timer: null };
 
 document.querySelectorAll("[data-icon]").forEach((element) => { element.innerHTML = icon(element.dataset.icon, 17); });
@@ -118,14 +118,14 @@ function componentsView() {
 function deploymentView() {
   return viewHeading("RUNTIME TOPOLOGY", "Deployment", "Suggested runtime boundaries and the components that run in each zone.", '<span class="panel-badge">4 runtime zones</span>')
     + `<div class="zones">${zones.map((zone, index) => `<section class="zone" style="--accent:${groups[zone.group].color}"><div class="zone-top"><span class="component-icon">${icon(zone.icon)}</span><div><p>ZONE 0${index + 1}</p><h3>${zone.title}</h3></div></div><span class="zone-sub">${zone.sub}</span><div class="zone-items">${zone.nodes.map((id) => `<button type="button" data-component="${id}" data-keep="zone-${id}" aria-pressed="${state.selected === id}">${icon(components[id].icon, 15)}${components[id].title}</button>`).join("")}</div><p class="zone-boundary">${zone.boundary}</p></section>`).join("")}</div>
-    <div class="deployment-note">${icon("gateway", 18)}<p><strong>Local development</strong><span>Use Docker Compose for APIs, workers, PostgreSQL and Kafka. The hosted explorer depicts this topology as a reference design.</span></p></div>`;
+    <div class="deployment-note">${icon("gateway", 18)}<p><strong>Local development</strong><span>Run the linked starter with Docker Compose for PostgreSQL and Kafka, or use its SQLite quickstart for local development.</span></p></div>`;
 }
 
 function foldersView() {
   const selected = folderById[state.folder];
-  return viewHeading("SOURCE LAYOUT", "Folder structure", "An example monorepo organized around app, service, worker and ML boundaries.")
-    + `<div class="repo-layout"><div class="repo-tree" aria-label="Repository folders"><div class="repo-root">${icon("folder", 17)} atlas/</div>${folders.map((group) => `<details ${group.children.some((entry) => entry.id === state.folder) || openFolders.has(group.name) ? "open" : ""} data-folder-group="${group.name}"><summary>${icon("chevron", 12)}${icon("folder", 15)}<strong>${group.name}/</strong></summary><div class="branch">${group.children.map((entry) => `<button type="button" data-folder="${entry.id}" data-keep="folder-${entry.id}" aria-pressed="${state.folder === entry.id}">${icon("folder", 13)}${entry.name}</button>`).join("")}</div></details>`).join("")}</div>
-    <section class="folder-details"><p class="section-kicker">DIRECTORY</p><h3>atlas/${selected.path}</h3><p>${selected.detail}</p><p class="section-kicker file-label">EXAMPLE FILES</p><ul>${selected.example.map((file) => `<li>${icon("file", 16)}<code>${file}</code></li>`).join("")}</ul></section></div>`;
+  return viewHeading("SOURCE LAYOUT", "Folder structure", "Browse the exact folders and files in the runnable starter. Open a file to read its source on GitHub.")
+    + `<div class="repo-layout"><div class="repo-tree" aria-label="Repository folders"><div class="repo-root">${icon("folder", 17)} starter/</div>${folders.map((group) => `<details ${group.children.some((entry) => entry.id === state.folder) || openFolders.has(group.name) ? "open" : ""} data-folder-group="${group.name}"><summary>${icon("chevron", 12)}${icon("folder", 15)}<strong>${group.name}/</strong></summary><div class="branch">${group.children.map((entry) => `<button type="button" data-folder="${entry.id}" data-keep="folder-${entry.id}" aria-pressed="${state.folder === entry.id}">${icon("folder", 13)}${entry.name}</button>`).join("")}</div></details>`).join("")}</div>
+    <section class="folder-details"><p class="section-kicker">DIRECTORY</p><h3>starter/${selected.path}</h3><p>${selected.detail}</p><p class="section-kicker file-label">SOURCE FILES</p><ul>${selected.example.map((file) => `<li>${icon("file", 16)}<a href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/${selected.path}${file}"><code>${file}</code></a></li>`).join("")}</ul></section></div>`;
 }
 
 function inspectorMarkup() {
@@ -143,7 +143,7 @@ function inspectorMarkup() {
     <div class="io"><div><span>INPUT</span><p>${component.inputs}</p></div><div><span>OUTPUT</span><p>${component.outputs}</p></div></div>
     <div class="connections">${neighbors.filter(({ rows }) => rows.length).map(({ heading, rows, target }) => `<div class="connection-group"><h3>${heading}</h3>${rows.map((link) => `<button type="button" class="connection" data-component="${link[target]}" data-keep="edge-${link.id}"><i class="edge-dot ${link.kind}"></i><span><strong>${components[link[target]].title}</strong><small>${link.label}</small></span>${icon("chevron", 13)}</button>`).join("")}</div>`).join("")}</div>
     <p class="inspector-note"><strong>Implementation note</strong><span>${component.notes}</span></p>
-    <button class="source-link" type="button" data-action="source" data-keep="source">${icon("folder", 16)}<code>${entry.path}</code>${icon("diagonal", 14)}</button></div>`;
+    <button class="source-link" type="button" data-action="source" data-keep="source">${icon("folder", 16)}<code>${entry.path}${entry.example[0]}</code>${icon("diagonal", 14)}</button></div>`;
 }
 
 const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView };
