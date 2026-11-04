@@ -1,0 +1,130 @@
+name: atlas-ride-demo
+x-python: &python
+  build: .
+  environment: &app-env
+    DATABASE_URL: postgresql://atlas:atlas-local@postgres:5432/atlas
+    ATLAS_DATA: /data
+    ATLAS_INTERNAL_TOKEN: atlas-compose-local
+    ATLAS_RIDER_KEY: ${ATLAS_RIDER_KEY:-rider-demo}
+    ATLAS_DRIVER_A_KEY: ${ATLAS_DRIVER_A_KEY:-driver-a-demo}
+    ATLAS_DRIVER_B_KEY: ${ATLAS_DRIVER_B_KEY:-driver-b-demo}
+  volumes:
+    - models:/data
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atlas
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas-local
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "atlas", "-d", "atlas"]
+      interval: 3s
+      timeout: 3s
+      retries: 25
+  kafka:
+    image: apache/kafka:4.3.0
+    environment:
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+    volumes:
+      - kafkadata:/tmp/kraft-combined-logs
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+  topics:
+    image: apache/kafka:4.3.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/opt/kafka/bin/kafka-topics.sh"]
+    command: ["--bootstrap-server", "kafka:9092", "--create", "--if-not-exists", "--topic", "atlas.ride.v1", "--partitions", "1", "--replication-factor", "1"]
+  initialize:
+    <<: *python
+    command: ["sh", "scripts/initialize.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  trips:
+    <<: *python
+    command: ["python", "-m", "uvicorn", "services.trips:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+  dispatch:
+    <<: *python
+    command: ["python", "-m", "uvicorn", "services.dispatch:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+  models:
+    <<: *python
+    command: ["python", "-m", "uvicorn", "ml.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8000/healthz', timeout=4).read()"]
+      interval: 4s
+      timeout: 5s
+      retries: 20
+  events:
+    <<: *python
+    command: ["python", "-m", "workers.events"]
+    environment:
+      <<: *app-env
+      KAFKA_BOOTSTRAP: kafka:9092
+      ATLAS_MODEL_URL: http://models:8000
+      ATLAS_POLICY_ENABLED: ${ATLAS_POLICY_ENABLED:-0}
+    depends_on:
+      models:
+        condition: service_healthy
+      topics:
+        condition: service_completed_successfully
+    restart: on-failure
+  rl-trainer:
+    <<: *python
+    command: ["python", "-m", "ml.rl", "watch", "--seconds", "60"]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    restart: on-failure
+  gateway:
+    <<: *python
+    command: ["python", "-m", "uvicorn", "services.gateway:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *app-env
+      ATLAS_TRIP_URL: http://trips:8000
+      ATLAS_DISPATCH_URL: http://dispatch:8000
+      ATLAS_MODEL_URL: http://models:8000
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      trips:
+        condition: service_started
+      dispatch:
+        condition: service_started
+      events:
+        condition: service_started
+
+volumes:
+  pgdata:
+  kafkadata:
+  models:

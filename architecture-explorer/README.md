@@ -4,6 +4,10 @@
 
 A self-hosted copy of the interactive ride-hailing reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
 
+## Run the ride-hailing application
+
+The starter includes the passenger and driver apps, FastAPI services, PostgreSQL and Kafka configuration, trained model commands, and an end-to-end smoke test. [Starter README](starter/README.md) · [Implementation guide](https://fullscipts.github.io/ATLAS/build.html)
+
 ## Run from Git
 
 Install a supported Node.js LTS release and Git on the server. The explorer uses Node.js built-ins and needs no npm install or build step.
