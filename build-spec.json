@@ -6,6 +6,7 @@
   "repository": "https://github.com/FUllSCIPTS/ATLAS.git",
   "branch": "architecture-explorer",
   "root": "architecture-explorer/starter",
+  "handover": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md",
   "uml_blueprint": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md",
   "uml_inventory": "https://raw.githubusercontent.com/FUllSCIPTS/ATLAS/architecture-explorer/architecture-explorer/starter/docs/uml-blueprint.json",
   "profiles": {
@@ -31,6 +32,7 @@
   "trip_states": ["requested", "assigned", "picked_up", "completed"],
   "event_schema": "./ride-event.schema.json",
   "policy_test": "python -m tests.policy",
+  "replay_test": "python -m tests.replay",
   "api": [
     {"method":"POST","path":"/v1/rider/trips","owner":"services/trips.py","requires":["Idempotency-Key","pickup","destination","zone"],"success":202},
     {"method":"GET","path":"/v1/rider/trips/{id}","owner":"services/trips.py","success":200},

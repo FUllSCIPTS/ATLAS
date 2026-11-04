@@ -401,7 +401,8 @@ const folders = [
         "detail": "Bootstrap the database and models, or run the complete SQLite demo locally.",
         "example": [
           "initialize.sh",
-          "local.sh"
+          "local.sh",
+          "generate_blueprint.py"
         ]
       }
     ]
@@ -415,7 +416,23 @@ const folders = [
         "detail": "Exercises authorization, idempotency, offer, assignment, completion and model outputs.",
         "example": [
           "smoke.py",
-          "policy.py"
+          "policy.py",
+          "replay.py"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "docs",
+    "children": [
+      {
+        "id": "handover",
+        "name": "Final handover",
+        "detail": "Read the handover runbook, UML diagrams and source-derived inventory.",
+        "example": [
+          "FINAL_HANDOVER.md",
+          "UML_BLUEPRINT.md",
+          "uml-blueprint.json"
         ]
       }
     ]
