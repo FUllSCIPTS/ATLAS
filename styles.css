@@ -31,8 +31,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, .map-scroll:focus-
 .brand img { display: block; }
 .brand strong { font-size: 17px; letter-spacing: .105em; }
 .brand > span { border-left: 1px solid var(--line); margin-left: 3px; padding-left: 13px; color: var(--muted); font-size: 13px; }
-.private-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid #3a5140; border-radius: 5px; color: #d0efb4; background: #18241f; font: 11px var(--mono); white-space: nowrap; }
-.private-badge span { color: var(--green); font-size: 9px; }
+.access-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid #3a5140; border-radius: 5px; color: #d0efb4; background: #18241f; font: 11px var(--mono); white-space: nowrap; }
+.access-badge span { color: var(--green); font-size: 9px; }
 
 .intro { padding: 36px 0 27px; }
 .eyebrow, .section-kicker, .trace-label { font: 600 10px/1.4 var(--mono); letter-spacing: .135em; }
