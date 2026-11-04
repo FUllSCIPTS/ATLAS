@@ -9,10 +9,10 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPLORER = ROOT.parent
 MARKDOWN = ROOT / "docs/UML_BLUEPRINT.md"
 CATALOG = ROOT / "docs/uml-blueprint.json"
 EXCLUDED = {".git", ".venv", ".data", "__pycache__", "node_modules"}
-SOURCE_DIRS = {"apps", "ml", "packages", "scripts", "services", "tests", "workers"}
 JS_FUNCTIONS = {"FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"}
 SHELL_FUNCTION = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\(\)\s*\{", re.MULTILINE)
 
@@ -91,9 +91,12 @@ def python_inventory(source):
 
 def javascript_inventory(path):
     source = path.read_text(encoding="utf-8").encode("utf-16-le")
-    command = ["npx", "--yes", "--package", "acorn@8.15.0", "--", "acorn", "--ecma2022", "--locations", "--compact", str(path)]
+    command = ["npx", "--yes", "--package", "acorn@8.15.0", "--", "acorn", "--ecma2022", "--locations", "--compact"]
+    if path.suffix == ".mjs":
+        command.append("--module")
+    command.append(str(path))
     tree = json.loads(subprocess.check_output(command, cwd=ROOT, text=True))
-    classes, functions = [], []
+    imports, classes, functions = [], [], []
 
     def segment(node):
         return source[2 * node["start"]:2 * node["end"]].decode("utf-16-le")
@@ -122,6 +125,8 @@ def javascript_inventory(path):
         if not isinstance(node, dict) or "type" not in node:
             return
         kind = node["type"]
+        if kind == "ImportDeclaration":
+            imports.append(segment(node))
         if kind in {"ClassDeclaration", "ClassExpression"}:
             name = node["id"]["name"] if node.get("id") else "<anonymous class>"
             qualified = f"{owner}.{name}" if owner else name
@@ -150,7 +155,7 @@ def javascript_inventory(path):
             walk(child, owner, node, parent_class)
 
     walk(tree)
-    return {"language": "JavaScript", "imports": [], "classes": classes, "functions": functions}
+    return {"language": "JavaScript", "imports": imports, "classes": classes, "functions": functions}
 
 
 def shell_inventory(source):
@@ -162,19 +167,19 @@ def shell_inventory(source):
     return {"language": "Shell", "imports": [], "classes": [], "functions": entries}
 
 
-def files():
+def files(root):
     paths = set()
-    for directory, subdirectories, filenames in ROOT.walk():
+    for directory, subdirectories, filenames in root.walk():
         subdirectories[:] = [name for name in subdirectories if name not in EXCLUDED]
         for name in filenames:
             path = directory / name
             if path.suffix != ".pyc" and name != ".env":
-                paths.add(path.relative_to(ROOT).as_posix())
-    paths.add(CATALOG.relative_to(ROOT).as_posix())
+                paths.add(path.relative_to(root).as_posix())
+    paths.add(CATALOG.relative_to(root).as_posix())
     return sorted(paths)
 
 
-def folder_tree(paths):
+def folder_tree(paths, root_name):
     root = {}
     for path in paths:
         directory = root
@@ -182,7 +187,7 @@ def folder_tree(paths):
         for parent in parts[:-1]:
             directory = directory.setdefault(parent, {})
         directory[parts[-1]] = None
-    lines = ["starter/"]
+    lines = [root_name + "/"]
 
     def visit(directory, prefix):
         entries = sorted(directory.items(), key=lambda item: (item[1] is None, item[0]))
@@ -196,28 +201,40 @@ def folder_tree(paths):
     return "\n".join(lines)
 
 
-def inventory(paths):
-    modules = {}
-    hashes = {}
+def inventory(root, paths):
+    modules, hashes = {}, {}
     for name in paths:
-        path = ROOT / name
-        if path.relative_to(ROOT).parts[0] == "docs" or name in {"README.md", "scripts/generate_blueprint.py"}:
+        path = root / name
+        if path.suffix == ".md" or path == CATALOG:
             continue
         hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
-        if path.relative_to(ROOT).parts[0] not in SOURCE_DIRS:
-            continue
         if path.suffix == ".py":
             modules[name] = python_inventory(path.read_text(encoding="utf-8"))
-        elif path.suffix == ".js":
+        elif path.suffix in {".js", ".mjs"}:
             modules[name] = javascript_inventory(path)
         elif path.suffix == ".sh":
             modules[name] = shell_inventory(path.read_text(encoding="utf-8"))
+    return modules, hashes
+
+
+def blueprint():
+    repository_files = files(EXPLORER)
+    starter_files = [name.removeprefix("starter/") for name in repository_files if name.startswith("starter/")]
+    application_files = [name for name in starter_files if name != "scripts/generate_blueprint.py"]
+    supporting_files = [name for name in repository_files if not name.startswith("starter/")]
+    supporting_files.append("starter/scripts/generate_blueprint.py")
+    modules, hashes = inventory(ROOT, application_files)
+    supporting_modules, supporting_hashes = inventory(EXPLORER, sorted(supporting_files))
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "source_root": "architecture-explorer/starter",
-        "files": paths,
+        "files": starter_files,
         "source_sha256": hashes,
         "modules": modules,
+        "repository_root": "architecture-explorer",
+        "repository_files": repository_files,
+        "supporting_source_sha256": supporting_hashes,
+        "supporting_modules": supporting_modules,
     }
 
 
@@ -225,20 +242,21 @@ def code(value):
     return "`" + value.replace("|", "\\|") + "`"
 
 
-def symbol_rows(symbols, path, kind):
+def symbol_rows(symbols, link, kind):
     for symbol in symbols:
         signature = ("async " if symbol["async"] else "") + symbol["signature"]
         decorators = ", ".join(code(item) for item in symbol["decorators"]) or "—"
-        yield f"| {kind} | {code(signature)} | {decorators} | [L{symbol['line']}](../{path}#L{symbol['line']}) |"
+        yield f"| {kind} | {code(signature)} | {decorators} | [L{symbol['line']}]({link}#L{symbol['line']}) |"
 
 
-def catalog_text(modules):
+def catalog_text(modules, relative):
     lines = []
     for path, module in modules.items():
-        lines.extend([f"### {code(path)}", "", f"[Open source](../{path})", ""])
+        link = relative + path
+        lines.extend([f"### {code(path)}", "", f"[Open source]({link})", ""])
         for cls in module["classes"]:
             bases = ", ".join(map(code, cls["bases"])) or "none"
-            lines.extend([f"**Class {code(cls['name'])}** · bases {bases} · [L{cls['line']}](../{path}#L{cls['line']})", ""])
+            lines.extend([f"**Class {code(cls['name'])}** · bases {bases} · [L{cls['line']}]({link}#L{cls['line']})", ""])
             for field in cls["fields"]:
                 annotation = f": {field['type']}" if field["type"] else ""
                 default = f" = {field['default']}" if field["default"] is not None else ""
@@ -249,13 +267,13 @@ def catalog_text(modules):
                 lines.append("")
             if not cls["methods"]:
                 lines.extend(["This class uses inherited methods.", ""])
-        rows = list(symbol_rows(module["functions"], path, "Function"))
+        rows = list(symbol_rows(module["functions"], link, "Function"))
         for cls in module["classes"]:
-            rows.extend(symbol_rows(cls["methods"], path, "Method"))
+            rows.extend(symbol_rows(cls["methods"], link, "Method"))
         if rows:
             lines.extend(["| Kind | Signature | Decorators | Source |", "| --- | --- | --- | --- |", *rows, ""])
         elif not module["classes"]:
-            lines.extend(["Entrypoint script with no declared functions.", ""])
+            lines.extend(["This file declares no functions.", ""])
     return "\n".join(lines).rstrip()
 
 
@@ -272,10 +290,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Fail if a checked-in output is stale")
     args = parser.parse_args()
-    data = inventory(files())
+    data = blueprint()
     document = MARKDOWN.read_text(encoding="utf-8")
-    document = replace_block(document, "TREE", "```text\n" + folder_tree(data["files"]) + "\n```")
-    document = replace_block(document, "CATALOG", catalog_text(data["modules"]))
+    document = replace_block(document, "TREE", "```text\n" + folder_tree(data["repository_files"], data["repository_root"]) + "\n```")
+    document = replace_block(document, "CATALOG", catalog_text(data["modules"], "../"))
+    document = replace_block(document, "SUPPORT", catalog_text(data["supporting_modules"], "../../"))
     outputs = {MARKDOWN: document, CATALOG: json.dumps(data, indent=2, ensure_ascii=False) + "\n"}
     for path, content in outputs.items():
         if args.check:

@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.getenv("ATLAS_DATA", ROOT / ".data"))
 TOKEN = os.getenv("ATLAS_INTERNAL_TOKEN", "local-internal-only")
 TOPIC = "atlas.ride.v1"
+CONSUMER_GROUP = "atlas-ride-workers-v1"
 DRIVERS = ("driver-a", "driver-b")
 KEYS = {
     "rider-a": os.getenv("ATLAS_RIDER_KEY", "rider-demo"),

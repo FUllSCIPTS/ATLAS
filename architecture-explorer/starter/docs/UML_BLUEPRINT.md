@@ -2,7 +2,7 @@
 
 Use this blueprint to reproduce or extend the runnable ATLAS starter on the `architecture-explorer` branch. It covers the passenger and driver apps, FastAPI services, event worker, database, ML training and serving, policy training, and verification scripts.
 
-[Runnable starter](../README.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
+[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
 ## Start from the implementation
 
@@ -14,61 +14,79 @@ cd ATLAS/architecture-explorer/starter
 docker compose up -d --build
 docker compose exec -T gateway python -m tests.smoke
 docker compose exec -T gateway python -m tests.policy
+docker compose exec -T -e KAFKA_BOOTSTRAP=kafka:9092 gateway python -m tests.replay
 ```
 
 The [local SQLite quickstart](../README.md#start-locally-without-docker) runs the same business handlers without a broker. The full Compose run is the acceptance check for the PostgreSQL and Kafka deployment.
 
 ## Folder hierarchy
 
-All checked-in files in `architecture-explorer/starter/`. Runtime data, model artifacts and virtual environments are generated outside the source inventory.
+All checked-in files under `architecture-explorer/`, including the runnable starter, the published explorer assets and the self-host server. Runtime data, trained artifacts and virtual environments are excluded from the source inventory. The research materials at the repository root are separate from this application.
 
 <!-- BEGIN GENERATED TREE -->
 
 ```text
-starter/
-├── apps/
-│   ├── driver/
-│   │   └── index.html
-│   ├── passenger/
-│   │   └── index.html
-│   └── shared/
-│       ├── client.js
-│       └── demo.css
-├── docs/
-│   ├── UML_BLUEPRINT.md
-│   └── uml-blueprint.json
-├── infra/
-│   └── schema.sql
-├── ml/
-│   ├── discrete.py
-│   ├── forecast.py
-│   ├── registry.py
-│   ├── rl.py
-│   ├── serve.py
-│   └── train.py
-├── packages/
-│   ├── config.py
-│   ├── db.py
-│   └── ride-event.schema.json
-├── scripts/
-│   ├── generate_blueprint.py
-│   ├── initialize.sh
-│   └── local.sh
-├── services/
-│   ├── dispatch.py
-│   ├── gateway.py
-│   └── trips.py
-├── tests/
-│   ├── policy.py
-│   └── smoke.py
-├── workers/
-│   └── events.py
-├── .dockerignore
-├── .gitignore
-├── Dockerfile
+architecture-explorer/
+├── deploy/
+│   └── atlas-explorer.service
+├── dist/
+│   ├── atlas.js
+│   ├── atlas.svg
+│   ├── build-spec.json
+│   ├── build.html
+│   ├── build.js
+│   ├── explorer.js
+│   ├── index.html
+│   ├── ride-event.schema.json
+│   └── styles.css
+├── starter/
+│   ├── apps/
+│   │   ├── driver/
+│   │   │   └── index.html
+│   │   ├── passenger/
+│   │   │   └── index.html
+│   │   └── shared/
+│   │       ├── client.js
+│   │       └── demo.css
+│   ├── docs/
+│   │   ├── FINAL_HANDOVER.md
+│   │   ├── UML_BLUEPRINT.md
+│   │   └── uml-blueprint.json
+│   ├── infra/
+│   │   └── schema.sql
+│   ├── ml/
+│   │   ├── discrete.py
+│   │   ├── forecast.py
+│   │   ├── registry.py
+│   │   ├── rl.py
+│   │   ├── serve.py
+│   │   └── train.py
+│   ├── packages/
+│   │   ├── config.py
+│   │   ├── db.py
+│   │   └── ride-event.schema.json
+│   ├── scripts/
+│   │   ├── generate_blueprint.py
+│   │   ├── initialize.sh
+│   │   └── local.sh
+│   ├── services/
+│   │   ├── dispatch.py
+│   │   ├── gateway.py
+│   │   └── trips.py
+│   ├── tests/
+│   │   ├── policy.py
+│   │   ├── replay.py
+│   │   └── smoke.py
+│   ├── workers/
+│   │   └── events.py
+│   ├── .dockerignore
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── compose.yaml
+│   └── requirements.txt
 ├── README.md
-├── compose.yaml
-└── requirements.txt
+└── server.mjs
 ```
 
 <!-- END GENERATED TREE -->
@@ -344,7 +362,7 @@ The LSTM reads 12 five-minute counts. Logistic regression and Isolation Forest r
 
 1. Run the [starter smoke and policy checks](../README.md#start-with-postgresql-and-kafka) against the existing code. Use the request paths and payloads in the [API contract](../README.md#api-and-data-contracts) as the compatibility baseline.
 2. Implement changes through existing boundaries. Preserve rider and driver ownership, transactional state and outbox writes, deduplication, the state machine, model versions and explicit policy approval.
-3. Test one complete ride, a booking retry with the same key, a forbidden offer acceptance, an invalid state transition, model outputs and one terminal experience. Run a real Kafka replay test before claiming deployment readiness.
+3. Test one complete ride, a booking retry with the same key, a forbidden offer acceptance, an invalid state transition, model outputs and one terminal experience. Run `tests.replay` against the configured Kafka broker before claiming deployment readiness.
 4. Treat GPS, routing, offer expiry and re-matching, cancellations, payments, production identity and representative training data as separately scoped extensions.
 5. Regenerate the blueprint after changing code. Commit the updated generated sections and JSON with the source changes.
 
@@ -355,7 +373,7 @@ python scripts/generate_blueprint.py
 python scripts/generate_blueprint.py --check
 ```
 
-The JSON includes relative paths, source hashes, imports, class bases, attributes, method signatures, module functions, nested functions, callbacks, decorators and source lines. It inventories the starter's runtime and verification code. The documentation generator and the separate GitHub Pages UI are outside the application symbol catalog.
+The JSON includes relative paths, source hashes, imports, class bases, attributes, method signatures, module functions, nested functions, callbacks, decorators and source lines. The application catalog covers the starter and its tests. The supporting catalog covers the explorer, Node static server and blueprint generator. The [handover runbook](FINAL_HANDOVER.md) specifies exact API responses, environment variables, model artifacts and acceptance steps.
 
 ## Generated symbol catalog
 
@@ -463,8 +481,8 @@ This class uses inherited methods.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `equal(left, right)` | — | [L19](../packages/config.py#L19) |
-| Function | `internal_actor(request: Request, role: str) -> str` | — | [L23](../packages/config.py#L23) |
+| Function | `equal(left, right)` | — | [L20](../packages/config.py#L20) |
+| Function | `internal_actor(request: Request, role: str) -> str` | — | [L24](../packages/config.py#L24) |
 
 ### `packages/db.py`
 
@@ -487,7 +505,7 @@ This class uses inherited methods.
 
 [Open source](../scripts/initialize.sh)
 
-Entrypoint script with no declared functions.
+This file declares no functions.
 
 ### `scripts/local.sh`
 
@@ -564,6 +582,18 @@ This class uses inherited methods.
 | Function | `<lambda@21:12>()` | — | [L21](../tests/policy.py#L21) |
 | Function | `<lambda@28:12>()` | — | [L28](../tests/policy.py#L28) |
 
+### `tests/replay.py`
+
+[Open source](../tests/replay.py)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `completed_event(trip_id)` | — | [L13](../tests/replay.py#L13) |
+| Function | `snapshot(trip_id, event_id)` | — | [L20](../tests/replay.py#L20) |
+| Function | `replay_over_kafka(event, bootstrap)` | — | [L31](../tests/replay.py#L31) |
+| Function | `replay_over_kafka.<lambda@38:34>(error, message)` | — | [L38](../tests/replay.py#L38) |
+| Function | `main()` | — | [L58](../tests/replay.py#L58) |
+
 ### `tests/smoke.py`
 
 [Open source](../tests/smoke.py)
@@ -597,3 +627,141 @@ This class uses inherited methods.
 | Function | `kafka_loop.<lambda@122:46>(error, _)` | — | [L122](../workers/events.py#L122) |
 
 <!-- END GENERATED CATALOG -->
+
+
+## Generated supporting source catalog
+
+These are the explorer, Node static server and blueprint generator symbols. GitHub Pages publishes the same static explorer assets without the Node process. The ride-hailing starter runs separately.
+
+<!-- BEGIN GENERATED SUPPORT -->
+
+### `dist/atlas.js`
+
+[Open source](../../dist/atlas.js)
+
+This file declares no functions.
+
+### `dist/build.js`
+
+[Open source](../../dist/build.js)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `async <callback: copy.addEventListener, "click">()` | — | [L5](../../dist/build.js#L5) |
+
+### `dist/explorer.js`
+
+[Open source](../../dist/explorer.js)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `$(id)` | — | [L29](../../dist/explorer.js#L29) |
+| Function | `icon(name, size = 18)` | — | [L30](../../dist/explorer.js#L30) |
+| Function | `<callback: links.map>(link)` | — | [L31](../../dist/explorer.js#L31) |
+| Function | `<callback: folders.flatMap>(group)` | — | [L33](../../dist/explorer.js#L33) |
+| Function | `<callback: folders.flatMap>.<callback: group.children.map>(entry)` | — | [L33](../../dist/explorer.js#L33) |
+| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L36](../../dist/explorer.js#L36) |
+| Function | `announce(message)` | — | [L38](../../dist/explorer.js#L38) |
+| Function | `componentColor(id)` | — | [L42](../../dist/explorer.js#L42) |
+| Function | `componentMark(id, size = 19)` | — | [L46](../../dist/explorer.js#L46) |
+| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L50](../../dist/explorer.js#L50) |
+| Function | `updateControls()` | — | [L54](../../dist/explorer.js#L54) |
+| Function | `updateControls.<callback: Object.entries(scenarios).map>([id, trace])` | — | [L56](../../dist/explorer.js#L56) |
+| Function | `architectureView()` | — | [L66](../../dist/explorer.js#L66) |
+| Function | `architectureView.<callback: links.filter>({ from, to })` | — | [L69](../../dist/explorer.js#L69) |
+| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L70](../../dist/explorer.js#L70) |
+| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L72](../../dist/explorer.js#L72) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L73](../../dist/explorer.js#L73) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L73](../../dist/explorer.js#L73) |
+| Function | `architectureView.<callback: [...links].sort>(a, b)` | — | [L75](../../dist/explorer.js#L75) |
+| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L76](../../dist/explorer.js#L76) |
+| Function | `architectureView.<callback: Object.values(groups).map>(group, index)` | — | [L81](../../dist/explorer.js#L81) |
+| Function | `architectureView.<callback: Object.entries(components).map>([id, component])` | — | [L82](../../dist/explorer.js#L82) |
+| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L99](../../dist/explorer.js#L99) |
+| Function | `cardsMarkup()` | — | [L102](../../dist/explorer.js#L102) |
+| Function | `cardsMarkup.<callback: Object.entries(components).filter>([, component])` | — | [L104](../../dist/explorer.js#L104) |
+| Function | `cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L105](../../dist/explorer.js#L105) |
+| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L106](../../dist/explorer.js#L106) |
+| Function | `componentsView()` | — | [L111](../../dist/explorer.js#L111) |
+| Function | `componentsView.<callback: Object.entries(groups).map>([id, group])` | — | [L114](../../dist/explorer.js#L114) |
+| Function | `deploymentView()` | — | [L118](../../dist/explorer.js#L118) |
+| Function | `deploymentView.<callback: zones.map>(zone, index)` | — | [L120](../../dist/explorer.js#L120) |
+| Function | `deploymentView.<callback: zones.map>.<callback: zone.nodes.map>(id)` | — | [L120](../../dist/explorer.js#L120) |
+| Function | `foldersView()` | — | [L124](../../dist/explorer.js#L124) |
+| Function | `foldersView.<callback: folders.map>(group)` | — | [L127](../../dist/explorer.js#L127) |
+| Function | `foldersView.<callback: folders.map>.<callback: group.children.some>(entry)` | — | [L127](../../dist/explorer.js#L127) |
+| Function | `foldersView.<callback: folders.map>.<callback: group.children.map>(entry)` | — | [L127](../../dist/explorer.js#L127) |
+| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L128](../../dist/explorer.js#L128) |
+| Function | `inspectorMarkup()` | — | [L131](../../dist/explorer.js#L131) |
+| Function | `inspectorMarkup.<callback: links.filter>({ to })` | — | [L137](../../dist/explorer.js#L137) |
+| Function | `inspectorMarkup.<callback: links.filter>({ from })` | — | [L138](../../dist/explorer.js#L138) |
+| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L144](../../dist/explorer.js#L144) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L144](../../dist/explorer.js#L144) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L144](../../dist/explorer.js#L144) |
+| Function | `render()` | — | [L152](../../dist/explorer.js#L152) |
+| Function | `stopPlayback()` | — | [L177](../../dist/explorer.js#L177) |
+| Function | `switchView(view)` | — | [L182](../../dist/explorer.js#L182) |
+| Function | `applyStep(step)` | — | [L188](../../dist/explorer.js#L188) |
+| Function | `setScenario(id)` | — | [L207](../../dist/explorer.js#L207) |
+| Function | `playTrace()` | — | [L220](../../dist/explorer.js#L220) |
+| Function | `playTrace.<callback: setInterval>()` | — | [L227](../../dist/explorer.js#L227) |
+| Function | `<callback: document.addEventListener, "click">(event)` | — | [L236](../../dist/explorer.js#L236) |
+| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L273](../../dist/explorer.js#L273) |
+| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L285](../../dist/explorer.js#L285) |
+| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L292](../../dist/explorer.js#L292) |
+
+### `server.mjs`
+
+[Open source](../../server.mjs)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L22](../../server.mjs#L22) |
+| Function | `reply(request, response, status, type, body, headers = {})` | — | [L36](../../server.mjs#L36) |
+| Function | `<callback: createServer>(request, response)` | — | [L46](../../server.mjs#L46) |
+| Function | `<callback: createServer((request, response) => {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return reply(request, response, 405, textType, "Method not allowed\n", { Allow: "GET, HEAD" });
+  }
+
+  const path = request.url.split("?", 1)[0];
+  if (path === "/healthz") {
+    return reply(request, response, 200, textType, "ok\n");
+  }
+
+  const asset = assets.get(path === "/" ? "/index.html" : path);
+  if (!asset) {
+    return reply(request, response, 404, textType, "Not found\n");
+  }
+
+  reply(request, response, 200, asset.type, asset.body);
+}).listen>()` | — | [L62](../../server.mjs#L62) |
+
+### `starter/scripts/generate_blueprint.py`
+
+[Open source](../../starter/scripts/generate_blueprint.py)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `attr(node)` | — | [L20](../../starter/scripts/generate_blueprint.py#L20) |
+| Function | `instance_attrs(node)` | — | [L29](../../starter/scripts/generate_blueprint.py#L29) |
+| Function | `python_inventory(source)` | — | [L47](../../starter/scripts/generate_blueprint.py#L47) |
+| Function | `python_inventory.walk(node, owner='', parent_class=None)` | — | [L51](../../starter/scripts/generate_blueprint.py#L51) |
+| Function | `javascript_inventory(path)` | — | [L92](../../starter/scripts/generate_blueprint.py#L92) |
+| Function | `javascript_inventory.segment(node)` | — | [L101](../../starter/scripts/generate_blueprint.py#L101) |
+| Function | `javascript_inventory.callable_name(node, parent)` | — | [L104](../../starter/scripts/generate_blueprint.py#L104) |
+| Function | `javascript_inventory.walk(node, owner='', parent=None, parent_class=None)` | — | [L121](../../starter/scripts/generate_blueprint.py#L121) |
+| Function | `shell_inventory(source)` | — | [L161](../../starter/scripts/generate_blueprint.py#L161) |
+| Function | `files(root)` | — | [L170](../../starter/scripts/generate_blueprint.py#L170) |
+| Function | `folder_tree(paths, root_name)` | — | [L182](../../starter/scripts/generate_blueprint.py#L182) |
+| Function | `folder_tree.visit(directory, prefix)` | — | [L192](../../starter/scripts/generate_blueprint.py#L192) |
+| Function | `folder_tree.visit.<lambda@193:49>(item)` | — | [L193](../../starter/scripts/generate_blueprint.py#L193) |
+| Function | `inventory(root, paths)` | — | [L204](../../starter/scripts/generate_blueprint.py#L204) |
+| Function | `blueprint()` | — | [L220](../../starter/scripts/generate_blueprint.py#L220) |
+| Function | `code(value)` | — | [L241](../../starter/scripts/generate_blueprint.py#L241) |
+| Function | `symbol_rows(symbols, link, kind)` | — | [L245](../../starter/scripts/generate_blueprint.py#L245) |
+| Function | `catalog_text(modules, relative)` | — | [L252](../../starter/scripts/generate_blueprint.py#L252) |
+| Function | `replace_block(document, name, content)` | — | [L280](../../starter/scripts/generate_blueprint.py#L280) |
+| Function | `main()` | — | [L289](../../starter/scripts/generate_blueprint.py#L289) |
+
+<!-- END GENERATED SUPPORT -->

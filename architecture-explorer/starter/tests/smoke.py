@@ -82,6 +82,7 @@ def check():
         "trip.assigned": 1, "trip.picked_up": 1, "trip.completed": 1,
     }
     print(f"PASS trip {trip_id}, trained models {offer['model_version']}, policy {logged['policy_version']}, reward {logged['reward']:.3f}")
+    return trip_id
 
 
 if __name__ == "__main__":

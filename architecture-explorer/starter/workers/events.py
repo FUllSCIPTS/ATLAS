@@ -5,7 +5,7 @@ import time
 import httpx
 
 from ml.registry import write_json
-from packages.config import DATA, TOPIC
+from packages.config import CONSUMER_GROUP, DATA, TOPIC
 from packages.db import database, emit, envelope
 
 MODEL_URL = os.getenv("ATLAS_MODEL_URL", "http://127.0.0.1:8003")
@@ -111,7 +111,7 @@ def local_tick():
 def kafka_loop():
     from confluent_kafka import Consumer, Producer
     producer = Producer({"bootstrap.servers": BOOTSTRAP, "enable.idempotence": True, "message.timeout.ms": 8000})
-    consumer = Consumer({"bootstrap.servers": BOOTSTRAP, "group.id": "atlas-ride-workers-v1",
+    consumer = Consumer({"bootstrap.servers": BOOTSTRAP, "group.id": CONSUMER_GROUP,
                          "auto.offset.reset": "earliest", "enable.auto.commit": False})
     consumer.subscribe([TOPIC])
     try:

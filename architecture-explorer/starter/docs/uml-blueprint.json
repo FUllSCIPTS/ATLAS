@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_root": "architecture-explorer/starter",
   "files": [
     ".dockerignore",
@@ -11,6 +11,7 @@
     "apps/shared/client.js",
     "apps/shared/demo.css",
     "compose.yaml",
+    "docs/FINAL_HANDOVER.md",
     "docs/UML_BLUEPRINT.md",
     "docs/uml-blueprint.json",
     "infra/schema.sql",
@@ -31,6 +32,7 @@
     "services/gateway.py",
     "services/trips.py",
     "tests/policy.py",
+    "tests/replay.py",
     "tests/smoke.py",
     "workers/events.py"
   ],
@@ -50,7 +52,7 @@
     "ml/rl.py": "ce21a40eeddd76ad0654252ab60308d773dc11fae13a3af3551b22b9e52207f9",
     "ml/serve.py": "12bf39fd65c1f1d6e50aa3e0d5abdfa8a051fdd8efa165d5fe04554612891968",
     "ml/train.py": "4e98ca3259ef4bc4ca4420f314498166f06afb79910193f00331f2e506f0f42e",
-    "packages/config.py": "1e7ed16d864a4abd62566a908ca4bb1d5326b3f81159b0d8a34011a03598b9c4",
+    "packages/config.py": "be66f12c355c47e10a522a11a4abcf2415eb906683610ef8dede07dc96a6e312",
     "packages/db.py": "4099d6b06782ca38409a23021729858f33414d270bb3025f942067b8ad6ae9cb",
     "packages/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
     "requirements.txt": "c389f3b4d23c04757137fdfe15446b1789d3316825a1dc924dd23beab32bbed5",
@@ -60,8 +62,9 @@
     "services/gateway.py": "88353781d315b133644b2d3ce33cc0bb0c1f5c76df915f4c728f776f631712d1",
     "services/trips.py": "59eaf936bf892b261334f1587252218d6c2a1b804ce27e618936bf57abdc7389",
     "tests/policy.py": "a8c1d25ee0cb47b29cc36959d8f3e6d2b5a4a4508a12588ffdf7cf919011aa87",
-    "tests/smoke.py": "620ef97e9901a2bec75eec42d2ef78f866704e5b6c5fa3ba02f875d28d5c4061",
-    "workers/events.py": "8091e2f7749d27b92f2b6de86260463445e97951e0e500a3aef251160fc04e9f"
+    "tests/replay.py": "0d5d79f591a3775a6d7e4449508d23c7c6ed4fb9b9669e28965215c5fce32dca",
+    "tests/smoke.py": "704613297d1c2d6d93544338ec362637b3c9ff9b0bc6f41f825bc9239fb19aed",
+    "workers/events.py": "baf36c1d5a4c660d3b3d0d85df0a640257aebc1f16b14175560d5707a8085a24"
   },
   "modules": {
     "apps/shared/client.js": {
@@ -427,14 +430,14 @@
         {
           "name": "equal",
           "signature": "equal(left, right)",
-          "line": 19,
+          "line": 20,
           "async": false,
           "decorators": []
         },
         {
           "name": "internal_actor",
           "signature": "internal_actor(request: Request, role: str) -> str",
-          "line": 23,
+          "line": 24,
           "async": false,
           "decorators": []
         }
@@ -806,6 +809,57 @@
         }
       ]
     },
+    "tests/replay.py": {
+      "language": "Python",
+      "imports": [
+        "import json",
+        "import os",
+        "import time",
+        "from packages.config import CONSUMER_GROUP, TOPIC",
+        "from packages.db import database, envelope",
+        "from tests.smoke import check",
+        "from workers.events import apply",
+        "from confluent_kafka import Consumer, Producer, TopicPartition"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "completed_event",
+          "signature": "completed_event(trip_id)",
+          "line": 13,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "snapshot",
+          "signature": "snapshot(trip_id, event_id)",
+          "line": 20,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "replay_over_kafka",
+          "signature": "replay_over_kafka(event, bootstrap)",
+          "line": 31,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "replay_over_kafka.<lambda@38:34>",
+          "signature": "replay_over_kafka.<lambda@38:34>(error, message)",
+          "line": 38,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "main",
+          "signature": "main()",
+          "line": 58,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
     "tests/smoke.py": {
       "language": "Python",
       "imports": [
@@ -884,7 +938,7 @@
         "import time",
         "import httpx",
         "from ml.registry import write_json",
-        "from packages.config import DATA, TOPIC",
+        "from packages.config import CONSUMER_GROUP, DATA, TOPIC",
         "from packages.db import database, emit, envelope",
         "from confluent_kafka import Consumer, Producer"
       ],
@@ -957,6 +1011,668 @@
           "name": "kafka_loop.<lambda@122:46>",
           "signature": "kafka_loop.<lambda@122:46>(error, _)",
           "line": 122,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    }
+  },
+  "repository_root": "architecture-explorer",
+  "repository_files": [
+    "README.md",
+    "deploy/atlas-explorer.service",
+    "dist/atlas.js",
+    "dist/atlas.svg",
+    "dist/build-spec.json",
+    "dist/build.html",
+    "dist/build.js",
+    "dist/explorer.js",
+    "dist/index.html",
+    "dist/ride-event.schema.json",
+    "dist/styles.css",
+    "server.mjs",
+    "starter/.dockerignore",
+    "starter/.gitignore",
+    "starter/Dockerfile",
+    "starter/README.md",
+    "starter/apps/driver/index.html",
+    "starter/apps/passenger/index.html",
+    "starter/apps/shared/client.js",
+    "starter/apps/shared/demo.css",
+    "starter/compose.yaml",
+    "starter/docs/FINAL_HANDOVER.md",
+    "starter/docs/UML_BLUEPRINT.md",
+    "starter/docs/uml-blueprint.json",
+    "starter/infra/schema.sql",
+    "starter/ml/discrete.py",
+    "starter/ml/forecast.py",
+    "starter/ml/registry.py",
+    "starter/ml/rl.py",
+    "starter/ml/serve.py",
+    "starter/ml/train.py",
+    "starter/packages/config.py",
+    "starter/packages/db.py",
+    "starter/packages/ride-event.schema.json",
+    "starter/requirements.txt",
+    "starter/scripts/generate_blueprint.py",
+    "starter/scripts/initialize.sh",
+    "starter/scripts/local.sh",
+    "starter/services/dispatch.py",
+    "starter/services/gateway.py",
+    "starter/services/trips.py",
+    "starter/tests/policy.py",
+    "starter/tests/replay.py",
+    "starter/tests/smoke.py",
+    "starter/workers/events.py"
+  ],
+  "supporting_source_sha256": {
+    "deploy/atlas-explorer.service": "66eab9b12a63fc985358260c04faa33ce039df4c234af12570ad4c655adf528e",
+    "dist/atlas.js": "e7750f0067fa0806f7eefd8b0bd20d05b51994de52f04295ecaf87255f847c3d",
+    "dist/atlas.svg": "6ad19e85d79ecde63c453a40c65eb44b817b273318f57c6f1b7e107bacdc7d2e",
+    "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
+    "dist/build.html": "1c814a7104d30846c7e6d204b0a8991a031e6f82dec69fbd0c5dbf20939217ea",
+    "dist/build.js": "d5a857be99c9d627cafb780017ceb463d90c7ad50e011d2e0c56cff3b71cdec1",
+    "dist/explorer.js": "333154ed785b737fdefd70b0c0fc7799c795b7a8565a0cbd94ab5d7d9b31d476",
+    "dist/index.html": "9ffe08181f42826e8248ac8fcaafdee83d6797361290674a620668d07a8f8fc0",
+    "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
+    "dist/styles.css": "e891f6035227d3145d4903b5579b36cc7ce9c3529c93ea0ec6e11dbadc7d2ed5",
+    "server.mjs": "0b06f7ef1643edce984b6c91271900c770302a5a11a003e9d562bfae4d23961d",
+    "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
+  },
+  "supporting_modules": {
+    "dist/atlas.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": []
+    },
+    "dist/build.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": [
+        {
+          "name": "<callback: copy.addEventListener, \"click\">",
+          "signature": "<callback: copy.addEventListener, \"click\">()",
+          "line": 5,
+          "async": true,
+          "decorators": []
+        }
+      ]
+    },
+    "dist/explorer.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": [
+        {
+          "name": "$",
+          "signature": "$(id)",
+          "line": 29,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "icon",
+          "signature": "icon(name, size = 18)",
+          "line": 30,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: links.map>",
+          "signature": "<callback: links.map>(link)",
+          "line": 31,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: folders.flatMap>",
+          "signature": "<callback: folders.flatMap>(group)",
+          "line": 33,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: folders.flatMap>.<callback: group.children.map>",
+          "signature": "<callback: folders.flatMap>.<callback: group.children.map>(entry)",
+          "line": 33,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>",
+          "signature": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>(element)",
+          "line": 36,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "announce",
+          "signature": "announce(message)",
+          "line": 38,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "componentColor",
+          "signature": "componentColor(id)",
+          "line": 42,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "componentMark",
+          "signature": "componentMark(id, size = 19)",
+          "line": 46,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "viewHeading",
+          "signature": "viewHeading(kicker, title, detail, badge = \"\")",
+          "line": 50,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "updateControls",
+          "signature": "updateControls()",
+          "line": 54,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "updateControls.<callback: Object.entries(scenarios).map>",
+          "signature": "updateControls.<callback: Object.entries(scenarios).map>([id, trace])",
+          "line": 56,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView",
+          "signature": "architectureView()",
+          "line": 66,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: links.filter>",
+          "signature": "architectureView.<callback: links.filter>({ from, to })",
+          "line": 69,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: trace?.steps.map>",
+          "signature": "architectureView.<callback: trace?.steps.map>([id])",
+          "line": 70,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: [...visibleLinks].flatMap>",
+          "signature": "architectureView.<callback: [...visibleLinks].flatMap>({ from, to })",
+          "line": 72,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>",
+          "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)",
+          "line": 73,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>",
+          "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>(tone)",
+          "line": 73,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: [...links].sort>",
+          "signature": "architectureView.<callback: [...links].sort>(a, b)",
+          "line": 75,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: orderedLinks.map>",
+          "signature": "architectureView.<callback: orderedLinks.map>(link)",
+          "line": 76,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: Object.values(groups).map>",
+          "signature": "architectureView.<callback: Object.values(groups).map>(group, index)",
+          "line": 81,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: Object.entries(components).map>",
+          "signature": "architectureView.<callback: Object.entries(components).map>([id, component])",
+          "line": 82,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "architectureView.<callback: Object.entries(kindLabels).map>",
+          "signature": "architectureView.<callback: Object.entries(kindLabels).map>([kind, label])",
+          "line": 99,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "cardsMarkup",
+          "signature": "cardsMarkup()",
+          "line": 102,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "cardsMarkup.<callback: Object.entries(components).filter>",
+          "signature": "cardsMarkup.<callback: Object.entries(components).filter>([, component])",
+          "line": 104,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>",
+          "signature": "cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)",
+          "line": 105,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "cardsMarkup.<callback: matches.map>",
+          "signature": "cardsMarkup.<callback: matches.map>([id, component])",
+          "line": 106,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "componentsView",
+          "signature": "componentsView()",
+          "line": 111,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "componentsView.<callback: Object.entries(groups).map>",
+          "signature": "componentsView.<callback: Object.entries(groups).map>([id, group])",
+          "line": 114,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "deploymentView",
+          "signature": "deploymentView()",
+          "line": 118,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "deploymentView.<callback: zones.map>",
+          "signature": "deploymentView.<callback: zones.map>(zone, index)",
+          "line": 120,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "deploymentView.<callback: zones.map>.<callback: zone.nodes.map>",
+          "signature": "deploymentView.<callback: zones.map>.<callback: zone.nodes.map>(id)",
+          "line": 120,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "foldersView",
+          "signature": "foldersView()",
+          "line": 124,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "foldersView.<callback: folders.map>",
+          "signature": "foldersView.<callback: folders.map>(group)",
+          "line": 127,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "foldersView.<callback: folders.map>.<callback: group.children.some>",
+          "signature": "foldersView.<callback: folders.map>.<callback: group.children.some>(entry)",
+          "line": 127,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "foldersView.<callback: folders.map>.<callback: group.children.map>",
+          "signature": "foldersView.<callback: folders.map>.<callback: group.children.map>(entry)",
+          "line": 127,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "foldersView.<callback: selected.example.map>",
+          "signature": "foldersView.<callback: selected.example.map>(file)",
+          "line": 128,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup",
+          "signature": "inspectorMarkup()",
+          "line": 131,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup.<callback: links.filter>",
+          "signature": "inspectorMarkup.<callback: links.filter>({ to })",
+          "line": 137,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup.<callback: links.filter>",
+          "signature": "inspectorMarkup.<callback: links.filter>({ from })",
+          "line": 138,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup.<callback: neighbors.filter>",
+          "signature": "inspectorMarkup.<callback: neighbors.filter>({ rows })",
+          "line": 144,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>",
+          "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })",
+          "line": 144,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>",
+          "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)",
+          "line": 144,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "render",
+          "signature": "render()",
+          "line": 152,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "stopPlayback",
+          "signature": "stopPlayback()",
+          "line": 177,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "switchView",
+          "signature": "switchView(view)",
+          "line": 182,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "applyStep",
+          "signature": "applyStep(step)",
+          "line": 188,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "setScenario",
+          "signature": "setScenario(id)",
+          "line": 207,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "playTrace",
+          "signature": "playTrace()",
+          "line": 220,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "playTrace.<callback: setInterval>",
+          "signature": "playTrace.<callback: setInterval>()",
+          "line": 227,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"click\">",
+          "signature": "<callback: document.addEventListener, \"click\">(event)",
+          "line": 236,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">",
+          "signature": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">(event)",
+          "line": 273,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: $(\"view-content\").addEventListener, \"input\">",
+          "signature": "<callback: $(\"view-content\").addEventListener, \"input\">(event)",
+          "line": 285,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: $(\"view-content\").addEventListener, \"toggle\">",
+          "signature": "<callback: $(\"view-content\").addEventListener, \"toggle\">(event)",
+          "line": 292,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "server.mjs": {
+      "language": "JavaScript",
+      "imports": [
+        "import { readFile } from \"node:fs/promises\";",
+        "import { createServer } from \"node:http\";"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "<callback: Object.entries(contentTypes).map>",
+          "signature": "<callback: Object.entries(contentTypes).map>([file, type])",
+          "line": 22,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "reply",
+          "signature": "reply(request, response, status, type, body, headers = {})",
+          "line": 36,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: createServer>",
+          "signature": "<callback: createServer>(request, response)",
+          "line": 46,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>",
+          "signature": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>()",
+          "line": 62,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "starter/scripts/generate_blueprint.py": {
+      "language": "Python",
+      "imports": [
+        "import argparse",
+        "import ast",
+        "import hashlib",
+        "import json",
+        "import re",
+        "import subprocess",
+        "from pathlib import Path"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "attr",
+          "signature": "attr(node)",
+          "line": 20,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "instance_attrs",
+          "signature": "instance_attrs(node)",
+          "line": 29,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "python_inventory",
+          "signature": "python_inventory(source)",
+          "line": 47,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "python_inventory.walk",
+          "signature": "python_inventory.walk(node, owner='', parent_class=None)",
+          "line": 51,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "javascript_inventory",
+          "signature": "javascript_inventory(path)",
+          "line": 92,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "javascript_inventory.segment",
+          "signature": "javascript_inventory.segment(node)",
+          "line": 101,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "javascript_inventory.callable_name",
+          "signature": "javascript_inventory.callable_name(node, parent)",
+          "line": 104,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "javascript_inventory.walk",
+          "signature": "javascript_inventory.walk(node, owner='', parent=None, parent_class=None)",
+          "line": 121,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "shell_inventory",
+          "signature": "shell_inventory(source)",
+          "line": 161,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "files",
+          "signature": "files(root)",
+          "line": 170,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "folder_tree",
+          "signature": "folder_tree(paths, root_name)",
+          "line": 182,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "folder_tree.visit",
+          "signature": "folder_tree.visit(directory, prefix)",
+          "line": 192,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "folder_tree.visit.<lambda@193:49>",
+          "signature": "folder_tree.visit.<lambda@193:49>(item)",
+          "line": 193,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "inventory",
+          "signature": "inventory(root, paths)",
+          "line": 204,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "blueprint",
+          "signature": "blueprint()",
+          "line": 220,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "code",
+          "signature": "code(value)",
+          "line": 241,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "symbol_rows",
+          "signature": "symbol_rows(symbols, link, kind)",
+          "line": 245,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "catalog_text",
+          "signature": "catalog_text(modules, relative)",
+          "line": 252,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "replace_block",
+          "signature": "replace_block(document, name, content)",
+          "line": 280,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "main",
+          "signature": "main()",
+          "line": 289,
           "async": false,
           "decorators": []
         }

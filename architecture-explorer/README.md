@@ -8,7 +8,7 @@ A self-hosted copy of the interactive ride-hailing reference design. It serves t
 
 The starter includes the passenger and driver apps, FastAPI services, PostgreSQL and Kafka configuration, trained model commands, and an end-to-end smoke test. [Starter README](starter/README.md) · [Implementation guide](https://fullscipts.github.io/ATLAS/build.html)
 
-[UML blueprint and exact class/function inventory](starter/docs/UML_BLUEPRINT.md)
+[Final handover and runbook](starter/docs/FINAL_HANDOVER.md) · [UML blueprint and exact class/function inventory](starter/docs/UML_BLUEPRINT.md)
 
 ## Run from Git
 

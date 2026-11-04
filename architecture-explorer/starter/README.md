@@ -4,7 +4,9 @@ This repository directory runs a small ride-hailing system. It includes two brow
 
 [Open the build guide](https://fullscipts.github.io/ATLAS/build.html) · [Machine-readable build specification](https://fullscipts.github.io/ATLAS/build-spec.json)
 
-## UML blueprint
+## Handover and UML blueprint
+
+[Start with the final handover and runbook](docs/FINAL_HANDOVER.md). It collects the runtime settings, API contracts, model artifacts, replay checks and verification status.
 
 The blueprint maps the folder hierarchy, every application class and method, module functions, callbacks, the database model, and the ride and ML flows. It includes source links and a regenerable JSON inventory for coding agents. [Read the UML blueprint](docs/UML_BLUEPRINT.md) · [Machine-readable inventory](docs/uml-blueprint.json)
 
@@ -17,6 +19,7 @@ cd architecture-explorer/starter
 docker compose up -d --build
 docker compose exec -T gateway python -m tests.smoke
 docker compose exec -T gateway python -m tests.policy
+docker compose exec -T -e KAFKA_BOOTSTRAP=kafka:9092 gateway python -m tests.replay
 ```
 
 Compose starts PostgreSQL and a single Kafka broker, creates `atlas.ride.v1`, applies the initial schema and trains the seeded models. The model server must report healthy before the event worker starts. Open `http://127.0.0.1:8000/passenger` and `http://127.0.0.1:8000/driver` in separate tabs. The demo keys are `rider-demo`, `driver-a-demo`, and `driver-b-demo`. If the offer does not appear under Driver A, try Driver B. To stop the stack, run `docker compose down`. Persistent volumes retain ride data and model artifacts.
@@ -57,7 +60,7 @@ From a second terminal in `starter/` with the virtual environment activated, run
 | `ml/rl.py` | Batch Q-learning, held-out gate, approval and rollback |
 | `scripts/initialize.sh` and `scripts/local.sh` | Bootstrap and local process launcher |
 | `Dockerfile`, `compose.yaml`, `requirements.txt` | Container deployment and dependency versions |
-| `tests/smoke.py` and `tests/policy.py` | End-to-end ride and model checks plus isolated RL approval and rollback checks |
+| `tests/smoke.py`, `tests/policy.py`, and `tests/replay.py` | End-to-end ride, model, policy approval, rollback and duplicate event checks |
 
 ## API and data contracts
 
@@ -105,6 +108,6 @@ For a candidate based on recorded rides, use `python -m ml.rl train` and approve
 3. Add production identity and authorization, GPS and routing, ride cancellation and reassignment, notification transport, and payment in separate tested increments. Define market-specific privacy and retention before collecting real rider data.
 4. Replace the synthetic datasets with consented, validated data. Measure chronological holdout error, calibration, anomaly precision and operational impact. Keep the nearest-driver fallback.
 5. Add concurrency and replay tests, tenant isolation, metrics and alerts, backups, and restore drills. Use an isolated staging deployment before exposing the application to real users.
-6. Prove readiness with the smoke test, a real broker replay test, model version evidence, policy evaluation, and deployment runbook. List each remaining gap.
+6. Prove readiness with the smoke test, `tests.replay` against the configured broker, model version evidence, policy evaluation, and deployment runbook. List each remaining gap.
 
 The starter is a development implementation with demo identities, seeded telemetry and one logical data store. Its build guide and contracts give a coding agent the inputs and verification steps for extending it.
