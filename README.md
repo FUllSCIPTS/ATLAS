@@ -24,6 +24,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 [Source and server deployment guide](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer)
 
+[UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
+
 ## Quick start
 
 ```bash
