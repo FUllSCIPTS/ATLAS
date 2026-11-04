@@ -22,11 +22,11 @@ combined-factor stress test).
 
 Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout.  
 
-[Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/).
+1) [Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/).
 
-[Source and server deployment guide](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer)
+2) [Source and server deployment guide](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer)
 
-[UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
+3) [UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
 ## Quick start
 
