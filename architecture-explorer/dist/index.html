@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1119">
+  <meta name="description" content="Explore the ATLAS ride-hailing stack, trace its data flows, and inspect its deployment and source layout.">
+  <link rel="icon" href="./atlas.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>ATLAS Architecture Explorer</title>
+  <script src="./atlas.js" defer></script>
+  <script src="./explorer.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell top-inner">
+      <a class="brand" href="./" aria-label="ATLAS explorer home">
+        <img src="./atlas.svg" width="32" height="32" alt="">
+        <strong>ATLAS</strong><span>Architecture Explorer</span>
+      </a>
+      <span class="private-badge"><span aria-hidden="true">◆</span> Private deployment</span>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow"><span class="status-dot"></span> RIDE-HAILING SYSTEM <span class="slash">/</span> REFERENCE DESIGN</div>
+      <h1 id="page-title">ATLAS Architecture Explorer<span>.</span></h1>
+      <p>Follow a ride from request to dispatch, then see how trip outcomes feed the next model and policy updates.</p>
+    </section>
+    <div class="view-tabs" role="tablist" aria-label="Explorer views">
+      <button id="tab-architecture" type="button" role="tab" aria-selected="true" aria-controls="workspace" data-view="architecture"><span data-icon="map"></span> Architecture</button>
+      <button id="tab-components" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="components"><span data-icon="layers"></span> Components</button>
+      <button id="tab-deployment" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="deployment"><span data-icon="cloud"></span> Deployment</button>
+      <button id="tab-folders" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="folders"><span data-icon="folder"></span> Folder structure</button>
+    </div>
+    <section id="workspace" role="tabpanel" aria-labelledby="tab-architecture">
+      <div id="tracebar" class="tracebar">
+        <div class="scenario-list" role="group" aria-label="Data flow scenarios" id="scenarios"></div>
+        <button type="button" id="dependency-toggle" class="utility" aria-pressed="false"><span data-icon="focus"></span> Focus dependencies</button>
+      </div>
+      <div class="workspace-grid">
+        <section id="view-content" class="panel view-panel" aria-label="Selected explorer view"></section>
+        <aside id="inspector" class="panel inspector" aria-label="Component inspector"></aside>
+      </div>
+    </section>
+    <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Architecture Explorer</span><span>Reference design with illustrative flows</span></footer>
+    <p id="announcement" class="sr-only" aria-live="polite"></p>
+  </main>
+</body>
+</html>
