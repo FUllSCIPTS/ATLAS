@@ -18,6 +18,12 @@ second-revision checks (exact vs. linearised optimisation, blast-radius and
 availability assumptions, system-level value of the anomaly detector, and a
 combined-factor stress test).
 
+## Live architecture explorer
+
+Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout. [Open the ATLAS Architecture Explorer](https://atlas-architecture-explorer.suppleshrimp.chatgpt.site/).
+
+[Source and server deployment guide](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer)
+
 ## Quick start
 
 ```bash
