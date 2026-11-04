@@ -4,6 +4,10 @@ This repository directory runs a small ride-hailing system. It includes two brow
 
 [Open the build guide](https://fullscipts.github.io/ATLAS/build.html) · [Machine-readable build specification](https://fullscipts.github.io/ATLAS/build-spec.json)
 
+## UML blueprint
+
+The blueprint maps the folder hierarchy, every application class and method, module functions, callbacks, the database model, and the ride and ML flows. It includes source links and a regenerable JSON inventory for coding agents. [Read the UML blueprint](docs/UML_BLUEPRINT.md) · [Machine-readable inventory](docs/uml-blueprint.json)
+
 ## Start with PostgreSQL and Kafka
 
 Prerequisites are Git and Docker with the Compose plugin. All model training and inference run on CPU. Run these commands from the repository checkout:

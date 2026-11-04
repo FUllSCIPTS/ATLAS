@@ -20,7 +20,7 @@
     <div class="eyebrow"><span class="status-dot"></span> IMPLEMENTATION GUIDE</div>
     <h1>Build and run ATLAS<span>.</span></h1>
     <p>Start with the runnable ride flow. Use the linked files, API contracts and acceptance checks to extend it with a coding agent.</p>
-    <div class="guide-actions"><a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter">Open runnable source ↗</a><a class="guide-link" href="./build-spec.json">Machine-readable spec</a><a class="guide-link" href="./ride-event.schema.json">Kafka event schema</a></div>
+    <div class="guide-actions"><a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter">Open runnable source ↗</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint ↗</a><a class="guide-link" href="./build-spec.json">Machine-readable spec</a><a class="guide-link" href="./ride-event.schema.json">Kafka event schema</a></div>
   </section>
   <div class="guide-grid">
     <section class="panel guide-card">
@@ -59,7 +59,7 @@ docker compose exec -T gateway python -m tests.smoke</code></pre>
     <section class="panel guide-card">
       <p class="section-kicker">04 / HAND OFF</p>
       <h2>Give this brief to a coding agent</h2>
-      <textarea id="agent-brief" aria-label="Implementation brief" readonly rows="9">Build and run the ATLAS ride-hailing application using https://fullscipts.github.io/ATLAS/build.html and its build-spec.json. Clone FUllSCIPTS/ATLAS at branch architecture-explorer. Work inside architecture-explorer/starter.
+      <textarea id="agent-brief" aria-label="Implementation brief" readonly rows="9">Build and run the ATLAS ride-hailing application using https://fullscipts.github.io/ATLAS/build.html and its build-spec.json. Read the linked UML blueprint and generated symbol inventory before changing class or function contracts. Clone FUllSCIPTS/ATLAS at branch architecture-explorer. Work inside architecture-explorer/starter.
 
 Start the existing implementation first. Run the PostgreSQL/Kafka Compose smoke test. Show that a ride completes and that the trained LSTM, acceptance model, Isolation Forest, and RL policy commands produce the documented outputs. Keep the nearest-driver fallback and explicit policy approval.
 

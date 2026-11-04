@@ -1,0 +1,966 @@
+{
+  "schema_version": 1,
+  "source_root": "architecture-explorer/starter",
+  "files": [
+    ".dockerignore",
+    ".gitignore",
+    "Dockerfile",
+    "README.md",
+    "apps/driver/index.html",
+    "apps/passenger/index.html",
+    "apps/shared/client.js",
+    "apps/shared/demo.css",
+    "compose.yaml",
+    "docs/UML_BLUEPRINT.md",
+    "docs/uml-blueprint.json",
+    "infra/schema.sql",
+    "ml/discrete.py",
+    "ml/forecast.py",
+    "ml/registry.py",
+    "ml/rl.py",
+    "ml/serve.py",
+    "ml/train.py",
+    "packages/config.py",
+    "packages/db.py",
+    "packages/ride-event.schema.json",
+    "requirements.txt",
+    "scripts/generate_blueprint.py",
+    "scripts/initialize.sh",
+    "scripts/local.sh",
+    "services/dispatch.py",
+    "services/gateway.py",
+    "services/trips.py",
+    "tests/policy.py",
+    "tests/smoke.py",
+    "workers/events.py"
+  ],
+  "source_sha256": {
+    ".dockerignore": "801cb922a5ad2b590ad78ba24c5c4118023c88c374490a5539d9627c07211bfa",
+    ".gitignore": "f437c8991e9976d2817a3d263ec194d3ae0e31ab5ac7264d04fcf05fb80221cc",
+    "Dockerfile": "3742b7c1283a3e969dca3f9dcbd146f193605c2e36ff654c11b1c264734acfd1",
+    "apps/driver/index.html": "7fbdf427f1647175bb7a4fd9a068f7257aad9c4c12373da1ab52f3e7854fb900",
+    "apps/passenger/index.html": "2e1f0c4fdcef39f8eafdbeaab68a7a7532c5f8a05b7f4aeabc8fa7138ee0bf26",
+    "apps/shared/client.js": "9740ac6e043d5b5c2d0515b50dd69fba0c66f6b0a807a7fffff85be1a152c2e0",
+    "apps/shared/demo.css": "170e4a4545847490cd666493f311cf58d0f943b5e22b9a4399fcebf7728407c5",
+    "compose.yaml": "163ef28f302da772db0d0c3d867e82c91bad1627b6ab902d1360ed3b9a7df931",
+    "infra/schema.sql": "398183c0013c2a08b1fd134b9cc6420b2aaa89e0c762bd869cd34db3d34d21b4",
+    "ml/discrete.py": "2c54e59af6324d20869131d617ab74ea8673ba491c47db7a14cb8311ece21610",
+    "ml/forecast.py": "bcada40c3e17fe47fd294055887e910c84e073e2c68a1b7e152e0a09b85c597e",
+    "ml/registry.py": "4f80338f15574556cd7cd3ddc64fe3f98e78fbf14dad80ebbc962366481eacf2",
+    "ml/rl.py": "ce21a40eeddd76ad0654252ab60308d773dc11fae13a3af3551b22b9e52207f9",
+    "ml/serve.py": "12bf39fd65c1f1d6e50aa3e0d5abdfa8a051fdd8efa165d5fe04554612891968",
+    "ml/train.py": "4e98ca3259ef4bc4ca4420f314498166f06afb79910193f00331f2e506f0f42e",
+    "packages/config.py": "1e7ed16d864a4abd62566a908ca4bb1d5326b3f81159b0d8a34011a03598b9c4",
+    "packages/db.py": "4099d6b06782ca38409a23021729858f33414d270bb3025f942067b8ad6ae9cb",
+    "packages/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
+    "requirements.txt": "c389f3b4d23c04757137fdfe15446b1789d3316825a1dc924dd23beab32bbed5",
+    "scripts/initialize.sh": "9802c580a934b1979dc700a631f9da9b6f4dae776a952c040e09ad6e0a8f47c8",
+    "scripts/local.sh": "12aad3b6b28e44e0cee4fc065322f048ad0bf3131cc069845a4c5d2ee374497b",
+    "services/dispatch.py": "60bee8fb80be4d407798d0c1b466ca635c6955bdbec49a9bce274bf420c7eefa",
+    "services/gateway.py": "88353781d315b133644b2d3ce33cc0bb0c1f5c76df915f4c728f776f631712d1",
+    "services/trips.py": "59eaf936bf892b261334f1587252218d6c2a1b804ce27e618936bf57abdc7389",
+    "tests/policy.py": "a8c1d25ee0cb47b29cc36959d8f3e6d2b5a4a4508a12588ffdf7cf919011aa87",
+    "tests/smoke.py": "620ef97e9901a2bec75eec42d2ef78f866704e5b6c5fa3ba02f875d28d5c4061",
+    "workers/events.py": "8091e2f7749d27b92f2b6de86260463445e97951e0e500a3aef251160fc04e9f"
+  },
+  "modules": {
+    "apps/shared/client.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": [
+        {
+          "name": "request",
+          "signature": "request(path, method = \"GET\", data, idempotencyKey)",
+          "line": 8,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "refresh",
+          "signature": "refresh()",
+          "line": 20,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "refresh.<callback: offers.map>",
+          "signature": "refresh.<callback: offers.map>(offer)",
+          "line": 31,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "refresh.<callback: offers.map>.button.onclick",
+          "signature": "refresh.<callback: offers.map>.button.onclick()",
+          "line": 43,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.getElementById(\"booking\")?.addEventListener, \"submit\">",
+          "signature": "<callback: document.getElementById(\"booking\")?.addEventListener, \"submit\">(event)",
+          "line": 59,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.getElementById(\"telemetry\")?.addEventListener, \"submit\">",
+          "signature": "<callback: document.getElementById(\"telemetry\")?.addEventListener, \"submit\">(event)",
+          "line": 72,
+          "async": true,
+          "decorators": []
+        }
+      ]
+    },
+    "ml/discrete.py": {
+      "language": "Python",
+      "imports": [
+        "import joblib",
+        "import numpy as np",
+        "from sklearn.ensemble import IsolationForest",
+        "from sklearn.linear_model import LogisticRegression",
+        "from sklearn.metrics import brier_score_loss, roc_auc_score"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "train",
+          "signature": "train(directory)",
+          "line": 8,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "ml/forecast.py": {
+      "language": "Python",
+      "imports": [
+        "import numpy as np",
+        "import torch",
+        "from torch import nn"
+      ],
+      "classes": [
+        {
+          "name": "DemandLSTM",
+          "line": 9,
+          "bases": [
+            "nn.Module"
+          ],
+          "fields": [],
+          "instance_fields": [
+            {
+              "name": "recurrent",
+              "initializer": "nn.LSTM(1, 12, batch_first=True)"
+            },
+            {
+              "name": "output",
+              "initializer": "nn.Linear(12, 1)"
+            }
+          ],
+          "methods": [
+            {
+              "name": "DemandLSTM.__init__",
+              "signature": "DemandLSTM.__init__(self)",
+              "line": 10,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DemandLSTM.forward",
+              "signature": "DemandLSTM.forward(self, values)",
+              "line": 15,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "train",
+          "signature": "train(directory)",
+          "line": 20,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "load",
+          "signature": "load(directory)",
+          "line": 44,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "predict",
+          "signature": "predict(model, counts)",
+          "line": 51,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "ml/registry.py": {
+      "language": "Python",
+      "imports": [
+        "import json",
+        "import os",
+        "import tempfile",
+        "from packages.config import DATA"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "read_json",
+          "signature": "read_json(path, default=None)",
+          "line": 10,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "write_json",
+          "signature": "write_json(path, value)",
+          "line": 17,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "ml/rl.py": {
+      "language": "Python",
+      "imports": [
+        "import argparse",
+        "import random",
+        "import time",
+        "from uuid import UUID, uuid4",
+        "from ml.registry import MODELS, read_json, write_json",
+        "from packages.db import database"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "current_policy",
+          "signature": "current_policy()",
+          "line": 15,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fixture",
+          "signature": "fixture()",
+          "line": 19,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "experiences",
+          "signature": "experiences()",
+          "line": 25,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fit",
+          "signature": "fit(samples, source)",
+          "line": 32,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fit.<lambda@39:40>",
+          "signature": "fit.<lambda@39:40>(action)",
+          "line": 39,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "approve",
+          "signature": "approve(version, allow_demo=False)",
+          "line": 51,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "watch",
+          "signature": "watch(seconds)",
+          "line": 70,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "main",
+          "signature": "main()",
+          "line": 81,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "ml/serve.py": {
+      "language": "Python",
+      "imports": [
+        "from functools import lru_cache",
+        "from typing import Literal",
+        "import joblib",
+        "from fastapi import FastAPI, HTTPException",
+        "from pydantic import BaseModel, Field",
+        "from ml import forecast",
+        "from ml.registry import MODELS, read_json",
+        "from ml.rl import current_policy",
+        "from packages.config import DATA"
+      ],
+      "classes": [
+        {
+          "name": "Candidate",
+          "line": 16,
+          "bases": [
+            "BaseModel"
+          ],
+          "fields": [
+            {
+              "name": "driver_id",
+              "type": "str",
+              "default": null
+            },
+            {
+              "name": "distance_km",
+              "type": "float",
+              "default": "Field(ge=0, le=50)"
+            },
+            {
+              "name": "speed_kph",
+              "type": "float",
+              "default": "Field(ge=0, le=250)"
+            }
+          ],
+          "instance_fields": [],
+          "methods": []
+        },
+        {
+          "name": "ScoringRequest",
+          "line": 22,
+          "bases": [
+            "BaseModel"
+          ],
+          "fields": [
+            {
+              "name": "zone",
+              "type": "Literal['cork-centre', 'cork-north']",
+              "default": null
+            },
+            {
+              "name": "drivers",
+              "type": "list[Candidate]",
+              "default": "Field(min_length=1, max_length=20)"
+            }
+          ],
+          "instance_fields": [],
+          "methods": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "models",
+          "signature": "models(version)",
+          "line": 28,
+          "async": false,
+          "decorators": [
+            "lru_cache(maxsize=2)"
+          ]
+        },
+        {
+          "name": "active",
+          "signature": "active()",
+          "line": 33,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "health",
+          "signature": "health()",
+          "line": 41,
+          "async": false,
+          "decorators": [
+            "app.get('/healthz')"
+          ]
+        },
+        {
+          "name": "score",
+          "signature": "score(payload: ScoringRequest)",
+          "line": 48,
+          "async": false,
+          "decorators": [
+            "app.post('/internal/v1/score')"
+          ]
+        }
+      ]
+    },
+    "ml/train.py": {
+      "language": "Python",
+      "imports": [
+        "from datetime import datetime, timezone",
+        "from uuid import uuid4",
+        "from ml import discrete, forecast",
+        "from ml.registry import MODELS, write_json"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "train",
+          "signature": "train()",
+          "line": 8,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "packages/config.py": {
+      "language": "Python",
+      "imports": [
+        "import hmac",
+        "import os",
+        "from pathlib import Path",
+        "from fastapi import HTTPException, Request"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "equal",
+          "signature": "equal(left, right)",
+          "line": 19,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "internal_actor",
+          "signature": "internal_actor(request: Request, role: str) -> str",
+          "line": 23,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "packages/db.py": {
+      "language": "Python",
+      "imports": [
+        "import json",
+        "import os",
+        "import sqlite3",
+        "import time",
+        "from contextlib import contextmanager",
+        "from uuid import uuid4",
+        "from packages.config import DATA, ROOT",
+        "import psycopg",
+        "from psycopg.rows import dict_row"
+      ],
+      "classes": [
+        {
+          "name": "DB",
+          "line": 14,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [
+            {
+              "name": "connection",
+              "initializer": "connection"
+            }
+          ],
+          "methods": [
+            {
+              "name": "DB.__init__",
+              "signature": "DB.__init__(self, connection)",
+              "line": 15,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DB.run",
+              "signature": "DB.run(self, query, *args)",
+              "line": 18,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "database",
+          "signature": "database()",
+          "line": 23,
+          "async": false,
+          "decorators": [
+            "contextmanager"
+          ]
+        },
+        {
+          "name": "migrate",
+          "signature": "migrate()",
+          "line": 45,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "emit",
+          "signature": "emit(db, trip_id, event_type, **body)",
+          "line": 57,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "envelope",
+          "signature": "envelope(row)",
+          "line": 62,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "scripts/initialize.sh": {
+      "language": "Shell",
+      "imports": [],
+      "classes": [],
+      "functions": []
+    },
+    "scripts/local.sh": {
+      "language": "Shell",
+      "imports": [],
+      "classes": [],
+      "functions": [
+        {
+          "name": "start",
+          "signature": "start()",
+          "line": 13,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "cleanup",
+          "signature": "cleanup()",
+          "line": 17,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "services/dispatch.py": {
+      "language": "Python",
+      "imports": [
+        "from uuid import UUID",
+        "from fastapi import FastAPI, HTTPException, Request",
+        "from pydantic import BaseModel, Field",
+        "from packages.config import internal_actor",
+        "from packages.db import database, emit"
+      ],
+      "classes": [
+        {
+          "name": "Telemetry",
+          "line": 12,
+          "bases": [
+            "BaseModel"
+          ],
+          "fields": [
+            {
+              "name": "online",
+              "type": "bool",
+              "default": null
+            },
+            {
+              "name": "distance_km",
+              "type": "float",
+              "default": "Field(ge=0, le=50)"
+            },
+            {
+              "name": "speed_kph",
+              "type": "float",
+              "default": "Field(ge=0, le=250)"
+            }
+          ],
+          "instance_fields": [],
+          "methods": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "health",
+          "signature": "health()",
+          "line": 19,
+          "async": false,
+          "decorators": [
+            "app.get('/healthz')"
+          ]
+        },
+        {
+          "name": "availability",
+          "signature": "availability(request: Request, payload: Telemetry)",
+          "line": 26,
+          "async": false,
+          "decorators": [
+            "app.put('/v1/driver/availability')"
+          ]
+        },
+        {
+          "name": "offers",
+          "signature": "offers(request: Request)",
+          "line": 35,
+          "async": false,
+          "decorators": [
+            "app.get('/v1/driver/offers')"
+          ]
+        },
+        {
+          "name": "accept",
+          "signature": "accept(request: Request, trip_id: UUID)",
+          "line": 47,
+          "async": false,
+          "decorators": [
+            "app.post('/v1/driver/offers/{trip_id}/accept', status_code=202)"
+          ]
+        }
+      ]
+    },
+    "services/gateway.py": {
+      "language": "Python",
+      "imports": [
+        "import os",
+        "import re",
+        "import httpx",
+        "from fastapi import FastAPI, HTTPException, Request, Response",
+        "from fastapi.responses import FileResponse",
+        "from fastapi.staticfiles import StaticFiles",
+        "from packages.config import KEYS, ROOT, TOKEN, equal"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "health",
+          "signature": "health()",
+          "line": 26,
+          "async": false,
+          "decorators": [
+            "app.get('/healthz')"
+          ]
+        },
+        {
+          "name": "passenger",
+          "signature": "passenger()",
+          "line": 37,
+          "async": false,
+          "decorators": [
+            "app.get('/')",
+            "app.get('/passenger')"
+          ]
+        },
+        {
+          "name": "driver",
+          "signature": "driver()",
+          "line": 42,
+          "async": false,
+          "decorators": [
+            "app.get('/driver')"
+          ]
+        },
+        {
+          "name": "proxy",
+          "signature": "proxy(request: Request, role: str, path: str)",
+          "line": 47,
+          "async": true,
+          "decorators": [
+            "app.api_route('/v1/{role}/{path:path}', methods=['GET', 'POST', 'PUT'])"
+          ]
+        }
+      ]
+    },
+    "services/trips.py": {
+      "language": "Python",
+      "imports": [
+        "import time",
+        "from typing import Annotated, Literal",
+        "from uuid import UUID, uuid4",
+        "from fastapi import FastAPI, Header, HTTPException, Request",
+        "from pydantic import BaseModel, Field",
+        "from packages.config import internal_actor",
+        "from packages.db import database, emit"
+      ],
+      "classes": [
+        {
+          "name": "Booking",
+          "line": 14,
+          "bases": [
+            "BaseModel"
+          ],
+          "fields": [
+            {
+              "name": "pickup",
+              "type": "str",
+              "default": "Field(min_length=1, max_length=120, pattern='\\\\S')"
+            },
+            {
+              "name": "destination",
+              "type": "str",
+              "default": "Field(min_length=1, max_length=120, pattern='\\\\S')"
+            },
+            {
+              "name": "zone",
+              "type": "Literal['cork-centre', 'cork-north']",
+              "default": null
+            }
+          ],
+          "instance_fields": [],
+          "methods": []
+        },
+        {
+          "name": "Milestone",
+          "line": 20,
+          "bases": [
+            "BaseModel"
+          ],
+          "fields": [
+            {
+              "name": "status",
+              "type": "Literal['picked_up', 'completed']",
+              "default": null
+            }
+          ],
+          "instance_fields": [],
+          "methods": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "health",
+          "signature": "health()",
+          "line": 25,
+          "async": false,
+          "decorators": [
+            "app.get('/healthz')"
+          ]
+        },
+        {
+          "name": "book",
+          "signature": "book(request: Request, payload: Booking, idempotency_key: Annotated[str, Header(min_length=1, max_length=128)])",
+          "line": 32,
+          "async": false,
+          "decorators": [
+            "app.post('/v1/rider/trips', status_code=202)"
+          ]
+        },
+        {
+          "name": "public_trip",
+          "signature": "public_trip(row)",
+          "line": 48,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "status",
+          "signature": "status(request: Request, trip_id: UUID)",
+          "line": 53,
+          "async": false,
+          "decorators": [
+            "app.get('/v1/rider/trips/{trip_id}')"
+          ]
+        },
+        {
+          "name": "milestone",
+          "signature": "milestone(request: Request, trip_id: UUID, payload: Milestone)",
+          "line": 63,
+          "async": false,
+          "decorators": [
+            "app.post('/v1/driver/trips/{trip_id}/milestones')"
+          ]
+        }
+      ]
+    },
+    "tests/policy.py": {
+      "language": "Python",
+      "imports": [
+        "from pathlib import Path",
+        "from tempfile import TemporaryDirectory",
+        "from unittest.mock import patch",
+        "from ml import rl",
+        "from ml.registry import write_json"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "reject",
+          "signature": "reject(action, expected)",
+          "line": 9,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<lambda@21:12>",
+          "signature": "<lambda@21:12>()",
+          "line": 21,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<lambda@28:12>",
+          "signature": "<lambda@28:12>()",
+          "line": 28,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "tests/smoke.py": {
+      "language": "Python",
+      "imports": [
+        "import os",
+        "import time",
+        "from uuid import uuid4",
+        "import httpx",
+        "from packages.config import KEYS",
+        "from packages.db import database"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "until",
+          "signature": "until(check, label, timeout=45)",
+          "line": 16,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "api",
+          "signature": "api(method, path, actor='rider-a', *, expected=200, key=None, body=None)",
+          "line": 28,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check",
+          "signature": "check()",
+          "line": 37,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check.<lambda@38:11>",
+          "signature": "check.<lambda@38:11>()",
+          "line": 38,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check.<lambda@39:11>",
+          "signature": "check.<lambda@39:11>()",
+          "line": 39,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check.offer_for_trip",
+          "signature": "check.offer_for_trip()",
+          "line": 49,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check.<lambda@64:11>",
+          "signature": "check.<lambda@64:11>()",
+          "line": 64,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "check.learned",
+          "signature": "check.learned()",
+          "line": 71,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
+    "workers/events.py": {
+      "language": "Python",
+      "imports": [
+        "import json",
+        "import os",
+        "import time",
+        "import httpx",
+        "from ml.registry import write_json",
+        "from packages.config import DATA, TOPIC",
+        "from packages.db import database, emit, envelope",
+        "from confluent_kafka import Consumer, Producer"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "choose",
+          "signature": "choose(candidates, zone)",
+          "line": 17,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "choose.<lambda@33:38>",
+          "signature": "choose.<lambda@33:38>(d)",
+          "line": 33,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "choose.<lambda@36:38>",
+          "signature": "choose.<lambda@36:38>(d)",
+          "line": 36,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "apply",
+          "signature": "apply(event)",
+          "line": 41,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "update_features",
+          "signature": "update_features()",
+          "line": 76,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "next_event",
+          "signature": "next_event()",
+          "line": 90,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mark_sent",
+          "signature": "mark_sent(event)",
+          "line": 96,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "local_tick",
+          "signature": "local_tick()",
+          "line": 101,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "kafka_loop",
+          "signature": "kafka_loop()",
+          "line": 111,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "kafka_loop.<lambda@122:46>",
+          "signature": "kafka_loop.<lambda@122:46>(error, _)",
+          "line": 122,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    }
+  }
+}
