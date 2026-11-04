@@ -42,9 +42,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      # Use the writable data directory provided by the Kafka image.
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
-      - kafkadata:/tmp/kraft-combined-logs
+      - kafkadata:/var/lib/kafka/data
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
       interval: 5s

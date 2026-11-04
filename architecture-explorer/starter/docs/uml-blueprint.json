@@ -44,7 +44,7 @@
     "apps/passenger/index.html": "2e1f0c4fdcef39f8eafdbeaab68a7a7532c5f8a05b7f4aeabc8fa7138ee0bf26",
     "apps/shared/client.js": "9740ac6e043d5b5c2d0515b50dd69fba0c66f6b0a807a7fffff85be1a152c2e0",
     "apps/shared/demo.css": "170e4a4545847490cd666493f311cf58d0f943b5e22b9a4399fcebf7728407c5",
-    "compose.yaml": "163ef28f302da772db0d0c3d867e82c91bad1627b6ab902d1360ed3b9a7df931",
+    "compose.yaml": "6d1d051ef6534736974d582608cf75f784c8035a63192ad353c1d6c3d923c2d7",
     "infra/schema.sql": "398183c0013c2a08b1fd134b9cc6420b2aaa89e0c762bd869cd34db3d34d21b4",
     "ml/discrete.py": "2c54e59af6324d20869131d617ab74ea8673ba491c47db7a14cb8311ece21610",
     "ml/forecast.py": "bcada40c3e17fe47fd294055887e910c84e073e2c68a1b7e152e0a09b85c597e",
