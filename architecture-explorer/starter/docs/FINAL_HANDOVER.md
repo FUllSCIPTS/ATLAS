@@ -105,7 +105,7 @@ Inspect `docker compose logs initialize models events` when the model service or
 | Booking through completion, model outputs, approval and rollback | Passed in the SQLite profile |
 | Duplicate completed-event replay | Passed in the SQLite profile and through a Kafka-protocol mock broker |
 | PostgreSQL driver and replay persistence | Checked against PGlite using the PostgreSQL protocol during starter verification |
-| Complete Docker Compose run with the PostgreSQL and Apache Kafka containers | Run the acceptance commands above on a Docker host before treating that deployment as verified |
+| Complete Docker Compose run with PostgreSQL 16 and Apache Kafka 4.3.0 | Passed on a GitHub-hosted Docker runner. The ride lifecycle, trained model outputs, RL approval and rollback, and Kafka replay with consumer offset confirmation all passed. [Acceptance run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/41887948468) |
 
 ## First task for the next coding agent
 
