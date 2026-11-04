@@ -20,7 +20,7 @@ combined-factor stress test).
 
 ## Live architecture explorer
 
-Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout. [Open the ATLAS Architecture Explorer](https://atlas-architecture-explorer.suppleshrimp.chatgpt.site/).
+Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout. [Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/).
 
 [Source and server deployment guide](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer)
 
