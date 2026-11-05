@@ -41,24 +41,25 @@ simulated. Application code and tests are in Python.
 
 | Open or download | Contents |
 |---|---|
-| [Signed Play bundle — atlas-go-play.aab](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) | Version 1.0.0 / versionCode 1; upload to Play Console internal testing |
-| [Installable Android APK](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-demo.apk) | Debug demonstration for direct installation |
-| [All release downloads and checksums](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0) | Signed/unsigned bundles, APK, twelve screenshots and verification evidence |
+| [Installable Android APK 1.1.0](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.1.0/atlas-go-demo.apk) | Debug demonstration with ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab) |
+| [All 1.1.0 downloads and checksums](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) | APK, unsigned AAB (sign before Play upload), fourteen screenshots and verification evidence |
+| [Signed Play bundle 1.0.0 — atlas-go-play.aab](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) | Earlier version 1.0.0 / versionCode 1, without ATLAS intelligence; [1.0.0 downloads](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0) |
 | [Python source and run instructions](android-app/README.md) | App screens, domain rules, persistence, tests and build configuration |
 | [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s. Act I: book a ride, driver receives the pickup location, order food, courier collects at the shop and delivers home (simulated). Act II — The Learner: an RL agent learns from delayed rewards which driver to offer a ride to and when to dispatch a food courier (toy simulation). Act III — The City's Calendar: two years of synthetic Cork demand over Ireland's real 2025–2026 public holidays; the agent pre-positions drivers, and its log of unserved requests helps the LSTM forecast surges 3–6 hours ahead (toy simulation). Act IV: as demand rises to ≈14,000 req/s and falls back, the ATLAS controller moves the six services from Tight (monolith) to Hybrid to Loose (microservices) and, after a 300 s hysteresis dwell, back to Tight — driven by `atlas_sim` on a synthetic surge |
-| [Screenshots and user guide](android-app/docs/USER_GUIDE.md) | Home, solo/shared rides, food, basket, tracking, activity and privacy screens |
+| [Screenshots and user guide](android-app/docs/USER_GUIDE.md) | Home, solo/shared rides, food, basket, tracking, activity, privacy, How ATLAS learns and the learning lab |
 | [Architecture and integration blueprint](android-app/docs/ARCHITECTURE.md) | Folder structure, classes and future service integration |
 | [Google Play handover](android-app/docs/GOOGLE_PLAY.md) | Signing, store assets, privacy notice and Console submission steps |
 | [Test results](android-app/releases/VALIDATION.md) · [Signing record](android-app/releases/SIGNED_VALIDATION.json) | Source revision, successful build, binary hashes and certificate fingerprint |
 
-| Home | Shared rides | Food |
-|---|---|---|
-| <img src="android-app/docs/screenshots/01-home.png" alt="ATLAS Go home screen" width="220"> | <img src="android-app/docs/screenshots/04-shared-rides.png" alt="Shared ride reservations" width="220"> | <img src="android-app/docs/screenshots/06-food-home.png" alt="Restaurant selection" width="220"> |
+| Home | Shared rides | Food | How ATLAS learns |
+|---|---|---|---|
+| <img src="android-app/docs/screenshots/01-home.png" alt="ATLAS Go home screen" width="200"> | <img src="android-app/docs/screenshots/04-shared-rides.png" alt="Shared ride reservations" width="200"> | <img src="android-app/docs/screenshots/06-food-home.png" alt="Restaurant selection" width="200"> | <img src="android-app/docs/screenshots/13-intelligence.png" alt="Surge outlook and learned policies" width="200"> |
 
-**Verified:** 40 Python regression cases, 88 desktop UI assertions in each of two
-screen configurations, and 112 Android 16 UI assertions passed. The signed
-bundle's signature and bundle structure were validated; all 70 application
-payload entries match the tested build. The private upload key remains private.
+**Verified (1.1.0):** 68 Python regression cases, 102 desktop UI assertions in each of two
+screen configurations, and 130 Android 16 UI assertions passed, with fourteen screenshots
+([evidence](android-app/releases/VALIDATION.md)). The 1.1.0 AAB is unsigned: sign it with your
+private upload key before a Play upload. The signed 1.0.0 bundle's signature and structure were
+validated earlier; the private upload key remains private.
 
 The signed AAB is prepared for an internal-test upload. Google Play account
 declarations, any required testing and store review remain owner steps.
