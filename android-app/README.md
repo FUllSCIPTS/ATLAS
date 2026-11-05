@@ -6,6 +6,7 @@ This is a fully runnable **offline demonstration**, not a transport operator. Al
 
 - [Installable APK and upload bundle](releases/README.md)
 - [User guide with real Android screenshots](docs/USER_GUIDE.md)
+- [▶ Demo video — ride booking, driver location, food order and delivery (45 s)](docs/video/atlas-go-demo.mp4)
 - [Build, signing and Google Play submission](docs/GOOGLE_PLAY.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md)
 - [Privacy notice](docs/PRIVACY.md)
