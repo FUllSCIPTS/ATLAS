@@ -1,6 +1,6 @@
 # Build and Google Play handover
 
-This release is a Python/Kivy, offline **demonstration app**. The owner’s signed `atlas-go-play.aab` is ready for an internal-test upload and is supplied separately in the handover. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
+This release is a Python/Kivy, offline **demonstration app**. The owner’s [signed `atlas-go-play.aab`](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) is available on GitHub and ready for an internal-test upload. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
 
 ## Build tools
 
@@ -20,7 +20,7 @@ buildozer android release
 
 ## Signing and package ownership
 
-The owner’s signed `atlas-go-play.aab` has been verified and supplied privately. Its signature details and SHA-256 are recorded in [SIGNED_VALIDATION.json](../releases/SIGNED_VALIDATION.json). Public GitHub downloads retain the installable debug APK and unsigned release AAB for reproducible builds. The owner receives the dedicated upload keystore and password in a separate private backup. Sign the downloaded AAB locally using the command below. The private key and password are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
+The owner’s [signed `atlas-go-play.aab`](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) has been verified and published with the release downloads. Its signature details and SHA-256 are recorded in [SIGNED_VALIDATION.json](../releases/SIGNED_VALIDATION.json). GitHub also provides the installable debug APK and unsigned release AAB for reproducible builds. The owner receives the dedicated upload keystore and password in a separate private backup. The signed download can be uploaded as supplied. Sign a rebuilt or unsigned AAB locally using the command below. The private key and password are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
 
 Before first upload, decide whether to keep `org.atlas.mobility`. Application IDs must be available in Play and cannot be changed for the same listed app. Change `package.name` and `package.domain` in `buildozer.spec` and rebuild if needed. Increment the Buildozer `version` and `android.numeric_version` for future Play updates.
 
@@ -68,11 +68,11 @@ Full description:
 
 ## Release verification
 
-Check the download checksums, `releases/VALIDATION.md`, and the owner's [signed-bundle record](../releases/SIGNED_VALIDATION.json). Download the public APK/AAB next to their SHA256SUMS file and check them. After signing, verify the AAB signature:
+Check the [download checksums](../releases/SHA256SUMS), [release validation](../releases/VALIDATION.md), and the owner's [signed-bundle record](../releases/SIGNED_VALIDATION.json). Download the APK/AAB files and SHA256SUMS from the same release; check them in the download directory. The signed AAB must also pass signature verification:
 
 ```bash
 sha256sum -c SHA256SUMS
-jarsigner -verify releases/atlas-go-play.aab
+jarsigner -verify atlas-go-play.aab
 ```
 
 The Android test device is an emulator. See [the testing report](TESTING.md) for the exact scope and fixes. Physical-device testing, accessibility review with TalkBack, larger font sizes, tablets/foldables, process termination and production security review remain owner release checks. The UI supports scrolling and saves its screen/form selections on navigation and pause, but the emulator run does not prove compatibility with every Android device.

@@ -18,7 +18,7 @@ Successful full build and acceptance: [GitHub Actions run](https://github.com/FU
 
 The source, screenshots, build workflow and documentation are in this repository.
 The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0)
-contains the installable debug APK, unsigned release AAB, screenshot archive and evidence.
+contains the installable debug APK, signed Play AAB, unsigned release AAB, screenshot archive and evidence.
 
 ## Public binary SHA-256
 
@@ -26,11 +26,13 @@ contains the installable debug APK, unsigned release AAB, screenshot archive and
 |---|---|
 | `atlas-go-demo.apk` | `867fc0646a113ce79bbdc43aba2ca1ecf540c27812bb41626f5f34b5e9eee731` |
 | `atlas-go-unsigned.aab` | `4887149df14fc81662a6ade71bc83a38b24861ba4fcb45fd87974264d4017b40` |
+| `atlas-go-play.aab` | `9932955f7b078a939f67964d83dc86fa5bdaa2a0c294adf34316dbcebdec216a` |
 
 ## Signing and Play submission
 
-The AAB is unsigned. Sign it using the private upload-key backup handed to the owner,
-then follow [the Google Play guide](../docs/GOOGLE_PLAY.md).
+Use the [signed Play AAB](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) for an internal-test upload.
+The reproducible unsigned variant needs the owner's private upload-key signature.
+Follow [the Google Play guide](../docs/GOOGLE_PLAY.md).
 The private key and password are never in GitHub. Store listing/account declarations,
 any required closed testing, Play pre-launch checks and Google review remain owner steps.
 
@@ -39,7 +41,7 @@ Phone hardware, accessibility and production-service checks remain outside the e
 
 ## Completed owner signing
 
-The owner’s `atlas-go-play.aab` was signed locally with the existing private upload key. The JAR signature and bundle structure were verified, and all 70 application payload entries are identical to the tested build. The signed bundle is supplied privately; public CI artifacts remain reproducible unsigned outputs.
+The owner’s `atlas-go-play.aab` was signed locally with the existing private upload key. The JAR signature and bundle structure were verified, and all 70 application payload entries are identical to the tested build. The signed bundle is published with the GitHub release. Public CI build artifacts remain reproducible unsigned outputs; the separate publication workflow restores and verifies the existing signed bytes without a private key.
 
 - SHA-256: `9932955f7b078a939f67964d83dc86fa5bdaa2a0c294adf34316dbcebdec216a`
 - Upload certificate SHA-256: `059076082129b3ed2f08c5b88a207bdebf2bba88304c0821b77d128c034944d7`

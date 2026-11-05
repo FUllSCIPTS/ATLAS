@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - android-app/releases/SIGNED_ZIP_RECIPE.json
+      - android-app/releases/SIGNED_VALIDATION.json
+      - android-app/releases/upload-certificate.pem
       - android-app/releases/restore-signed-bundle.py
       - .github/workflows/publish-signed-android.yml
   workflow_dispatch:

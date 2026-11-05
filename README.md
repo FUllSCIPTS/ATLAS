@@ -30,11 +30,41 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 4) [ATLAS Go Python Android app — rides, shared rides and food](android-app/README.md) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
 
+## ATLAS Go Android app (option 4)
+
+A Python/Kivy passenger-app model with solo ride booking, shared-seat reservations,
+food menus, basket/checkout, simulated tracking, activity history and local data
+reset. It works offline; all rides, restaurants, deliveries and payments are
+simulated. Application code and tests are in Python.
+
+| Open or download | Contents |
+|---|---|
+| [Signed Play bundle — atlas-go-play.aab](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) | Version 1.0.0 / versionCode 1; upload to Play Console internal testing |
+| [Installable Android APK](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-demo.apk) | Debug demonstration for direct installation |
+| [All release downloads and checksums](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0) | Signed/unsigned bundles, APK, twelve screenshots and verification evidence |
+| [Python source and run instructions](android-app/README.md) | App screens, domain rules, persistence, tests and build configuration |
+| [Screenshots and user guide](android-app/docs/USER_GUIDE.md) | Home, solo/shared rides, food, basket, tracking, activity and privacy screens |
+| [Architecture and integration blueprint](android-app/docs/ARCHITECTURE.md) | Folder structure, classes and future service integration |
+| [Google Play handover](android-app/docs/GOOGLE_PLAY.md) | Signing, store assets, privacy notice and Console submission steps |
+| [Test results](android-app/releases/VALIDATION.md) · [Signing record](android-app/releases/SIGNED_VALIDATION.json) | Source revision, successful build, binary hashes and certificate fingerprint |
+
+| Home | Shared rides | Food |
+|---|---|---|
+| <img src="android-app/docs/screenshots/01-home.png" alt="ATLAS Go home screen" width="220"> | <img src="android-app/docs/screenshots/04-shared-rides.png" alt="Shared ride reservations" width="220"> | <img src="android-app/docs/screenshots/06-food-home.png" alt="Restaurant selection" width="220"> |
+
+**Verified:** 40 Python regression cases, 88 desktop UI assertions in each of two
+screen configurations, and 112 Android 16 UI assertions passed. The signed
+bundle's signature and bundle structure were validated; all 70 application
+payload entries match the tested build. The private upload key remains private.
+
+The signed AAB is prepared for an internal-test upload. Google Play account
+declarations, any required testing and store review remain owner steps.
+
 ## Quick start
 
 ```bash
-git clone <this-repository-url>
-cd ATLAS-supplementary
+git clone https://github.com/FUllSCIPTS/ATLAS.git
+cd ATLAS
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 

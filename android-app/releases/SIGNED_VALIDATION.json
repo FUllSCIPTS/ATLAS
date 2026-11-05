@@ -10,5 +10,8 @@
   "signature_verified": true,
   "bundletool_validated": true,
   "unchanged_payload_entries": 70,
-  "private_key_published": false
+  "private_key_published": false,
+  "download_url": "https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab",
+  "release_url": "https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0",
+  "size_bytes": 41418385
 }
