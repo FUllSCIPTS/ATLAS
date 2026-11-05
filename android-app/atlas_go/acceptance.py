@@ -53,6 +53,15 @@ class Acceptance:
         restored = LocalStore(store.path)
         self.check(restored.ride is not None and restored.offers[0].seats==1, 'Reservation persists')
 
+    def insets_ready(self):
+        # Android reports system-bar sizes asynchronously after start; slow emulators can
+        # take a few seconds. Wait for them (bounded by wait_deadline) before the first capture.
+        if platform != 'android':
+            return
+        if self.app.container.padding[1] <= 0 or self.app.container.padding[3] <= 0:
+            return 'wait'
+        self.check(True, 'System-bar insets known before first capture')
+
     def lab_finished(self):
         if self.app.lab is None or not self.app.lab.done:
             return 'wait'
@@ -62,7 +71,7 @@ class Acceptance:
         a = self.app
         a.reset()
         self.steps = [
-            lambda:self.capture('01-home'), lambda:self.click('home_ride'),
+            self.insets_ready, lambda:self.capture('01-home'), lambda:self.click('home_ride'),
             lambda:self.capture('02-ride-booking'), lambda:self.click('book_ride'),
             lambda:self.check(a.store.ride is not None, 'Solo booking confirmed'),
             lambda:self.check(a.store.ride['driver'].startswith('Morgan') and 'Mardyke' in a.store.ride['why'],
