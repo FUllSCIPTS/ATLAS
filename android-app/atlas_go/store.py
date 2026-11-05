@@ -1,4 +1,5 @@
 """Local JSON persistence; no live services, payments or model inference."""
+from copy import deepcopy
 import json
 import os
 from pathlib import Path
@@ -9,11 +10,12 @@ from .domain import Cart, Offer, distance, fare, PLACES
 class LocalStore:
     def __init__(self, path: str | Path):
         self.path = Path(path)
-        self.reset(save=False)
+        self.reset(save=False, preserve_diagnostic=True)
         if self.path.exists():
             self.load()
 
-    def reset(self, save: bool = True) -> None:
+    def reset(self, save: bool = True, preserve_diagnostic: bool = False) -> None:
+        before = self.snapshot() if save and hasattr(self, 'cart') else None
         self.cart = Cart()
         self.history = []
         self.ride = None
@@ -26,7 +28,9 @@ class LocalStore:
             Offer('pool-4', 'Taylor · Hybrid hatchback', 2, 0, 2, 690, 2),
         ]
         if save:
-            self.save()
+            self.commit(before)
+            if not preserve_diagnostic:
+                self.path.with_suffix('.invalid.json').unlink(missing_ok=True)
 
     def load(self) -> None:
         try:
@@ -44,7 +48,7 @@ class LocalStore:
         except (ValueError, TypeError, KeyError, AttributeError):
             # Preserve unreadable data for diagnostics; start a clean local demo.
             self.path.replace(self.path.with_suffix('.invalid.json'))
-            self.reset()
+            self.reset(preserve_diagnostic=True)
 
     @staticmethod
     def validate(data: dict) -> None:
@@ -100,6 +104,29 @@ class LocalStore:
             os.fsync(stream.fileno())
         temporary.replace(self.path)
 
+    def snapshot(self):
+        return deepcopy((self.cart,self.history,self.ride,self.order,self.ui,self.offers))
+
+    def commit(self, before) -> None:
+        try:
+            self.save()
+        except OSError:
+            if before is not None:
+                self.cart,self.history,self.ride,self.order,self.ui,self.offers = before
+            raise
+
+    def update_cart(self, operation: str, item: str | None = None) -> None:
+        before = self.snapshot()
+        if operation == 'add':
+            self.cart.add(item)
+        elif operation == 'remove':
+            self.cart.remove(item)
+        elif operation == 'clear':
+            self.cart.clear()
+        else:
+            raise ValueError('Unknown basket operation.')
+        self.commit(before)
+
     def book(self, pickup: int, destination: int, comfort: bool = False,
              offer_id: str | None = None, party: int = 1) -> None:
         if self.ride:
@@ -110,17 +137,19 @@ class LocalStore:
         offer = next((o for o in self.offers if o.id == offer_id), None)
         if offer_id and (not offer or not offer.matches(pickup, destination, party)):
             raise ValueError('This shared ride does not match your route or seats.')
+        before = self.snapshot()
         if offer:
             offer.reserve(party)
         self.ride = dict(id=f'R-{time_ns()}', pickup=pickup, destination=destination,
                          shared=bool(offer), party=party, offer=offer_id,
                          driver=offer.driver if offer else 'Morgan · ATLAS demo driver',
                          fare=offer.price * party if offer else fare(pickup, destination, comfort), stage=0)
-        self.save()
+        self.commit(before)
 
     def advance_ride(self, cancel: bool = False) -> None:
         if not self.ride:
             return
+        before = self.snapshot()
         if cancel or self.ride['stage'] == 2:
             if cancel and self.ride['shared']:
                 next(o for o in self.offers if o.id == self.ride['offer']).release(self.ride['party'])
@@ -129,7 +158,7 @@ class LocalStore:
             self.ride = None
         else:
             self.ride['stage'] += 1
-        self.save()
+        self.commit(before)
 
     def checkout(self, address: int) -> None:
         if self.order:
@@ -138,18 +167,20 @@ class LocalStore:
             raise ValueError('Choose a delivery place.')
         if not self.cart.items:
             raise ValueError('Add food to your basket first.')
+        before = self.snapshot()
         self.order = dict(id=f'F-{time_ns()}', restaurant=self.cart.restaurant,
                           address=address, fare=self.cart.total(), items=self.cart.items.copy(), stage=0)
         self.cart.clear()
-        self.save()
+        self.commit(before)
 
     def advance_order(self) -> None:
         if not self.order:
             return
+        before = self.snapshot()
         if self.order['stage'] == 2:
             self.order['status'] = 'Delivered'
             self.history.append(self.order)
             self.order = None
         else:
             self.order['stage'] += 1
-        self.save()
+        self.commit(before)

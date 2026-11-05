@@ -204,6 +204,9 @@ class AtlasGoApp(App):
         for key, name in (('home','Home'),('share','Share'),('food','Food'),('activity','Activity'),('profile','You')):
             button = self.button(nav,name,'nav_'+key,lambda key=key:self.go(key),False)
             button.size_hint_y = 1
+            button.font_size = sp(11)
+            button.padding = (0,0)
+            button.bind(width=lambda widget,value:setattr(widget,'text_size',(value-dp(4),None)))
             button.background_color = LIME if self.screen == key else WHITE
         self.container.add_widget(nav)
 
@@ -350,18 +353,15 @@ class AtlasGoApp(App):
         self.button(self.body,'All restaurants','menu_back',lambda:self.go('food'),False)
 
     def add_food(self, item):
-        self.store.cart.add(item)
-        self.store.save()
+        self.store.update_cart('add',item)
         self.render()
 
     def remove_food(self, item):
-        self.store.cart.remove(item)
-        self.store.save()
+        self.store.update_cart('remove',item)
         self.render()
 
     def clear_cart(self):
-        self.store.cart.clear()
-        self.store.save()
+        self.store.update_cart('clear')
         self.render()
 
     def cart(self):

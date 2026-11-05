@@ -54,6 +54,15 @@ jobs:
           cp bin/*release.aab release/atlas-go-unsigned.aab
           find .buildozer -name gradlew -print > release/gradle-projects.txt
           cp "$(find ~/.buildozer -name apksigner.jar | head -1)" release/apksigner.jar
+      - name: Validate release bundle and produce release smoke APK
+        run: |
+          curl -fL --retry 3 https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar -o /tmp/bundletool.jar
+          echo 'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  /tmp/bundletool.jar' | sha256sum -c -
+          java -jar /tmp/bundletool.jar validate --bundle release/atlas-go-unsigned.aab
+          java -jar /tmp/bundletool.jar dump manifest --bundle release/atlas-go-unsigned.aab --module base > test-output/release-manifest.xml
+          python scripts/check-manifest.py test-output/release-manifest.xml
+          java -jar /tmp/bundletool.jar build-apks --bundle release/atlas-go-unsigned.aab --output /tmp/release-smoke.apks --mode universal --ks ~/.android/debug.keystore --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android
+          unzip -p /tmp/release-smoke.apks universal.apk > release/atlas-go-release-smoke.apk
       - uses: actions/cache/save@v4
         if: always() && steps.native-cache.outputs.cache-hit != 'true'
         with:

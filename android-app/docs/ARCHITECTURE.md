@@ -90,11 +90,11 @@ This table is generated from the actual Python AST. Dataclass constructors and e
 | `domain.py` / `Dish` | Dataclass fields: `id`, `name`, `detail`, `restaurant`, `price` |
 | `domain.py` / `Offer` | `matches`, `reserve`, `release` |
 | `domain.py` / `Cart` | `__init__`, `restaurant`, `add`, `remove`, `count`, `subtotal`, `total`, `clear` |
-| `store.py` / `LocalStore` | `__init__`, `reset`, `load`, `save`, `book`, `advance_ride`, `checkout`, `advance_order` |
+| `store.py` / `LocalStore` | `__init__`, `reset`, `load`, `validate`, `save`, `snapshot`, `commit`, `update_cart`, `book`, `advance_ride`, `checkout`, `advance_order` |
 
 ## Persistence and state rules
 
-`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `cart`, `history`, `ride`, `order`, `seats` and `ui`. Malformed JSON is preserved as `state.invalid.json` before a clean demo state is created. All UI commands execute on Kivy's main thread.
+`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `cart`, `history`, `ride`, `order`, `seats` and `ui`. Malformed JSON is preserved as `state.invalid.json` before a clean demo state is created. Reset removes that recovery file too. Booking, cancellation, checkout and basket mutations roll back in memory if atomic persistence fails. All UI commands execute on Kivy's main thread.
 
 Money is integer cents. One active ride and one active food order are allowed. Shared offers match both saved route endpoints and seat count. Cancellation releases reserved seats. Completed/cancelled records go into history. The basket is restricted to one restaurant and ten of each item. Navigation/form state is saved for restart. Reset deletes demo history and reseeds offers.
 

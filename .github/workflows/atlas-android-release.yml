@@ -12,13 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check source is still current
+        id: current
+        env:
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          git fetch origin "$SOURCE_SHA"
+          if git diff --quiet "$SOURCE_SHA" HEAD -- android-app/atlas_go android-app/main.py android-app/buildozer.spec android-app/tests; then
+            echo 'matches=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'matches=false' >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/download-artifact@v4
+        if: steps.current.outputs.matches == 'true' 
         with:
           name: atlas-go-python-android
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
           path: artifact
       - name: Publish verified demo artifacts
+        if: steps.current.outputs.matches == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}

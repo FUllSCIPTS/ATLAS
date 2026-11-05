@@ -164,3 +164,22 @@ def test_atomic_save_failure_preserves_previous_file(tmp_path,monkeypatch):
     store.cart.add('juice')
     with pytest.raises(OSError):store.save()
     assert store.path.read_bytes()==before
+
+@pytest.mark.parametrize('operation',['ride','food','cart'])
+def test_failed_storage_rolls_back_transaction(tmp_path,monkeypatch,operation):
+    store=LocalStore(tmp_path/'state.json');store.cart.add('bowl');store.save()
+    def fail():raise OSError('Storage full')
+    monkeypatch.setattr(store,'save',fail)
+    with pytest.raises(OSError):
+        if operation=='ride':store.book(0,1,offer_id='pool-1',party=2)
+        elif operation=='food':store.checkout(0)
+        else:store.update_cart('add','juice')
+    assert store.ride is None and store.order is None
+    assert store.offers[0].seats==3 and store.cart.items=={'bowl':1}
+
+def test_reset_removes_preserved_invalid_file(tmp_path):
+    path=tmp_path/'state.json';path.write_text('broken')
+    store=LocalStore(path)
+    assert path.with_suffix('.invalid.json').exists()
+    store.reset()
+    assert not path.with_suffix('.invalid.json').exists()
