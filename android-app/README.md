@@ -44,7 +44,7 @@ buildozer android release
 
 Windows: desktop preview runs directly with Python; Android packaging uses WSL2. See [the packaging guide](docs/GOOGLE_PLAY.md). The workflow pins Buildozer and python-for-android source revisions, API 36 and NDK 28c. Build dependencies require an internet connection; installed demo flows do not.
 
-Release AABs are signed separately using the owner's upload key. Keep private signing materials outside this public repository.
+The owner’s signed `atlas-go-play.aab` has been supplied separately and verified. See [the signed-bundle record](releases/SIGNED_VALIDATION.json). Public CI downloads remain unsigned for reproducible builds. The existing private upload key is retained privately for future updates.
 
 ## Validation
 

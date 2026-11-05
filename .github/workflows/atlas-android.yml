@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths: ['android-app/atlas_go/**', 'android-app/main.py', 'android-app/buildozer.spec', 'android-app/requirements*.txt', 'android-app/tests/**', 'android-app/assets/**', 'android-app/scripts/**', '.github/workflows/atlas-android.yml']
   workflow_dispatch:
+concurrency:
+  group: atlas-android-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 env:
@@ -11,7 +14,7 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-24.04
-    timeout-minutes: 100
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: android-app

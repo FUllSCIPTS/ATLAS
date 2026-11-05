@@ -1,0 +1,14 @@
+{
+  "file": "atlas-go-play.aab",
+  "application_id": "org.atlas.mobility",
+  "version": "1.0.0",
+  "version_code": 1,
+  "source_commit": "024b328fed69ffcd3058ae559d9e7e6a59dee4b8",
+  "test_run": "https://github.com/FUllSCIPTS/ATLAS/actions/runs/41996737984",
+  "sha256": "9932955f7b078a939f67964d83dc86fa5bdaa2a0c294adf34316dbcebdec216a",
+  "upload_certificate_sha256": "059076082129b3ed2f08c5b88a207bdebf2bba88304c0821b77d128c034944d7",
+  "signature_verified": true,
+  "bundletool_validated": true,
+  "unchanged_payload_entries": 70,
+  "private_key_published": false
+}

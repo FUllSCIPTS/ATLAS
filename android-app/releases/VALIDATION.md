@@ -36,3 +36,13 @@ any required closed testing, Play pre-launch checks and Google review remain own
 
 This is an offline model: no real rides, food deliveries, payments or mobile ML inference.
 Phone hardware, accessibility and production-service checks remain outside the emulator evidence.
+
+## Completed owner signing
+
+The owner’s `atlas-go-play.aab` was signed locally with the existing private upload key. The JAR signature and bundle structure were verified, and all 70 application payload entries are identical to the tested build. The signed bundle is supplied privately; public CI artifacts remain reproducible unsigned outputs.
+
+- SHA-256: `9932955f7b078a939f67964d83dc86fa5bdaa2a0c294adf34316dbcebdec216a`
+- Upload certificate SHA-256: `059076082129b3ed2f08c5b88a207bdebf2bba88304c0821b77d128c034944d7`
+- [Machine-readable signing record](SIGNED_VALIDATION.json)
+
+No private keystore, password or encrypted private-key backup was published.

@@ -1,6 +1,6 @@
 # Build and Google Play handover
 
-This release is a Python/Kivy, offline **demonstration app**. Its release AAB must be signed with the owner's private upload key before an internal-test upload. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
+This release is a Python/Kivy, offline **demonstration app**. The owner’s signed `atlas-go-play.aab` is ready for an internal-test upload and is supplied separately in the handover. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
 
 ## Build tools
 
@@ -20,7 +20,7 @@ buildozer android release
 
 ## Signing and package ownership
 
-Public GitHub downloads include an installable debug APK and an unsigned release AAB. The owner receives the dedicated upload keystore and password in a separate private backup. Sign the downloaded AAB locally using the command below. The private key and password are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
+The owner’s signed `atlas-go-play.aab` has been verified and supplied privately. Its signature details and SHA-256 are recorded in [SIGNED_VALIDATION.json](../releases/SIGNED_VALIDATION.json). Public GitHub downloads retain the installable debug APK and unsigned release AAB for reproducible builds. The owner receives the dedicated upload keystore and password in a separate private backup. Sign the downloaded AAB locally using the command below. The private key and password are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
 
 Before first upload, decide whether to keep `org.atlas.mobility`. Application IDs must be available in Play and cannot be changed for the same listed app. Change `package.name` and `package.domain` in `buildozer.spec` and rebuild if needed. Increment the Buildozer `version` and `android.numeric_version` for future Play updates.
 
@@ -68,7 +68,7 @@ Full description:
 
 ## Release verification
 
-Check the download checksums and `releases/VALIDATION.md`. Download the public APK/AAB next to their SHA256SUMS file and check them. After signing, verify the AAB signature:
+Check the download checksums, `releases/VALIDATION.md`, and the owner's [signed-bundle record](../releases/SIGNED_VALIDATION.json). Download the public APK/AAB next to their SHA256SUMS file and check them. After signing, verify the AAB signature:
 
 ```bash
 sha256sum -c SHA256SUMS
@@ -88,3 +88,7 @@ Requirements checked 5 November 2026; recheck before uploading:
 - [Data safety information](https://support.google.com/googleplay/android-developer/answer/10787469).
 
 For a real mobility business, complete the backend, dispatch, merchant, payments, safety, support and operational work in [ARCHITECTURE.md](ARCHITECTURE.md) before changing the demo claim.
+
+## Process limits
+
+Use the existing verified build for signing-only handovers. Native Android CI caches its toolchain, cancels superseded runs on the same branch, and has a 45-minute total limit. Publication has a 10-minute limit. Documentation and signing records do not require another native compilation.
