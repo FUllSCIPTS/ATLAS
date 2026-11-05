@@ -1,8 +1,15 @@
 # ATLAS ride-hailing UML blueprint
 
-Use this blueprint to reproduce or extend the runnable ATLAS starter on the `architecture-explorer` branch. It covers the passenger and driver apps, FastAPI services, event worker, database, ML training and serving, policy training, and verification scripts.
+Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
+- **Android app** — ATLAS Go, the Python/Kivy passenger app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): solo rides, shared rides, food ordering, activity and privacy, stored on the device.
+- **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
+- **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving.
+- **Databases** — the device's `state.json`, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
+
+The Android app runs offline today. [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the food and shared-ride parts the back end does not yet implement.
+
+[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
 ## Start from the implementation
 
@@ -18,6 +25,57 @@ docker compose exec -T -e KAFKA_BOOTSTRAP=kafka:9092 gateway python -m tests.rep
 ```
 
 The [local SQLite quickstart](../README.md#start-locally-without-docker) runs the same business handlers without a broker. The full Compose run is the acceptance check for the PostgreSQL and Kafka deployment.
+
+## System overview: apps, front end, back end and databases
+
+```mermaid
+flowchart TD
+    subgraph Clients["Apps and front end"]
+        A["ATLAS Go Android app<br/>Python · Kivy · main branch"]
+        W1["Passenger web page<br/>apps/passenger"]
+        W2["Driver web page<br/>apps/driver"]
+    end
+    subgraph Backend["Back end · this branch"]
+        G["Gateway · :8000<br/>bearer keys · route allowlist"]
+        T["Trip API"]
+        D["Dispatch API"]
+        E["Event worker<br/>outbox relay and consumer"]
+        M["Model serving API"]
+        R["RL watcher"]
+    end
+    subgraph Data["Databases and stores"]
+        S[("state.json<br/>on the device")]
+        P[("PostgreSQL · or SQLite locally<br/>trips · drivers · offers · outbox · inbox · experience")]
+        K[("Kafka topic<br/>atlas.ride.v1")]
+        V[("Artifact volume<br/>models · features · policies")]
+    end
+    A --> S
+    A -. "planned · RemoteRepository over HTTPS" .-> G
+    W1 --> G
+    W2 --> G
+    G --> T
+    G --> D
+    T --> P
+    D --> P
+    E --> P
+    E <--> K
+    E --> M
+    M --> V
+    E --> V
+    R --> P
+    R --> V
+```
+
+| Layer | Component | Technology | Stores data in | Status |
+| --- | --- | --- | --- | --- |
+| App | ATLAS Go Android app | Python 3, Kivy 2.3.1, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage | Runs offline; all rides, orders and drivers simulated |
+| Front end | Passenger page | HTML + [`apps/shared/client.js`](../apps/shared/client.js) | Browser memory only | Runs against the gateway |
+| Front end | Driver page | HTML + the same client script | Browser memory only | Runs against the gateway |
+| Back end | Gateway | FastAPI, httpx | None | Runs |
+| Back end | Trip and Dispatch APIs | FastAPI, Pydantic | PostgreSQL / SQLite | Runs; ride hailing only |
+| Back end | Event worker | Python, Kafka client | PostgreSQL, Kafka, artifact volume | Runs |
+| Back end | Model API and RL watcher | PyTorch LSTM, scikit-learn, batch Q-learning | Artifact volume, PostgreSQL | Runs |
+| Back end | Food and shared-ride services | — | — | Not implemented; [proposed contract](#proposed-back-end-extensions-for-the-android-app) |
 
 ## Folder hierarchy
 
@@ -91,6 +149,279 @@ architecture-explorer/
 
 <!-- END GENERATED TREE -->
 
+## Android app (ATLAS Go)
+
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). Every screen, rule, storage operation and test is Python. Links below point to the source at commit [`7e98e01`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app).
+
+```text
+android-app/
+├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
+├── buildozer.spec          Android API 36, min API 26, arm64-v8a + x86_64, no permissions
+├── atlas_go/
+│   ├── domain.py           Places, distances, fares, menu, Dish, Offer, Cart
+│   ├── store.py            LocalStore: atomic JSON persistence and booking rules
+│   ├── app.py              AtlasGoApp, Panel, RouteMap: Kivy screens and navigation
+│   └── acceptance.py       Debug-only UI click-through and screenshot capture
+├── tests/test_domain.py    Domain and repository regression tests
+├── scripts/                Emulator acceptance, signing and release checks
+├── docs/                   User guide, architecture, privacy, Play handover, screenshots, demo video
+└── releases/               Signed bundle evidence and checksums
+```
+
+### App layers
+
+```mermaid
+flowchart LR
+    U["AtlasGoApp<br/>screens · navigation · buttons"] --> L["LocalStore<br/>commands · validation · rollback"]
+    L --> DM["domain.py<br/>fare · distance · Offer · Cart · MENU"]
+    L --> J[("state.json<br/>app-private storage")]
+    X["Acceptance<br/>debug builds only"] --> U
+```
+
+The UI never edits state directly. It calls a `LocalStore` command; the store applies domain rules, writes the file atomically, and restores the previous in-memory state if the write fails.
+
+### App class diagram
+
+```mermaid
+classDiagram
+    class App
+    class BoxLayout
+    class Widget
+    class AtlasGoApp {
+        +LocalStore store
+        +str screen
+        +int pickup
+        +int destination
+        +int party
+        +bool comfort
+        +int restaurant
+        +int address
+        +build()
+        +render()
+        +go(screen)
+        +book_solo()
+        +book_shared(offer_id)
+        +next_ride()
+        +cancel_ride()
+        +add_food(item)
+        +remove_food(item)
+        +checkout()
+        +next_order()
+        +reset()
+    }
+    class Panel {
+        +_redraw()
+    }
+    class RouteMap {
+        +draw()
+    }
+    class Acceptance {
+        +start()
+        +click(key)
+        +capture(name)
+        +next_step()
+        +finish(success, detail)
+    }
+    class LocalStore {
+        +Path path
+        +Cart cart
+        +list history
+        +dict ride
+        +dict order
+        +dict ui
+        +list~Offer~ offers
+        +load()
+        +validate(data)$
+        +save()
+        +snapshot()
+        +commit(before)
+        +update_cart(operation, item)
+        +book(pickup, destination, comfort, offer_id, party)
+        +advance_ride(cancel)
+        +checkout(address)
+        +advance_order()
+        +reset(save, preserve_diagnostic)
+    }
+    class Offer {
+        +str id
+        +str driver
+        +int pickup
+        +int destination
+        +int capacity
+        +int price
+        +int seats
+        +matches(pickup, destination, party) bool
+        +reserve(party)
+        +release(party)
+    }
+    class Cart {
+        +dict items
+        +restaurant() int
+        +add(item)
+        +remove(item)
+        +count() int
+        +subtotal() int
+        +total() int
+        +clear()
+    }
+    class Dish {
+        <<frozen dataclass>>
+        +str id
+        +str name
+        +str detail
+        +int restaurant
+        +int price
+    }
+    App <|-- AtlasGoApp
+    BoxLayout <|-- Panel
+    Widget <|-- RouteMap
+    AtlasGoApp "1" *-- "1" LocalStore : owns
+    AtlasGoApp ..> Panel : builds cards
+    AtlasGoApp ..> RouteMap : draws route
+    Acceptance --> AtlasGoApp : drives controls
+    LocalStore "1" *-- "1" Cart : basket
+    LocalStore "1" *-- "4" Offer : shared seats
+    Cart ..> Dish : prices from MENU
+```
+
+Module functions in [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/atlas_go/domain.py): `distance(pickup, destination)` reads the 4 × 4 kilometre table, `fare(pickup, destination, comfort)` returns `(350 + km × 170)` cents with a 30 % comfort uplift, and `money(cents)` formats euros. All money is integer cents.
+
+### Screen navigation
+
+```mermaid
+stateDiagram-v2
+    [*] --> home
+    home --> ride : Ride
+    home --> share : Share ride
+    home --> food : Food
+    ride --> active_ride : book_solo
+    share --> active_ride : book_shared
+    active_ride --> activity : completed or cancelled
+    food --> menu : open_menu
+    menu --> cart : basket
+    cart --> active_order : checkout
+    active_order --> activity : delivered
+    home --> profile : You
+    profile --> privacy
+    note right of home
+        Bottom bar on every screen:
+        Home · Share · Food · Activity · You (profile)
+    end note
+```
+
+The current screen and form choices are saved in `ui` so the app reopens where the user left it.
+
+### On-device ride and order lifecycles
+
+```mermaid
+stateDiagram-v2
+    state "Ride" as R {
+        [*] --> driver_confirmed : book (stage 0)
+        driver_confirmed --> at_pickup : simulate (stage 1)
+        at_pickup --> on_your_way : simulate (stage 2)
+        on_your_way --> Completed : complete
+        driver_confirmed --> Cancelled : cancel
+        at_pickup --> Cancelled : cancel
+        on_your_way --> Cancelled : cancel
+    }
+    state "Food order" as F {
+        [*] --> kitchen_preparing : checkout (stage 0)
+        kitchen_preparing --> courier_on_the_way : simulate (stage 1)
+        courier_on_the_way --> arriving : simulate (stage 2)
+        arriving --> Delivered : mark delivered
+    }
+```
+
+Only one active ride and one active order can exist. Cancelling a shared ride releases its seats back to the offer. Completed, cancelled and delivered records move to `history`. Stages advance only when the user presses the simulation button.
+
+### On-device data model (`state.json`)
+
+The app's only database is one JSON document in app-private storage. Each save writes `state.tmp`, calls `fsync`, then atomically replaces `state.json`. Damaged JSON is kept as `state.invalid.json` and a clean demo state is created. Android backup is disabled.
+
+```mermaid
+erDiagram
+    STATE ||--|| CART : "cart"
+    STATE ||--o| RIDE : "ride (active)"
+    STATE ||--o| ORDER : "order (active)"
+    STATE ||--o{ HISTORY_RECORD : "history"
+    STATE ||--o{ SEATS : "seats per offer"
+    STATE ||--|| UI : "ui"
+    CART ||--o{ CART_ITEM : "items"
+    ORDER ||--|{ CART_ITEM : "items"
+    STATE {
+        object cart
+        array history
+        object ride
+        object order
+        object seats
+        object ui
+    }
+    CART_ITEM {
+        string dish_id "bowl, wrap, juice, pizza, ..."
+        int quantity "1 to 10"
+    }
+    RIDE {
+        string id "R- plus nanosecond timestamp"
+        int pickup "0..3 PLACES"
+        int destination "0..3, not pickup"
+        bool shared
+        int party "1 or 2"
+        string offer "pool-1..pool-4 or null"
+        string driver
+        int fare "cents"
+        int stage "0..2"
+        string status "Completed or Cancelled in history"
+    }
+    ORDER {
+        string id "F- plus nanosecond timestamp"
+        int restaurant "0..2"
+        int address "0..3 PLACES"
+        object items
+        int fare "cents incl. 250 delivery"
+        int stage "0..2"
+        string status "Delivered in history"
+    }
+    SEATS {
+        string offer_id "pool-1..pool-4"
+        int seats "0..capacity"
+    }
+    UI {
+        string screen
+        int pickup
+        int destination
+        int party
+        bool comfort
+        int restaurant
+        int address
+    }
+```
+
+Reference data is compiled into [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/atlas_go/domain.py), not stored: four places (UCC Campus, Cork City Centre, Kent Station, Cork Airport), three restaurants (Green Bowl Kitchen, Marina Pizza, Spice Route), nine dishes, and four shared-ride offers seeded by `LocalStore.reset`. `LocalStore.validate` checks every loaded field (types, ranges, known offer IDs, basket limits) before a screen reads it.
+
+### Booking and ordering on the device
+
+```mermaid
+sequenceDiagram
+    actor Passenger
+    participant UI as AtlasGoApp
+    participant Store as LocalStore
+    participant Domain as domain.py
+    participant File as state.json
+    Passenger->>UI: Book ride
+    UI->>Store: book(pickup, destination, comfort, offer_id, party)
+    Store->>Domain: distance() and fare(), or Offer.matches() and reserve()
+    Store->>File: save() via temp file and atomic replace
+    Store-->>UI: ride at stage 0 · driver confirmed
+    Passenger->>UI: Add dishes, check out
+    UI->>Store: update_cart('add', item) then checkout(address)
+    Store->>Domain: Cart.add(), Cart.total()
+    Store->>File: save()
+    Store-->>UI: order at stage 0 · kitchen preparing
+    Passenger->>UI: Simulate next stage
+    UI->>Store: advance_ride() or advance_order()
+    Store->>File: save() and move finished records to history
+```
+
 ## Component and deployment boundaries
 
 Only the gateway is published on the host loopback interface in the starter. The trip, dispatch and model APIs run on the internal network. The same event worker performs outbox relay and event consumption in this demo.
@@ -122,6 +453,18 @@ flowchart TD
 | Event worker | Publish acknowledged outbox events, deduplicate consumption, create offers, apply assignment and collect learning features | [workers/events.py](../workers/events.py) |
 | Model API | Load versioned artifacts and score candidates with demand, acceptance, anomaly and policy signals | [ml/serve.py](../ml/serve.py) |
 | RL watcher | Train candidates from completed rides. Review and approval run as separate commands. | [ml/rl.py](../ml/rl.py) |
+
+### Web front end
+
+The gateway serves two static pages and one shared script. Both pages call the gateway only; the browser never reaches the internal services.
+
+| Page | Route | Uses |
+| --- | --- | --- |
+| Passenger | `/` and `/passenger` → [`apps/passenger/index.html`](../apps/passenger/index.html) | `POST /v1/rider/trips` with an `Idempotency-Key`, then polls `GET /v1/rider/trips/{id}` |
+| Driver | `/driver` → [`apps/driver/index.html`](../apps/driver/index.html) | `PUT /v1/driver/availability`, `GET /v1/driver/offers`, `POST /v1/driver/offers/{id}/accept`, `POST /v1/driver/trips/{id}/milestones` |
+| Shared | `/assets/client.js` → [`apps/shared/client.js`](../apps/shared/client.js) | `request()` adds the role's demo bearer key; `refresh()` polls and renders; form handlers for booking and telemetry |
+
+The Android app plays the same role as the passenger page. When connected, it must use the same `/v1/rider/...` routes through the gateway (see below).
 
 ## Class diagrams
 
@@ -257,6 +600,17 @@ erDiagram
 
 The compound unique key `trips(rider_id, request_key)` makes booking retries idempotent. The inbox primary key prevents duplicate event side effects. One offer and one learning record are stored per trip. The `pending_outbox(sent, seq)` index supports the relay.
 
+### Databases at a glance
+
+| Store | Owner | Engine | Holds | Durability |
+| --- | --- | --- | --- | --- |
+| `state.json` | Android app | JSON file, atomic replace | Basket, active ride and order, history, shared-seat counts, screen state | On the device only; deleted by Reset or uninstall |
+| `atlas` database | Trip, Dispatch, event worker, RL watcher | PostgreSQL in Compose; SQLite in the local quickstart | `trips`, `drivers`, `offers`, `outbox`, `inbox`, `experience` ([schema](../infra/schema.sql)) | Transactional; outbox and inbox give at-least-once delivery without duplicate effects |
+| `atlas.ride.v1` | Event worker | Kafka | Ride events keyed by trip ID ([schema](../packages/ride-event.schema.json)) | Broker log; consumer offsets committed after database effects |
+| Artifact volume | Model API, worker, RL watcher | Files | Versioned models, manifest, demand features, candidate and active policies | Atomic active-policy pointer |
+
+The device file and the server database share no schema today. The server is the future source of truth; the device would keep only a cache and screen state.
+
 ## Trip state machine
 
 ```mermaid
@@ -358,13 +712,169 @@ flowchart TD
 
 The LSTM reads 12 five-minute counts. Logistic regression and Isolation Forest read distance and speed. The RL state is forecast bucket `0` below 8 or `1` at least 8. Action `0` ranks by distance and action `1` ranks by acceptance probability. The policy watcher creates candidates after at least 80 completed outcomes. Training does not activate candidates. Inference uses an approved strategy only when `ATLAS_POLICY_ENABLED=1`. Rollback restores the nearest-driver baseline.
 
+## Connecting the Android app to the back end
+
+This section is a design for the next step. None of it is implemented yet: the Android app makes no network calls.
+
+### Repository boundary
+
+Introduce a repository interface in the app. Keep `LocalStore` as the offline demo implementation and add a `RemoteRepository` that calls the gateway over HTTPS. Run network calls off Kivy's main thread and apply results back on it.
+
+```mermaid
+classDiagram
+    class PassengerRepository {
+        <<interface>>
+        +book(pickup, destination, comfort, offer_id, party)
+        +ride_status(trip_id)
+        +cancel_ride(trip_id)
+        +shared_offers(pickup, destination, party)
+        +restaurants()
+        +menu(restaurant_id)
+        +checkout(basket, address)
+        +order_status(order_id)
+        +history()
+    }
+    class LocalStore {
+        offline demo · state.json
+    }
+    class RemoteRepository {
+        +str base_url
+        +TokenStore tokens
+        +HttpClient http
+    }
+    class TokenStore {
+        Android Keystore-backed
+    }
+    class AtlasGoApp
+    PassengerRepository <|.. LocalStore
+    PassengerRepository <|.. RemoteRepository
+    AtlasGoApp --> PassengerRepository
+    RemoteRepository --> TokenStore
+```
+
+### Command-to-API map
+
+| App action | `LocalStore` today | Back end today | Gap to close |
+| --- | --- | --- | --- |
+| Book a solo ride | `book(pickup, destination, comfort)` | `POST /v1/rider/trips` with `Idempotency-Key`; body `pickup`, `destination`, `zone` | Map place indexes to place names and a zone (`cork-centre` or `cork-north`); add fare quote and comfort option on the server |
+| Watch a ride | `advance_ride()` on button press | `GET /v1/rider/trips/{id}` polling | Map server status to app stages: `requested` → finding a driver, `assigned` → driver confirmed, `picked_up` → on your way, `completed` → completed. The server has no separate "at pickup" status |
+| Driver gets the pickup location | Simulated driver name | Worker creates an offer; driver page polls `GET /v1/driver/offers` and accepts | Driver app shows pickup text only; add GPS coordinates and routing as a separate extension |
+| Cancel a ride | `advance_ride(cancel=True)` | Not available | Add a cancel route and a `cancelled` trip status |
+| Shared ride | `Offer.matches`, `reserve`, `release` | Not available | [Proposed shared-ride API](#proposed-back-end-extensions-for-the-android-app) |
+| Food menu, basket, checkout, tracking | `Cart`, `checkout`, `advance_order` | Not available | [Proposed food API](#proposed-back-end-extensions-for-the-android-app) |
+| Activity | `history` in `state.json` | Not available | Add `GET /v1/rider/history` |
+| Identity | None (guest profile) | Demo bearer keys per role | Real sign-in and token issuance before any public release |
+
+### Connected booking sequence
+
+```mermaid
+sequenceDiagram
+    actor Passenger
+    participant App as AtlasGoApp
+    participant Repo as RemoteRepository
+    participant Gateway
+    participant Trip
+    participant DB as PostgreSQL
+    Passenger->>App: Book ride
+    App->>Repo: book(...) on a background thread
+    Repo->>Gateway: POST /v1/rider/trips · Bearer token · Idempotency-Key
+    Gateway->>Trip: Forward with internal rider identity
+    Trip->>DB: Insert trip and trip.requested outbox row
+    Trip-->>Gateway: 202 trip snapshot
+    Gateway-->>Repo: 202 trip ID
+    Repo-->>App: Show "requested" on the main thread
+    loop Until completed
+        Repo->>Gateway: GET /v1/rider/trips/{id}
+        Gateway-->>Repo: status and driver_id
+        Repo-->>App: Update stage
+    end
+```
+
+Retries must reuse the same idempotency key, so a lost response never books twice. The phone never connects to Kafka, the database or the model API directly.
+
+### Proposed back-end extensions for the Android app
+
+These tables and routes are a proposal to support the app's food and shared-ride features. They are not in [`infra/schema.sql`](../infra/schema.sql) and no service implements them.
+
+```mermaid
+erDiagram
+    RESTAURANTS ||--o{ MENU_ITEMS : offers
+    RESTAURANTS ||--o{ FOOD_ORDERS : receives
+    FOOD_ORDERS ||--|{ ORDER_ITEMS : contains
+    MENU_ITEMS ||--o{ ORDER_ITEMS : "ordered as"
+    FOOD_ORDERS ||--o{ OUTBOX : emits
+    SHARED_OFFERS ||--o{ SEAT_RESERVATIONS : holds
+    TRIPS ||--o| SEAT_RESERVATIONS : "shared trip"
+    RESTAURANTS {
+        text id PK
+        text name
+        text place
+        integer delivery_fee_cents
+        integer open
+    }
+    MENU_ITEMS {
+        text id PK
+        text restaurant_id FK
+        text name
+        text detail
+        integer price_cents
+        integer available
+    }
+    FOOD_ORDERS {
+        text id PK
+        text rider_id
+        text request_key
+        text restaurant_id FK
+        text address
+        text status "placed, preparing, collected, delivered, cancelled"
+        text courier_id
+        integer total_cents
+        bigint created_at
+    }
+    ORDER_ITEMS {
+        text order_id PK, FK
+        text item_id PK, FK
+        integer quantity "1 to 10"
+        integer unit_price_cents
+    }
+    SHARED_OFFERS {
+        text id PK
+        text driver_id FK
+        text pickup
+        text destination
+        integer capacity
+        integer seats_left
+        integer price_cents
+        bigint departs_at
+    }
+    SEAT_RESERVATIONS {
+        text offer_id PK, FK
+        text trip_id PK, FK
+        integer party "1 or 2"
+    }
+```
+
+Rules carried over from the app: `UNIQUE (rider_id, request_key)` on `food_orders`; one restaurant per order; at most ten of each item; prices copied into `order_items` at checkout; seat reservation as one conditional update (`seats_left = seats_left - party WHERE seats_left >= party`) in the same transaction as its outbox row; cancellation returns seats. Totals and seat counts are decided by the server, never by the phone.
+
+| Proposed route | Purpose |
+| --- | --- |
+| `GET /v1/rider/restaurants` · `GET /v1/rider/restaurants/{id}/menu` | Restaurant list and menu with server prices |
+| `POST /v1/rider/orders` (`Idempotency-Key`) · `GET /v1/rider/orders/{id}` | Checkout and order tracking (`food.order.placed` … `food.order.delivered` events) |
+| `POST /v1/courier/orders/{id}/milestones` | Courier collects at the restaurant and delivers to the address |
+| `GET /v1/rider/shared-offers?pickup=&destination=&party=` · `POST /v1/rider/shared-offers/{id}/reserve` | Shared-ride search and atomic seat reservation |
+| `POST /v1/rider/trips/{id}/cancel` | Ride cancellation; releases driver and seats |
+| `GET /v1/rider/history` | Activity screen |
+
+Each new route must be added to the gateway's `ROUTES` allowlist with its role.
+
 ## Rebuild checklist
 
 1. Run the [starter smoke and policy checks](../README.md#start-with-postgresql-and-kafka) against the existing code. Use the request paths and payloads in the [API contract](../README.md#api-and-data-contracts) as the compatibility baseline.
 2. Implement changes through existing boundaries. Preserve rider and driver ownership, transactional state and outbox writes, deduplication, the state machine, model versions and explicit policy approval.
 3. Test one complete ride, a booking retry with the same key, a forbidden offer acceptance, an invalid state transition, model outputs and one terminal experience. Run `tests.replay` against the configured Kafka broker before claiming deployment readiness.
 4. Treat GPS, routing, offer expiry and re-matching, cancellations, payments, production identity and representative training data as separately scoped extensions.
-5. Regenerate the blueprint after changing code. Commit the updated generated sections and JSON with the source changes.
+5. For the Android app, run `python -m pytest tests` in `android-app/` on the `main` branch and the emulator acceptance workflow before and after changes. When connecting it to the back end, add the repository interface first, keep `LocalStore` passing its tests, and test `RemoteRepository` against a staging gateway.
+6. Regenerate the blueprint after changing code. Commit the updated generated sections and JSON with the source changes.
 
 From `starter/`, use Python 3.12 and Node.js with npm. The generator uses the Python standard library and the pinned Acorn parser for JavaScript.
 
