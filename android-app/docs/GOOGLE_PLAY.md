@@ -1,6 +1,6 @@
 # Build and Google Play handover
 
-This release is a Python/Kivy, offline **demonstration app**. Its signed AAB is technically prepared for an internal-test upload. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
+This release is a Python/Kivy, offline **demonstration app**. Its release AAB must be signed with the owner's private upload key before an internal-test upload. It is not already on Google Play, and approval is not guaranteed. Do not describe it as providing actual rides or deliveries.
 
 ## Build tools
 
@@ -20,7 +20,7 @@ buildozer android release
 
 ## Signing and package ownership
 
-The owner's separate signed handover includes `releases/atlas-go-play.aab`, signed with a dedicated upload key. Public GitHub downloads include an installable debug APK and an unsigned AAB for reproducible builds. Its private keystore and password are handed over privately; they are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
+Public GitHub downloads include an installable debug APK and an unsigned release AAB. The owner receives the dedicated upload keystore and password in a separate private backup. Sign the downloaded AAB locally using the command below. The private key and password are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
 
 Before first upload, decide whether to keep `org.atlas.mobility`. Application IDs must be available in Play and cannot be changed for the same listed app. Change `package.name` and `package.domain` in `buildozer.spec` and rebuild if needed. Increment the Buildozer `version` and `android.numeric_version` for future Play updates.
 
@@ -36,7 +36,7 @@ bash scripts/sign-release.sh bin/*release.aab releases/atlas-go-play.aab
 unset ATLAS_UPLOAD_PASSWORD
 ```
 
-`sign-release.sh` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the delivered release APK is already signed.
+`sign-release.sh` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the public demo APK is already signed for installation; an owner-key release APK can be generated from the signed AAB using bundletool.
 
 ## Console steps the owner must finish
 
@@ -68,10 +68,10 @@ Full description:
 
 ## Release verification
 
-Check the download checksums and `releases/VALIDATION.md`. After extracting the signed handover, verify its files from the handover root:
+Check the download checksums and `releases/VALIDATION.md`. Download the public APK/AAB next to their SHA256SUMS file and check them. After signing, verify the AAB signature:
 
 ```bash
-sha256sum -c releases/SHA256SUMS
+sha256sum -c SHA256SUMS
 jarsigner -verify releases/atlas-go-play.aab
 ```
 

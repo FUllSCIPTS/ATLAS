@@ -11,7 +11,7 @@ Source, tests and documentation are stored in `android-app/`. Downloadable binar
 | `android-ui-results.json` | Android interaction test results |
 | `native-alignment.txt` | 16 KB native-library checks |
 
-The owner receives a separate signed handover containing `atlas-go.apk`, `atlas-go-play.aab`, checksums and documentation. Its upload-key backup is delivered privately, never in this public repository. Back up the key before using this package ID in Play Console.
+The owner receives a separate private upload-key backup containing the keystore and its credentials. It is never included in this public repository. The public AAB requires that key's signature before Play Console upload. Follow the signing commands in the Google Play guide and keep two secure key backups.
 
 Version 1.0.0 / versionCode 1. Application ID `org.atlas.mobility`. Android 8.0+ / target Android 16. The AAB is for Play Console → Internal testing; it cannot be installed by tapping it. If the application ID is already taken, change it and rebuild before first publication.
 

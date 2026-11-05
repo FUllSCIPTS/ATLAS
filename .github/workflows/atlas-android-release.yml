@@ -49,6 +49,16 @@ jobs:
           cp artifact/test-output/native-alignment.txt downloads/
           (cd artifact/test-output/android && zip -q "$GITHUB_WORKSPACE/downloads/atlas-go-screenshots.zip" *.png)
           (cd downloads && sha256sum *.apk *.aab > SHA256SUMS)
+          python android-app/scripts/finalize-handover.py --artifact artifact --source "$SOURCE_SHA" --run-url "$BUILD_URL"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add android-app/docs/screenshots android-app/releases/VALIDATION.md android-app/releases/SHA256SUMS
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add verified Android screenshots and release acceptance evidence'
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
           printf 'Python/Kivy offline model: solo rides, shared-seat reservations and food ordering. No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. AAB: release build requiring your private upload-key signature before Play upload.\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
           if ! gh release view atlas-go-v1.0.0 >/dev/null 2>&1; then
             gh release create atlas-go-v1.0.0 --target "$SOURCE_SHA" --prerelease --title 'ATLAS Go 1.0.0 — Python Android demo' --notes-file release-notes.md
