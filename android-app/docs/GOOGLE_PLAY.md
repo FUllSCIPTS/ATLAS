@@ -20,7 +20,7 @@ buildozer android release
 
 ## Signing and package ownership
 
-The delivered `releases/atlas-go-play.aab` is signed with a dedicated upload key. Its private keystore and password are handed over privately; they are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
+The owner's separate signed handover includes `releases/atlas-go-play.aab`, signed with a dedicated upload key. Public GitHub downloads include an installable debug APK and an unsigned AAB for reproducible builds. Its private keystore and password are handed over privately; they are never committed here. Keep at least two secure backups. Enrol in Play App Signing so Google holds the distribution signing key. Use the same upload key for subsequent bundles unless you perform a Console upload-key reset.
 
 Before first upload, decide whether to keep `org.atlas.mobility`. Application IDs must be available in Play and cannot be changed for the same listed app. Change `package.name` and `package.domain` in `buildozer.spec` and rebuild if needed. Increment the Buildozer `version` and `android.numeric_version` for future Play updates.
 
@@ -32,7 +32,7 @@ export ATLAS_UPLOAD_KEYSTORE=/absolute/private/path/atlas-upload.p12
 export ATLAS_UPLOAD_ALIAS=atlas-upload
 # Read the password privately in your shell; do not put it into a Git file.
 read -rs ATLAS_UPLOAD_PASSWORD; export ATLAS_UPLOAD_PASSWORD
-bash scripts/sign-release.sh bin/atlas-go-release.aab releases/atlas-go-play.aab
+bash scripts/sign-release.sh bin/*release.aab releases/atlas-go-play.aab
 unset ATLAS_UPLOAD_PASSWORD
 ```
 
@@ -57,7 +57,7 @@ Short description: **Explore simulated rides, shared journeys and food ordering 
 
 Full description:
 
-> Explore a native Android model of a mobility and food application. Preview solo ride fares, join shared journeys with seat availability, browse illustrative restaurant menus, build a basket, and step through simulated ride and delivery tracking. View local activity history and reset demo data whenever you like. Works offline, with no login, ads, location tracking or payment information. All bookings, drivers, restaurants, routes and deliveries are demonstrations. ATLAS Go does not arrange transport or deliver food.
+> Explore a Python-powered Android model of a mobility and food application. Preview solo ride fares, join shared journeys with seat availability, browse illustrative restaurant menus, build a basket, and step through simulated ride and delivery tracking. View local activity history and reset demo data whenever you like. Works offline, with no login, ads, location tracking or payment information. All bookings, drivers, restaurants, routes and deliveries are demonstrations. ATLAS Go does not arrange transport or deliver food.
 
 ## Listing assets
 
@@ -68,14 +68,14 @@ Full description:
 
 ## Release verification
 
-Check `releases/SHA256SUMS` and `releases/VALIDATION.md`. To verify a bundle locally:
+Check the download checksums and `releases/VALIDATION.md`. After extracting the signed handover, verify its files from the handover root:
 
 ```bash
 sha256sum -c releases/SHA256SUMS
 jarsigner -verify releases/atlas-go-play.aab
 ```
 
-The test device is an emulator. Physical-device testing, accessibility review with TalkBack, larger font sizes, tablets/foldables, process termination and production security review remain owner release checks. The UI supports scrolling and saves its screen/form selections on navigation and pause, but the emulator run does not prove compatibility with every Android device.
+The Android test device is an emulator. See [the testing report](TESTING.md) for the exact scope and fixes. Physical-device testing, accessibility review with TalkBack, larger font sizes, tablets/foldables, process termination and production security review remain owner release checks. The UI supports scrolling and saves its screen/form selections on navigation and pause, but the emulator run does not prove compatibility with every Android device.
 
 ## Official references
 

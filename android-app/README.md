@@ -9,6 +9,7 @@ This is a fully runnable **offline demonstration**, not a transport operator. Al
 - [Build, signing and Google Play submission](docs/GOOGLE_PLAY.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md)
 - [Privacy notice](docs/PRIVACY.md)
+- [Testing scope and fixes](docs/TESTING.md)
 - [Automated Android acceptance workflow](https://github.com/FUllSCIPTS/ATLAS/actions/workflows/atlas-android.yml)
 
 ## What works
