@@ -11,6 +11,8 @@ parser.add_argument('--artifact',required=True)
 parser.add_argument('--source',required=True)
 parser.add_argument('--run-url',required=True)
 args=parser.parse_args()
+version=Path('android-app/atlas_go/__init__.py').read_text().split("'")[1]
+tag=f'atlas-go-v{version}'
 artifact=Path(args.artifact)
 android=artifact/'test-output/android'
 result=json.loads((android/'result.json').read_text())
@@ -51,7 +53,7 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 - {alignment}
 
 The source, screenshots, build workflow and documentation are in this repository.
-The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0)
+The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/{tag})
 contains the installable debug APK, unsigned release AAB, screenshot archive and evidence.
 
 ## Public binary SHA-256
