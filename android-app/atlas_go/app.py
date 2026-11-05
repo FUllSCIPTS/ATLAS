@@ -21,6 +21,7 @@ from .domain import PLACES, RESTAURANTS, MENU, DISHES, distance, fare, money
 from .store import LocalStore
 from . import intelligence as ai
 from . import learned
+from . import __version__
 
 GREEN = color('#075E4A')
 INK = color('#182D26')
@@ -618,7 +619,7 @@ class AtlasGoApp(App):
             self.label(card,record['id'],10,MUTED)
 
     def profile(self):
-        self.title_block('Your space','Hello, explorer.','ATLAS Go · Python model application · v1.0.0')
+        self.title_block('Your space','Hello, explorer.',f'ATLAS Go · Python model application · v{__version__}')
         card = self.box(self.body)
         self.label(card,'DEMO PROFILE',11,GREEN,True)
         self.label(card,'Guest passenger',25,INK,True)
