@@ -44,6 +44,7 @@ jobs:
             android-app/.buildozer
             ~/.gradle
           key: atlas-p4a-36-28c-v1-${{ hashFiles('android-app/buildozer.spec') }}
+          restore-keys: atlas-p4a-36-28c-v1-
       - name: Build Python Android APK and release AAB
         run: |
           buildozer -v android debug > build-android.log 2>&1
