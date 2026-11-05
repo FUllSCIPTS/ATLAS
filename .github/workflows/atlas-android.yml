@@ -86,7 +86,7 @@ jobs:
           api-level: 36
           target: google_apis
           arch: x86_64
-          profile: pixel_5
+          profile: pixel_2
           ram-size: 2048M
           disable-animations: true
           working-directory: android-app

@@ -12,6 +12,8 @@ for screenshot in screenshots:
     with Image.open(screenshot).convert('RGB') as image:
         width,height=image.size
         assert width>=320 and height>=600,(screenshot,image.size)
+        if path.name=='android':
+            assert max(width,height)<=3840 and max(width,height)<=2*min(width,height),(screenshot,'Play screenshot dimensions',image.size)
         top=image.crop((0,0,width,height//3))
         assert top.getextrema() != ((0,0),(0,0),(0,0)),f'Blank/clipped screenshot: {screenshot}'
         assert len(top.getcolors(width*height) or [])>10,f'Empty screen: {screenshot}'

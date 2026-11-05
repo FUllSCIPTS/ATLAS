@@ -63,7 +63,7 @@ Full description:
 
 - `docs/play-assets/icon-512.png`: original 512 × 512 app icon.
 - `docs/play-assets/feature-1024x500.png`: original 1024 × 500 feature graphic.
-- `docs/screenshots/01-home.png` through `12-privacy.png`: portrait phone screenshots from the Android 16 emulator. Use the Home, Ride, Share, Food and Basket images for the listing.
+- `docs/screenshots/01-home.png` through `12-privacy.png`: 9:16 portrait phone screenshots from the Android 16 emulator. The capture verifier checks Play dimension/aspect limits; see [the eight-image listing selection and alt text](play-assets/SCREENSHOTS.md). Use the Home, Ride, Share, Food and Basket images for the listing.
 - In-app icon: original image `assets/icon.png`.
 
 ## Release verification
