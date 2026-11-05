@@ -1,4 +1,4 @@
-"""Local JSON persistence; no live services, payments or model inference."""
+"""Local JSON persistence; no live services or payments. Learned policies run locally (intelligence.py)."""
 from copy import deepcopy
 import json
 import os
@@ -74,6 +74,10 @@ class LocalStore:
                 if not isinstance(record.get('items'), dict) or not record['items']:
                     raise ValueError('Invalid food items.')
                 Cart(record['items'])
+                courier = record.get('courier')
+                if courier is not None and (not isinstance(courier, dict) or
+                                            any(type(v) is not int or v < 0 for v in courier.values())):
+                    raise ValueError('Invalid courier plan.')
             else:
                 distance(record.get('pickup', -1), record.get('destination', -1))
                 if record.get('party') not in (1, 2) or not isinstance(record.get('driver'), str):
@@ -82,6 +86,8 @@ class LocalStore:
                     raise ValueError('Invalid ride kind.')
                 if record['shared'] and record.get('offer') not in ('pool-1','pool-2','pool-3','pool-4'):
                     raise ValueError('Invalid shared offer.')
+                if not isinstance(record.get('why', ''), str):
+                    raise ValueError('Invalid dispatch explanation.')
         ui = data.get('ui', {})
         for key, bound in {'pickup':4, 'destination':4, 'restaurant':3, 'address':4}.items():
             if key in ui and (type(ui[key]) is not int or ui[key] not in range(bound)):
@@ -90,7 +96,9 @@ class LocalStore:
             ui.pop('party')
         if 'comfort' in ui and type(ui['comfort']) is not bool:
             ui.pop('comfort')
-        if ui.get('screen', 'home') not in ('home','ride','share','food','menu','cart','active_ride','active_order','activity','profile','privacy'):
+        if 'outlook_day' in ui and (type(ui['outlook_day']) is not int or not -400 <= ui['outlook_day'] <= 400):
+            ui.pop('outlook_day')
+        if ui.get('screen', 'home') not in ('home','ride','share','food','menu','cart','active_ride','active_order','activity','profile','privacy','intelligence'):
             ui.pop('screen')
 
     def save(self) -> None:
@@ -128,7 +136,8 @@ class LocalStore:
         self.commit(before)
 
     def book(self, pickup: int, destination: int, comfort: bool = False,
-             offer_id: str | None = None, party: int = 1) -> None:
+             offer_id: str | None = None, party: int = 1,
+             driver: str | None = None, why: str | None = None) -> None:
         if self.ride:
             raise ValueError('Finish or cancel your active ride first.')
         distance(pickup, destination)
@@ -142,8 +151,10 @@ class LocalStore:
             offer.reserve(party)
         self.ride = dict(id=f'R-{time_ns()}', pickup=pickup, destination=destination,
                          shared=bool(offer), party=party, offer=offer_id,
-                         driver=offer.driver if offer else 'Morgan · ATLAS demo driver',
+                         driver=offer.driver if offer else (driver or 'Morgan · ATLAS demo driver'),
                          fare=offer.price * party if offer else fare(pickup, destination, comfort), stage=0)
+        if why and not offer:
+            self.ride['why'] = why
         self.commit(before)
 
     def advance_ride(self, cancel: bool = False) -> None:
@@ -160,7 +171,7 @@ class LocalStore:
             self.ride['stage'] += 1
         self.commit(before)
 
-    def checkout(self, address: int) -> None:
+    def checkout(self, address: int, courier: dict | None = None) -> None:
         if self.order:
             raise ValueError('Complete the active food order first.')
         if address not in range(len(PLACES)):
@@ -170,6 +181,8 @@ class LocalStore:
         before = self.snapshot()
         self.order = dict(id=f'F-{time_ns()}', restaurant=self.cart.restaurant,
                           address=address, fare=self.cart.total(), items=self.cart.items.copy(), stage=0)
+        if courier:
+            self.order['courier'] = dict(courier)
         self.cart.clear()
         self.commit(before)
 

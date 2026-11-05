@@ -1,10 +1,13 @@
 """Python/Kivy screens for the ATLAS Go offline passenger model."""
+import datetime as dt
+import math
 import os
 from pathlib import Path
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.text import Label as CoreLabel
 from kivy.core.window import Window
-from kivy.graphics import Color, RoundedRectangle, Line, Ellipse
+from kivy.graphics import Color, RoundedRectangle, Rectangle, Line, Ellipse
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -16,6 +19,8 @@ from kivy.uix.widget import Widget
 from kivy.utils import get_color_from_hex as color, platform
 from .domain import PLACES, RESTAURANTS, MENU, DISHES, distance, fare, money
 from .store import LocalStore
+from . import intelligence as ai
+from . import learned
 
 GREEN = color('#075E4A')
 INK = color('#182D26')
@@ -24,6 +29,9 @@ LIME = color('#DFFF73')
 BG = color('#F6F7F2')
 WHITE = color('#FFFFFF')
 PALE = color('#E8F1E1')
+VIOLET = color('#6E56CF')
+LILAC = color('#EEEAFB')
+SURGE = color('#D9822B')
 
 
 class Panel(BoxLayout):
@@ -69,6 +77,105 @@ class RouteMap(Widget):
                 Ellipse(pos=(x+w*px-dp(3),y+h*py-dp(3)),size=(dp(6),dp(6)))
 
 
+def _text(canvas_text, size, shade):
+    label = CoreLabel(text=canvas_text, font_size=sp(size), color=shade)
+    label.refresh()
+    return label.texture
+
+
+class OutlookChart(Widget):
+    """24 hourly bars of expected requests; surge hours in orange, agent's extra drivers in violet."""
+    def __init__(self, hours, now=None, **kwargs):
+        super().__init__(size_hint_y=None, height=dp(150), **kwargs)
+        self.hours, self.now = hours, now
+        self.bind(pos=self.draw, size=self.draw)
+
+    def draw(self, *_):
+        self.canvas.clear()
+        x, y, w, h = self.x, self.y, self.width, self.height
+        top = max(max(o.expected for o in self.hours), max(o.ordinary for o in self.hours), 1)
+        base_y, chart_h = y + dp(30), h - dp(38)
+        slot = w / 24
+        with self.canvas:
+            Color(*PALE)
+            RoundedRectangle(pos=(x, y + dp(26)), size=(w, h - dp(26)), radius=[dp(10)])
+            for o in self.hours:
+                bx = x + o.hour * slot + slot * .15
+                bh = chart_h * o.expected / top
+                Color(*(SURGE if o.surge else GREEN))
+                RoundedRectangle(pos=(bx, base_y), size=(slot * .7, max(dp(1), bh)), radius=[dp(2)])
+                Color(*MUTED)
+                oy = base_y + chart_h * o.ordinary / top
+                Line(points=[bx - slot * .05, oy, bx + slot * .75, oy], width=dp(.8))
+                if o.boost > 0:
+                    Color(*VIOLET)
+                    RoundedRectangle(pos=(bx, y + dp(18)), size=(slot * .7, dp(3) + dp(5) * min(1.0, o.boost)), radius=[dp(1)])
+            if self.now is not None:
+                Color(*INK)
+                nx = x + (self.now + .5) * slot
+                Line(points=[nx, base_y, nx, y + h - dp(4)], width=dp(1), dash_length=dp(4), dash_offset=dp(3))
+            for hr in (0, 6, 12, 18):
+                tex = _text(f'{hr:02d}:00', 9, MUTED)
+                Color(1, 1, 1, 1)
+                Rectangle(texture=tex, pos=(x + hr * slot, y), size=tex.size)
+
+
+class Bar(Widget):
+    def __init__(self, fraction, shade=VIOLET, **kwargs):
+        super().__init__(size_hint_y=None, height=dp(10), **kwargs)
+        self.fraction, self.shade = max(0.0, min(1.0, fraction)), shade
+        self.bind(pos=self.draw, size=self.draw)
+
+    def draw(self, *_):
+        self.canvas.clear()
+        with self.canvas:
+            Color(*PALE)
+            RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(5)])
+            Color(*self.shade)
+            RoundedRectangle(pos=self.pos, size=(max(dp(6), self.width * self.fraction), self.height), radius=[dp(5)])
+
+
+class LearningCurve(Widget):
+    """Waiting cost per ride as the sandbox policy trains (log-scale episodes; up is better)."""
+    def __init__(self, **kwargs):
+        super().__init__(size_hint_y=None, height=dp(170), **kwargs)
+        self.curve, self.nearest, self.approved = [], None, None
+        self.bind(pos=self.draw, size=self.draw)
+
+    def update(self, curve, nearest, approved):
+        self.curve, self.nearest, self.approved = list(curve), nearest, approved
+        self.draw()
+
+    def draw(self, *_):
+        self.canvas.clear()
+        x, y, w, h = self.x + dp(8), self.y + dp(20), self.width - dp(16), self.height - dp(30)
+        lo, hi = 4.5, 10.5  # minutes of waiting cost; lower cost is drawn higher
+
+        def px(ep):
+            return x + w * math.log10(max(1, ep)) / math.log10(learned.TRAINING_EPISODES)
+
+        def py(cost):
+            return y + h * (hi - max(lo, min(hi, cost))) / (hi - lo)
+        with self.canvas:
+            Color(*PALE)
+            RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(10)])
+            if self.nearest is not None:
+                Color(*MUTED)
+                Line(points=[x, py(self.nearest), x + w, py(self.nearest)], width=dp(1), dash_length=dp(5), dash_offset=dp(4))
+                Color(*VIOLET)
+                Line(points=[x, py(self.approved), x + w, py(self.approved)], width=dp(1), dash_length=dp(2), dash_offset=dp(3))
+            if len(self.curve) > 1:
+                Color(*GREEN)
+                pts = []
+                for ep, cost in self.curve:
+                    pts += [px(ep), py(cost)]
+                Line(points=pts, width=dp(1.8))
+            for ep, name in ((1, '1'), (100, '100'), (1000, '1k'), (learned.TRAINING_EPISODES, '30k')):
+                tex = _text(name, 9, MUTED)
+                Color(1, 1, 1, 1)
+                Rectangle(texture=tex, pos=(min(px(ep), x + w - tex.size[0]), self.y + dp(3)), size=tex.size)
+
+
 class AtlasGoApp(App):
     title = 'ATLAS Go'
 
@@ -85,6 +192,8 @@ class AtlasGoApp(App):
         self.comfort = self.store.ui.get('comfort', False)
         self.restaurant = self.store.ui.get('restaurant', 0)
         self.address = self.store.ui.get('address', 0)
+        self.outlook_day = self.store.ui.get('outlook_day', 0)
+        self.lab = None
         self.controls = {}
         self.container = BoxLayout(orientation='vertical')
         self.render()
@@ -149,8 +258,12 @@ class AtlasGoApp(App):
         Clock.schedule_once(self.configure_system_bars,.2)
 
     def save_ui(self):
-        self.store.ui = {key: getattr(self, key) for key in ('screen','pickup','destination','party','comfort','restaurant','address')}
+        self.store.ui = {key: getattr(self, key) for key in ('screen','pickup','destination','party','comfort','restaurant','address','outlook_day')}
         self.store.save()
+
+    def today(self):
+        override = os.environ.get('ATLAS_TODAY')
+        return dt.date.fromisoformat(override) if override else dt.date.today()
 
     def on_pause(self):
         self.save_ui()
@@ -243,7 +356,8 @@ class AtlasGoApp(App):
         self.container.add_widget(self.scroll)
         screens = {'home':self.home,'ride':lambda:self.ride(False),'share':lambda:self.ride(True),
                    'food':self.food,'menu':self.menu,'cart':self.cart,'active_ride':self.active_ride,
-                   'active_order':self.active_order,'activity':self.activity,'profile':self.profile,'privacy':self.privacy}
+                   'active_order':self.active_order,'activity':self.activity,'profile':self.profile,'privacy':self.privacy,
+                   'intelligence':self.intelligence}
         screens.get(self.screen,self.home)()
         nav = BoxLayout(size_hint_y=None,height=dp(62),padding=dp(7),spacing=dp(4))
         for key, name in (('home','Home'),('share','Share'),('food','Food'),('activity','Activity'),('profile','You')):
@@ -266,6 +380,12 @@ class AtlasGoApp(App):
         self.body.add_widget(quick)
         for name, key in (('Ride','ride'),('Share ride','share'),('Food','food')):
             self.button(quick,name,'home_'+key,lambda key=key:self.go(key),key=='ride',54)
+        today = ai.day_summary(self.today())
+        smart = self.box(self.body,LILAC)
+        self.label(smart,'TODAY IN CORK · ATLAS INTELLIGENCE',10,VIOLET,True)
+        self.label(smart,today['title'],19,INK,True)
+        self.label(smart,today['text'],13,MUTED)
+        self.button(smart,'How ATLAS learns >','home_learn',lambda:self.go('intelligence'),False)
         self.label(self.body,'Made for your everyday',20,INK,True)
         share = self.box(self.body,color('#E9F1DA'))
         self.label(share,'SHARED RIDES · FROM €4.90 / SEAT',10,GREEN,True)
@@ -317,6 +437,7 @@ class AtlasGoApp(App):
             self.label(preview,money(fare(self.pickup,self.destination,self.comfort)),31,GREEN,True)
             self.label(preview,'Estimated total · demo payment only',12,MUTED)
             self.button(preview,'Book demo ride','book_ride',self.book_solo)
+            self.dispatch_card()
         else:
             found = [o for o in self.store.offers if o.matches(self.pickup,self.destination,self.party)]
             for offer in found:
@@ -331,8 +452,21 @@ class AtlasGoApp(App):
                 self.label(card,'No matching rides right now',20,INK,True)
                 self.label(card,'Try UCC Campus > Cork City Centre with one or two seats. These offers are seeded demo data.',14,MUTED)
 
+    def dispatch_card(self):
+        chosen, why = ai.choose(self.pickup)
+        card = self.box(self.body,LILAC)
+        self.label(card,f'ATLAS PICKS YOUR DRIVER · POLICY {learned.POLICY_VERSION}',10,VIOLET,True)
+        for candidate, probability in ai.rank(self.pickup):
+            mark = '>' if candidate == chosen else ' '
+            self.label(card,f'{mark} {candidate.name} · {candidate.zone}',15,INK,candidate == chosen)
+            self.label(card,f'{candidate.eta} min away · {round(candidate.accept*100)}% likely to accept · '
+                            f'area surge {round(candidate.surge*100)}%' + (' · last free car' if candidate.last else ''),11,MUTED)
+        self.label(card,why,13,INK)
+        self.label(card,'Learned by reinforcement learning in a simulated city. Illustrative drivers.',11,MUTED)
+
     def book_solo(self):
-        self.store.book(self.pickup,self.destination,self.comfort)
+        chosen, why = ai.choose(self.pickup)
+        self.store.book(self.pickup,self.destination,self.comfort,driver=f'{chosen.name} · ATLAS demo driver',why=why)
         self.go('active_ride')
 
     def book_shared(self, offer_id):
@@ -353,6 +487,10 @@ class AtlasGoApp(App):
         self.label(card,f"{PLACES[ride['pickup']]} > {PLACES[ride['destination']]}",14,MUTED)
         self.label(card,f"{money(ride['fare'])} · {ride['party']} seat(s)",25,INK,True)
         self.label(card,'Reference '+ride['id'],10,MUTED)
+        if ride.get('why'):
+            why = self.box(self.body,LILAC)
+            self.label(why,'WHY THIS DRIVER',10,VIOLET,True)
+            self.label(why,ride['why'],13,INK)
         self.label(self.body,'Use the button below to advance the simulated journey.',13,MUTED)
         self.button(self.body,'Complete demo ride' if ride['stage']==2 else 'Simulate next stage','ride_next',self.next_ride)
         self.button(self.body,'Cancel demo ride','ride_cancel',lambda:self.message('Cancel this ride?','Your reserved shared seats will be released.',self.cancel_ride),False)
@@ -424,12 +562,17 @@ class AtlasGoApp(App):
         self.label(card,'Food subtotal: '+money(self.store.cart.subtotal()),14,MUTED)
         self.label(card,'Demo delivery: €2.50',14,MUTED)
         self.label(card,'Total  '+money(self.store.cart.total()),28,GREEN,True)
+        plan = ai.courier_plan(self.store.cart.restaurant)
+        timing = self.box(self.body,LILAC)
+        self.label(timing,'COURIER TIMING · LEARNED',10,VIOLET,True)
+        self.label(timing,ai.courier_text(plan),13,INK)
         self.select(self.body,'DELIVER TO',PLACES,self.address,'delivery_address',lambda v:self.update_selection('address',v))
         self.button(self.body,'Place demo order','checkout',self.checkout)
         self.button(self.body,'Clear basket','clear_cart',self.clear_cart,False)
 
     def checkout(self):
-        self.store.checkout(self.address)
+        restaurant = self.store.cart.restaurant
+        self.store.checkout(self.address, ai.courier_plan(restaurant) if restaurant is not None else None)
         self.go('active_order')
 
     def active_order(self):
@@ -447,6 +590,10 @@ class AtlasGoApp(App):
         for item,quantity in order['items'].items():
             self.label(card,f'{quantity} × {DISHES[item].name}',15,INK)
         self.label(card,'Reference '+order['id'],10,MUTED)
+        if order.get('courier'):
+            timing = self.box(self.body,LILAC)
+            self.label(timing,'COURIER TIMING · LEARNED',10,VIOLET,True)
+            self.label(timing,ai.courier_text(order['courier']),13,INK)
         self.button(self.body,'Mark demo order delivered' if order['stage']==2 else 'Simulate next stage','order_next',self.next_order)
 
     def next_order(self):
@@ -477,6 +624,7 @@ class AtlasGoApp(App):
         self.label(card,'Guest passenger',25,INK,True)
         self.label(card,'Cork, Ireland · EUR',14,MUTED)
         self.label(card,'No account or login needed. Your activity stays on this device.',15,MUTED)
+        self.button(self.body,'How ATLAS learns','profile_learn',lambda:self.go('intelligence'),False)
         self.button(self.body,'Privacy & how this demo works','privacy',lambda:self.go('privacy'),False)
         self.button(self.body,'Reset all demo data','reset',lambda:self.message('Reset demo data?','Delete rides, food orders and basket. Restore demo seat availability.',self.reset),False)
         self.label(self.body,'Project help: github.com/FUllSCIPTS/ATLAS/issues\nThis demo does not provide emergency transport or live customer support.',13,MUTED)
@@ -484,6 +632,7 @@ class AtlasGoApp(App):
     def reset(self):
         self.store.reset()
         self.pickup,self.destination,self.party,self.restaurant,self.address,self.comfort = 0,1,1,0,0,False
+        self.outlook_day, self.lab = 0, None
         self.go('home')
 
     def privacy(self):
@@ -491,7 +640,108 @@ class AtlasGoApp(App):
         for heading,description in (
             ('Local data only','Simulated rides, food orders, basket items and shared-seat availability stay in private app storage. No app data is transmitted. No ads, analytics, accounts, payments or location access are included.'),
             ('Delete whenever you like','Use You > Reset all demo data, clear app storage in Android Settings, or uninstall. Android backup is disabled. Drivers, restaurants and distances are illustrative.'),
+            ('Learning, on this device only','Surge outlooks, driver choice and courier timing come from small policies learned offline in a simulated city and bundled with the app. The learning lab retrains a sandbox copy on this phone; it never changes how demo rides are dispatched and sends nothing anywhere.'),
             ('About this project','Maintainer: FUllSCIPTS / ATLAS on GitHub. Questions: github.com/FUllSCIPTS/ATLAS/issues. Do not post personal details publicly. ATLAS Go is an educational model, separate from real transport and food services.')):
             card = self.box(self.body)
             self.label(card,heading,21,INK,True)
             self.label(card,description,15,MUTED)
+
+    # ------------------------------------------------------------------ ATLAS intelligence
+    def shift_outlook(self, days):
+        self.outlook_day = max(-400, min(400, self.outlook_day + days))
+        self.go('intelligence')
+
+    def intelligence(self):
+        today = self.today()
+        self.title_block('ATLAS intelligence','How ATLAS learns',
+                         'Learned in a simulated Cork · runs on this device · nothing is sent anywhere')
+        day = today + dt.timedelta(days=self.outlook_day)
+        summary = ai.day_summary(day)
+        card = self.box(self.body)
+        self.label(card,'SURGE OUTLOOK',10,VIOLET,True)
+        self.label(card,day.strftime('%a %d %b %Y') + (' · today' if day == today else ''),13,MUTED)
+        self.label(card,summary['title'],21,INK,True)
+        card.add_widget(OutlookChart(summary['hours'], now=dt.datetime.now().hour if day == today else None))
+        self.label(card,'Bars: expected ride requests per hour. Orange: surge. Grey ticks: an ordinary '
+                        + day.strftime('%A') + '. Violet: extra drivers the agent sends ahead.',11,MUTED)
+        self.label(card,summary['text'],14,INK,True)
+        self.label(card,summary['agent'],13,VIOLET)
+        row = BoxLayout(size_hint_y=None,height=dp(48),spacing=dp(8))
+        card.add_widget(row)
+        self.button(row,'< Previous day','outlook_prev',lambda:self.shift_outlook(-1),False)
+        self.button(row,'Next day >','outlook_next',lambda:self.shift_outlook(1),False)
+        if self.outlook_day:
+            self.button(card,'Back to today','outlook_today',lambda:self.shift_outlook(-self.outlook_day),False)
+
+        coming = self.box(self.body)
+        self.label(coming,'COMING UP · IRISH HOLIDAYS & CORK EVENTS',10,VIOLET,True)
+        for event in ai.upcoming(today, limit=5):
+            self.label(coming,event['date'].strftime('%a %d %b') + ' · ' + event['title'],15,INK,True)
+            self.label(coming,event['text'],12,MUTED)
+        self.label(coming,'Public-holiday dates are computed for any year. Matches and storms are not on the '
+                          'calendar; in the reference design the live forecaster picks them up.',11,MUTED)
+
+        policy = self.box(self.body)
+        self.label(policy,f'WHO GETS YOUR RIDE · POLICY {learned.POLICY_VERSION}',10,VIOLET,True)
+        self.label(policy,f'Trained over {learned.TRAINING_EPISODES:,} simulated rides. Reward arrives late: '
+                          'pickup time, cancellations and the shortage a choice causes elsewhere.',13,MUTED)
+        names = {2: 'Keep the last car in an area about to surge', 0: 'A closer driver',
+                 1: 'A driver who will accept', 3: 'Avoid busy areas in general'}
+        top = max(learned.RIDE_WEIGHTS)
+        for index in (2, 0, 1, 3):
+            self.label(policy,names[index],13,INK)
+            policy.add_widget(Bar(learned.RIDE_WEIGHTS[index] / top))
+
+        timing = self.box(self.body)
+        self.label(timing,'WHEN TO SEND THE COURIER',10,VIOLET,True)
+        for index, name in enumerate(RESTAURANTS):
+            plan = ai.courier_plan(index)
+            self.label(timing,name,15,INK,True)
+            self.label(timing,f"Ready in ~{plan['prep']} min · send courier after {plan['dispatch_after']} min · "
+                              f"counter wait {plan['courier_wait']} min (not {plan['naive_wait']})",12,MUTED)
+
+        lab = self.box(self.body,LILAC)
+        self.label(lab,'LEARNING LAB · SANDBOX',10,VIOLET,True)
+        self.label(lab,'Watch a new dispatch policy learn from zero on this phone.',17,INK,True)
+        self.lab_curve = LearningCurve()
+        lab.add_widget(self.lab_curve)
+        self.lab_status = self.label(lab,'',13,INK)
+        self.label(lab,'Green: the new policy. Grey dashes: "send the nearest driver". Violet dots: approved '
+                       f'policy {learned.POLICY_VERSION}. Higher means less waiting.',11,MUTED)
+        self.button(lab,'Train 30,000 simulated rides','lab_train',self.lab_train)
+        self.label(lab,'Sandbox only: this candidate is never used to dispatch rides. In the reference design a '
+                       'policy is replayed, shadow-tested and approved on the server before dispatch loads it.',11,MUTED)
+        self.lab_refresh()
+
+    def lab_refresh(self):
+        if self.lab is None:
+            self.lab_status.text = 'Not trained yet. Training takes a few seconds.'
+            self.lab_curve.update([], None, None)
+            return
+        result = self.lab.result()
+        self.lab_curve.update(self.lab.curve, result['nearest'], result['approved'])
+        if self.lab.done:
+            self.lab_status.text = (f"Done: {result['episodes']:,} rides. Waiting cost per ride "
+                                    f"{result['candidate']:.1f} min, vs {result['nearest']:.1f} for the nearest-driver "
+                                    f"rule and {result['approved']:.1f} for approved {learned.POLICY_VERSION}.")
+            if 'lab_train' in self.controls:
+                self.controls['lab_train'].text = 'Train again from zero'
+        else:
+            self.lab_status.text = f"Training… {result['episodes']:,} rides · behaviour cost {result['behaviour']:.1f} min"
+
+    def lab_train(self):
+        if getattr(self, '_lab_event', None):
+            return
+        if self.lab is None:
+            self.lab = ai.LearningLab()
+        elif self.lab.done:
+            self.lab.reset()
+        self._lab_event = Clock.schedule_interval(self.lab_step, 0)
+
+    def lab_step(self, _dt):
+        self.lab.train(1500)
+        if self.screen == 'intelligence':
+            self.lab_refresh()
+        if self.lab.done:
+            self._lab_event = None
+            return False
