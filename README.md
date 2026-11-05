@@ -32,7 +32,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [▶ Watch the ATLAS Go demo video (1 min 54 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery), then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
-## ATLAS Go Android app (option 4)
+## ATLAS Go Android app 
 
 A Python/Kivy passenger-app model with solo ride booking, shared-seat reservations,
 food menus, basket/checkout, simulated tracking, activity history and local data
