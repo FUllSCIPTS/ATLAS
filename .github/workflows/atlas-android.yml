@@ -48,6 +48,7 @@ jobs:
           restore-keys: atlas-p4a-36-28c-v1-
       - name: Build Python Android APK and release AAB
         run: |
+          set -euo pipefail
           buildozer -v android debug > build-android.log 2>&1
           buildozer -v android release >> build-android.log 2>&1
           python scripts/check-native-alignment.py bin/*release.aab | tee test-output/native-alignment.txt
@@ -63,7 +64,8 @@ jobs:
           java -jar /tmp/bundletool.jar validate --bundle release/atlas-go-unsigned.aab
           java -jar /tmp/bundletool.jar dump manifest --bundle release/atlas-go-unsigned.aab --module base > test-output/release-manifest.xml
           python scripts/check-manifest.py test-output/release-manifest.xml
-          java -jar /tmp/bundletool.jar build-apks --bundle release/atlas-go-unsigned.aab --output /tmp/release-smoke.apks --mode universal --ks ~/.android/debug.keystore --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android
+          keytool -genkeypair -keystore /tmp/atlas-smoke.p12 -storetype PKCS12 -alias smoke -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 2 -dname 'CN=ATLAS CI Smoke'
+          java -jar /tmp/bundletool.jar build-apks --bundle release/atlas-go-unsigned.aab --output /tmp/release-smoke.apks --mode universal --ks /tmp/atlas-smoke.p12 --ks-key-alias smoke --ks-pass pass:android --key-pass pass:android
           unzip -p /tmp/release-smoke.apks universal.apk > release/atlas-go-release-smoke.apk
       - uses: actions/cache/save@v4
         if: always() && steps.native-cache.outputs.cache-hit != 'true'

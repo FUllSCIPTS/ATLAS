@@ -52,10 +52,11 @@ try:
     save_log('crash-log.txt')
     assert 'FATAL EXCEPTION' not in Path('test-output/crash-log.txt').read_text()
     adb('shell','am','force-stop',PACKAGE)
+    adb('uninstall',PACKAGE)
     print(adb('install','-r','release/atlas-go-release-smoke.apk').stdout.decode(),flush=True)
     adb('logcat','-c')
     adb('shell','am','start','-n',ACTIVITY)
-    time.sleep(10)
+    time.sleep(15)
     assert adb('shell','pidof',PACKAGE,check=False).stdout.strip(),'Release process did not survive startup'
     assert adb('shell','run-as',PACKAGE,'pwd',check=False).returncode!=0,'Release must not be debuggable'
     Path('test-output/release-launch.png').write_bytes(adb('exec-out','screencap','-p').stdout)
