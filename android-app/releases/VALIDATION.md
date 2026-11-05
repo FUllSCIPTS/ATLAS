@@ -1,15 +1,15 @@
 # Verified Android handover
 
-Application source: [7c75873d9296c734799b35d9d8b524b6e8c87785](https://github.com/FUllSCIPTS/ATLAS/commit/7c75873d9296c734799b35d9d8b524b6e8c87785).
+Application source: [024b328fed69ffcd3058ae559d9e7e6a59dee4b8](https://github.com/FUllSCIPTS/ATLAS/commit/024b328fed69ffcd3058ae559d9e7e6a59dee4b8).
 
-Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/41992777003).
+Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/41996737984).
 
 ## Results
 
 - 40 Python domain and persistence cases passed.
 - Standard desktop UI: 88 assertions passed.
 - Narrow desktop UI with font scale 1.2: 88 assertions passed.
-- Android 16 emulator: 88 assertions passed; twelve actual app screenshots captured.
+- Android 16 emulator: 112 assertions passed; twelve actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
 - Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
@@ -24,8 +24,8 @@ contains the installable debug APK, unsigned release AAB, screenshot archive and
 
 | File | SHA-256 |
 |---|---|
-| `atlas-go-demo.apk` | `e9704237b0218ad87a52ae212ebab7a177f7359a0c4d499fe0fae6c6d33a5f71` |
-| `atlas-go-unsigned.aab` | `896f87bf73b224f4ddc371b60dedb6b81e9ddd0c8bc33e218843e9ecffdef12b` |
+| `atlas-go-demo.apk` | `867fc0646a113ce79bbdc43aba2ca1ecf540c27812bb41626f5f34b5e9eee731` |
+| `atlas-go-unsigned.aab` | `4887149df14fc81662a6ade71bc83a38b24861ba4fcb45fd87974264d4017b40` |
 
 ## Signing and Play submission
 
