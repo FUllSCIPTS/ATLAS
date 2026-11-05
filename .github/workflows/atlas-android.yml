@@ -31,6 +31,7 @@ jobs:
           python -m pip install -r requirements-dev.txt 'git+https://github.com/kivy/buildozer@76bac28545c66bbcc671d49aca553a747d69608e' 'Cython==0.29.34' setuptools legacy-cgi
       - name: Python domain and desktop UI tests
         run: |
+          python -m compileall -q main.py atlas_go scripts tests
           python -m pytest tests --junitxml=test-output/unit-tests.xml
           ATLAS_UI_TEST=1 ATLAS_DATA_DIR="$PWD/local-data" KIVY_NO_ARGS=1 xvfb-run -a -s '-screen 0 440x940x24' python main.py
           python scripts/verify-acceptance.py local-data/test-output

@@ -32,11 +32,11 @@ export ATLAS_UPLOAD_KEYSTORE=/absolute/private/path/atlas-upload.p12
 export ATLAS_UPLOAD_ALIAS=atlas-upload
 # Read the password privately in your shell; do not put it into a Git file.
 read -rs ATLAS_UPLOAD_PASSWORD; export ATLAS_UPLOAD_PASSWORD
-bash scripts/sign-release.sh bin/*release.aab releases/atlas-go-play.aab
+python scripts/sign-release.py bin/*release.aab releases/atlas-go-play.aab
 unset ATLAS_UPLOAD_PASSWORD
 ```
 
-`sign-release.sh` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the public demo APK is already signed for installation; an owner-key release APK can be generated from the signed AAB using bundletool.
+`sign-release.py` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the public demo APK is already signed for installation; an owner-key release APK can be generated from the signed AAB using bundletool.
 
 ## Console steps the owner must finish
 

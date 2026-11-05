@@ -20,6 +20,7 @@ The Android debug driver is enabled only when Android marks the APK debuggable a
 
 - Desktop startup no longer depends on a pre-existing configuration directory.
 - Preview geometry is configured before the graphics surface is created, preventing clipped/black upper screen regions.
+- Android uses system screenshots with an acknowledgement handshake; in-app OpenGL readback had produced black capture regions on the emulator.
 - Screenshot filenames are normalized, so documentation links point to the real captures.
 - Invalid saved booking stages and out-of-range form values recover without crashing the UI.
 - Booking, shared-seat, basket and checkout changes roll back in memory if persistence fails.

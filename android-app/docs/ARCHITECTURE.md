@@ -19,9 +19,9 @@ android-app/
   assets/                         Original icon and launch graphic
   tests/test_domain.py            Domain and repository regression tests
   scripts/
-    emulator-acceptance.sh        Android test installation and screenshot extraction
+    emulator-acceptance.py        Android test installation and screenshot extraction
     verify-acceptance.py          UI result and screenshot assertions
-    sign-release.sh               Private local AAB signing
+    sign-release.py               Private local AAB signing
   docs/
     USER_GUIDE.md                  Screen-by-screen usage
     GOOGLE_PLAY.md                 Packaging and Play submission handover
