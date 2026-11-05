@@ -23,6 +23,8 @@ const iconPaths = {
   pause: '<path d="M9 5v14m6-14v14"/>',
   reset: '<path d="M4 10a8 8 0 1 1 1.7 7M4 5v5h5"/>',
   search: '<circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/>',
+  bag: '<path d="M5 8h14l-1.2 12H6.2Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  utensils: '<path d="M7 3v7a2 2 0 0 0 2 2m-2-9v18M5 3v5m4-5v5"/><path d="M17 21V3c-2.2 1.4-3 4-3 7v4h3"/>',
   file: '<path d="M6 3h8l4 4v14H6Zm8 0v5h4M9 12h6m-6 4h6"/>',
 };
 
@@ -82,7 +84,7 @@ function architectureView() {
   const nodes = Object.entries(components).map(([id, component]) => {
     const muted = (state.focus || trace) && !highlightedNodes.has(id);
     const endpoint = currentLink && (id === currentLink.from || id === currentLink.to);
-    return `<button type="button" class="map-node ${muted ? "dimmed" : ""} ${endpoint ? "endpoint" : ""}" data-component="${id}" data-keep="map-${id}" aria-pressed="${id === state.selected}" style="left:${groups[component.group].x / 9}%;top:${component.y / 4.08}%;--accent:${componentColor(id)}">${componentMark(id)}<span class="map-node-text"><strong>${component.title}</strong><small>${component.tech}</small></span></button>`;
+    return `<button type="button" class="map-node ${muted ? "dimmed" : ""} ${endpoint ? "endpoint" : ""}" data-component="${id}" data-keep="map-${id}" aria-pressed="${id === state.selected}" style="left:${groups[component.group].x / 9}%;top:${component.y / 5}%;--accent:${componentColor(id)}">${componentMark(id)}<span class="map-node-text"><strong>${component.title}</strong><small>${component.tech}</small></span></button>`;
   }).join("");
   const playback = trace ? `<section class="playback" aria-label="Flow playback">
       <div class="step-heading"><span class="step-number">${String(state.step + 1).padStart(2, "0")} / ${String(trace.steps.length).padStart(2, "0")}</span><strong>${components[currentLink.from].title} <span aria-hidden="true">→</span> ${components[currentLink.to].title}</strong></div>
@@ -94,8 +96,8 @@ function architectureView() {
         <button class="square" type="button" aria-label="Reset flow" title="Reset flow" data-action="restart" data-keep="restart">${icon("reset", 17)}</button>
       </div>
     </section>` : "";
-  return viewHeading("SYSTEM MAP", "Architecture", "Select a node to inspect its dependencies, or trace a flow.", '<span class="panel-badge">12 components</span>')
-    + playback + `<div class="map-scroll" tabindex="0" aria-label="Scrollable architecture diagram"><div class="map-canvas">${lanes}<svg class="wires" viewBox="0 0 900 408" aria-hidden="true"><defs>${markers}</defs>${wiring}</svg>${nodes}</div></div>
+  return viewHeading("SYSTEM MAP", "Architecture", "Select a node to inspect its dependencies, or trace a flow.", `<span class="panel-badge">${Object.keys(components).length} components</span>`)
+    + playback + `<div class="map-scroll" tabindex="0" aria-label="Scrollable architecture diagram"><div class="map-canvas">${lanes}<svg class="wires" viewBox="0 0 900 500" aria-hidden="true"><defs>${markers}</defs>${wiring}</svg>${nodes}</div></div>
     <div class="legend" aria-label="Connection legend">${Object.entries(kindLabels).map(([kind, label]) => `<span><i class="legend-line ${kind}"></i>${label}</span>`).join("")}<span class="pan-hint">Scroll to see all layers ${icon("arrow", 13)}</span></div><button class="mobile-inspect" type="button" data-action="inspect">Inspect ${components[state.selected].title} <span aria-hidden="true">↓</span></button>`;
 }
 
