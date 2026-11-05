@@ -43,8 +43,8 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 ## Results
 
 - {tests} Python domain and persistence cases passed.
-- Standard desktop UI: 88 assertions passed.
-- Narrow desktop UI with font scale 1.2: 88 assertions passed.
+- Standard desktop UI: 102 assertions passed.
+- Narrow desktop UI with font scale 1.2: 102 assertions passed.
 - Android 16 emulator: {result['checks']} assertions passed; fourteen actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
