@@ -1,0 +1,40 @@
+name: Publish tested ATLAS Python demo downloads
+on:
+  workflow_run:
+    workflows: ['ATLAS Python Android acceptance']
+    types: [completed]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: atlas-go-python-android
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: artifact
+      - name: Publish verified demo artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          BUILD_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          mkdir downloads
+          cp artifact/release/atlas-go-demo.apk downloads/
+          cp artifact/release/atlas-go-unsigned.aab downloads/
+          python -m pip install pillow
+          python android-app/scripts/verify-acceptance.py artifact/test-output/android
+          cp artifact/test-output/android/result.json downloads/android-ui-results.json
+          cp artifact/test-output/native-alignment.txt downloads/
+          (cd artifact/test-output/android && zip -q "$GITHUB_WORKSPACE/downloads/atlas-go-screenshots.zip" *.png)
+          (cd downloads && sha256sum *.apk *.aab > SHA256SUMS)
+          printf 'Python/Kivy offline model: solo rides, shared-seat reservations and food ordering. No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. AAB: release build requiring your private upload-key signature before Play upload.\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
+          if ! gh release view atlas-go-v1.0.0 >/dev/null 2>&1; then
+            gh release create atlas-go-v1.0.0 --target "$SOURCE_SHA" --prerelease --title 'ATLAS Go 1.0.0 — Python Android demo' --notes-file release-notes.md
+          fi
+          gh release upload atlas-go-v1.0.0 downloads/* --clobber
