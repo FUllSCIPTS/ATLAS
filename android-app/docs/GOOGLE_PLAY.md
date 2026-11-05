@@ -8,7 +8,7 @@ Application screens, domain rules, persistence and tests are written in Python. 
 
 Desktop preview: Python 3.12, `pip install -r requirements-dev.txt`, then `python main.py`. Domain tests: `python -m pytest tests`.
 
-Android builds use Linux/WSL2, Buildozer revision `76bac28545c66bbcc671d49aca553a747d69608e`, p4a revision `1c9a4b4f817847bd8505d972d1a0e6f965929a88`, API 36, minimum API 26 and NDK 28c. Both arm64-v8a for phones and x86_64 for emulator validation are packaged. Install JDK 17, build-essential, git, zip, unzip, autoconf, libtool, pkg-config, zlib1g-dev, libncurses-dev, cmake, libffi-dev, libssl-dev, automake, autopoint and gettext. See the exact commands in `.github/workflows/atlas-android.yml`.
+Android builds use Linux/WSL2, Buildozer revision `76bac28545c66bbcc671d49aca553a747d69608e`, p4a revision `1c9a4b4f817847bd8505d972d1a0e6f965929a88`, API 36, minimum API 26 and NDK 28c. Both arm64-v8a for phones and x86_64 for emulator validation are packaged. Install JDK 17, build-essential, git, zip, unzip, autoconf, libtool, libtool-bin, libltdl-dev, pkg-config, zlib1g-dev, libncurses-dev, cmake, libffi-dev, libssl-dev, automake, autopoint and gettext. See the exact commands in `.github/workflows/atlas-android.yml`.
 
 ```bash
 pip install 'git+https://github.com/kivy/buildozer@76bac28545c66bbcc671d49aca553a747d69608e' 'Cython==0.29.34' setuptools legacy-cgi

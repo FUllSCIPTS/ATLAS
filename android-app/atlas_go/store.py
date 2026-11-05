@@ -31,6 +31,7 @@ class LocalStore:
     def load(self) -> None:
         try:
             data = json.loads(self.path.read_text(encoding='utf-8'))
+            self.validate(data)
             self.cart = Cart(data.get('cart', {}))
             self.history = data.get('history', [])
             self.ride, self.order = data.get('ride'), data.get('order')
@@ -44,6 +45,49 @@ class LocalStore:
             # Preserve unreadable data for diagnostics; start a clean local demo.
             self.path.replace(self.path.with_suffix('.invalid.json'))
             self.reset()
+
+    @staticmethod
+    def validate(data: dict) -> None:
+        """Reject structurally damaged state before screens read its fields."""
+        if not isinstance(data, dict):
+            raise ValueError('State must be an object.')
+        if not isinstance(data.get('history', []), list) or not isinstance(data.get('ui', {}), dict):
+            raise ValueError('Invalid history or screen state.')
+        if not isinstance(data.get('seats', {}), dict):
+            raise ValueError('Invalid seat state.')
+        records = list(data.get('history', []))
+        records += [data[k] for k in ('ride','order') if data.get(k) is not None]
+        for record in records:
+            if not isinstance(record, dict):
+                raise ValueError('Invalid booking record.')
+            if not isinstance(record.get('id'), str) or type(record.get('fare')) is not int or record['fare'] < 0:
+                raise ValueError('Invalid booking identity or total.')
+            if type(record.get('stage')) is not int or record['stage'] not in range(3):
+                raise ValueError('Invalid booking stage.')
+            if 'restaurant' in record:
+                if record['restaurant'] not in range(3) or record.get('address') not in range(len(PLACES)):
+                    raise ValueError('Invalid food route.')
+                if not isinstance(record.get('items'), dict) or not record['items']:
+                    raise ValueError('Invalid food items.')
+                Cart(record['items'])
+            else:
+                distance(record.get('pickup', -1), record.get('destination', -1))
+                if record.get('party') not in (1, 2) or not isinstance(record.get('driver'), str):
+                    raise ValueError('Invalid rider or driver.')
+                if type(record.get('shared')) is not bool:
+                    raise ValueError('Invalid ride kind.')
+                if record['shared'] and record.get('offer') not in ('pool-1','pool-2','pool-3','pool-4'):
+                    raise ValueError('Invalid shared offer.')
+        ui = data.get('ui', {})
+        for key, bound in {'pickup':4, 'destination':4, 'restaurant':3, 'address':4}.items():
+            if key in ui and (type(ui[key]) is not int or ui[key] not in range(bound)):
+                ui.pop(key)
+        if ui.get('party', 1) not in (1,2):
+            ui.pop('party')
+        if 'comfort' in ui and type(ui['comfort']) is not bool:
+            ui.pop('comfort')
+        if ui.get('screen', 'home') not in ('home','ride','share','food','menu','cart','active_ride','active_order','activity','profile','privacy'):
+            ui.pop('screen')
 
     def save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)

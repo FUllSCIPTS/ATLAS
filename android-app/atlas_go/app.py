@@ -74,10 +74,9 @@ class AtlasGoApp(App):
 
     def build(self):
         Window.clearcolor = BG
-        if platform != 'android':
-            Window.size = (440, 940)
         Window.bind(on_keyboard=self.on_keyboard)
-        path = Path(os.environ.get('ATLAS_DATA_DIR', self.user_data_dir)) / 'state.json'
+        data_dir = os.environ.get('ATLAS_DATA_DIR') or (self.user_data_dir if platform == 'android' else str(Path.home()/'.atlas-go'))
+        path = Path(data_dir) / 'state.json'
         self.store = LocalStore(path)
         self.screen = self.store.ui.get('screen', 'home')
         self.pickup = self.store.ui.get('pickup', 0)
@@ -224,11 +223,11 @@ class AtlasGoApp(App):
         self.label(share,'SHARED RIDES · FROM €4.90 / SEAT',10,GREEN,True)
         self.label(share,'Same direction? Share the journey.',19,INK,True)
         self.label(share,'Choose a route, check seats and join a demo carpool.',13,MUTED)
-        self.button(share,'Find a shared ride →','home_pool',lambda:self.go('share'),False)
+        self.button(share,'Find a shared ride >','home_pool',lambda:self.go('share'),False)
         food = self.box(self.body)
         self.label(food,'Something delicious is nearby.',19,INK,True)
         self.label(food,'Bowls, pizza and comfort food · demo menus',13,MUTED)
-        self.button(food,'Explore food →','home_eat',lambda:self.go('food'),False)
+        self.button(food,'Explore food >','home_eat',lambda:self.go('food'),False)
         if self.store.ride:
             self.button(self.body,'View active ride','home_active_ride',lambda:self.go('active_ride'))
         if self.store.order:
@@ -282,7 +281,7 @@ class AtlasGoApp(App):
             if not found:
                 card = self.box(self.body)
                 self.label(card,'No matching rides right now',20,INK,True)
-                self.label(card,'Try UCC Campus → Cork City Centre with one or two seats. These offers are seeded demo data.',14,MUTED)
+                self.label(card,'Try UCC Campus > Cork City Centre with one or two seats. These offers are seeded demo data.',14,MUTED)
 
     def book_solo(self):
         self.store.book(self.pickup,self.destination,self.comfort)
@@ -303,7 +302,7 @@ class AtlasGoApp(App):
         card = self.box(self.body)
         self.label(card,('Driver confirmed','Driver at pickup','On your way')[ride['stage']],23,GREEN,True)
         self.label(card,ride['driver'],17,INK,True)
-        self.label(card,f"{PLACES[ride['pickup']]} → {PLACES[ride['destination']]}",14,MUTED)
+        self.label(card,f"{PLACES[ride['pickup']]} > {PLACES[ride['destination']]}",14,MUTED)
         self.label(card,f"{money(ride['fare'])} · {ride['party']} seat(s)",25,INK,True)
         self.label(card,'Reference '+ride['id'],10,MUTED)
         self.label(self.body,'Use the button below to advance the simulated journey.',13,MUTED)
@@ -330,7 +329,7 @@ class AtlasGoApp(App):
             self.label(card,name,21,INK,True)
             self.label(card,descriptions[index],13,MUTED)
             self.label(card,'€2.50 demo delivery · no real restaurant orders',11,MUTED)
-            self.button(card,'View menu →','restaurant_'+str(index),lambda i=index:self.open_menu(i),False)
+            self.button(card,'View menu >','restaurant_'+str(index),lambda i=index:self.open_menu(i),False)
         self.button(self.body,f'Basket ({self.store.cart.count()})','food_cart',lambda:self.go('cart'))
 
     def open_menu(self, restaurant):
@@ -422,7 +421,7 @@ class AtlasGoApp(App):
             card = self.box(self.body)
             self.label(card,'Food · '+RESTAURANTS[record['restaurant']] if is_food else 'Shared ride' if record['shared'] else 'ATLAS ride',19,INK,True)
             self.label(card,record['status']+' · '+money(record['fare']),17,GREEN,True)
-            route = 'To '+PLACES[record['address']] if is_food else PLACES[record['pickup']]+' → '+PLACES[record['destination']]
+            route = 'To '+PLACES[record['address']] if is_food else PLACES[record['pickup']]+' > '+PLACES[record['destination']]
             self.label(card,route,13,MUTED)
             self.label(card,record['id'],10,MUTED)
 
@@ -446,7 +445,7 @@ class AtlasGoApp(App):
         self.title_block('Transparent by design','Your demo. Your device.','Privacy notice · effective 5 November 2026')
         for heading,description in (
             ('Local data only','Simulated rides, food orders, basket items and shared-seat availability stay in private app storage. No app data is transmitted. No ads, analytics, accounts, payments or location access are included.'),
-            ('Delete whenever you like','Use You → Reset all demo data, clear app storage in Android Settings, or uninstall. Android backup is disabled. Drivers, restaurants and distances are illustrative.'),
+            ('Delete whenever you like','Use You > Reset all demo data, clear app storage in Android Settings, or uninstall. Android backup is disabled. Drivers, restaurants and distances are illustrative.'),
             ('About this project','Maintainer: FUllSCIPTS / ATLAS on GitHub. Questions: github.com/FUllSCIPTS/ATLAS/issues. Do not post personal details publicly. ATLAS Go is an educational model, separate from real transport and food services.')):
             card = self.box(self.body)
             self.label(card,heading,21,INK,True)

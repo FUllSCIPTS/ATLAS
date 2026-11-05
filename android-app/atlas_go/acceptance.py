@@ -30,7 +30,9 @@ class Acceptance:
 
     def capture(self, name):
         # Kivy exports its real OpenGL framebuffer; these are not UI mockups.
-        Window.screenshot(name=str(self.output / (name+'.png')))
+        self.check(all(w.width >= 40 and w.height >= 44 for w in self.app.controls.values()), 'Controls meet minimum usable dimensions')
+        saved = Window.screenshot(name=str(self.output / (name+'.png')))
+        Path(saved).replace(self.output / (name+'.png'))
 
     def shared_reserved(self):
         store = self.app.store
@@ -67,6 +69,36 @@ class Acceptance:
             lambda:self.click('nav_activity'),lambda:self.capture('10-activity'),
             lambda:self.click('nav_profile'),lambda:self.capture('11-profile'),
             lambda:self.click('privacy'),lambda:self.capture('12-privacy'),
+        ]
+        self.steps += [
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),
+            lambda:setattr(a.controls['destination'],'text','UCC Campus'),
+            lambda:self.check('book_ride' not in a.controls,'Same-place booking blocked on screen'),
+            lambda:setattr(a.controls['destination'],'text','Cork City Centre'),
+            lambda:setattr(a.controls['vehicle'],'text','ATLAS Comfort · extra space'),
+            lambda:self.click('book_ride'),
+            lambda:self.check(a.store.ride['fare']==1118,'Comfort selection affects confirmation'),
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),lambda:self.click('book_ride'),
+            lambda:self.check(a.store.ride['fare']==1118,'Duplicate booking keeps active ride'),
+            lambda:self.click('dialog_confirm'),lambda:self.click('nav_activity'),lambda:self.click('activity_ride'),
+            lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
+            lambda:self.click('nav_share'),lambda:setattr(a.controls['pickup'],'text','Cork Airport'),
+            lambda:self.check(not any(k.startswith('join_') for k in a.controls),'Unmatched route has no join button'),
+            lambda:setattr(a.controls['pickup'],'text','UCC Campus'),lambda:self.click('join_pool-2'),
+            lambda:self.check(a.store.offers[1].seats==0,'Last two seats can be reserved'),
+            lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(a.store.offers[1].seats==2,'Second cancellation restores seats'),
+            lambda:self.click('nav_food'),lambda:self.click('restaurant_1'),
+            lambda:self.click('add_pizza'),lambda:self.click('add_pizza'),lambda:self.click('menu_cart'),
+            lambda:self.click('remove_pizza'),lambda:self.check(a.store.cart.count()==1,'Remove decrements quantity'),
+            lambda:self.click('clear_cart'),lambda:self.check('empty_food' in a.controls,'Clear basket empty state'),
+            lambda:self.click('empty_food'),lambda:self.click('restaurant_2'),lambda:self.click('add_curry'),
+            lambda:self.click('nav_food'),lambda:self.click('restaurant_0'),lambda:self.click('add_bowl'),
+            lambda:self.check(a.store.cart.items=={'curry':1},'Cross-restaurant error preserves basket'),
+            lambda:self.click('dialog_confirm'),lambda:self.click('nav_profile'),lambda:self.click('reset'),
+            lambda:self.click('dialog_cancel'),lambda:self.check(a.store.cart.count()==1,'Cancelled reset preserves data'),
+            lambda:self.click('reset'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(not a.store.history and not a.store.cart.items and a.screen=='home','Confirmed reset clears state'),
         ]
         Clock.schedule_once(self.next_step, .6)
 

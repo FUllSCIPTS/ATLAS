@@ -109,3 +109,58 @@ def test_malformed_saved_state_is_preserved_and_reset(tmp_path):
     store=LocalStore(path)
     assert store.ride is None
     assert path.with_suffix('.invalid.json').read_text()=='broken'
+
+@pytest.mark.parametrize('stage',[0,1,2])
+def test_restart_preserves_each_ride_stage(tmp_path,stage):
+    store=LocalStore(tmp_path/'state.json');store.book(0,1)
+    for _ in range(stage):store.advance_ride()
+    restored=LocalStore(store.path)
+    assert restored.ride['stage']==stage
+    restored.advance_ride(cancel=True);restored.advance_ride(cancel=True)
+    assert len(restored.history)==1
+
+@pytest.mark.parametrize('stage',[0,1,2])
+def test_restart_preserves_each_food_stage(tmp_path,stage):
+    store=LocalStore(tmp_path/'state.json');store.cart.add('pizza');store.checkout(3)
+    for _ in range(stage):store.advance_order()
+    assert LocalStore(store.path).order['stage']==stage
+
+@pytest.mark.parametrize('pickup,destination',[(a,b) for a in range(4) for b in range(4) if a!=b])
+def test_all_route_fares(pickup,destination):
+    assert fare(pickup,destination)==fare(destination,pickup)
+    assert fare(pickup,destination,True)>fare(pickup,destination)
+
+def test_food_and_ride_independent(tmp_path):
+    store=LocalStore(tmp_path/'state.json');store.book(0,1)
+    store.cart.add('curry');store.checkout(2)
+    assert store.ride and store.order
+    store.advance_ride(cancel=True)
+    assert store.order and not store.ride
+
+def test_invalid_party_does_not_reserve(tmp_path):
+    store=LocalStore(tmp_path/'state.json')
+    for party in (0,3,-1):
+        with pytest.raises(ValueError):store.book(0,1,offer_id='pool-2',party=party)
+    assert store.ride is None and store.offers[1].seats==2
+
+def test_structure_corruption_is_recovered(tmp_path):
+    import json
+    path=tmp_path/'state.json'
+    path.write_text(json.dumps({'ride':{'stage':99},'cart':{},'history':[]}))
+    store=LocalStore(path)
+    assert store.ride is None and path.with_suffix('.invalid.json').exists()
+
+def test_invalid_ui_does_not_break_booking(tmp_path):
+    store=LocalStore(tmp_path/'state.json');store.book(0,1)
+    store.ui={'screen':'unknown','pickup':99,'destination':'bad','party':9,'comfort':'yes'};store.save()
+    restored=LocalStore(store.path)
+    assert restored.ride and not restored.ui
+
+def test_atomic_save_failure_preserves_previous_file(tmp_path,monkeypatch):
+    store=LocalStore(tmp_path/'state.json');store.cart.add('bowl');store.save()
+    before=store.path.read_bytes()
+    def fail(_source,_target):raise OSError('Simulated failed rename')
+    monkeypatch.setattr(Path,'replace',fail)
+    store.cart.add('juice')
+    with pytest.raises(OSError):store.save()
+    assert store.path.read_bytes()==before

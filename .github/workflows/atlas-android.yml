@@ -27,14 +27,17 @@ jobs:
       - name: Install Python packaging prerequisites
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y build-essential git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses-dev libtinfo6 cmake libffi-dev libssl-dev automake autopoint gettext ccache xvfb libgl1-mesa-dri
+          sudo apt-get install -y build-essential git zip unzip autoconf libtool libtool-bin libltdl-dev pkg-config zlib1g-dev libncurses-dev libtinfo6 cmake libffi-dev libssl-dev automake autopoint gettext ccache xvfb libgl1-mesa-dri libmtdev1
           python -m pip install -r requirements-dev.txt 'git+https://github.com/kivy/buildozer@76bac28545c66bbcc671d49aca553a747d69608e' 'Cython==0.29.34' setuptools legacy-cgi
       - name: Python domain and desktop UI tests
         run: |
           python -m pytest tests --junitxml=test-output/unit-tests.xml
-          ATLAS_UI_TEST=1 ATLAS_DATA_DIR="$PWD/local-data" KIVY_NO_ARGS=1 xvfb-run -a -s '-screen 0 440x940x24' python main.py --size=440x940
+          ATLAS_UI_TEST=1 ATLAS_DATA_DIR="$PWD/local-data" KIVY_NO_ARGS=1 xvfb-run -a -s '-screen 0 440x940x24' python main.py
           python scripts/verify-acceptance.py local-data/test-output
-      - uses: actions/cache@v4
+          ATLAS_UI_TEST=1 ATLAS_PREVIEW_SIZE=360x780 ATLAS_DATA_DIR="$PWD/local-data-narrow" KIVY_METRICS_FONTSCALE=1.2 KIVY_NO_ARGS=1 xvfb-run -a -s '-screen 0 360x780x24' python main.py
+          python scripts/verify-acceptance.py local-data-narrow/test-output
+      - uses: actions/cache/restore@v4
+        id: native-cache
         with:
           path: |
             ~/.buildozer
@@ -45,11 +48,20 @@ jobs:
         run: |
           buildozer -v android debug > build-android.log 2>&1
           buildozer -v android release >> build-android.log 2>&1
+          python scripts/check-native-alignment.py bin/*release.aab | tee test-output/native-alignment.txt
           mkdir -p release
           cp bin/*debug.apk release/atlas-go-demo.apk
           cp bin/*release.aab release/atlas-go-unsigned.aab
           find .buildozer -name gradlew -print > release/gradle-projects.txt
           cp "$(find ~/.buildozer -name apksigner.jar | head -1)" release/apksigner.jar
+      - uses: actions/cache/save@v4
+        if: always() && steps.native-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/.buildozer
+            android-app/.buildozer
+            ~/.gradle
+          key: atlas-p4a-36-28c-v1-${{ hashFiles('android-app/buildozer.spec') }}
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -79,5 +91,6 @@ jobs:
             android-app/test-output/
             android-app/build-android.log
             android-app/local-data/test-output/
+            android-app/local-data-narrow/test-output/
           if-no-files-found: warn
           retention-days: 30
