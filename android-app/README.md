@@ -50,7 +50,7 @@ buildozer android release
 
 Windows: desktop preview runs directly with Python; Android packaging uses WSL2. See [the packaging guide](docs/GOOGLE_PLAY.md). The workflow pins Buildozer and python-for-android source revisions, API 36 and NDK 28c. Build dependencies require an internet connection; installed demo flows do not.
 
-[Download the verified signed `atlas-go-play.aab`](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) for Play Console internal testing, or use the [installable APK and full release downloads](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0). See [the signed-bundle record](releases/SIGNED_VALIDATION.json) for the exact SHA-256 and upload certificate. The unsigned AAB remains available for reproducible builds. The existing private upload key is retained privately for future updates.
+Version 1.1.0 (versionCode 2): [installable APK](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.1.0/atlas-go-demo.apk) and [all 1.1.0 downloads](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0), including the unsigned AAB to sign before a Play upload. The earlier [signed 1.0.0 `atlas-go-play.aab`](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-play.aab) (without ATLAS intelligence) remains available. See [the signed-bundle record](releases/SIGNED_VALIDATION.json) for the exact SHA-256 and upload certificate. The unsigned AAB remains available for reproducible builds. The existing private upload key is retained privately for future updates.
 
 ## Validation
 
