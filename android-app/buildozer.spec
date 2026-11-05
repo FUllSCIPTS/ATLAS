@@ -4,7 +4,7 @@ package.name = mobility
 package.domain = org.atlas
 source.dir = .
 source.include_exts = py,png,kv,ttf,json
-source.exclude_dirs = tests,docs,releases,scripts,.venv,local-data,local-data-narrow,test-output
+source.exclude_dirs = tests,docs,releases,scripts,training,.venv,local-data,local-data-narrow,test-output
 version = 1.0.0
 android.numeric_version = 1
 requirements = python3,kivy==2.3.1
