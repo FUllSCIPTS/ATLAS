@@ -1,0 +1,11 @@
+.buildozer/
+bin/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.jks
+*.p12
+*.keystore
+private/
+local-data/
