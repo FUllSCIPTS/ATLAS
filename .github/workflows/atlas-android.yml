@@ -2,7 +2,7 @@ name: ATLAS Python Android acceptance
 on:
   push:
     branches: [main]
-    paths: ['android-app/atlas_go/**', 'android-app/main.py', 'android-app/buildozer.spec', 'android-app/requirements*.txt', 'android-app/tests/**', '.github/workflows/atlas-android.yml']
+    paths: ['android-app/atlas_go/**', 'android-app/main.py', 'android-app/buildozer.spec', 'android-app/requirements*.txt', 'android-app/tests/**', 'android-app/assets/**', 'android-app/scripts/**', '.github/workflows/atlas-android.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -87,7 +87,7 @@ jobs:
           ram-size: 2048M
           disable-animations: true
           working-directory: android-app
-          script: bash scripts/emulator-acceptance.sh
+          script: python scripts/emulator-acceptance.py
       - name: Package evidence
         run: |
           cp -r test-output release/

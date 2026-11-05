@@ -2,6 +2,7 @@
 Android enables this only in a debuggable APK with an explicit launch intent.
 """
 import json
+import time
 import traceback
 from pathlib import Path
 from kivy.clock import Clock
@@ -18,6 +19,8 @@ class Acceptance:
         self.output.mkdir(parents=True, exist_ok=True)
         self.steps = []
         self.index = 0
+        self.waiting_capture = None
+        self.capture_deadline = 0
 
     def check(self, condition, message):
         if not condition:
@@ -29,10 +32,16 @@ class Acceptance:
         self.app.controls[key].trigger_action(duration=0)
 
     def capture(self, name):
-        # Kivy exports its real OpenGL framebuffer; these are not UI mockups.
+        # Desktop uses the Kivy framebuffer. Android requests an OS screenshot
+        # from the host driver, avoiding OpenGL readback state changes.
         self.check(all(w.width >= 40 and w.height >= 44 for w in self.app.controls.values()), 'Controls meet minimum usable dimensions')
-        saved = Window.screenshot(name=str(self.output / (name+'.png')))
-        Path(saved).replace(self.output / (name+'.png'))
+        if platform == 'android':
+            (self.output/'capture-request.txt').write_text(name)
+            self.waiting_capture = name
+            self.capture_deadline = time.monotonic()+45
+        else:
+            saved = Window.screenshot(name=str(self.output / (name+'.png')))
+            Path(saved).replace(self.output / (name+'.png'))
 
     def shared_reserved(self):
         store = self.app.store
@@ -104,6 +113,15 @@ class Acceptance:
 
     def next_step(self, _dt):
         try:
+            if self.waiting_capture:
+                acknowledgement = self.output/'capture-ack.txt'
+                if acknowledgement.exists() and acknowledgement.read_text().strip()==self.waiting_capture:
+                    self.waiting_capture = None
+                elif time.monotonic()>self.capture_deadline:
+                    raise TimeoutError('Android system screenshot was not acknowledged')
+                else:
+                    Clock.schedule_once(self.next_step,.1)
+                    return
             if self.index < len(self.steps):
                 self.steps[self.index]()
                 self.index += 1
