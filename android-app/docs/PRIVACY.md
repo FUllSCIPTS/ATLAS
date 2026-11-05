@@ -1,8 +1,10 @@
 # ATLAS Go privacy notice
 
-Effective: 5 November 2026. Applies to ATLAS Go Android version 1.0.0 (`org.atlas.mobility`). Maintainer: FUllSCIPTS / ATLAS. Contact: [ATLAS issue tracker](https://github.com/FUllSCIPTS/ATLAS/issues). Do not put personal information in a public issue.
+Effective: 5 November 2026. Applies to ATLAS Go Android version 1.1.0 (`org.atlas.mobility`). Maintainer: FUllSCIPTS / ATLAS. Contact: [ATLAS issue tracker](https://github.com/FUllSCIPTS/ATLAS/issues). Do not put personal information in a public issue.
 
 ATLAS Go is an offline educational model. It does not create accounts, process payments, make real ride bookings or place real food orders. All drivers, menus, routes and delivery stages are illustrative.
+
+Surge outlooks, driver choices and courier timing come from small policies learned offline in a simulated city and bundled with the app. The in-app learning lab retrains a sandbox copy on the device. None of this uses your data, and nothing is sent anywhere.
 
 ## Data handled on the device
 
