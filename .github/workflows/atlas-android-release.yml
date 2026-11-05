@@ -60,8 +60,10 @@ jobs:
             git rebase origin/main
             git push origin HEAD:main
           fi
-          printf 'Python/Kivy offline model: solo rides, shared-seat reservations and food ordering. No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. AAB: release build requiring your private upload-key signature before Play upload.\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
-          if ! gh release view atlas-go-v1.0.0 >/dev/null 2>&1; then
-            gh release create atlas-go-v1.0.0 --target "$SOURCE_SHA" --prerelease --title 'ATLAS Go 1.0.0 — Python Android demo' --notes-file release-notes.md
+          printf 'Python/Kivy offline model: solo rides, shared-seat reservations, food ordering and on-device ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab). No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. AAB: release build requiring your private upload-key signature before Play upload.\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
+          VERSION=$(python -c "import ast,pathlib;print(ast.literal_eval(pathlib.Path('android-app/atlas_go/__init__.py').read_text().split('=')[1].strip()))")
+          TAG="atlas-go-v$VERSION"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$SOURCE_SHA" --prerelease --title "ATLAS Go $VERSION — Python Android demo" --notes-file release-notes.md
           fi
-          gh release upload atlas-go-v1.0.0 downloads/* --clobber
+          gh release upload "$TAG" downloads/* --clobber

@@ -21,6 +21,7 @@ class Acceptance:
         self.index = 0
         self.waiting_capture = None
         self.capture_deadline = 0
+        self.wait_deadline = 0
 
     def check(self, condition, message):
         if not condition:
@@ -52,6 +53,11 @@ class Acceptance:
         restored = LocalStore(store.path)
         self.check(restored.ride is not None and restored.offers[0].seats==1, 'Reservation persists')
 
+    def lab_finished(self):
+        if self.app.lab is None or not self.app.lab.done:
+            return 'wait'
+        self.check(True, 'Learning lab finished')
+
     def start(self, _dt=0):
         a = self.app
         a.reset()
@@ -59,6 +65,8 @@ class Acceptance:
             lambda:self.capture('01-home'), lambda:self.click('home_ride'),
             lambda:self.capture('02-ride-booking'), lambda:self.click('book_ride'),
             lambda:self.check(a.store.ride is not None, 'Solo booking confirmed'),
+            lambda:self.check(a.store.ride['driver'].startswith('Morgan') and 'Mardyke' in a.store.ride['why'],
+                              'Learned dispatch policy chooses and explains the driver'),
             lambda:self.capture('03-ride-confirmed'),
             lambda:self.click('ride_next'),lambda:self.click('ride_next'),lambda:self.click('ride_next'),
             lambda:self.check(a.store.ride is None and len(a.store.history)==1,'Solo ride completed'),
@@ -74,12 +82,21 @@ class Acceptance:
             lambda:self.check(a.store.cart.total()==1730,'Basket total includes delivery'),
             lambda:self.capture('08-basket'),lambda:self.click('checkout'),
             lambda:self.check(a.store.order is not None and a.store.cart.count()==0,'Checkout clears basket'),
+            lambda:self.check(a.store.order['courier']['dispatch_after']==7,'Learned courier timing saved with order'),
             lambda:self.capture('09-order-tracking'),
             lambda:self.click('order_next'),lambda:self.click('order_next'),lambda:self.click('order_next'),
             lambda:self.check(a.store.order is None,'Order delivered'),
             lambda:self.click('nav_activity'),lambda:self.capture('10-activity'),
             lambda:self.click('nav_profile'),lambda:self.capture('11-profile'),
             lambda:self.click('privacy'),lambda:self.capture('12-privacy'),
+            lambda:self.click('nav_profile'),lambda:self.click('profile_learn'),
+            lambda:self.check(a.screen=='intelligence' and 'outlook_next' in a.controls,'Intelligence screen opens'),
+            lambda:self.capture('13-intelligence'),
+            lambda:self.click('outlook_next'),lambda:self.check(a.outlook_day==1,'Outlook moves to the next day'),
+            lambda:self.click('outlook_today'),lambda:self.check(a.outlook_day==0,'Outlook returns to today'),
+            lambda:self.click('lab_train'),self.lab_finished,
+            lambda:self.check(a.lab.result()['candidate']<a.lab.nearest,'Sandbox policy beats the nearest-driver rule'),
+            lambda:setattr(a.scroll,'scroll_y',0),lambda:self.capture('14-learning-lab'),
         ]
         self.steps += [
             lambda:self.click('nav_home'),lambda:self.click('home_ride'),
@@ -125,11 +142,18 @@ class Acceptance:
                     Clock.schedule_once(self.next_step,.1)
                     return
             if self.index < len(self.steps):
-                self.steps[self.index]()
+                if self.steps[self.index]() == 'wait':
+                    if not self.wait_deadline:
+                        self.wait_deadline = time.monotonic()+60
+                    elif time.monotonic()>self.wait_deadline:
+                        raise TimeoutError('Step did not finish in time')
+                    Clock.schedule_once(self.next_step,.25)
+                    return
+                self.wait_deadline = 0
                 self.index += 1
                 Clock.schedule_once(self.next_step,.6)
                 return
-            self.finish(True, f'{self.checks} Python UI and persistence assertions; twelve screenshots')
+            self.finish(True, f'{self.checks} Python UI and persistence assertions; fourteen screenshots')
         except Exception:
             self.finish(False, traceback.format_exc())
 

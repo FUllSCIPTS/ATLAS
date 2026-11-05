@@ -1,15 +1,15 @@
 # Testing and release evidence
 
-The delivered application is an offline Python/Kivy model. Tests exercise simulated local bookings and ordering; they do not contact live drivers, restaurants, payments, maps, backend services or ML models.
+The delivered application is an offline Python/Kivy model. Tests exercise simulated local bookings, ordering and the bundled learned policies; they do not contact live drivers, restaurants, payments, maps, backend services or ML services.
 
 ## Automated coverage
 
 | Check | Coverage |
 |---|---|
-| 40 Python regression cases | Every saved route, Go/Comfort fare symmetry, invalid routes, seat matching and limits, cancellation, basket arithmetic, quantity limits, restaurant isolation, active booking constraints, food/ride coexistence, all persisted journey stages, malformed state recovery, reset and failed-storage rollback |
-| Standard screen configuration | 88 assertions through real Kivy button press/release events and spinner callbacks; 440 × 940 desktop viewport |
-| Narrow screen and larger text | Same 88 assertions at 360 × 780 with font scale 1.2; control dimensions and twelve framebuffer images verified |
-| Android 16 emulator | Installed Python APK runs the interaction suite, writes results and twelve actual app screenshots; fatal crash log checked |
+| 68 Python regression cases | Irish holiday dates and calendar context, learned surge outlooks, dispatch choices and explanations, courier timing, the sandbox learning lab beating the nearest-driver rule, persistence and recovery of learned fields; plus every saved route, Go/Comfort fare symmetry, invalid routes, seat matching and limits, cancellation, basket arithmetic, quantity limits, restaurant isolation, active booking constraints, food/ride coexistence, all persisted journey stages, malformed state recovery, reset and failed-storage rollback |
+| Standard screen configuration | 102 assertions through real Kivy button press/release events and spinner callbacks; 440 × 940 desktop viewport |
+| Narrow screen and larger text | Same 102 assertions at 360 × 780 with font scale 1.2; control dimensions and fourteen framebuffer images verified |
+| Android 16 emulator | Installed Python APK runs the interaction suite, writes results and fourteen actual app screenshots; fatal crash log checked |
 | Release bundle | Bundletool format validation, target SDK, non-debuggable flag, backup disabled and absence of Internet/location/billing permissions |
 | Native runtime | Every packaged 64-bit ELF load segment checked for alignment of at least 16 KB |
 | Release launch | A non-debuggable APK made from the AAB is installed and launched separately; process survival and fatal crash log checked |

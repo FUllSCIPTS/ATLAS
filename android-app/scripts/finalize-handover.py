@@ -11,6 +11,8 @@ parser.add_argument('--artifact',required=True)
 parser.add_argument('--source',required=True)
 parser.add_argument('--run-url',required=True)
 args=parser.parse_args()
+version=Path('android-app/atlas_go/__init__.py').read_text().split("'")[1]
+tag=f'atlas-go-v{version}'
 artifact=Path(args.artifact)
 android=artifact/'test-output/android'
 result=json.loads((android/'result.json').read_text())
@@ -24,7 +26,7 @@ target=Path('android-app/docs/screenshots')
 target.mkdir(parents=True,exist_ok=True)
 for source in sorted(android.glob('*.png')):
     shutil.copy2(source,target/source.name)
-assert len(list(target.glob('*.png')))==12
+assert len(list(target.glob('*.png')))==14
 release=Path('android-app/releases')
 rows=[]
 for name in ('atlas-go-demo.apk','atlas-go-unsigned.aab'):
@@ -43,7 +45,7 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 - {tests} Python domain and persistence cases passed.
 - Standard desktop UI: 88 assertions passed.
 - Narrow desktop UI with font scale 1.2: 88 assertions passed.
-- Android 16 emulator: {result['checks']} assertions passed; twelve actual app screenshots captured.
+- Android 16 emulator: {result['checks']} assertions passed; fourteen actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
 - Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
@@ -51,7 +53,7 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 - {alignment}
 
 The source, screenshots, build workflow and documentation are in this repository.
-The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0)
+The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/{tag})
 contains the installable debug APK, unsigned release AAB, screenshot archive and evidence.
 
 ## Public binary SHA-256
@@ -68,8 +70,8 @@ then follow [the Google Play guide](../docs/GOOGLE_PLAY.md).
 The private key and password are never in GitHub. Store listing/account declarations,
 any required closed testing, Play pre-launch checks and Google review remain owner steps.
 
-This is an offline model: no real rides, food deliveries, payments or mobile ML inference.
+This is an offline model: no real rides, food deliveries or payments. Its small learned policies run locally from bundled constants.
 Phone hardware, accessibility and production-service checks remain outside the emulator evidence.
 """
 (release/'VALIDATION.md').write_text(text)
-print(f'Prepared twelve Android screenshots and validation for {args.source}')
+print(f'Prepared fourteen Android screenshots and validation for {args.source}')

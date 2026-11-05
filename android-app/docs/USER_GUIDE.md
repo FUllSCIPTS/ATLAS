@@ -48,6 +48,18 @@ Activity includes active bookings and completed/cancelled history. You opens the
 |---|---|---|
 | ![Activity](screenshots/10-activity.png) | ![Profile](screenshots/11-profile.png) | ![Privacy](screenshots/12-privacy.png) |
 
+## 7. ATLAS intelligence
+
+Open **How ATLAS learns** from the Home card or from You. Everything on this screen runs on the phone from small policies learned in a simulated Cork; nothing is sent anywhere.
+
+- **Surge outlook** — expected ride requests for each hour of the chosen day. Orange bars are surge hours, grey ticks show an ordinary day of the same weekday, and violet marks are the extra drivers the agent learned to send ahead. Use Previous/Next day to browse; Ireland's public holidays are computed for any year, and Cork events such as the Jazz weekend follow the calendar.
+- **Coming up** — the next holidays and events the agent treats differently, with their expected peak.
+- **Who gets your ride** — what the dispatch policy learned to weigh. When you book a solo ride, the ride screen lists the four nearby drivers and explains the choice; the explanation is kept on the active ride.
+- **When to send the courier** — per kitchen, how long ATLAS waits before dispatching the courier so they arrive as the food is ready. The basket and order screens show the same plan.
+- **Learning lab** — tap *Train 30,000 simulated rides* to watch a new policy learn from zero. The chart compares it with "send the nearest driver" and the approved policy. The lab is a sandbox: its result is never used to dispatch rides.
+
+Matches, storms and other unscheduled events are not on the calendar; in the reference design they come from the live forecaster.
+
 ## Troubleshooting
 
 - Same pickup and destination: choose two different saved locations.
