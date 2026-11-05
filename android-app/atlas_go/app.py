@@ -91,6 +91,7 @@ class AtlasGoApp(App):
         return self.container
 
     def on_start(self):
+        self.configure_system_bars()
         # Debug-only Python UI acceptance. The signed release ignores this intent.
         enabled = platform != 'android' and os.environ.get('ATLAS_UI_TEST') == '1'
         if platform == 'android':
@@ -102,6 +103,50 @@ class AtlasGoApp(App):
             from .acceptance import Acceptance
             self.acceptance = Acceptance(self)
             Clock.schedule_once(self.acceptance.start, 1.5)
+
+    def configure_system_bars(self, _dt=0):
+        if platform != 'android':
+            return
+        from android.runnable import run_on_ui_thread
+        from jnius import autoclass
+
+        @run_on_ui_thread
+        def read_insets():
+            try:
+                activity = autoclass('org.kivy.android.PythonActivity').mActivity
+                sdk = int(autoclass('android.os.Build$VERSION').SDK_INT)
+                window = activity.getWindow()
+                decor = window.getDecorView()
+                decor.setSystemUiVisibility(decor.getSystemUiVisibility() | 8192 | 16)
+                if sdk >= 30:
+                    controller = window.getInsetsController()
+                    if controller is not None:
+                        controller.setSystemBarsAppearance(24,24)
+                insets = decor.getRootWindowInsets()
+                if insets is None:
+                    raise RuntimeError('System insets are not attached yet')
+                if sdk >= 30:
+                    types = autoclass('android.view.WindowInsets$Type')
+                    bars = insets.getInsets(types.systemBars() | types.displayCutout())
+                    bounds = (int(bars.left),int(bars.top),int(bars.right),int(bars.bottom))
+                else:
+                    bounds = (insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),
+                              insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom())
+                decor_height = int(decor.getHeight())
+                Clock.schedule_once(lambda _dt:self.apply_system_insets(bounds,decor_height,sdk),0)
+            except Exception:
+                from kivy.logger import Logger
+                Logger.exception('ATLAS: system inset query failed; applying safe portrait spacing')
+                Clock.schedule_once(lambda _dt:setattr(self.container,'padding',(0,dp(40),0,dp(24))),0)
+        read_insets()
+
+    def apply_system_insets(self, bounds, decor_height, sdk):
+        # Android 15+ draws into system-bar areas. Older fitted windows already
+        # exclude them, so add padding only when their viewport fills the decor.
+        self.container.padding = bounds if sdk >= 35 or abs(Window.height-decor_height)<=dp(2) else (0,0,0,0)
+
+    def on_resume(self):
+        Clock.schedule_once(self.configure_system_bars,.2)
 
     def save_ui(self):
         self.store.ui = {key: getattr(self, key) for key in ('screen','pickup','destination','party','comfort','restaurant','address')}

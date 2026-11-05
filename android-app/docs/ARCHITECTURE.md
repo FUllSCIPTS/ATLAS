@@ -85,7 +85,7 @@ This table is generated from the actual Python AST. Dataclass constructors and e
 | `acceptance.py` / `Acceptance` | `__init__`, `check`, `click`, `capture`, `shared_reserved`, `start`, `next_step`, `finish` |
 | `app.py` / `Panel` | `__init__`, `_redraw` |
 | `app.py` / `RouteMap` | `__init__`, `draw` |
-| `app.py` / `AtlasGoApp` | `build`, `on_start`, `save_ui`, `on_pause`, `on_stop`, `on_keyboard`, `box`, `label`, `gap`, `button`, `safe`, `message`, `title_block`, `go`, `render`, `home`, `select`, `update_selection`, `ride`, `book_solo`, `book_shared`, `active_ride`, `next_ride`, `cancel_ride`, `food`, `open_menu`, `menu`, `add_food`, `remove_food`, `clear_cart`, `cart`, `checkout`, `active_order`, `next_order`, `activity`, `profile`, `reset`, `privacy` |
+| `app.py` / `AtlasGoApp` | `build`, `on_start`, `configure_system_bars`, `apply_system_insets`, `on_resume`, `save_ui`, `on_pause`, `on_stop`, `on_keyboard`, `box`, `label`, `gap`, `button`, `safe`, `message`, `title_block`, `go`, `render`, `home`, `select`, `update_selection`, `ride`, `book_solo`, `book_shared`, `active_ride`, `next_ride`, `cancel_ride`, `food`, `open_menu`, `menu`, `add_food`, `remove_food`, `clear_cart`, `cart`, `checkout`, `active_order`, `next_order`, `activity`, `profile`, `reset`, `privacy` |
 | `domain.py` module | `distance`, `fare`, `money` |
 | `domain.py` / `Dish` | Dataclass fields: `id`, `name`, `detail`, `restaurant`, `price` |
 | `domain.py` / `Offer` | `matches`, `reserve`, `release` |
@@ -94,7 +94,7 @@ This table is generated from the actual Python AST. Dataclass constructors and e
 
 ## Persistence and state rules
 
-`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `cart`, `history`, `ride`, `order`, `seats` and `ui`. Malformed JSON is preserved as `state.invalid.json` before a clean demo state is created. Reset removes that recovery file too. Booking, cancellation, checkout and basket mutations roll back in memory if atomic persistence fails. All UI commands execute on Kivy's main thread.
+`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `cart`, `history`, `ride`, `order`, `seats` and `ui`. Malformed JSON is preserved as `state.invalid.json` before a clean demo state is created. Reset removes that recovery file too. Booking, cancellation, checkout and basket mutations roll back in memory if atomic persistence fails. All UI commands execute on Kivy's main thread. Android system-bar insets and light-bar appearance are queried on Android's UI thread and applied to the Kivy layout, keeping the header and navigation clear of system controls.
 
 Money is integer cents. One active ride and one active food order are allowed. Shared offers match both saved route endpoints and seat count. Cancellation releases reserved seats. Completed/cancelled records go into history. The basket is restricted to one restaurant and ten of each item. Navigation/form state is saved for restart. Reset deletes demo history and reseeds offers.
 

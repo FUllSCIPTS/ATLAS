@@ -36,6 +36,8 @@ class Acceptance:
         # from the host driver, avoiding OpenGL readback state changes.
         self.check(all(w.width >= 40 and w.height >= 44 for w in self.app.controls.values()), 'Controls meet minimum usable dimensions')
         if platform == 'android':
+            self.check(self.app.container.padding[1]>0,'Status-bar inset applied')
+            self.check(self.app.container.padding[3]>0,'Gesture-bar inset applied')
             (self.output/'capture-request.txt').write_text(name)
             self.waiting_capture = name
             self.capture_deadline = time.monotonic()+45

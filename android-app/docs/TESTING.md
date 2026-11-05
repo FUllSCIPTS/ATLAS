@@ -25,6 +25,7 @@ The Android debug driver is enabled only when Android marks the APK debuggable a
 - Invalid saved booking stages and out-of-range form values recover without crashing the UI.
 - Booking, shared-seat, basket and checkout changes roll back in memory if persistence fails.
 - Reset removes the quarantined invalid-state file as well as current demo history.
+- Android system-bar spacing prevents status and gesture controls from overlapping the app header and navigation.
 - Bottom navigation remains readable on a narrow screen with increased text size.
 - Android packaging installs the libtool/libltdl development dependencies needed by the Python runtime.
 - CI screenshots, results and sample data are excluded from the packaged application.
