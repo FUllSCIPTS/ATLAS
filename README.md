@@ -30,6 +30,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 4) [ATLAS Go Python Android app — rides, shared rides and food](android-app/README.md) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
 
+5) [▶ Watch the ATLAS Go demo video (45 s) — ride booking, driver gets location, food order, shop-to-home delivery](android-app/docs/video/atlas-go-demo.mp4)
+
 ## ATLAS Go Android app (option 4)
 
 A Python/Kivy passenger-app model with solo ride booking, shared-seat reservations,
@@ -43,6 +45,7 @@ simulated. Application code and tests are in Python.
 | [Installable Android APK](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.0.0/atlas-go-demo.apk) | Debug demonstration for direct installation |
 | [All release downloads and checksums](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0) | Signed/unsigned bundles, APK, twelve screenshots and verification evidence |
 | [Python source and run instructions](android-app/README.md) | App screens, domain rules, persistence, tests and build configuration |
+| [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 45-second walkthrough: book a ride, driver receives the pickup location, order food, courier collects at the shop and delivers home (simulated) |
 | [Screenshots and user guide](android-app/docs/USER_GUIDE.md) | Home, solo/shared rides, food, basket, tracking, activity and privacy screens |
 | [Architecture and integration blueprint](android-app/docs/ARCHITECTURE.md) | Folder structure, classes and future service integration |
 | [Google Play handover](android-app/docs/GOOGLE_PLAY.md) | Signing, store assets, privacy notice and Console submission steps |
