@@ -114,7 +114,7 @@ class OutlookChart(Widget):
             if self.now is not None:
                 Color(*INK)
                 nx = x + (self.now + .5) * slot
-                Line(points=[nx, base_y, nx, y + h - dp(4)], width=dp(1), dash_length=dp(4), dash_offset=dp(3))
+                Line(points=[nx, base_y, nx, y + h - dp(4)], width=1, dash_length=dp(4), dash_offset=dp(3))
             for hr in (0, 6, 12, 18):
                 tex = _text(f'{hr:02d}:00', 9, MUTED)
                 Color(1, 1, 1, 1)
@@ -162,9 +162,9 @@ class LearningCurve(Widget):
             RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(10)])
             if self.nearest is not None:
                 Color(*MUTED)
-                Line(points=[x, py(self.nearest), x + w, py(self.nearest)], width=dp(1), dash_length=dp(5), dash_offset=dp(4))
+                Line(points=[x, py(self.nearest), x + w, py(self.nearest)], width=1, dash_length=dp(6), dash_offset=dp(4))
                 Color(*VIOLET)
-                Line(points=[x, py(self.approved), x + w, py(self.approved)], width=dp(1), dash_length=dp(2), dash_offset=dp(3))
+                Line(points=[x, py(self.approved), x + w, py(self.approved)], width=1, dash_length=dp(2), dash_offset=dp(3))
             if len(self.curve) > 1:
                 Color(*GREEN)
                 pts = []
@@ -707,7 +707,7 @@ class AtlasGoApp(App):
         self.lab_curve = LearningCurve()
         lab.add_widget(self.lab_curve)
         self.lab_status = self.label(lab,'',13,INK)
-        self.label(lab,'Green: the new policy. Grey dashes: "send the nearest driver". Violet dots: approved '
+        self.label(lab,'Green: the new policy. Grey: "send the nearest driver". Violet: approved '
                        f'policy {learned.POLICY_VERSION}. Higher means less waiting.',11,MUTED)
         self.button(lab,'Train 30,000 simulated rides','lab_train',self.lab_train)
         self.label(lab,'Sandbox only: this candidate is never used to dispatch rides. In the reference design a '
