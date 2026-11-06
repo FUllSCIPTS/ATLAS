@@ -23,14 +23,37 @@ const iconPaths = {
   pause: '<path d="M9 5v14m6-14v14"/>',
   reset: '<path d="M4 10a8 8 0 1 1 1.7 7M4 5v5h5"/>',
   search: '<circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/>',
+  bag: '<path d="M5 8h14l-1.2 12H6.2Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  utensils: '<path d="M7 3v7a2 2 0 0 0 2 2m-2-9v18M5 3v5m4-5v5"/><path d="M17 21V3c-2.2 1.4-3 4-3 7v4h3"/>',
   file: '<path d="M6 3h8l4 4v14H6Zm8 0v5h4M9 12h6m-6 4h6"/>',
 };
 
+const systems = {
+  starter: {
+    id: "starter", label: "Server starter", groups, components, links, scenarios, folders, zones,
+    root: "starter/", source: "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/",
+    foldersDetail: "Browse the exact folders and files in the runnable starter. Open a file to read its source on GitHub.",
+    deploymentNote: ["Local development", "Run the linked starter with Docker Compose for PostgreSQL and Kafka, or use its SQLite quickstart for local development."],
+    defaultSelected: "trip", defaultFolder: "trip", openFolders: ["apps", "services"],
+    kindLabels: { sync: "Request / state", event: "Kafka event", learn: "Model / policy data" },
+  },
+  go: goSystem,
+};
+let S = systems.starter;
+let linkById = {};
+let folderById = {};
+let kindLabels = S.kindLabels;
+let openFolders = new Set();
+
+function indexSystem() {
+  kindLabels = S.kindLabels;
+  linkById = Object.fromEntries(S.links.map((link) => [link.id, link]));
+  folderById = Object.fromEntries(S.folders.flatMap((group) => group.children.map((entry) => [entry.id, { ...entry, path: group.root ? "" : group.name + "/" + (entry.name.endsWith("/") ? entry.name : "") }])));
+  openFolders = new Set(S.openFolders);
+}
+
 const $ = (id) => document.getElementById(id);
 const icon = (name, size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
-const linkById = Object.fromEntries(links.map((link) => [link.id, link]));
-const kindLabels = { sync: "Request / state", event: "Kafka event", learn: "Model / policy data" };
-const folderById = Object.fromEntries(folders.flatMap((group) => group.children.map((entry) => [entry.id, { ...entry, path: group.root ? "" : group.name + "/" + (entry.name.endsWith("/") ? entry.name : "") }])));
 const state = { view: "architecture", selected: "trip", trace: null, step: 0, focus: false, category: "all", query: "", folder: "trip", timer: null };
 
 document.querySelectorAll("[data-icon]").forEach((element) => { element.innerHTML = icon(element.dataset.icon, 17); });
@@ -40,11 +63,11 @@ function announce(message) {
 }
 
 function componentColor(id) {
-  return groups[components[id].group].color;
+  return S.groups[S.components[id].group].color;
 }
 
 function componentMark(id, size = 19) {
-  return `<span class="component-icon" style="--accent:${componentColor(id)}">${icon(components[id].icon, size)}</span>`;
+  return `<span class="component-icon" style="--accent:${componentColor(id)}">${icon(S.components[id].icon, size)}</span>`;
 }
 
 function viewHeading(kicker, title, detail, badge = "") {
@@ -53,7 +76,7 @@ function viewHeading(kicker, title, detail, badge = "") {
 
 function updateControls() {
   $("tracebar").hidden = state.view !== "architecture";
-  $("scenarios").innerHTML = `<span class="trace-label">TRACE A FLOW</span>` + Object.entries(scenarios).map(([id, trace]) => `<button type="button" class="scenario" aria-pressed="${state.trace === id}" data-scenario="${id}" data-keep="scenario-${id}">${icon(trace.icon, 16)}${trace.title}</button>`).join("");
+  $("scenarios").innerHTML = `<span class="trace-label">TRACE A FLOW</span>` + Object.entries(S.scenarios).map(([id, trace]) => `<button type="button" class="scenario" aria-pressed="${state.trace === id}" data-scenario="${id}" data-keep="scenario-${id}">${icon(trace.icon, 16)}${trace.title}</button>`).join("");
   $("dependency-toggle").setAttribute("aria-pressed", String(state.focus));
   for (const button of document.querySelectorAll("[data-view]")) {
     const active = button.dataset.view === state.view;
@@ -64,28 +87,28 @@ function updateControls() {
 }
 
 function architectureView() {
-  const trace = scenarios[state.trace];
+  const trace = S.scenarios[state.trace];
   const currentLink = trace ? linkById[trace.steps[state.step][0]] : null;
-  const neighborLinks = new Set(links.filter(({ from, to }) => from === state.selected || to === state.selected));
+  const neighborLinks = new Set(S.links.filter(({ from, to }) => from === state.selected || to === state.selected));
   const traceLinks = new Set(trace?.steps.map(([id]) => linkById[id]));
   const visibleLinks = trace ? traceLinks : neighborLinks;
   const highlightedNodes = new Set([state.selected, ...[...visibleLinks].flatMap(({ from, to }) => [from, to])]);
   const markers = Object.keys(kindLabels).flatMap((kind) => ["base", "active"].map((tone) =>
     `<marker id="arrow-${kind}-${tone}" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path class="marker ${kind} ${tone}" d="M0 0 6 3 0 6 1.5 3Z"/></marker>`)).join("");
-  const orderedLinks = [...links].sort((a, b) => Number(visibleLinks.has(a)) - Number(visibleLinks.has(b)) || Number(a === currentLink) - Number(b === currentLink));
+  const orderedLinks = [...S.links].sort((a, b) => Number(visibleLinks.has(a)) - Number(visibleLinks.has(b)) || Number(a === currentLink) - Number(b === currentLink));
   const wiring = orderedLinks.map((link) => {
     const mode = link === currentLink ? "current" : visibleLinks.has(link) ? "related" : state.focus || trace ? "muted" : "idle";
     const marker = mode === "related" || mode === "current" ? "active" : "base";
     return `<path class="wire ${link.kind} ${mode}" data-link="${link.id}" d="${link.path}" marker-end="url(#arrow-${link.kind}-${marker})"><title>${link.label}</title></path>`;
   }).join("");
-  const lanes = Object.values(groups).map((group, index) => `<div class="lane" style="left:${(group.x - 9) / 9}%;--accent:${group.color}"><div class="lane-label"><span>0${index + 1}</span> ${group.label}</div></div>`).join("");
-  const nodes = Object.entries(components).map(([id, component]) => {
+  const lanes = Object.values(S.groups).map((group, index) => `<div class="lane" style="left:${(group.x - 9) / 9}%;--accent:${group.color}"><div class="lane-label"><span>0${index + 1}</span> ${group.label}</div></div>`).join("");
+  const nodes = Object.entries(S.components).map(([id, component]) => {
     const muted = (state.focus || trace) && !highlightedNodes.has(id);
     const endpoint = currentLink && (id === currentLink.from || id === currentLink.to);
-    return `<button type="button" class="map-node ${muted ? "dimmed" : ""} ${endpoint ? "endpoint" : ""}" data-component="${id}" data-keep="map-${id}" aria-pressed="${id === state.selected}" style="left:${groups[component.group].x / 9}%;top:${component.y / 4.08}%;--accent:${componentColor(id)}">${componentMark(id)}<span class="map-node-text"><strong>${component.title}</strong><small>${component.tech}</small></span></button>`;
+    return `<button type="button" class="map-node ${muted ? "dimmed" : ""} ${endpoint ? "endpoint" : ""}" data-component="${id}" data-keep="map-${id}" aria-pressed="${id === state.selected}" style="left:${S.groups[component.group].x / 9}%;top:${component.y / 5}%;${component.h ? `height:${component.h / 5}%;` : ""}--accent:${componentColor(id)}">${componentMark(id)}<span class="map-node-text"><strong>${component.title}</strong><small>${component.tech}</small></span></button>`;
   }).join("");
   const playback = trace ? `<section class="playback" aria-label="Flow playback">
-      <div class="step-heading"><span class="step-number">${String(state.step + 1).padStart(2, "0")} / ${String(trace.steps.length).padStart(2, "0")}</span><strong>${components[currentLink.from].title} <span aria-hidden="true">→</span> ${components[currentLink.to].title}</strong></div>
+      <div class="step-heading"><span class="step-number">${String(state.step + 1).padStart(2, "0")} / ${String(trace.steps.length).padStart(2, "0")}</span><strong>${S.components[currentLink.from].title} <span aria-hidden="true">→</span> ${S.components[currentLink.to].title}</strong></div>
       <p>${trace.steps[state.step][1]}</p>
       <div class="playback-actions">
         <button class="square" type="button" aria-label="Previous step" title="Previous step" data-action="previous" data-keep="previous" ${state.step === 0 ? "disabled" : ""}>${icon("previous", 17)}</button>
@@ -94,60 +117,59 @@ function architectureView() {
         <button class="square" type="button" aria-label="Reset flow" title="Reset flow" data-action="restart" data-keep="restart">${icon("reset", 17)}</button>
       </div>
     </section>` : "";
-  return viewHeading("SYSTEM MAP", "Architecture", "Select a node to inspect its dependencies, or trace a flow.", '<span class="panel-badge">12 components</span>')
-    + playback + `<div class="map-scroll" tabindex="0" aria-label="Scrollable architecture diagram"><div class="map-canvas">${lanes}<svg class="wires" viewBox="0 0 900 408" aria-hidden="true"><defs>${markers}</defs>${wiring}</svg>${nodes}</div></div>
-    <div class="legend" aria-label="Connection legend">${Object.entries(kindLabels).map(([kind, label]) => `<span><i class="legend-line ${kind}"></i>${label}</span>`).join("")}<span class="pan-hint">Scroll to see all layers ${icon("arrow", 13)}</span></div><button class="mobile-inspect" type="button" data-action="inspect">Inspect ${components[state.selected].title} <span aria-hidden="true">↓</span></button>`;
+  return viewHeading("SYSTEM MAP", "Architecture", "Select a node to inspect its dependencies, or trace a flow.", `<span class="panel-badge">${Object.keys(S.components).length} components</span>`)
+    + playback + `<div class="map-scroll" tabindex="0" aria-label="Scrollable architecture diagram"><div class="map-canvas">${lanes}<svg class="wires" viewBox="0 0 900 500" aria-hidden="true"><defs>${markers}</defs>${wiring}</svg>${nodes}</div></div>
+    <div class="legend" aria-label="Connection legend">${Object.entries(kindLabels).map(([kind, label]) => `<span><i class="legend-line ${kind}"></i>${label}</span>`).join("")}<span class="pan-hint">Scroll to see all layers ${icon("arrow", 13)}</span></div><button class="mobile-inspect" type="button" data-action="inspect">Inspect ${S.components[state.selected].title} <span aria-hidden="true">↓</span></button>`;
 }
 
 function cardsMarkup() {
   const query = state.query.trim().toLowerCase();
-  const matches = Object.entries(components).filter(([, component]) => (state.category === "all" || component.group === state.category)
+  const matches = Object.entries(S.components).filter(([, component]) => (state.category === "all" || component.group === state.category)
     && [component.title, component.tech, component.summary].some((item) => item.toLowerCase().includes(query)));
   return matches.length ? matches.map(([id, component]) => `<button class="catalog-card" type="button" data-component="${id}" data-keep="card-${id}" aria-pressed="${state.selected === id}" style="--accent:${componentColor(id)}">
-    <span class="catalog-top">${componentMark(id)}<span>${groups[component.group].label}</span></span><strong>${component.title}</strong><span class="catalog-tech">${component.tech}</span><span class="card-arrow">${icon("diagonal", 15)}</span>
+    <span class="catalog-top">${componentMark(id)}<span>${S.groups[component.group].label}</span></span><strong>${component.title}</strong><span class="catalog-tech">${component.tech}</span><span class="card-arrow">${icon("diagonal", 15)}</span>
   </button>`).join("") : '<p class="empty">No components match this filter.</p>';
 }
 
 function componentsView() {
   return viewHeading("SERVICE CATALOG", "Components", "Browse the stack by layer or search by name and technology.")
     + `<div class="catalog-controls"><label class="search">${icon("search", 17)}<input id="component-search" data-keep="search" type="search" placeholder="Search components…" aria-label="Search components"></label>
-    <label class="group-filter"><span class="sr-only">Filter by layer</span><select id="group-filter" data-keep="filter"><option value="all">All layers</option>${Object.entries(groups).map(([id, group]) => `<option value="${id}">${group.label}</option>`).join("")}</select></label></div>
+    <label class="group-filter"><span class="sr-only">Filter by layer</span><select id="group-filter" data-keep="filter"><option value="all">All layers</option>${Object.entries(S.groups).map(([id, group]) => `<option value="${id}">${group.label}</option>`).join("")}</select></label></div>
     <div class="catalog-grid" id="catalog-grid">${cardsMarkup()}</div>`;
 }
 
 function deploymentView() {
-  return viewHeading("RUNTIME TOPOLOGY", "Deployment", "Suggested runtime boundaries and the components that run in each zone.", '<span class="panel-badge">4 runtime zones</span>')
-    + `<div class="zones">${zones.map((zone, index) => `<section class="zone" style="--accent:${groups[zone.group].color}"><div class="zone-top"><span class="component-icon">${icon(zone.icon)}</span><div><p>ZONE 0${index + 1}</p><h3>${zone.title}</h3></div></div><span class="zone-sub">${zone.sub}</span><div class="zone-items">${zone.nodes.map((id) => `<button type="button" data-component="${id}" data-keep="zone-${id}" aria-pressed="${state.selected === id}">${icon(components[id].icon, 15)}${components[id].title}</button>`).join("")}</div><p class="zone-boundary">${zone.boundary}</p></section>`).join("")}</div>
-    <div class="deployment-note">${icon("gateway", 18)}<p><strong>Local development</strong><span>Run the linked starter with Docker Compose for PostgreSQL and Kafka, or use its SQLite quickstart for local development.</span></p></div>`;
+  return viewHeading("RUNTIME TOPOLOGY", "Deployment", "Suggested runtime boundaries and the components that run in each zone.", `<span class="panel-badge">${S.zones.length} runtime zones</span>`)
+    + `<div class="zones">${S.zones.map((zone, index) => `<section class="zone" style="--accent:${S.groups[zone.group].color}"><div class="zone-top"><span class="component-icon">${icon(zone.icon)}</span><div><p>ZONE 0${index + 1}</p><h3>${zone.title}</h3></div></div><span class="zone-sub">${zone.sub}</span><div class="zone-items">${zone.nodes.map((id) => `<button type="button" data-component="${id}" data-keep="zone-${id}" aria-pressed="${state.selected === id}">${icon(S.components[id].icon, 15)}${S.components[id].title}</button>`).join("")}</div><p class="zone-boundary">${zone.boundary}</p></section>`).join("")}</div>
+    <div class="deployment-note">${icon("gateway", 18)}<p><strong>${S.deploymentNote[0]}</strong><span>${S.deploymentNote[1]}</span></p></div>`;
 }
 
 function foldersView() {
   const selected = folderById[state.folder];
-  return viewHeading("SOURCE LAYOUT", "Folder structure", "Browse the exact folders and files in the runnable starter. Open a file to read its source on GitHub.")
-    + `<div class="repo-layout"><div class="repo-tree" aria-label="Repository folders"><div class="repo-root">${icon("folder", 17)} starter/</div>${folders.map((group) => `<details ${group.children.some((entry) => entry.id === state.folder) || openFolders.has(group.name) ? "open" : ""} data-folder-group="${group.name}"><summary>${icon("chevron", 12)}${icon("folder", 15)}<strong>${group.name}/</strong></summary><div class="branch">${group.children.map((entry) => `<button type="button" data-folder="${entry.id}" data-keep="folder-${entry.id}" aria-pressed="${state.folder === entry.id}">${icon("folder", 13)}${entry.name}</button>`).join("")}</div></details>`).join("")}</div>
-    <section class="folder-details"><p class="section-kicker">DIRECTORY</p><h3>starter/${selected.path}</h3><p>${selected.detail}</p><p class="section-kicker file-label">SOURCE FILES</p><ul>${selected.example.map((file) => `<li>${icon("file", 16)}<a href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/${selected.path}${file}"><code>${file}</code></a></li>`).join("")}</ul></section></div>`;
+  return viewHeading("SOURCE LAYOUT", "Folder structure", S.foldersDetail)
+    + `<div class="repo-layout"><div class="repo-tree" aria-label="Repository folders"><div class="repo-root">${icon("folder", 17)} ${S.root}</div>${S.folders.map((group) => `<details ${group.children.some((entry) => entry.id === state.folder) || openFolders.has(group.name) ? "open" : ""} data-folder-group="${group.name}"><summary>${icon("chevron", 12)}${icon("folder", 15)}<strong>${group.name}/</strong></summary><div class="branch">${group.children.map((entry) => `<button type="button" data-folder="${entry.id}" data-keep="folder-${entry.id}" aria-pressed="${state.folder === entry.id}">${icon("folder", 13)}${entry.name}</button>`).join("")}</div></details>`).join("")}</div>
+    <section class="folder-details"><p class="section-kicker">DIRECTORY</p><h3>${S.root}${selected.path}</h3><p>${selected.detail}</p><p class="section-kicker file-label">SOURCE FILES</p><ul>${selected.example.map((file) => `<li>${icon("file", 16)}<a href="${S.source}${selected.path}${file}"><code>${file}</code></a></li>`).join("")}</ul></section></div>`;
 }
 
 function inspectorMarkup() {
   const id = state.selected;
-  const component = components[id];
-  const group = groups[component.group];
+  const component = S.components[id];
+  const group = S.groups[component.group];
   const entry = folderById[component.file];
   const neighbors = [
-    { heading: "Receives from", rows: links.filter(({ to }) => to === id), target: "from" },
-    { heading: "Sends to", rows: links.filter(({ from }) => from === id), target: "to" },
+    { heading: "Receives from", rows: S.links.filter(({ to }) => to === id), target: "from" },
+    { heading: "Sends to", rows: S.links.filter(({ from }) => from === id), target: "to" },
   ];
   return `<div class="inspector-head"><span>${icon("focus", 16)} COMPONENT INSPECTOR</span><span class="status-dot" aria-hidden="true"></span></div>
     <div class="inspector-body" style="--accent:${group.color}"><div class="inspector-identity">${componentMark(id, 23)}<div><p>${group.label}</p><h2 id="component-title" tabindex="-1">${component.title}</h2></div></div>
     <p class="inspector-summary">${component.summary}</p>
     <div class="io"><div><span>INPUT</span><p>${component.inputs}</p></div><div><span>OUTPUT</span><p>${component.outputs}</p></div></div>
-    <div class="connections">${neighbors.filter(({ rows }) => rows.length).map(({ heading, rows, target }) => `<div class="connection-group"><h3>${heading}</h3>${rows.map((link) => `<button type="button" class="connection" data-component="${link[target]}" data-keep="edge-${link.id}"><i class="edge-dot ${link.kind}"></i><span><strong>${components[link[target]].title}</strong><small>${link.label}</small></span>${icon("chevron", 13)}</button>`).join("")}</div>`).join("")}</div>
+    <div class="connections">${neighbors.filter(({ rows }) => rows.length).map(({ heading, rows, target }) => `<div class="connection-group"><h3>${heading}</h3>${rows.map((link) => `<button type="button" class="connection" data-component="${link[target]}" data-keep="edge-${link.id}"><i class="edge-dot ${link.kind}"></i><span><strong>${S.components[link[target]].title}</strong><small>${link.label}</small></span>${icon("chevron", 13)}</button>`).join("")}</div>`).join("")}</div>
     <p class="inspector-note"><strong>Implementation note</strong><span>${component.notes}</span></p>
     <button class="source-link" type="button" data-action="source" data-keep="source">${icon("folder", 16)}<code>${entry.path}${entry.example[0]}</code>${icon("diagonal", 14)}</button></div>`;
 }
 
 const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView };
-const openFolders = new Set(["apps", "services"]);
 
 function render() {
   const focusKey = document.activeElement?.dataset.keep;
@@ -159,7 +181,7 @@ function render() {
   const map = document.querySelector(".map-scroll");
   if (map && previousMap) map.scrollLeft = previousMap.scrollLeft;
   const inspectorBody = $("inspector").querySelector(".inspector-body");
-  if (previousInspector?.querySelector("#component-title")?.textContent === components[state.selected].title) {
+  if (previousInspector?.querySelector("#component-title")?.textContent === S.components[state.selected].title) {
     inspectorBody.scrollTop = previousInspector.scrollTop;
   }
   if (state.view === "components") {
@@ -172,6 +194,25 @@ function render() {
     else if (focusKey === "next" || focusKey === "previous") document.querySelector('[data-keep="play"]')?.focus({ preventScroll: true });
     else if (focusKey.startsWith("edge-")) $("component-title").focus({ preventScroll: true });
   }
+}
+
+const starterIntro = { tagline: document.querySelector(".eyebrow").innerHTML, text: document.querySelector(".intro > p").innerHTML, actions: document.querySelector(".guide-actions").innerHTML };
+
+function setSystem(id, fromClick = false) {
+  if (!systems[id]) id = "starter";
+  stopPlayback();
+  S = systems[id];
+  indexSystem();
+  Object.assign(state, { selected: S.defaultSelected, folder: S.defaultFolder, trace: null, step: 0, focus: false, category: "all", query: "" });
+  document.querySelector(".eyebrow").innerHTML = id === "starter" ? starterIntro.tagline : `<span class="status-dot"></span> ${S.tagline.replace(" / ", ' <span class="slash">/</span> ')}`;
+  document.querySelector(".intro > p").innerHTML = id === "starter" ? starterIntro.text : S.intro;
+  document.querySelector(".guide-actions").innerHTML = id === "starter" ? starterIntro.actions : S.actions;
+  for (const button of document.querySelectorAll("[data-system]")) button.setAttribute("aria-pressed", String(button.dataset.system === id));
+  if (fromClick) {
+    try { history.replaceState(null, "", id === "starter" ? location.pathname + location.search : "#" + id); } catch (error) { /* file:// or sandboxed */ }
+    announce(`Showing ${S.label}`);
+  }
+  render();
 }
 
 function stopPlayback() {
@@ -187,7 +228,7 @@ function switchView(view) {
 
 function applyStep(step) {
   state.step = step;
-  const trace = scenarios[state.trace];
+  const trace = S.scenarios[state.trace];
   const link = linkById[trace.steps[step][0]];
   state.selected = link.to;
   announce(`${trace.title}, step ${step + 1} of ${trace.steps.length}. ${trace.steps[step][1]}`);
@@ -223,7 +264,7 @@ function playTrace() {
     render();
     return;
   }
-  const lastStep = scenarios[state.trace].steps.length - 1;
+  const lastStep = S.scenarios[state.trace].steps.length - 1;
   state.timer = setInterval(() => {
     const next = state.step + 1;
     if (next === lastStep) stopPlayback();
@@ -236,8 +277,9 @@ function playTrace() {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
-  const { view, scenario, component, folder, action } = button.dataset;
-  if (view) switchView(view);
+  const { view, scenario, component, folder, action, system } = button.dataset;
+  if (system) setSystem(system, true);
+  else if (view) switchView(view);
   else if (scenario) setScenario(scenario);
   else if (button.id === "dependency-toggle") {
     const next = !state.focus;
@@ -248,18 +290,18 @@ document.addEventListener("click", (event) => {
   } else if (component) {
     stopPlayback();
     state.selected = component;
-    announce(`Inspecting ${components[component].title}`);
+    announce(`Inspecting ${S.components[component].title}`);
     render();
   } else if (folder) {
     state.folder = folder;
     const owner = folderById[folder].component || folder;
-    if (components[owner]) state.selected = owner;
+    if (S.components[owner]) state.selected = owner;
     render();
   } else if (action === "inspect") {
     $("component-title").focus();
     $("inspector").scrollIntoView({ block: "start" });
   } else if (action === "source") {
-    state.folder = components[state.selected].file;
+    state.folder = S.components[state.selected].file;
     switchView("folders");
     document.querySelector('[data-keep="folder-' + state.folder + '"]').focus();
   } else if (action === "play") playTrace();
@@ -296,4 +338,4 @@ $("view-content").addEventListener("toggle", (event) => {
   else openFolders.delete(group);
 }, true);
 
-render();
+setSystem(location.hash.slice(1) || "starter");

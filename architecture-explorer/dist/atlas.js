@@ -20,9 +20,16 @@ const components = {
     outputs: "Availability, offer acceptance, pickup and completion",
     notes: "Open /driver on port 8000. Driver A and Driver B are seeded as separate identities.",
   },
+  foodapp: {
+    title: "Food app", tech: "ATLAS Go · menu & basket", group: "client", icon: "bag", y: 420, file: "foodapp",
+    summary: "The Food tab of ATLAS Go. The customer opens one restaurant, fills a basket, places an order and follows it to delivery.",
+    inputs: "Restaurant, dish quantities, delivery place and an idempotency key",
+    outputs: "GET /v1/food/restaurants/{id}/menu, POST /v1/food/orders and GET /v1/food/orders/{id}",
+    notes: "Mirrors the ATLAS Go Android flow: Green Bowl Kitchen, Marina Pizza and Spice Route; one restaurant per basket; up to ten of each dish; €2.50 delivery fee. Not yet in the runnable starter.",
+  },
   gateway: {
     title: "API Gateway", tech: "FastAPI · REST gateway", group: "service", icon: "gateway", y: 65, file: "gateway",
-    summary: "Serves both browser apps, checks bearer keys and forwards only supported routes to internal APIs.",
+    summary: "Serves the passenger, driver and food apps, checks bearer keys and forwards only supported routes to internal APIs.",
     inputs: "Same-origin browser requests with a demo bearer key",
     outputs: "Role-checked internal HTTP requests and poll responses",
     notes: "Only port 8000 is published. Replace development keys with identity-provider sessions before exposing the application.",
@@ -36,23 +43,30 @@ const components = {
   },
   dispatch: {
     title: "Dispatch Service", tech: "FastAPI · matching", group: "service", icon: "target", y: 295, file: "dispatch",
-    summary: "Tracks driver availability and offers. The event worker scores candidates and records an offer on its behalf.",
+    summary: "Tracks driver availability and offers for rides and food deliveries. The event worker scores candidates and records an offer on its behalf.",
     inputs: "Driver telemetry, trip requests and model score response",
     outputs: "Authorized offers, acceptance and assignment events",
     notes: "Reserve a driver with an atomic update. Use nearest eligible driver when model serving is unavailable.",
   },
+  food: {
+    title: "Food Service", tech: "FastAPI · menu & orders", group: "service", icon: "utensils", y: 420, file: "food",
+    summary: "Owns restaurants, menus and the food-order state machine. Prices every basket server side and writes outbox events in the same transaction.",
+    inputs: "Menu reads, idempotent orders, courier assignment and delivery milestones",
+    outputs: "preparing → courier_on_the_way → arriving → delivered",
+    notes: "Rejects a basket that mixes restaurants, more than ten of a dish, or a second active order per customer. Prices are integer euro cents. Couriers come from Dispatch.",
+  },
   postgres: {
     title: "PostgreSQL", tech: "Trips · offers · outbox", group: "data", icon: "database", y: 65, file: "migrations",
-    summary: "Stores trips, driver state, offers, the outbox, consumer deduplication and RL experiences.",
+    summary: "Stores trips, food orders, driver state, offers, the outbox, consumer deduplication and RL experiences.",
     inputs: "FastAPI and worker transactions",
     outputs: "Stored ride state and committed events",
     notes: "Docker Compose uses PostgreSQL. The quick local run uses SQLite with the same state machine.",
   },
   kafka: {
-    title: "Kafka", tech: "Topic · atlas.ride.v1", group: "data", icon: "kafka", y: 180, file: "events",
-    summary: "Carries versioned ride events keyed by trip ID. The demo worker handles dispatch, assignment and features.",
+    title: "Kafka", tech: "Topics · ride + food", group: "data", icon: "kafka", y: 180, file: "events",
+    summary: "Carries versioned ride events keyed by trip ID and food events keyed by order ID. The demo worker handles dispatch, assignment and features.",
     inputs: "Acknowledged outbox publications",
-    outputs: "trip.requested, dispatch.assignment.confirmed and trip.completed",
+    outputs: "trip.requested, food.order.ready, dispatch.assignment.confirmed, trip.completed and food.order.delivered",
     notes: "The starter uses one partition and at-least-once delivery. The worker records event IDs before committing offsets.",
   },
   stream: {
@@ -100,7 +114,7 @@ const links = [
   { id: "driver-state", from: "gateway", to: "dispatch", kind: "sync", label: "Driver availability, offer polls and acceptance", path: "M242 116H220V329H242" },
   { id: "trip-store", from: "trip", to: "postgres", kind: "sync", label: "Trip and outbox transaction", path: "M430 196H445V87H465" },
   { id: "outbox", from: "postgres", to: "kafka", kind: "event", label: "Outbox relay publishes committed events", path: "M563 121V180" },
-  { id: "queue", from: "kafka", to: "dispatch", kind: "event", label: "trip.requested", path: "M465 218H455V315H430" },
+  { id: "queue", from: "kafka", to: "dispatch", kind: "event", label: "trip.requested and food.order.ready", path: "M465 218H455V315H430" },
   { id: "assignment-store", from: "dispatch", to: "postgres", kind: "sync", label: "Offer or assignment + outbox transaction", path: "M430 304H437V106H465" },
   { id: "assignment", from: "kafka", to: "trip", kind: "event", label: "dispatch.assignment.confirmed", path: "M465 206H430" },
   { id: "trip-poll", from: "trip", to: "gateway", kind: "sync", label: "Authorized trip snapshot", path: "M353 180V121" },
@@ -115,6 +129,12 @@ const links = [
   { id: "forecast", from: "lstm", to: "dispatch", kind: "learn", label: "Zone demand forecast read by dispatch", path: "M736 65V53H433V279H392V295" },
   { id: "scores", from: "discrete", to: "dispatch", kind: "learn", label: "Candidate acceptance scores", path: "M876 177H882V373H376V351" },
   { id: "candidate", from: "rl", to: "registry", kind: "learn", label: "Evaluated policy candidate", path: "M788 293V323" },
+  { id: "food-browse", from: "foodapp", to: "gateway", kind: "sync", label: "Menu reads and POST /v1/food/orders", path: "M207 436H217V92H242" },
+  { id: "food-forward", from: "gateway", to: "food", kind: "sync", label: "Authenticated menu, order and courier milestone requests", path: "M242 104H225V448H242" },
+  { id: "food-store", from: "food", to: "postgres", kind: "sync", label: "Order and outbox transaction", path: "M430 464H461V98H465" },
+  { id: "food-status", from: "kafka", to: "food", kind: "event", label: "food.courier.assigned", path: "M465 230H441V448H430" },
+  { id: "food-reply", from: "food", to: "gateway", kind: "sync", label: "Menu and authorized order snapshot", path: "M430 432H451V112H430" },
+  { id: "food-read", from: "gateway", to: "foodapp", kind: "sync", label: "GET /v1/food/orders/{id} response", path: "M242 70H234V460H207" },
   { id: "approved", from: "registry", to: "dispatch", kind: "learn", label: "Approved policy, pinned by version", path: "M740 379V394H319V351" },
 ];
 
@@ -199,6 +219,28 @@ const scenarios = {
       ]
     ]
   },
+  "food": {
+    "title": "Buy food",
+    "icon": "bag",
+    "steps": [
+      ["food-browse", "In ATLAS Go's Food tab the customer opens a restaurant: Green Bowl Kitchen, Marina Pizza or Spice Route."],
+      ["food-forward", "The gateway validates the customer key and forwards the menu read to Food Service."],
+      ["food-reply", "Food Service returns that restaurant's dishes with prices in integer euro cents."],
+      ["food-read", "The app builds the basket: one restaurant at a time, up to ten of each dish, subtotal plus a €2.50 delivery fee."],
+      ["food-browse", "Place order sends the basket, a delivery place and an idempotency key."],
+      ["food-forward", "Food Service re-prices the basket server side and rejects mixed restaurants or a second active order."],
+      ["food-store", "The order is inserted as preparing, with its food.order.placed outbox row, in one transaction."],
+      ["outbox", "The worker publishes the committed food event to Kafka, keyed by order ID."],
+      ["queue", "When the kitchen marks the order ready, Dispatch handles food.order.ready and scores nearby couriers."],
+      ["assignment-store", "Dispatch reserves a courier and records the delivery offer with the assignment outbox row."],
+      ["driver-read", "The courier's driver app shows the restaurant pickup and the delivery place."],
+      ["food-status", "Food Service consumes the courier assignment and moves the order to courier on the way."],
+      ["telemetry", "The courier reports arriving, then delivered, through the gateway."],
+      ["food-forward", "Food Service verifies the assigned courier and applies arriving → delivered."],
+      ["food-reply", "An order poll returns the committed stage and courier details."],
+      ["food-read", "The customer follows preparing → courier on the way → arriving; the delivered order moves to Activity."]
+    ]
+  },
   "learning": {
     "title": "Learning loop",
     "icon": "brain",
@@ -260,6 +302,14 @@ const folders = [
         ]
       },
       {
+        "id": "foodapp",
+        "name": "food/",
+        "detail": "Restaurant list, menu, single-restaurant basket and order tracking, as in the ATLAS Go Food tab.",
+        "example": [
+          "index.html"
+        ]
+      },
+      {
         "id": "shared",
         "name": "shared/",
         "detail": "Shared browser fetch client, role-specific actions and styles.",
@@ -295,6 +345,14 @@ const folders = [
         "detail": "Updates availability, returns offers and atomically accepts assignments.",
         "example": [
           "dispatch.py"
+        ]
+      },
+      {
+        "id": "food",
+        "name": "food.py",
+        "detail": "Serves menus, prices baskets, creates orders and validates courier milestones.",
+        "example": [
+          "food.py"
         ]
       }
     ]
@@ -384,7 +442,7 @@ const folders = [
       {
         "id": "migrations",
         "name": "Database schema",
-        "detail": "Tables for rides, drivers, offers, outbox, inbox and experience.",
+        "detail": "Tables for rides, food orders, drivers, offers, outbox, inbox and experience.",
         "example": [
           "schema.sql"
         ],
@@ -458,12 +516,13 @@ const folders = [
 const zones = [
   {
     "title": "Browser clients",
-    "sub": "Passenger and driver",
+    "sub": "Passenger, driver and food",
     "icon": "user",
     "group": "client",
     "nodes": [
       "passenger",
-      "driver"
+      "driver",
+      "foodapp"
     ],
     "boundary": "Open /passenger and /driver on port 8000. The demo polls REST endpoints with role-specific development keys."
   },
@@ -475,9 +534,10 @@ const zones = [
     "nodes": [
       "gateway",
       "trip",
-      "dispatch"
+      "dispatch",
+      "food"
     ],
-    "boundary": "Compose publishes only the gateway to 127.0.0.1. Trips and Dispatch remain on the internal network."
+    "boundary": "Compose publishes only the gateway to 127.0.0.1. Trips, Dispatch and Food remain on the internal network."
   },
   {
     "title": "Data plane",
