@@ -67,8 +67,24 @@ Start the existing implementation first. Run the PostgreSQL/Kafka Compose smoke 
 Then implement any requested production extensions in tested increments. Preserve the API/event contracts and add tests for retries, concurrency and replay. Provide working start commands, test results, and any remaining gaps.</textarea>
       <div class="guide-actions"><button type="button" class="guide-link primary" id="copy-brief">Copy implementation brief</button><span class="copy-status" id="copy-status" aria-live="polite"></span></div>
     </section>
+    <section class="panel guide-card">
+      <p class="section-kicker">05 / ANDROID APP</p>
+      <h2>ATLAS Go 1.1.0 on the phone</h2>
+      <p>The Android app is separate from this starter. It runs offline and ships what the agents learned as plain Python constants.</p>
+      <dl class="guide-models">
+        <dt>Dispatch policy v1.4</dt><dd>REINFORCE softmax over ETA, acceptance and surge features; each solo booking stores a plain-language reason.</dd>
+        <dt>Courier timing</dt><dd>A Q-learning table decides how long to wait before sending a courier, so food and courier arrive together.</dd>
+        <dt>Surge outlook</dt><dd>Hourly demand ratios learned from two simulated years of Cork over Ireland's public holidays, with the hours the supply agent adds drivers.</dd>
+        <dt>Learning lab</dt><dd>Retrains a policy from zero on the device and compares it with the nearest-driver rule. It never dispatches.</dd>
+      </dl>
+      <pre><code>cd android-app
+python -m pytest tests      # 68 tests
+python training/export_learned.py   # regenerate atlas_go/learned.py (needs numpy)
+buildozer android debug</code></pre>
+      <p><a href="./#go">Explore the app architecture</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source ↗</a> · <a href="https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV">Request the app</a></p>
+    </section>
   </div>
-  <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Implementation Guide</span><span>Ride-hailing starter</span></footer>
+  <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Implementation Guide</span><span>Ride-hailing starter · ATLAS Go 1.1.0</span></footer>
 </main>
 </body>
 </html>
