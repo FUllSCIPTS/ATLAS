@@ -17,8 +17,8 @@ Successful full build and acceptance: [GitHub Actions run](https://github.com/FU
 - PASS: 232 64-bit ELF libraries/extensions aligned to 16 KB; 2 Python data archives validated
 
 The source, screenshots, build workflow and documentation are in this repository.
-The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0)
-contains the installable debug APK, unsigned release AAB, screenshot archive and evidence.
+The [release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) contains the screenshot archive, checksums and evidence.
+The APK and AABs are shared on request from a [restricted Google Drive folder](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV).
 
 ## Public binary SHA-256
 
