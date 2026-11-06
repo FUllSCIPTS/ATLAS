@@ -56,7 +56,7 @@ simulated. Application code and tests are in Python.
 | <img src="android-app/docs/screenshots/01-home.png" alt="ATLAS Go home screen" width="200"> | <img src="android-app/docs/screenshots/04-shared-rides.png" alt="Shared ride reservations" width="200"> | <img src="android-app/docs/screenshots/06-food-home.png" alt="Restaurant selection" width="200"> | <img src="android-app/docs/screenshots/13-intelligence.png" alt="Surge outlook and learned policies" width="200"> |
 
 **Verified (1.1.0):** 68 Python regression cases, 102 desktop UI assertions in each of two
-screen configurations, and 130 Android 16 UI assertions passed, with fourteen screenshots
+screen configurations, and 131 Android 16 UI assertions passed, with fourteen screenshots
 ([evidence](android-app/releases/VALIDATION.md)). The 1.1.0 AAB is unsigned: sign it with your
 private upload key before a Play upload. The signed 1.0.0 bundle's signature and structure were
 validated earlier; the private upload key remains private.
