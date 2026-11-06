@@ -84,6 +84,20 @@ def _text(canvas_text, size, shade):
     return label.texture
 
 
+def dashed(points, dash, gap, width):
+    """Dashed straight line drawn as separate segments (Kivy's dash style is not rendered on Android)."""
+    (x0, y0), (x1, y1) = points
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length <= 0:
+        return
+    ux, uy = (x1 - x0) / length, (y1 - y0) / length
+    pos = 0.0
+    while pos < length:
+        end = min(length, pos + dash)
+        Line(points=[x0 + ux * pos, y0 + uy * pos, x0 + ux * end, y0 + uy * end], width=width)
+        pos = end + gap
+
+
 class OutlookChart(Widget):
     """24 hourly bars of expected requests; surge hours in orange, agent's extra drivers in violet."""
     def __init__(self, hours, now=None, **kwargs):
@@ -114,7 +128,7 @@ class OutlookChart(Widget):
             if self.now is not None:
                 Color(*INK)
                 nx = x + (self.now + .5) * slot
-                Line(points=[nx, base_y, nx, y + h - dp(4)], width=1, dash_length=dp(4), dash_offset=dp(3))
+                dashed(((nx, base_y), (nx, y + h - dp(4))), dp(4), dp(3), dp(1))
             for hr in (0, 6, 12, 18):
                 tex = _text(f'{hr:02d}:00', 9, MUTED)
                 Color(1, 1, 1, 1)
@@ -162,9 +176,9 @@ class LearningCurve(Widget):
             RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(10)])
             if self.nearest is not None:
                 Color(*MUTED)
-                Line(points=[x, py(self.nearest), x + w, py(self.nearest)], width=1, dash_length=dp(6), dash_offset=dp(4))
+                dashed(((x, py(self.nearest)), (x + w, py(self.nearest))), dp(6), dp(4), dp(1.2))
                 Color(*VIOLET)
-                Line(points=[x, py(self.approved), x + w, py(self.approved)], width=1, dash_length=dp(2), dash_offset=dp(3))
+                dashed(((x, py(self.approved)), (x + w, py(self.approved))), dp(2), dp(3), dp(1.2))
             if len(self.curve) > 1:
                 Color(*GREEN)
                 pts = []
@@ -707,7 +721,7 @@ class AtlasGoApp(App):
         self.lab_curve = LearningCurve()
         lab.add_widget(self.lab_curve)
         self.lab_status = self.label(lab,'',13,INK)
-        self.label(lab,'Green: the new policy. Grey: "send the nearest driver". Violet: approved '
+        self.label(lab,'Green: the new policy. Grey dashes: "send the nearest driver". Violet dots: approved '
                        f'policy {learned.POLICY_VERSION}. Higher means less waiting.',11,MUTED)
         self.button(lab,'Train 30,000 simulated rides','lab_train',self.lab_train)
         self.label(lab,'Sandbox only: this candidate is never used to dispatch rides. In the reference design a '
