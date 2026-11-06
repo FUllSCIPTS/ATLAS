@@ -1,8 +1,8 @@
 # Verified Android handover
 
-Application source: [622f054a912cf01923dc925e2fccb2c93a8c20a3](https://github.com/FUllSCIPTS/ATLAS/commit/622f054a912cf01923dc925e2fccb2c93a8c20a3).
+Application source: [bb33c43617deca656b420c24fbd9e2ee43cbaef1](https://github.com/FUllSCIPTS/ATLAS/commit/bb33c43617deca656b420c24fbd9e2ee43cbaef1).
 
-Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42171204725).
+Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42173736693).
 
 ## Results
 
@@ -24,14 +24,14 @@ contains the installable debug APK, unsigned release AAB, screenshot archive and
 
 | File | SHA-256 |
 |---|---|
-| `atlas-go-demo.apk` | `e249564301c6beaf939e4204baecc4fade24a603bc7bf5dac16621b3a82e6da2` |
-| `atlas-go-unsigned.aab` | `5a7d43b9dc4d2413b7ad02bfd31ed311d7109430d3a97c945adc1a00de1541b7` |
+| `atlas-go-demo.apk` | `07ce932c1c1112f5bf3e7fa8a50c0d40858b6f43c47e64248ab6d3e7b169ac23` |
+| `atlas-go-unsigned.aab` | `478d8143a5e851984837424de34769de072440a249ef1bab157a17647060b2cb` |
 
 ## Signing and Play submission
 
 The AAB is unsigned. Sign it using the private upload-key backup handed to the owner,
-then follow [the Google Play guide](../docs/GOOGLE_PLAY.md).
-The private key and password are never in GitHub. Store listing/account declarations,
+or add the CI signing secrets described in [the Google Play guide](../docs/GOOGLE_PLAY.md).
+The private key and password are never in the repository, logs, artifacts or release files. Store listing/account declarations,
 any required closed testing, Play pre-launch checks and Google review remain owner steps.
 
 This is an offline model: no real rides, food deliveries or payments. Its small learned policies run locally from bundled constants.
