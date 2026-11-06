@@ -8,7 +8,10 @@ permissions:
   actions: read
 jobs:
   publish:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -16,6 +19,10 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
       - name: Check source is still current
         id: current
         env:
@@ -34,6 +41,13 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
           path: artifact
+      - name: Sign the tested bundle with the owner's upload key
+        if: steps.current.outputs.matches == 'true'
+        env:
+          ATLAS_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ATLAS_UPLOAD_KEYSTORE_BASE64 }}
+          ATLAS_UPLOAD_ALIAS: ${{ secrets.ATLAS_UPLOAD_ALIAS }}
+          ATLAS_UPLOAD_PASSWORD: ${{ secrets.ATLAS_UPLOAD_PASSWORD }}
+        run: python android-app/scripts/ci-sign-bundle.py artifact/release/atlas-go-unsigned.aab artifact/release/atlas-go-play.aab
       - name: Publish verified demo artifacts
         if: steps.current.outputs.matches == 'true'
         env:
@@ -44,6 +58,12 @@ jobs:
           mkdir downloads
           cp artifact/release/atlas-go-demo.apk downloads/
           cp artifact/release/atlas-go-unsigned.aab downloads/
+          if [ -f artifact/release/atlas-go-play.aab ]; then
+            cp artifact/release/atlas-go-play.aab downloads/
+            AAB_NOTE='atlas-go-play.aab: signed in CI with the owner upload key (certificate checked against SIGNED_VALIDATION.json); ready for a Play Console upload. atlas-go-unsigned.aab: the same tested build, unsigned.'
+          else
+            AAB_NOTE='AAB: release build requiring your private upload-key signature before Play upload.'
+          fi
           python -m pip install pillow
           python android-app/scripts/verify-acceptance.py artifact/test-output/android
           cp artifact/test-output/android/result.json downloads/android-ui-results.json
@@ -60,10 +80,11 @@ jobs:
             git rebase origin/main
             git push origin HEAD:main
           fi
-          printf 'Python/Kivy offline model: solo rides, shared-seat reservations, food ordering and on-device ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab). No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. AAB: release build requiring your private upload-key signature before Play upload.\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
+          printf 'Python/Kivy offline model: solo rides, shared-seat reservations, food ordering and on-device ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab). No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. %s\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$AAB_NOTE" "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
           VERSION=$(python -c "import ast,pathlib;print(ast.literal_eval(pathlib.Path('android-app/atlas_go/__init__.py').read_text().split('=')[1].strip()))")
           TAG="atlas-go-v$VERSION"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --target "$SOURCE_SHA" --prerelease --title "ATLAS Go $VERSION — Python Android demo" --notes-file release-notes.md
           fi
           gh release upload "$TAG" downloads/* --clobber
+          gh release edit "$TAG" --notes-file release-notes.md
