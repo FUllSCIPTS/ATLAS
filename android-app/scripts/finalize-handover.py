@@ -29,7 +29,8 @@ for source in sorted(android.glob('*.png')):
 assert len(list(target.glob('*.png')))==14
 release=Path('android-app/releases')
 rows=[]
-for name in ('atlas-go-demo.apk','atlas-go-unsigned.aab'):
+signed=(artifact/'release'/'atlas-go-play.aab').is_file()
+for name in ('atlas-go-demo.apk','atlas-go-unsigned.aab')+(('atlas-go-play.aab',) if signed else ()):
     digest=hashlib.sha256((artifact/'release'/name).read_bytes()).hexdigest()
     rows.append((name,digest))
 (release/'SHA256SUMS').write_text(''.join(f'{digest}  {name}\n' for name,digest in rows))
@@ -65,9 +66,12 @@ text+=''.join(f'| `{name}` | `{digest}` |\n' for name,digest in rows)
 text+="""
 ## Signing and Play submission
 
-The AAB is unsigned. Sign it using the private upload-key backup handed to the owner,
-then follow [the Google Play guide](../docs/GOOGLE_PLAY.md).
-The private key and password are never in GitHub. Store listing/account declarations,
+"""+("""`atlas-go-play.aab` was signed in CI with the owner's upload key, supplied through encrypted
+GitHub Actions secrets. Its certificate was checked against the recorded upload certificate in
+[SIGNED_VALIDATION.json](SIGNED_VALIDATION.json) before publication. Upload it to Play Console as described in
+[the Google Play guide](../docs/GOOGLE_PLAY.md).""" if signed else """The AAB is unsigned. Sign it using the private upload-key backup handed to the owner,
+or add the CI signing secrets described in [the Google Play guide](../docs/GOOGLE_PLAY.md).""")+"""
+The private key and password are never in the repository, logs, artifacts or release files. Store listing/account declarations,
 any required closed testing, Play pre-launch checks and Google review remain owner steps.
 
 This is an offline model: no real rides, food deliveries or payments. Its small learned policies run locally from bundled constants.
