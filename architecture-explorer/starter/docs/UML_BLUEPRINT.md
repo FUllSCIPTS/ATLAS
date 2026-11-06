@@ -2,14 +2,14 @@
 
 Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-- **Android app** — ATLAS Go, the Python/Kivy passenger app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): solo rides, shared rides, food ordering, activity and privacy, stored on the device.
+- **Android app** — ATLAS Go 1.1.0, the Python/Kivy passenger app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): solo rides, shared rides, food ordering, activity and privacy, stored on the device, plus on-device ATLAS intelligence (learned driver choice, courier timing, surge outlook and a learning lab).
 - **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
 - **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving.
 - **Databases** — the device's `state.json`, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
 
-The Android app runs offline today. [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the food and shared-ride parts the back end does not yet implement.
+The Android app runs offline today. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-110). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the food and shared-ride parts the back end does not yet implement.
 
-[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
+[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
 ## Start from the implementation
 
@@ -45,11 +45,13 @@ flowchart TD
     end
     subgraph Data["Databases and stores"]
         S[("state.json<br/>on the device")]
+        LP[("learned.py<br/>bundled RL policies · read-only")]
         P[("PostgreSQL · or SQLite locally<br/>trips · drivers · offers · outbox · inbox · experience")]
         K[("Kafka topic<br/>atlas.ride.v1")]
         V[("Artifact volume<br/>models · features · policies")]
     end
     A --> S
+    A --> LP
     A -. "planned · RemoteRepository over HTTPS" .-> G
     W1 --> G
     W2 --> G
@@ -68,7 +70,7 @@ flowchart TD
 
 | Layer | Component | Technology | Stores data in | Status |
 | --- | --- | --- | --- | --- |
-| App | ATLAS Go Android app | Python 3, Kivy 2.3.1, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage | Runs offline; all rides, orders and drivers simulated |
+| App | ATLAS Go Android app 1.1.0 (versionCode 2) | Python 3, Kivy 2.3.1, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage; learned constants in `learned.py` inside the APK | Runs offline; all rides, orders and drivers simulated; [release 1.1.0](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) |
 | Front end | Passenger page | HTML + [`apps/shared/client.js`](../apps/shared/client.js) | Browser memory only | Runs against the gateway |
 | Front end | Driver page | HTML + the same client script | Browser memory only | Runs against the gateway |
 | Back end | Gateway | FastAPI, httpx | None | Runs |
@@ -151,21 +153,30 @@ architecture-explorer/
 
 ## Android app (ATLAS Go)
 
-The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). Every screen, rule, storage operation and test is Python. Links below point to the source at commit [`7e98e01`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app).
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version 1.1.0 (versionCode 2), which adds on-device ATLAS intelligence to the 1.0.0 booking and ordering flows. Every screen, rule, storage operation and test is Python. Links below point to the source at commit [`7e98e01`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app).
 
 ```text
 android-app/
 ├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
 ├── buildozer.spec          Android API 36, min API 26, arm64-v8a + x86_64, no permissions
 ├── atlas_go/
+│   ├── __init__.py         Version (1.1.0)
 │   ├── domain.py           Places, distances, fares, menu, Dish, Offer, Cart
 │   ├── store.py            LocalStore: atomic JSON persistence and booking rules
-│   ├── app.py              AtlasGoApp, Panel, RouteMap: Kivy screens and navigation
+│   ├── intelligence.py     Irish holiday calendar, surge outlook, dispatch policy, courier timing, LearningLab
+│   ├── learned.py          Learned constants exported from the simulations (generated, read-only)
+│   ├── app.py              AtlasGoApp, Panel, RouteMap, OutlookChart, Bar, LearningCurve: Kivy screens
 │   └── acceptance.py       Debug-only UI click-through and screenshot capture
-├── tests/test_domain.py    Domain and repository regression tests
-├── scripts/                Emulator acceptance, signing and release checks
-├── docs/                   User guide, architecture, privacy, Play handover, screenshots, demo video
-└── releases/               Signed bundle evidence and checksums
+├── tests/
+│   ├── test_domain.py      Domain and repository regression tests
+│   └── test_intelligence.py Calendar, outlook, policy, courier timing and lab tests
+├── training/               Development-only simulations and exporter (numpy; excluded from the APK)
+│   ├── rl_sim.py           Ride dispatch (REINFORCE) and courier timing (Q-learning)
+│   ├── city_sim.py         Two simulated years of Cork demand, Irish holidays, supply agent, LSTM
+│   └── export_learned.py   Writes atlas_go/learned.py
+├── scripts/                Emulator acceptance, signing (local and CI) and release checks
+├── docs/                   User guide, architecture, privacy, Play handover, 14 screenshots, demo video
+└── releases/               Validation evidence, checksums, signed 1.0.0 bundle record
 ```
 
 ### App layers
@@ -175,10 +186,13 @@ flowchart LR
     U["AtlasGoApp<br/>screens · navigation · buttons"] --> L["LocalStore<br/>commands · validation · rollback"]
     L --> DM["domain.py<br/>fare · distance · Offer · Cart · MENU"]
     L --> J[("state.json<br/>app-private storage")]
+    U --> AI["intelligence.py<br/>outlook · dispatch · courier · lab"]
+    AI --> LC[("learned.py<br/>bundled constants")]
+    TR["training/<br/>simulations · dev only"] -. "export_learned.py" .-> LC
     X["Acceptance<br/>debug builds only"] --> U
 ```
 
-The UI never edits state directly. It calls a `LocalStore` command; the store applies domain rules, writes the file atomically, and restores the previous in-memory state if the write fails.
+The UI never edits state directly. It calls a `LocalStore` command; the store applies domain rules, writes the file atomically, and restores the previous in-memory state if the write fails. The UI asks `intelligence.py` which driver to offer and when to send the courier, and passes the answers to the store as plain values (driver name, explanation, courier plan). `intelligence.py` is pure Python with no I/O; it only reads the constants in `learned.py`.
 
 ### App class diagram
 
@@ -196,7 +210,10 @@ classDiagram
         +bool comfort
         +int restaurant
         +int address
+        +int outlook_day
+        +LearningLab lab
         +build()
+        +today() date
         +render()
         +go(screen)
         +book_solo()
@@ -208,6 +225,12 @@ classDiagram
         +checkout()
         +next_order()
         +reset()
+        +dispatch_card()
+        +intelligence()
+        +shift_outlook(days)
+        +lab_train()
+        +lab_step(dt)
+        +lab_refresh()
     }
     class Panel {
         +_redraw()
@@ -215,10 +238,57 @@ classDiagram
     class RouteMap {
         +draw()
     }
+    class OutlookChart {
+        +list~Hour~ hours
+        +int now
+        +draw()
+    }
+    class Bar {
+        +float fraction
+        +draw()
+    }
+    class LearningCurve {
+        +list curve
+        +update(curve, nearest, approved)
+        +draw()
+    }
+    class LearningLab {
+        +int TOTAL
+        +list w
+        +list curve
+        +float nearest
+        +float approved
+        +reset()
+        +done() bool
+        +train(episodes, lr)
+        +result() dict
+    }
+    class Candidate {
+        <<frozen dataclass>>
+        +str name
+        +str zone
+        +int eta
+        +float accept
+        +float surge
+        +bool last
+        +features() list
+    }
+    class Hour {
+        <<frozen dataclass>>
+        +int hour
+        +str kind
+        +float ordinary
+        +float expected
+        +float boost
+        +ratio() float
+        +surge() bool
+    }
     class Acceptance {
         +start()
         +click(key)
         +capture(name)
+        +insets_ready()
+        +lab_finished()
         +next_step()
         +finish(success, detail)
     }
@@ -236,9 +306,9 @@ classDiagram
         +snapshot()
         +commit(before)
         +update_cart(operation, item)
-        +book(pickup, destination, comfort, offer_id, party)
+        +book(pickup, destination, comfort, offer_id, party, driver, why)
         +advance_ride(cancel)
-        +checkout(address)
+        +checkout(address, courier)
         +advance_order()
         +reset(save, preserve_diagnostic)
     }
@@ -275,16 +345,34 @@ classDiagram
     App <|-- AtlasGoApp
     BoxLayout <|-- Panel
     Widget <|-- RouteMap
+    Widget <|-- OutlookChart
+    Widget <|-- Bar
+    Widget <|-- LearningCurve
     AtlasGoApp "1" *-- "1" LocalStore : owns
     AtlasGoApp ..> Panel : builds cards
     AtlasGoApp ..> RouteMap : draws route
+    AtlasGoApp ..> OutlookChart : surge outlook
+    AtlasGoApp ..> LearningCurve : lab chart
+    AtlasGoApp "1" o-- "0..1" LearningLab : sandbox
+    AtlasGoApp ..> Candidate : choose(pickup)
+    OutlookChart ..> Hour : draws
     Acceptance --> AtlasGoApp : drives controls
     LocalStore "1" *-- "1" Cart : basket
     LocalStore "1" *-- "4" Offer : shared seats
     Cart ..> Dish : prices from MENU
 ```
 
-Module functions in [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/atlas_go/domain.py): `distance(pickup, destination)` reads the 4 × 4 kilometre table, `fare(pickup, destination, comfort)` returns `(350 + km × 170)` cents with a 30 % comfort uplift, and `money(cents)` formats euros. All money is integer cents.
+Module functions in [`intelligence.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/intelligence.py):
+
+| Area | Functions |
+| --- | --- |
+| Calendar | `easter_sunday`, `first_monday`, `last_monday`, `public_holidays(year)` (Ireland, any year), `jazz_weekend(year)`, `event_kind(day, hour)`, `agent_tag`, `weektype` |
+| Surge outlook | `outlook(day)` → 24 `Hour`s, `day_summary(day)`, `day_title`, `upcoming(today, days, limit)`, `windows`, `span`, `clock`, `ratio_text` |
+| Dispatch policy | `score(candidate)`, `rank(pickup)` (softmax probabilities), `choose(pickup)` → driver and explanation, `explain(chosen, nearest)`; `DRIVER_POOLS` holds four illustrative candidates per saved place |
+| Courier timing | `courier_plan(restaurant)`, `courier_text(plan)`; `PREP_MINUTES` per kitchen, `COURIER_TRAVEL` |
+| Learning lab | `expected_cost(candidate)`, `LearningLab` (REINFORCE from zero, evaluated against the nearest-driver rule and the approved policy) |
+
+Module functions in [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/domain.py): `distance(pickup, destination)` reads the 4 × 4 kilometre table, `fare(pickup, destination, comfort)` returns `(350 + km × 170)` cents with a 30 % comfort uplift, and `money(cents)` formats euros. All money is integer cents.
 
 ### Screen navigation
 
@@ -303,13 +391,16 @@ stateDiagram-v2
     active_order --> activity : delivered
     home --> profile : You
     profile --> privacy
+    home --> intelligence : How ATLAS learns
+    profile --> intelligence : How ATLAS learns
+    intelligence --> intelligence : previous / next day · train lab
     note right of home
         Bottom bar on every screen:
         Home · Share · Food · Activity · You (profile)
     end note
 ```
 
-The current screen and form choices are saved in `ui` so the app reopens where the user left it.
+The current screen and form choices, including the outlook day offset, are saved in `ui` so the app reopens where the user left it. The `ride` screen shows the dispatch card (ranked drivers and the reason for the choice), and the `cart` and `active_order` screens show the courier-timing plan.
 
 ### On-device ride and order lifecycles
 
@@ -332,7 +423,7 @@ stateDiagram-v2
     }
 ```
 
-Only one active ride and one active order can exist. Cancelling a shared ride releases its seats back to the offer. Completed, cancelled and delivered records move to `history`. Stages advance only when the user presses the simulation button.
+Solo rides are assigned to the driver chosen by the bundled dispatch policy, and the explanation is stored with the ride. Shared rides keep the offer's driver. Each food order stores the courier plan computed at checkout. Only one active ride and one active order can exist. Cancelling a shared ride releases its seats back to the offer. Completed, cancelled and delivered records move to `history`. Stages advance only when the user presses the simulation button.
 
 ### On-device data model (`state.json`)
 
@@ -346,6 +437,7 @@ erDiagram
     STATE ||--o{ HISTORY_RECORD : "history"
     STATE ||--o{ SEATS : "seats per offer"
     STATE ||--|| UI : "ui"
+    ORDER ||--o| COURIER_PLAN : "courier"
     CART ||--o{ CART_ITEM : "items"
     ORDER ||--|{ CART_ITEM : "items"
     STATE {
@@ -367,7 +459,8 @@ erDiagram
         bool shared
         int party "1 or 2"
         string offer "pool-1..pool-4 or null"
-        string driver
+        string driver "policy choice for solo rides"
+        string why "dispatch explanation, solo rides only (1.1.0)"
         int fare "cents"
         int stage "0..2"
         string status "Completed or Cancelled in history"
@@ -379,7 +472,16 @@ erDiagram
         object items
         int fare "cents incl. 250 delivery"
         int stage "0..2"
+        object courier "optional courier plan (1.1.0)"
         string status "Delivered in history"
+    }
+    COURIER_PLAN {
+        int prep "kitchen minutes"
+        int travel "courier minutes to the kitchen"
+        int dispatch_after "minutes to wait before sending"
+        int arrive
+        int courier_wait "minutes at the counter"
+        int naive_wait "counter wait if sent at once"
     }
     SEATS {
         string offer_id "pool-1..pool-4"
@@ -393,10 +495,11 @@ erDiagram
         bool comfort
         int restaurant
         int address
+        int outlook_day "-400..400, 1.1.0"
     }
 ```
 
-Reference data is compiled into [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/7e98e016c8f3b71f82e81b8226f2d8667614f2ac/android-app/atlas_go/domain.py), not stored: four places (UCC Campus, Cork City Centre, Kent Station, Cork Airport), three restaurants (Green Bowl Kitchen, Marina Pizza, Spice Route), nine dishes, and four shared-ride offers seeded by `LocalStore.reset`. `LocalStore.validate` checks every loaded field (types, ranges, known offer IDs, basket limits) before a screen reads it.
+Reference data is compiled into [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/domain.py), not stored: four places (UCC Campus, Cork City Centre, Kent Station, Cork Airport), three restaurants (Green Bowl Kitchen, Marina Pizza, Spice Route), nine dishes, and four shared-ride offers seeded by `LocalStore.reset`. `LocalStore.validate` checks every loaded field (types, ranges, known offer IDs, basket limits, the optional `why` text and non-negative integer courier fields) before a screen reads it. The 1.1.0 fields are optional, so a 1.0.0 `state.json` loads unchanged.
 
 ### Booking and ordering on the device
 
@@ -404,16 +507,21 @@ Reference data is compiled into [`domain.py`](https://github.com/FUllSCIPTS/ATLA
 sequenceDiagram
     actor Passenger
     participant UI as AtlasGoApp
+    participant AI as intelligence.py
     participant Store as LocalStore
     participant Domain as domain.py
     participant File as state.json
     Passenger->>UI: Book ride
-    UI->>Store: book(pickup, destination, comfort, offer_id, party)
+    UI->>AI: choose(pickup)
+    AI-->>UI: driver and explanation (policy v1.4)
+    UI->>Store: book(pickup, destination, comfort, offer_id, party, driver, why)
     Store->>Domain: distance() and fare(), or Offer.matches() and reserve()
     Store->>File: save() via temp file and atomic replace
     Store-->>UI: ride at stage 0 · driver confirmed
     Passenger->>UI: Add dishes, check out
-    UI->>Store: update_cart('add', item) then checkout(address)
+    UI->>AI: courier_plan(restaurant)
+    AI-->>UI: wait N minutes, then dispatch
+    UI->>Store: update_cart('add', item) then checkout(address, courier)
     Store->>Domain: Cart.add(), Cart.total()
     Store->>File: save()
     Store-->>UI: order at stage 0 · kitchen preparing
@@ -421,6 +529,42 @@ sequenceDiagram
     UI->>Store: advance_ride() or advance_order()
     Store->>File: save() and move finished records to history
 ```
+
+### On-device intelligence (1.1.0)
+
+The reinforcement-learning features run on the phone in pure Python, from constants that simulations produced offline. Nothing is sent anywhere, and no numpy or model files are packaged. All data behind the constants is synthetic; holiday dates follow Ireland's real public-holiday rules.
+
+```mermaid
+flowchart LR
+    subgraph Dev["Development only · android-app/training"]
+        RS["rl_sim.py<br/>REINFORCE dispatch · Q-learning courier"]
+        CS["city_sim.py<br/>2 simulated years of Cork · holidays<br/>supply agent · LSTM"]
+        EX["export_learned.py"]
+    end
+    subgraph APK["Inside the app"]
+        LC[("learned.py<br/>RIDE_WEIGHTS · COURIER_DELAY<br/>BASE_DEMAND · SURGE_RATIO · BOOST")]
+        AI["intelligence.py"]
+        LAB["LearningLab<br/>sandbox · never dispatches"]
+    end
+    RS --> EX
+    CS --> EX
+    EX --> LC
+    LC --> AI
+    AI --> UIs["Screens: ride dispatch card · courier timing ·<br/>How ATLAS learns · home outlook card"]
+    LAB --> UIs
+```
+
+| Feature | Learned by | Constant | Used on |
+| --- | --- | --- | --- |
+| Driver choice (policy v1.4) | REINFORCE over four features: closer ETA, likelihood to accept, keeping the last car in an area about to surge, avoiding surging areas; delayed reward from pickup time, cancellations and shortage caused elsewhere | `RIDE_WEIGHTS` | Ride screen dispatch card; `book_solo` stores the chosen driver and the reason |
+| Courier timing | Q-learning from kitchen slack (prep estimate − courier travel) to minutes to wait | `COURIER_DELAY` | Basket and order screens; stored as `order.courier` |
+| Surge outlook | Demand ratio per calendar context and hour from two simulated years | `BASE_DEMAND`, `SURGE_RATIO` | How ATLAS learns screen and the home card |
+| Extra drivers | Supply agent's learned boost per calendar context, weekday type and hour | `BOOST` | Violet marks on the outlook chart |
+| Learning lab | Retrains a dispatch policy from zero on the device (30,000 simulated rides) | — | How ATLAS learns screen; compared with the nearest-driver rule and approved v1.4 |
+
+In the full simulation, the supply agent's log of unserved requests is an input to the LSTM forecaster, which recovers demand that completed trips hide. The app ships the distilled hourly profiles rather than the LSTM, because it has no live demand history. Matches and storms are not on the calendar; in the back end they come from the live forecaster.
+
+These on-device roles mirror the back-end ML: the dispatch policy corresponds to the RL agent and approved policy in [`ml/rl.py`](../ml/rl.py) and [`ml/registry.py`](../ml/registry.py), and the outlook corresponds to the LSTM in [`ml/forecast.py`](../ml/forecast.py). When the app is connected, server-approved policies should replace the bundled constants; the learning lab stays a local sandbox.
 
 ## Component and deployment boundaries
 
@@ -604,7 +748,8 @@ The compound unique key `trips(rider_id, request_key)` makes booking retries ide
 
 | Store | Owner | Engine | Holds | Durability |
 | --- | --- | --- | --- | --- |
-| `state.json` | Android app | JSON file, atomic replace | Basket, active ride and order, history, shared-seat counts, screen state | On the device only; deleted by Reset or uninstall |
+| `state.json` | Android app | JSON file, atomic replace | Basket, active ride and order (with dispatch explanation and courier plan), history, shared-seat counts, screen state | On the device only; deleted by Reset or uninstall |
+| `learned.py` | Android app (generated by `training/export_learned.py`) | Python constants inside the APK | Dispatch weights, courier-delay table, hourly demand and surge profiles, supply boosts | Read-only; changes only with a new app version |
 | `atlas` database | Trip, Dispatch, event worker, RL watcher | PostgreSQL in Compose; SQLite in the local quickstart | `trips`, `drivers`, `offers`, `outbox`, `inbox`, `experience` ([schema](../infra/schema.sql)) | Transactional; outbox and inbox give at-least-once delivery without duplicate effects |
 | `atlas.ride.v1` | Event worker | Kafka | Ride events keyed by trip ID ([schema](../packages/ride-event.schema.json)) | Broker log; consumer offsets committed after database effects |
 | Artifact volume | Model API, worker, RL watcher | Files | Versioned models, manifest, demand features, candidate and active policies | Atomic active-policy pointer |
@@ -764,6 +909,10 @@ classDiagram
 | Food menu, basket, checkout, tracking | `Cart`, `checkout`, `advance_order` | Not available | [Proposed food API](#proposed-back-end-extensions-for-the-android-app) |
 | Activity | `history` in `state.json` | Not available | Add `GET /v1/rider/history` |
 | Identity | None (guest profile) | Demo bearer keys per role | Real sign-in and token issuance before any public release |
+| Driver choice and explanation | `intelligence.choose(pickup)` with bundled `RIDE_WEIGHTS` | Dispatch ranks candidates with model scores and the approved RL policy | Return the ranked candidates and a reason with the assignment, pinned to the policy version |
+| Surge outlook | `intelligence.day_summary(day)` from bundled profiles | LSTM demand forecast in the model API | Add a read-only `GET /v1/rider/outlook?date=` backed by the forecaster |
+| Courier timing | `intelligence.courier_plan(restaurant)` | Not available | Part of the proposed food API: courier dispatch time decided by the server |
+| Learning lab | `LearningLab` on the device | Not applicable | Stays a local sandbox; never sends results or dispatches |
 
 ### Connected booking sequence
 
@@ -873,7 +1022,7 @@ Each new route must be added to the gateway's `ROUTES` allowlist with its role.
 2. Implement changes through existing boundaries. Preserve rider and driver ownership, transactional state and outbox writes, deduplication, the state machine, model versions and explicit policy approval.
 3. Test one complete ride, a booking retry with the same key, a forbidden offer acceptance, an invalid state transition, model outputs and one terminal experience. Run `tests.replay` against the configured Kafka broker before claiming deployment readiness.
 4. Treat GPS, routing, offer expiry and re-matching, cancellations, payments, production identity and representative training data as separately scoped extensions.
-5. For the Android app, run `python -m pytest tests` in `android-app/` on the `main` branch and the emulator acceptance workflow before and after changes. When connecting it to the back end, add the repository interface first, keep `LocalStore` passing its tests, and test `RemoteRepository` against a staging gateway.
+5. For the Android app, run `python -m pytest tests` in `android-app/` on the `main` branch (68 cases in 1.1.0) and the emulator acceptance workflow (131 Android assertions, fourteen screenshots) before and after changes. After changing a simulation in `training/`, run `python training/export_learned.py` and commit the regenerated `atlas_go/learned.py`. When connecting it to the back end, add the repository interface first, keep `LocalStore` passing its tests, and test `RemoteRepository` against a staging gateway.
 6. Regenerate the blueprint after changing code. Commit the updated generated sections and JSON with the source changes.
 
 From `starter/`, use Python 3.12 and Node.js with npm. The generator uses the Python standard library and the pinned Acorn parser for JavaScript.
