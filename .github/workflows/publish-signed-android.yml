@@ -1,4 +1,4 @@
-name: Publish existing signed ATLAS Android bundle
+name: Verify existing signed ATLAS Android bundle
 
 on:
   push:
@@ -60,24 +60,23 @@ jobs:
           assert fingerprint == record['upload_certificate_sha256'], 'Upload certificate does not match'
           print('Signed bundle and upload certificate match the existing verified handover')
           PY
-      - name: Publish signed download and evidence
+      - name: Publish signing evidence (the signed AAB is shared on request)
         run: |
           cp android-app/releases/SIGNED_VALIDATION.json downloads/
           cp android-app/releases/upload-certificate.pem downloads/
           (cd downloads && sha256sum atlas-go-demo.apk atlas-go-unsigned.aab atlas-go-play.aab > SHA256SUMS)
-          gh release upload atlas-go-v1.0.0 downloads/atlas-go-play.aab downloads/SIGNED_VALIDATION.json downloads/upload-certificate.pem downloads/SHA256SUMS --clobber
+          gh release upload atlas-go-v1.0.0 downloads/SIGNED_VALIDATION.json downloads/upload-certificate.pem downloads/SHA256SUMS --clobber
           python - <<'PY'
           import json
           from pathlib import Path
           record = json.loads(Path('android-app/releases/SIGNED_VALIDATION.json').read_text())
           notes = f'''Python/Kivy offline model: solo rides, shared-seat reservations and food ordering. All bookings, deliveries and charges are simulated.
 
-          Downloads:
+          Downloads are by request: the APK and AABs are in a restricted Google Drive folder (https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV). Click Request access; the owner approves by email.
           - atlas-go-demo.apk: directly installable Android demonstration.
-          - atlas-go-play.aab: existing owner-signed bundle for Play Console internal testing. Signature, exact SHA-256 and upload certificate verified during publication.
+          - atlas-go-play.aab: existing owner-signed bundle for Play Console internal testing. Signature, exact SHA-256 and upload certificate verified by this workflow.
           - atlas-go-unsigned.aab: reproducible unsigned build.
-          - atlas-go-screenshots.zip: twelve actual Android app screenshots.
-          - SHA256SUMS, SIGNED_VALIDATION.json, upload-certificate.pem, android-ui-results.json and native-alignment.txt: verification evidence. The certificate is public; no private key is included.
+          Public here: atlas-go-screenshots.zip (twelve screenshots), SHA256SUMS, SIGNED_VALIDATION.json, upload-certificate.pem, android-ui-results.json and native-alignment.txt. The certificate is public; no private key is included.
 
           Validation: 40 Python regression cases, 88 desktop assertions in each of two configurations, 112 Android 16 assertions, release launch and 16 KB native alignment checks.
           Tested source: {record['source_commit']}

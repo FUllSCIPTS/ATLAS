@@ -109,4 +109,5 @@ jobs:
             android-app/local-data/test-output/
             android-app/local-data-narrow/test-output/
           if-no-files-found: warn
-          retention-days: 30
+          # Contains the APK/AABs; keep briefly because app files are shared only on request.
+          retention-days: 2

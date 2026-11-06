@@ -48,6 +48,13 @@ jobs:
           ATLAS_UPLOAD_ALIAS: ${{ secrets.ATLAS_UPLOAD_ALIAS }}
           ATLAS_UPLOAD_PASSWORD: ${{ secrets.ATLAS_UPLOAD_PASSWORD }}
         run: python android-app/scripts/ci-sign-bundle.py artifact/release/atlas-go-unsigned.aab artifact/release/atlas-go-play.aab
+      - name: Keep the signed bundle as a short-lived run artifact
+        if: steps.current.outputs.matches == 'true' && hashFiles('artifact/release/atlas-go-play.aab') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: atlas-go-play-signed
+          path: artifact/release/atlas-go-play.aab
+          retention-days: 2
       - name: Publish verified demo artifacts
         if: steps.current.outputs.matches == 'true'
         env:
@@ -80,11 +87,12 @@ jobs:
             git rebase origin/main
             git push origin HEAD:main
           fi
-          printf 'Python/Kivy offline model: solo rides, shared-seat reservations, food ordering and on-device ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab). No real rides, restaurant orders or charges.\n\nAPK: directly installable debug demo. %s\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$AAB_NOTE" "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
+          printf 'Python/Kivy offline model: solo rides, shared-seat reservations, food ordering and on-device ATLAS intelligence (learned dispatch, courier timing, surge outlook, learning lab). No real rides, restaurant orders or charges.\n\nDownloads (APK and AABs) are by request from Google Drive: https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV . APK: directly installable debug demo. %s\n\nTests: Python domain tests, two desktop UI configurations, Android 16 UI acceptance, native 16 KB alignment checks.\n\nSource: %s\nBuild evidence: %s\n\nGuide: https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app\n' "$AAB_NOTE" "$SOURCE_SHA" "$BUILD_URL" > release-notes.md
           VERSION=$(python -c "import ast,pathlib;print(ast.literal_eval(pathlib.Path('android-app/atlas_go/__init__.py').read_text().split('=')[1].strip()))")
           TAG="atlas-go-v$VERSION"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --target "$SOURCE_SHA" --prerelease --title "ATLAS Go $VERSION — Python Android demo" --notes-file release-notes.md
           fi
-          gh release upload "$TAG" downloads/* --clobber
+          # App binaries are shared on request from a restricted Google Drive folder, not attached publicly.
+          (cd downloads && gh release upload "$TAG" SHA256SUMS android-ui-results.json native-alignment.txt atlas-go-screenshots.zip --clobber)
           gh release edit "$TAG" --notes-file release-notes.md
