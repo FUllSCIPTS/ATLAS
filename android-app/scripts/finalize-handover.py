@@ -54,8 +54,8 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 - {alignment}
 
 The source, screenshots, build workflow and documentation are in this repository.
-The [permanent download release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/{tag})
-contains the installable debug APK, unsigned release AAB, screenshot archive and evidence.
+The [release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/{tag}) contains the screenshot archive, checksums and evidence.
+The APK and AABs are shared on request from a [restricted Google Drive folder](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV).
 
 ## Public binary SHA-256
 
