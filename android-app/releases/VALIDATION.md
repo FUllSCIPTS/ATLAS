@@ -1,8 +1,8 @@
 # Verified Android handover
 
-Application source: [95f381146b057ea3862ebc524320e0c9aeace85f](https://github.com/FUllSCIPTS/ATLAS/commit/95f381146b057ea3862ebc524320e0c9aeace85f).
+Application source: [622f054a912cf01923dc925e2fccb2c93a8c20a3](https://github.com/FUllSCIPTS/ATLAS/commit/622f054a912cf01923dc925e2fccb2c93a8c20a3).
 
-Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42169139079).
+Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42171204725).
 
 ## Results
 
@@ -24,8 +24,8 @@ contains the installable debug APK, unsigned release AAB, screenshot archive and
 
 | File | SHA-256 |
 |---|---|
-| `atlas-go-demo.apk` | `6d9095b9aa9b01524cb906cc03083be865ff2ebabc2277bd7c82578a562f7735` |
-| `atlas-go-unsigned.aab` | `6dce80690ece009a234a2678fb70ae458c5a88e38be3e3db62e8b1586995eb0c` |
+| `atlas-go-demo.apk` | `e249564301c6beaf939e4204baecc4fade24a603bc7bf5dac16621b3a82e6da2` |
+| `atlas-go-unsigned.aab` | `5a7d43b9dc4d2413b7ad02bfd31ed311d7109430d3a97c945adc1a00de1541b7` |
 
 ## Signing and Play submission
 
