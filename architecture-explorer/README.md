@@ -2,7 +2,7 @@
 
 **Live demo** · [Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/)
 
-A self-hosted copy of the interactive ride-hailing reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
+A self-hosted copy of the interactive ride-hailing and food-delivery reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree for two systems: the server starter and the ATLAS Go 1.1.0 Android app with its on-device intelligence (dispatch policy, courier timing, holiday surge outlook, learning lab and the offline training that produces `learned.py`). Open the app view directly at `/#go`. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
 
 ## Run the ride-hailing application
 

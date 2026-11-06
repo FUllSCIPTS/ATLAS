@@ -15,6 +15,7 @@ const contentTypes = {
   "ride-event.schema.json": "application/schema+json; charset=utf-8",
   "styles.css": "text/css; charset=utf-8",
   "atlas.js": "text/javascript; charset=utf-8",
+  "atlas-go.js": "text/javascript; charset=utf-8",
   "explorer.js": "text/javascript; charset=utf-8",
   "atlas.svg": "image/svg+xml",
 };
