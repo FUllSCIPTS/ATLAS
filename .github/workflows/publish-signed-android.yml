@@ -8,6 +8,7 @@ on:
       - android-app/releases/SIGNED_VALIDATION.json
       - android-app/releases/upload-certificate.pem
       - android-app/releases/restore-signed-bundle.py
+      - android-app/releases/SHA256SUMS-1.0.0
       - .github/workflows/publish-signed-android.yml
   workflow_dispatch:
 
@@ -40,7 +41,7 @@ jobs:
         run: |
           mkdir downloads
           gh release download atlas-go-v1.0.0 --pattern atlas-go-unsigned.aab --pattern atlas-go-demo.apk --dir downloads
-          (cd downloads && sha256sum --ignore-missing -c "$GITHUB_WORKSPACE/android-app/releases/SHA256SUMS")
+          (cd downloads && sha256sum --ignore-missing -c "$GITHUB_WORKSPACE/android-app/releases/SHA256SUMS-1.0.0")
       - name: Restore the exact signed bundle without a private key
         run: |
           python android-app/releases/restore-signed-bundle.py --unsigned downloads/atlas-go-unsigned.aab --output downloads/atlas-go-play.aab
