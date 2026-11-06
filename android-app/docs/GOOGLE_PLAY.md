@@ -36,7 +36,27 @@ python scripts/sign-release.py bin/*release.aab releases/atlas-go-play.aab
 unset ATLAS_UPLOAD_PASSWORD
 ```
 
-`sign-release.py` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the public demo APK is already signed for installation; an owner-key release APK can be generated from the signed AAB using bundletool.
+`sign-release.py` uses JDK `jarsigner`, verifies the signature and does not print the password. The default build does not use the debug key for release. Never place the private key/password into Actions artifacts, logs, source, issue comments or the public repository; encrypted Actions secrets (below) are the only place in GitHub for them. An APK for direct installation must additionally be signed using Android SDK `apksigner`; the public demo APK is already signed for installation; an owner-key release APK can be generated from the signed AAB using bundletool.
+
+### Sign automatically in CI (optional)
+
+The release workflow can sign each tested build for you, so every passing build on `main` also publishes `atlas-go-play.aab`. The key stays in GitHub's encrypted Actions secrets; it is never written to the repository, logs, artifacts or release files.
+
+1. Make a base64 copy of the keystore on your own computer (it prints nothing secret to the screen):
+   - macOS/Linux: `base64 < atlas-upload.p12 | tr -d '\n' > keystore.b64`
+   - Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("atlas-upload.p12")) | Set-Content keystore.b64`
+2. In GitHub open **Settings → Secrets and variables → Actions → New repository secret** and add three secrets:
+
+   | Name | Value |
+   |---|---|
+   | `ATLAS_UPLOAD_KEYSTORE_BASE64` | the contents of `keystore.b64` |
+   | `ATLAS_UPLOAD_ALIAS` | the key alias (for example `atlas-upload`) |
+   | `ATLAS_UPLOAD_PASSWORD` | the keystore/key password |
+
+3. Delete `keystore.b64` from your computer.
+4. Re-run the latest successful **ATLAS Python Android acceptance** run, or push a change under `android-app/atlas_go`. The publish workflow then signs the tested AAB with [`scripts/ci-sign-bundle.py`](../scripts/ci-sign-bundle.py), checks that its certificate matches `upload_certificate_sha256` in [SIGNED_VALIDATION.json](../releases/SIGNED_VALIDATION.json), and uploads it to the release for the current version. A different key fails the job before anything is published. Without the secrets, builds publish unsigned exactly as before.
+
+To stop CI signing, delete the three secrets. If the key is ever exposed, delete them and request an upload-key reset in Play Console.
 
 ## Console steps the owner must finish
 
