@@ -32,6 +32,16 @@ The **Security** tab ([live](https://fullscipts.github.io/ATLAS/#security)) expl
 
 The **Cryptography** tab ([live](https://fullscipts.github.io/ATLAS/#crypto)) shows where ATLAS uses hash functions and checksums, public-key infrastructure (keys and certificates), digital signatures and, as a teaching extension, post-quantum cryptography. Labs use Web Crypto in the browser: the avalanche effect; checking a downloaded APK or AAB against every published SHA-256; the prototype's recovery checksum versus SHA-256; recomputing the real upload certificate's pinned fingerprint; a private CA with mutual-TLS checks (wrong key usage, expired, rogue CA, edited subject, leaf used as CA); ECDSA and SHA256withRSA signing with tamper tests; and a Lamport one-time signature that is forged after key reuse. Deep links: `#crypto-hashes`, `#crypto-pki`, `#crypto-signatures`, `#crypto-pqc`, `#crypto-gaps`. The source is `dist/crypto.js`; the written guide is [docs/CRYPTOGRAPHY.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md).
 
+## UML catalogue links
+
+Every concept in the Security and Cryptography tabs links to its function in the [Security and cryptography catalogue](starter/docs/UML_BLUEPRINT.md#security-and-cryptography-catalogue) of the UML blueprint, which in turn links to the exact source line. Both the catalogue and `dist/uml-catalog.js` are generated from one table in `starter/scripts/security_catalog.py`. After changing any linked code, run it with a checkout of `main` (Android app, workflows and labs live there), then refresh the blueprint, and confirm both with `--check`:
+
+```bash
+python starter/scripts/security_catalog.py --main ../ATLAS-main
+python starter/scripts/generate_blueprint.py
+python starter/scripts/security_catalog.py --main ../ATLAS-main --check && python starter/scripts/generate_blueprint.py --check
+```
+
 ## Access privately
 
 The app listens on the server's loopback address, `127.0.0.1:8080`. From your workstation, open an SSH tunnel and visit [http://127.0.0.1:8080/](http://127.0.0.1:8080/).

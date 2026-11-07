@@ -438,6 +438,7 @@ function cryptoInspector() {
     <p class="inspector-summary">${info.summary}</p>
     <dl class="sec-facts">${info.facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
     <div class="connection-group"><h3>Where in the code</h3>${info.files.map(([l, u]) => secLink(l, u)).join("")}</div>
+    ${umlInspector(`crypto/${cr.topic}`, "crypto", crTopics)}
     <div class="connection-group"><h3>Questions for students</h3><ol class="sec-questions">${info.questions.map((q) => `<li>${q}</li>`).join("")}</ol></div>
     ${t.status === "teach" ? `<p class="inspector-note"><strong>Teaching extension</strong><span>ATLAS contains no post-quantum cryptography. This tab shows where it would apply.</span></p>` : ""}</div>`;
 }
@@ -451,7 +452,7 @@ function cryptoView() {
   if (cr.topic === "hashes") setTimeout(crHashesAfterRender, 0);
   return viewHeading("CRYPTOGRAPHY", "How ATLAS uses cryptography", "Hashes and checksums, keys and certificates, digital signatures and post-quantum cryptography — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_CRYPTO_GUIDE}">Teaching guide ↗</a>`)
     + `<nav class="sec-topics" aria-label="Cryptography topics">${crTopics.map((x) => `<button type="button" data-cr-topic="${x.id}" data-keep="cr-topic-${x.id}" aria-pressed="${x.id === cr.topic}">${icon(x.icon, 15)}${x.title}${x.status ? `<i class="sec-dot ${secStatus[x.status].tone}" aria-label="${secStatus[x.status].label}"></i>` : ""}</button>`).join("")}</nav>
-    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}</div>${crRenderers[cr.topic]()}</div>`;
+    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}${umlChip(cr.topic === "overview" ? "uml-crypto-hashes" : `uml-crypto-${cr.topic}`, "UML catalogue")}</div>${crRenderers[cr.topic]()}${cr.topic === "overview" ? umlTopicsSection("crypto", crTopics) : umlSection(`crypto/${cr.topic}`)}</div>`;
 }
 
 function cryptoOpen(topic) {

@@ -131,6 +131,47 @@ function secSection(kicker, title, body) {
   return `<section class="sec-section"><p class="section-kicker">${kicker}</p><h3>${title}</h3>${body}</section>`;
 }
 
+// ------------------------------------------------------------------ UML catalogue links (data: uml-catalog.js)
+const UML_FALLBACK = SEC_STARTER + "docs/UML_BLUEPRINT.md";
+const umlData = () => (typeof umlCatalog === "object" ? umlCatalog : null);
+const umlHref = (anchor) => (umlData()?.blueprint || UML_FALLBACK) + "#" + anchor;
+
+function umlChip(anchor, label = "UML catalogue") {
+  return `<a class="uml-chip" href="${umlHref(anchor)}" title="Open this entry in the UML blueprint catalogue">${icon("layers", 13)}${label}<span aria-hidden="true">↗</span></a>`;
+}
+
+// Full table at the end of a topic: every concept → function → source → catalogue entry.
+function umlSection(topicKey) {
+  const data = umlData();
+  const ids = data?.topics?.[topicKey];
+  if (!ids) return "";
+  const [view, key] = topicKey.split("/");
+  const rows = ids.map((id) => {
+    const r = data.rows[id];
+    return [`${r.concept}<small> ${data.status[r.status]}</small>`, r.symbol ? `<code>${secEsc(r.symbol)}</code>` : "—", `<a class="sec-inline-link" href="${r.source}">${secEsc(r.path.split("/").pop())} L${r.line}</a>`, umlChip(id, "Entry")];
+  });
+  return secSection("UML CATALOGUE", "Every concept on this page in the UML blueprint", `<p class="sec-text">Each concept links to its function in the <a class="sec-inline-link" href="${umlHref(`uml-${view}-${key}`)}">UML blueprint's security and cryptography catalogue</a>, alongside the class diagrams and the generated symbol catalogue.</p>` + secTable(["Concept", "Function / symbol", "Source", "UML catalogue"], rows, "uml-table"));
+}
+
+// Overview: one link per topic section of the catalogue.
+function umlTopicsSection(view, topics) {
+  const data = umlData();
+  if (!data) return "";
+  const rows = topics.filter((t) => data.topics[`${view}/${t.id}`]).map((t) => [t.title, `${data.topics[`${view}/${t.id}`].length} concepts`, umlChip(`uml-${view}-${t.id}`, "Section")]);
+  return secSection("UML CATALOGUE", "Every topic in the UML blueprint", `<p class="sec-text">Each topic below has a section in the <a class="sec-inline-link" href="${umlHref("security-and-cryptography-catalogue")}">security and cryptography catalogue</a> of the UML blueprint, with one entry per function.</p>` + secTable(["Topic", "Entries", "UML catalogue"], rows, "uml-table"));
+}
+
+// Compact list for the inspector.
+function umlInspector(topicKey, view, topics) {
+  const data = umlData();
+  if (!data) return "";
+  if (topicKey.endsWith("/overview")) {
+    return `<div class="connection-group"><h3>In the UML catalogue</h3>${topics.filter((t) => data.topics[`${view}/${t.id}`]).map((t) => `<a class="uml-row" href="${umlHref(`uml-${view}-${t.id}`)}"><span>${t.title}</span><code>${data.topics[`${view}/${t.id}`].length} entries</code>${icon("diagonal", 12)}</a>`).join("")}</div>`;
+  }
+  const ids = data.topics[topicKey] || [];
+  return `<div class="connection-group"><h3>In the UML catalogue</h3>${ids.map((id) => { const r = data.rows[id]; return `<a class="uml-row" href="${umlHref(id)}"><span>${r.concept}</span><code>${secEsc(r.symbol || r.path.split("/").pop())}</code>${icon("diagonal", 12)}</a>`; }).join("")}</div>`;
+}
+
 // ------------------------------------------------------------------ topic: overview
 const secMap = [
   ["passwords", "lock", "Password storage", "impl", "Salted PBKDF2-HMAC-SHA256, 200 000 iterations; constant-time verify; secrets never shown", "android-app/atlas_go/accounts.py"],
@@ -646,6 +687,7 @@ function securityInspector() {
     <p class="inspector-summary">${info.summary}</p>
     <dl class="sec-facts">${info.facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
     <div class="connection-group"><h3>Where in the code</h3>${info.files.map(([l, u]) => secLink(l, u)).join("")}</div>
+    ${umlInspector(`security/${sec.topic}`, "security", secTopics)}
     <div class="connection-group"><h3>Questions for students</h3><ol class="sec-questions">${info.questions.map((q) => `<li>${q}</li>`).join("")}</ol></div>
     ${t.status === "teach" ? `<p class="inspector-note"><strong>Teaching extension</strong><span>ATLAS does not contain this protocol. The lab maps it onto real ATLAS components so students can see where each message would go.</span></p>` : ""}</div>`;
 }
@@ -660,7 +702,7 @@ function securityView() {
   const t = secTopicById[sec.topic];
   return viewHeading("INFORMATION SECURITY", "How ATLAS is secured", "Authentication, password storage, identity, access control, SSO and Kerberos — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_GUIDE}">Teaching guide ↗</a>`)
     + `<nav class="sec-topics" aria-label="Security topics">${secTopics.map((x) => `<button type="button" data-sec-topic="${x.id}" data-keep="sec-topic-${x.id}" aria-pressed="${x.id === sec.topic}">${icon(x.icon, 15)}${x.title}${x.status ? `<i class="sec-dot ${secStatus[x.status].tone}" aria-label="${secStatus[x.status].label}"></i>` : ""}</button>`).join("")}</nav>
-    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}</div>${secRenderers[sec.topic]()}</div>`;
+    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}${umlChip(sec.topic === "overview" ? "uml-security-passwords" : `uml-security-${sec.topic}`, "UML catalogue")}</div>${secRenderers[sec.topic]()}${sec.topic === "overview" ? umlTopicsSection("security", secTopics) : umlSection(`security/${sec.topic}`)}</div>`;
 }
 
 function securityOpen(topic) {
