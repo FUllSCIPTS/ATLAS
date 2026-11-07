@@ -7,12 +7,12 @@ Successful full build and acceptance: [GitHub Actions run](https://github.com/FU
 ## Results
 
 - 117 Python domain and persistence cases passed.
-- Standard desktop UI: 102 assertions passed.
-- Narrow desktop UI with font scale 1.2: 102 assertions passed.
+- Standard desktop UI: 247 assertions passed.
+- Narrow desktop UI with font scale 1.2: 247 assertions passed.
 - Android 16 emulator: 292 assertions passed; 22 actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
-- Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
+- Release manifest checked: target API 36, non-debuggable, backups disabled, and only the declared foreground permissions (Internet and network state for map tiles; fine and coarse location, asked at run time); no background location or billing.
 - Non-debuggable release variant installed and launched separately; process and fatal crash logs checked.
 - PASS: 232 64-bit ELF libraries/extensions aligned to 16 KB; 2 Python data archives validated
 
