@@ -1021,6 +1021,7 @@
   "repository_files": [
     "README.md",
     "deploy/atlas-explorer.service",
+    "dist/atlas-go.js",
     "dist/atlas.js",
     "dist/atlas.svg",
     "dist/build-spec.json",
@@ -1067,19 +1068,26 @@
   ],
   "supporting_source_sha256": {
     "deploy/atlas-explorer.service": "66eab9b12a63fc985358260c04faa33ce039df4c234af12570ad4c655adf528e",
-    "dist/atlas.js": "e7750f0067fa0806f7eefd8b0bd20d05b51994de52f04295ecaf87255f847c3d",
+    "dist/atlas-go.js": "afc74e0b2e7efaf69a18f3471a09e033233a0ca56055eca21de3b6523db023aa",
+    "dist/atlas.js": "c155c3968107f38fcd7612e07671ef8ea9d08ed60343c313b366186a79ba4667",
     "dist/atlas.svg": "6ad19e85d79ecde63c453a40c65eb44b817b273318f57c6f1b7e107bacdc7d2e",
     "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
-    "dist/build.html": "1c814a7104d30846c7e6d204b0a8991a031e6f82dec69fbd0c5dbf20939217ea",
+    "dist/build.html": "2eb5b8d86cb3eb2f42dd4b6378a0af4e878e44e2a24fc4315acfe20159778232",
     "dist/build.js": "d5a857be99c9d627cafb780017ceb463d90c7ad50e011d2e0c56cff3b71cdec1",
-    "dist/explorer.js": "333154ed785b737fdefd70b0c0fc7799c795b7a8565a0cbd94ab5d7d9b31d476",
-    "dist/index.html": "9ffe08181f42826e8248ac8fcaafdee83d6797361290674a620668d07a8f8fc0",
+    "dist/explorer.js": "3293ba847967709567da52cb3201d49ff5469f8f3e7ffe27201bd31a264d6283",
+    "dist/index.html": "c9f4ff3229f290a7703059970e535a76be7d161caa4faff208f8d561842b1ca6",
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
-    "dist/styles.css": "e891f6035227d3145d4903b5579b36cc7ce9c3529c93ea0ec6e11dbadc7d2ed5",
-    "server.mjs": "0b06f7ef1643edce984b6c91271900c770302a5a11a003e9d562bfae4d23961d",
+    "dist/styles.css": "db687bd9908867e38fb9b2b8c69583ec4191e91c41cf2bd9afe478427ee31c5f",
+    "server.mjs": "9e4bf1c9b292364fd8f51b94fc80db2f521ea95b12a18c3e2e0e54bfd94e1521",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
   "supporting_modules": {
+    "dist/atlas-go.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": []
+    },
     "dist/atlas.js": {
       "language": "JavaScript",
       "imports": [],
@@ -1106,380 +1114,394 @@
       "classes": [],
       "functions": [
         {
+          "name": "indexSystem",
+          "signature": "indexSystem()",
+          "line": 48,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "indexSystem.<callback: S.links.map>",
+          "signature": "indexSystem.<callback: S.links.map>(link)",
+          "line": 50,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "indexSystem.<callback: S.folders.flatMap>",
+          "signature": "indexSystem.<callback: S.folders.flatMap>(group)",
+          "line": 51,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>",
+          "signature": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)",
+          "line": 51,
+          "async": false,
+          "decorators": []
+        },
+        {
           "name": "$",
           "signature": "$(id)",
-          "line": 29,
+          "line": 55,
           "async": false,
           "decorators": []
         },
         {
           "name": "icon",
           "signature": "icon(name, size = 18)",
-          "line": 30,
-          "async": false,
-          "decorators": []
-        },
-        {
-          "name": "<callback: links.map>",
-          "signature": "<callback: links.map>(link)",
-          "line": 31,
-          "async": false,
-          "decorators": []
-        },
-        {
-          "name": "<callback: folders.flatMap>",
-          "signature": "<callback: folders.flatMap>(group)",
-          "line": 33,
-          "async": false,
-          "decorators": []
-        },
-        {
-          "name": "<callback: folders.flatMap>.<callback: group.children.map>",
-          "signature": "<callback: folders.flatMap>.<callback: group.children.map>(entry)",
-          "line": 33,
+          "line": 56,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>",
           "signature": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>(element)",
-          "line": 36,
+          "line": 59,
           "async": false,
           "decorators": []
         },
         {
           "name": "announce",
           "signature": "announce(message)",
-          "line": 38,
+          "line": 61,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentColor",
           "signature": "componentColor(id)",
-          "line": 42,
+          "line": 65,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentMark",
           "signature": "componentMark(id, size = 19)",
-          "line": 46,
+          "line": 69,
           "async": false,
           "decorators": []
         },
         {
           "name": "viewHeading",
           "signature": "viewHeading(kicker, title, detail, badge = \"\")",
-          "line": 50,
+          "line": 73,
           "async": false,
           "decorators": []
         },
         {
           "name": "updateControls",
           "signature": "updateControls()",
-          "line": 54,
+          "line": 77,
           "async": false,
           "decorators": []
         },
         {
-          "name": "updateControls.<callback: Object.entries(scenarios).map>",
-          "signature": "updateControls.<callback: Object.entries(scenarios).map>([id, trace])",
-          "line": 56,
+          "name": "updateControls.<callback: Object.entries(S.scenarios).map>",
+          "signature": "updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])",
+          "line": 79,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView",
           "signature": "architectureView()",
-          "line": 66,
+          "line": 89,
           "async": false,
           "decorators": []
         },
         {
-          "name": "architectureView.<callback: links.filter>",
-          "signature": "architectureView.<callback: links.filter>({ from, to })",
-          "line": 69,
+          "name": "architectureView.<callback: S.links.filter>",
+          "signature": "architectureView.<callback: S.links.filter>({ from, to })",
+          "line": 92,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: trace?.steps.map>",
           "signature": "architectureView.<callback: trace?.steps.map>([id])",
-          "line": 70,
+          "line": 93,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: [...visibleLinks].flatMap>",
           "signature": "architectureView.<callback: [...visibleLinks].flatMap>({ from, to })",
-          "line": 72,
+          "line": 95,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)",
-          "line": 73,
+          "line": 96,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>(tone)",
-          "line": 73,
+          "line": 96,
           "async": false,
           "decorators": []
         },
         {
-          "name": "architectureView.<callback: [...links].sort>",
-          "signature": "architectureView.<callback: [...links].sort>(a, b)",
-          "line": 75,
+          "name": "architectureView.<callback: [...S.links].sort>",
+          "signature": "architectureView.<callback: [...S.links].sort>(a, b)",
+          "line": 98,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: orderedLinks.map>",
           "signature": "architectureView.<callback: orderedLinks.map>(link)",
-          "line": 76,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
-          "name": "architectureView.<callback: Object.values(groups).map>",
-          "signature": "architectureView.<callback: Object.values(groups).map>(group, index)",
-          "line": 81,
+          "name": "architectureView.<callback: Object.values(S.groups).map>",
+          "signature": "architectureView.<callback: Object.values(S.groups).map>(group, index)",
+          "line": 104,
           "async": false,
           "decorators": []
         },
         {
-          "name": "architectureView.<callback: Object.entries(components).map>",
-          "signature": "architectureView.<callback: Object.entries(components).map>([id, component])",
-          "line": 82,
+          "name": "architectureView.<callback: Object.entries(S.components).map>",
+          "signature": "architectureView.<callback: Object.entries(S.components).map>([id, component])",
+          "line": 105,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.entries(kindLabels).map>",
           "signature": "architectureView.<callback: Object.entries(kindLabels).map>([kind, label])",
-          "line": 99,
+          "line": 122,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup",
           "signature": "cardsMarkup()",
-          "line": 102,
+          "line": 125,
           "async": false,
           "decorators": []
         },
         {
-          "name": "cardsMarkup.<callback: Object.entries(components).filter>",
-          "signature": "cardsMarkup.<callback: Object.entries(components).filter>([, component])",
-          "line": 104,
+          "name": "cardsMarkup.<callback: Object.entries(S.components).filter>",
+          "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>([, component])",
+          "line": 127,
           "async": false,
           "decorators": []
         },
         {
-          "name": "cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>",
-          "signature": "cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)",
-          "line": 105,
+          "name": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>",
+          "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)",
+          "line": 128,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: matches.map>",
           "signature": "cardsMarkup.<callback: matches.map>([id, component])",
-          "line": 106,
+          "line": 129,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentsView",
           "signature": "componentsView()",
-          "line": 111,
+          "line": 134,
           "async": false,
           "decorators": []
         },
         {
-          "name": "componentsView.<callback: Object.entries(groups).map>",
-          "signature": "componentsView.<callback: Object.entries(groups).map>([id, group])",
-          "line": 114,
+          "name": "componentsView.<callback: Object.entries(S.groups).map>",
+          "signature": "componentsView.<callback: Object.entries(S.groups).map>([id, group])",
+          "line": 137,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView",
           "signature": "deploymentView()",
-          "line": 118,
+          "line": 141,
           "async": false,
           "decorators": []
         },
         {
-          "name": "deploymentView.<callback: zones.map>",
-          "signature": "deploymentView.<callback: zones.map>(zone, index)",
-          "line": 120,
+          "name": "deploymentView.<callback: S.zones.map>",
+          "signature": "deploymentView.<callback: S.zones.map>(zone, index)",
+          "line": 143,
           "async": false,
           "decorators": []
         },
         {
-          "name": "deploymentView.<callback: zones.map>.<callback: zone.nodes.map>",
-          "signature": "deploymentView.<callback: zones.map>.<callback: zone.nodes.map>(id)",
-          "line": 120,
+          "name": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>",
+          "signature": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)",
+          "line": 143,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView",
           "signature": "foldersView()",
-          "line": 124,
+          "line": 147,
           "async": false,
           "decorators": []
         },
         {
-          "name": "foldersView.<callback: folders.map>",
-          "signature": "foldersView.<callback: folders.map>(group)",
-          "line": 127,
+          "name": "foldersView.<callback: S.folders.map>",
+          "signature": "foldersView.<callback: S.folders.map>(group)",
+          "line": 150,
           "async": false,
           "decorators": []
         },
         {
-          "name": "foldersView.<callback: folders.map>.<callback: group.children.some>",
-          "signature": "foldersView.<callback: folders.map>.<callback: group.children.some>(entry)",
-          "line": 127,
+          "name": "foldersView.<callback: S.folders.map>.<callback: group.children.some>",
+          "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)",
+          "line": 150,
           "async": false,
           "decorators": []
         },
         {
-          "name": "foldersView.<callback: folders.map>.<callback: group.children.map>",
-          "signature": "foldersView.<callback: folders.map>.<callback: group.children.map>(entry)",
-          "line": 127,
+          "name": "foldersView.<callback: S.folders.map>.<callback: group.children.map>",
+          "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)",
+          "line": 150,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: selected.example.map>",
           "signature": "foldersView.<callback: selected.example.map>(file)",
-          "line": 128,
+          "line": 151,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup",
           "signature": "inspectorMarkup()",
-          "line": 131,
+          "line": 154,
           "async": false,
           "decorators": []
         },
         {
-          "name": "inspectorMarkup.<callback: links.filter>",
-          "signature": "inspectorMarkup.<callback: links.filter>({ to })",
-          "line": 137,
+          "name": "inspectorMarkup.<callback: S.links.filter>",
+          "signature": "inspectorMarkup.<callback: S.links.filter>({ to })",
+          "line": 160,
           "async": false,
           "decorators": []
         },
         {
-          "name": "inspectorMarkup.<callback: links.filter>",
-          "signature": "inspectorMarkup.<callback: links.filter>({ from })",
-          "line": 138,
+          "name": "inspectorMarkup.<callback: S.links.filter>",
+          "signature": "inspectorMarkup.<callback: S.links.filter>({ from })",
+          "line": 161,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter>",
           "signature": "inspectorMarkup.<callback: neighbors.filter>({ rows })",
-          "line": 144,
+          "line": 167,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })",
-          "line": 144,
+          "line": 167,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)",
-          "line": 144,
+          "line": 167,
           "async": false,
           "decorators": []
         },
         {
           "name": "render",
           "signature": "render()",
-          "line": 152,
+          "line": 174,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "setSystem",
+          "signature": "setSystem(id, fromClick = false)",
+          "line": 201,
           "async": false,
           "decorators": []
         },
         {
           "name": "stopPlayback",
           "signature": "stopPlayback()",
-          "line": 177,
+          "line": 218,
           "async": false,
           "decorators": []
         },
         {
           "name": "switchView",
           "signature": "switchView(view)",
-          "line": 182,
+          "line": 223,
           "async": false,
           "decorators": []
         },
         {
           "name": "applyStep",
           "signature": "applyStep(step)",
-          "line": 188,
+          "line": 229,
           "async": false,
           "decorators": []
         },
         {
           "name": "setScenario",
           "signature": "setScenario(id)",
-          "line": 207,
+          "line": 248,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace",
           "signature": "playTrace()",
-          "line": 220,
+          "line": 261,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace.<callback: setInterval>",
           "signature": "playTrace.<callback: setInterval>()",
-          "line": 227,
+          "line": 268,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"click\">",
           "signature": "<callback: document.addEventListener, \"click\">(event)",
-          "line": 236,
+          "line": 277,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">",
           "signature": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">(event)",
-          "line": 273,
+          "line": 315,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"input\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"input\">(event)",
-          "line": 285,
+          "line": 327,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"toggle\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"toggle\">(event)",
-          "line": 292,
+          "line": 334,
           "async": false,
           "decorators": []
         }
@@ -1496,28 +1518,28 @@
         {
           "name": "<callback: Object.entries(contentTypes).map>",
           "signature": "<callback: Object.entries(contentTypes).map>([file, type])",
-          "line": 22,
+          "line": 23,
           "async": true,
           "decorators": []
         },
         {
           "name": "reply",
           "signature": "reply(request, response, status, type, body, headers = {})",
-          "line": 36,
+          "line": 37,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer>",
           "signature": "<callback: createServer>(request, response)",
-          "line": 46,
+          "line": 47,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>",
           "signature": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>()",
-          "line": 62,
+          "line": 63,
           "async": false,
           "decorators": []
         }

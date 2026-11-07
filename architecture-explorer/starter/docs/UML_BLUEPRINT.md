@@ -2,14 +2,14 @@
 
 Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-- **Android app** — ATLAS Go 1.1.0, the Python/Kivy passenger app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): solo rides, shared rides, food ordering, activity and privacy, stored on the device, plus on-device ATLAS intelligence (learned driver choice, courier timing, surge outlook and a learning lab).
+- **Android app** — ATLAS Go 1.2.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab).
 - **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
 - **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving.
-- **Databases** — the device's `state.json`, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
+- **Databases** — the device's `state.json` (accounts, kitchens, rides, orders) and map-tile cache, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
 
-The Android app runs offline today. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-110). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the food and shared-ride parts the back end does not yet implement.
+The Android app has no back end today; its only network use is map tiles. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-120). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the accounts, food, seller and shared-ride parts the back end does not yet implement.
 
-[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
+[Final handover and runbook](FINAL_HANDOVER.md) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
 ## Start from the implementation
 
@@ -31,7 +31,7 @@ The [local SQLite quickstart](../README.md#start-locally-without-docker) runs th
 ```mermaid
 flowchart TD
     subgraph Clients["Apps and front end"]
-        A["ATLAS Go Android app<br/>Python · Kivy · main branch"]
+        A["ATLAS Go 1.2.0 Android app<br/>passenger · driver · seller<br/>Python · Kivy · main branch"]
         W1["Passenger web page<br/>apps/passenger"]
         W2["Driver web page<br/>apps/driver"]
     end
@@ -44,7 +44,8 @@ flowchart TD
         R["RL watcher"]
     end
     subgraph Data["Databases and stores"]
-        S[("state.json<br/>on the device")]
+        S[("state.json<br/>accounts · rides · orders · kitchens<br/>on the device")]
+        OSM[("OpenStreetMap tiles<br/>cached on the device")]
         LP[("learned.py<br/>bundled RL policies · read-only")]
         P[("PostgreSQL · or SQLite locally<br/>trips · drivers · offers · outbox · inbox · experience")]
         K[("Kafka topic<br/>atlas.ride.v1")]
@@ -52,6 +53,7 @@ flowchart TD
     end
     A --> S
     A --> LP
+    A -. "map tiles · HTTPS" .-> OSM
     A -. "planned · RemoteRepository over HTTPS" .-> G
     W1 --> G
     W2 --> G
@@ -70,14 +72,14 @@ flowchart TD
 
 | Layer | Component | Technology | Stores data in | Status |
 | --- | --- | --- | --- | --- |
-| App | ATLAS Go Android app 1.1.0 (versionCode 2) | Python 3, Kivy 2.3.1, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage; learned constants in `learned.py` inside the APK | Runs offline; all rides, orders and drivers simulated; [release 1.1.0](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) |
+| App | ATLAS Go Android app 1.2.0 (versionCode 3) | Python 3.14 on device, Kivy 2.3.1, pyjnius, requests, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage (accounts with PBKDF2 hashes, kitchens, rides, orders); tile cache; learned constants in `learned.py` | Accounts, rides and orders on one phone; payments and journeys simulated; live map online with offline fallback; [1.2.0 downloads](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) |
 | Front end | Passenger page | HTML + [`apps/shared/client.js`](../apps/shared/client.js) | Browser memory only | Runs against the gateway |
 | Front end | Driver page | HTML + the same client script | Browser memory only | Runs against the gateway |
 | Back end | Gateway | FastAPI, httpx | None | Runs |
 | Back end | Trip and Dispatch APIs | FastAPI, Pydantic | PostgreSQL / SQLite | Runs; ride hailing only |
 | Back end | Event worker | Python, Kafka client | PostgreSQL, Kafka, artifact volume | Runs |
 | Back end | Model API and RL watcher | PyTorch LSTM, scikit-learn, batch Q-learning | Artifact volume, PostgreSQL | Runs |
-| Back end | Food and shared-ride services | — | — | Not implemented; [proposed contract](#proposed-back-end-extensions-for-the-android-app) |
+| Back end | Accounts, food, seller and shared-ride services | — | — | Not implemented; [proposed contract](#proposed-back-end-extensions-for-the-android-app) |
 
 ## Folder hierarchy
 
@@ -90,6 +92,7 @@ architecture-explorer/
 ├── deploy/
 │   └── atlas-explorer.service
 ├── dist/
+│   ├── atlas-go.js
 │   ├── atlas.js
 │   ├── atlas.svg
 │   ├── build-spec.json
@@ -153,46 +156,55 @@ architecture-explorer/
 
 ## Android app (ATLAS Go)
 
-The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version 1.1.0 (versionCode 2), which adds on-device ATLAS intelligence to the 1.0.0 booking and ordering flows. Every screen, rule, storage operation and test is Python. Links below point to the source at commit [`7e98e01`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app).
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.2.0** (versionCode 3), which adds passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [1.2.0 changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [downloads and SHA256SUMS](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md).
 
 ```text
 android-app/
 ├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
-├── buildozer.spec          Android API 36, min API 26, arm64-v8a + x86_64, no permissions
+├── buildozer.spec          1.2.0 / versionCode 3; API 36, min API 26; arm64-v8a + x86_64;
+│                           INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE/COARSE_LOCATION (foreground)
+├── CHANGELOG.md
 ├── atlas_go/
-│   ├── __init__.py         Version (1.1.0)
-│   ├── domain.py           Places, distances, fares, menu, Dish, Offer, Cart
-│   ├── store.py            LocalStore: atomic JSON persistence and booking rules
-│   ├── intelligence.py     Irish holiday calendar, surge outlook, dispatch policy, courier timing, LearningLab
+│   ├── __init__.py         Version (1.2.0)
+│   ├── accounts.py         Roles, field validation, PBKDF2-HMAC-SHA256 hashing          (new)
+│   ├── domain.py           Places, fares, Dish, Offer, Kitchen, Catalog, Cart
+│   ├── geo.py              Cork coordinates, Web-Mercator tiles, live journey positions  (new)
+│   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, tick()
+│   ├── intelligence.py     Calendar, outlook, dispatch, acceptance, courier, LearningLab, self_test
 │   ├── learned.py          Learned constants exported from the simulations (generated, read-only)
-│   ├── app.py              AtlasGoApp, Panel, RouteMap, OutlookChart, Bar, LearningCurve: Kivy screens
+│   ├── livemap.py          LiveMap widget, TileLoader (threads, disk cache, offline layer) (new)
+│   ├── location.py         DeviceLocation: runtime permission, LocationManager via pyjnius (new)
+│   ├── app.py              AtlasGoApp and widgets: role-aware Kivy screens
 │   └── acceptance.py       Debug-only UI click-through and screenshot capture
-├── tests/
-│   ├── test_domain.py      Domain and repository regression tests
-│   └── test_intelligence.py Calendar, outlook, policy, courier timing and lab tests
+├── tests/                  117 tests: domain, intelligence, accounts/geo, roles
 ├── training/               Development-only simulations and exporter (numpy; excluded from the APK)
-│   ├── rl_sim.py           Ride dispatch (REINFORCE) and courier timing (Q-learning)
-│   ├── city_sim.py         Two simulated years of Cork demand, Irish holidays, supply agent, LSTM
-│   └── export_learned.py   Writes atlas_go/learned.py
-├── scripts/                Emulator acceptance, signing (local and CI) and release checks
-├── docs/                   User guide, architecture, privacy, Play handover, 14 screenshots, demo video
-└── releases/               Validation evidence, checksums, signed 1.0.0 bundle record
+├── scripts/                Emulator acceptance, signing, manifest and alignment checks
+├── docs/                   User guide, architecture, privacy, Play handover, 22 screenshots, video
+└── releases/1.2.0/         APK, unsigned AAB, SHA256SUMS, release notes, validation
 ```
 
 ### App layers
 
 ```mermaid
 flowchart LR
-    U["AtlasGoApp<br/>screens · navigation · buttons"] --> L["LocalStore<br/>commands · validation · rollback"]
-    L --> DM["domain.py<br/>fare · distance · Offer · Cart · MENU"]
+    U["AtlasGoApp<br/>passenger · driver · seller screens"] --> L["LocalStore<br/>commands · validation · rollback · tick()"]
+    U --> MAP["LiveMap<br/>tiles · markers · routes"]
+    U --> LOC["DeviceLocation<br/>permission · fixes"]
+    U --> AI["intelligence.py<br/>dispatch · acceptance · outlook · courier · lab · self_test"]
+    MAP --> TL["TileLoader<br/>2 threads · disk cache"]
+    TL -. "HTTPS GET /{z}/{x}/{y}.png" .-> OSM[("OpenStreetMap tile server")]
+    TL --> TC[("tiles/ cache")]
+    L --> ACC["accounts.py<br/>validate · hash · verify"]
+    L --> DM["domain.py<br/>Catalog · Cart · Offer · fares"]
+    L --> GEO["geo.py<br/>live positions"]
+    MAP --> GEO
     L --> J[("state.json<br/>app-private storage")]
-    U --> AI["intelligence.py<br/>outlook · dispatch · courier · lab"]
     AI --> LC[("learned.py<br/>bundled constants")]
     TR["training/<br/>simulations · dev only"] -. "export_learned.py" .-> LC
     X["Acceptance<br/>debug builds only"] --> U
 ```
 
-The UI never edits state directly. It calls a `LocalStore` command; the store applies domain rules, writes the file atomically, and restores the previous in-memory state if the write fails. The UI asks `intelligence.py` which driver to offer and when to send the courier, and passes the answers to the store as plain values (driver name, explanation, courier plan). `intelligence.py` is pure Python with no I/O; it only reads the constants in `learned.py`.
+The UI changes state only through `LocalStore` commands; each validates, mutates, writes the file atomically and restores the previous in-memory state if the write fails. Once a second `AtlasGoApp.live_tick` calls `LocalStore.tick(now)`, which advances simulated journeys whose time-lapse leg has finished and refreshes the map layers. Journeys handled by a registered driver or seller move only when that account acts. `intelligence.py` and `geo.py` are pure Python without I/O.
 
 ### App class diagram
 
@@ -201,246 +213,290 @@ classDiagram
     class App
     class BoxLayout
     class Widget
+    class StencilView
     class AtlasGoApp {
         +LocalStore store
+        +TileLoader tiles
+        +DeviceLocation gps
         +str screen
-        +int pickup
-        +int destination
-        +int party
-        +bool comfort
-        +int restaurant
-        +int address
-        +int outlook_day
+        +str reg_role
+        +dict form
+        +LiveMap live_map
+        +bool live_paused
         +LearningLab lab
+        +list models
         +build()
-        +today() date
         +render()
         +go(screen)
-        +book_solo()
-        +book_shared(offer_id)
-        +next_ride()
-        +cancel_ride()
-        +add_food(item)
-        +remove_food(item)
-        +checkout()
-        +next_order()
-        +reset()
-        +dispatch_card()
-        +intelligence()
-        +shift_outlook(days)
-        +lab_train()
-        +lab_step(dt)
-        +lab_refresh()
+        +nav_items() tuple
+        +home_screen() str
+        +live_tick(dt)
+        +refresh_live()
+        +map_layers(screen) tuple
+        +locate()
+        +welcome() login() register()
+        +submit_login() submit_register()
+        +logout() delete_account(password)
+        +home() ride(shared) map_screen()
+        +registered_candidates(pickup) list
+        +pick_driver(pickup, exclude) tuple
+        +book_solo() book_shared(offer_id) redispatch()
+        +active_ride() next_ride() cancel_ride()
+        +driver() job_accept() job_decline() job_next()
+        +seller() seller_menu() add_dish()
+        +food() menu() cart() checkout() active_order() next_order()
+        +activity() profile() privacy() reset()
+        +intelligence() check_models() lab_train()
     }
-    class Panel {
-        +_redraw()
-    }
-    class RouteMap {
+    class LiveMap {
+        +tuple center_point
+        +int zoom
+        +bool interactive
+        +list markers
+        +list routes
+        +set_view(center, zoom)
+        +zoom_by(step)
+        +fit(points, padding)
+        +set_layers(markers, routes, accuracy)
+        +to_screen(point) tuple
+        +to_point(x, y) tuple
         +draw()
     }
-    class OutlookChart {
-        +list~Hour~ hours
-        +int now
-        +draw()
+    class TileLoader {
+        +Path cache_dir
+        +OrderedDict textures
+        +bool offline
+        +texture(key)
     }
-    class Bar {
-        +float fraction
-        +draw()
-    }
-    class LearningCurve {
-        +list curve
-        +update(curve, nearest, approved)
-        +draw()
-    }
-    class LearningLab {
-        +int TOTAL
-        +list w
-        +list curve
-        +float nearest
-        +float approved
-        +reset()
-        +done() bool
-        +train(episodes, lr)
-        +result() dict
-    }
-    class Candidate {
-        <<frozen dataclass>>
-        +str name
-        +str zone
-        +int eta
-        +float accept
-        +float surge
-        +bool last
-        +features() list
-    }
-    class Hour {
-        <<frozen dataclass>>
-        +int hour
-        +str kind
-        +float ordinary
-        +float expected
-        +float boost
-        +ratio() float
-        +surge() bool
-    }
-    class Acceptance {
+    class DeviceLocation {
+        +tuple point
+        +float accuracy
+        +bool available
         +start()
-        +click(key)
-        +capture(name)
-        +insets_ready()
-        +lab_finished()
-        +next_step()
-        +finish(success, detail)
+        +stop()
     }
     class LocalStore {
-        +Path path
+        +list accounts
+        +str session
+        +bool guest
+        +list kitchens
+        +Catalog catalog
         +Cart cart
         +list history
         +dict ride
         +dict order
-        +dict ui
-        +list~Offer~ offers
-        +load()
-        +validate(data)$
-        +save()
-        +snapshot()
-        +commit(before)
+        +list offers
+        +register(role, name, email, phone, password, ...) dict
+        +login(email, password, now) dict
+        +logout() continue_as_guest()
+        +delete_account(password)
+        +online_drivers() list
+        +driver_position(account) tuple
+        +set_online(online, base)
+        +update_location(point)
+        +driver_job() dict
+        +driver_respond(accept, fallback, now)
+        +driver_advance(now)
+        +book(pickup, destination, comfort, offer_id, party, driver, why, driver_id, start, now)
+        +advance_ride(cancel, now)
+        +kitchen_of(account) dict
+        +add_dish(name, detail, price) str
+        +archive_dish(dish_id)
+        +update_kitchen(open_, prep)
         +update_cart(operation, item)
-        +book(pickup, destination, comfort, offer_id, party, driver, why)
-        +advance_ride(cancel)
-        +checkout(address, courier)
-        +advance_order()
-        +reset(save, preserve_diagnostic)
+        +checkout(address, courier, now)
+        +seller_order() dict
+        +seller_accept(now) seller_ready(now)
+        +advance_order(now)
+        +tick(now) bool
+        +my_history() list
+        +validate(data)$
     }
-    class Offer {
-        +str id
-        +str driver
-        +int pickup
-        +int destination
-        +int capacity
-        +int price
-        +int seats
-        +matches(pickup, destination, party) bool
-        +reserve(party)
-        +release(party)
+    class Catalog {
+        +dict kitchens
+        +dict dishes
+        +set archived
+        +name(kitchen) str
+        +menu(kitchen) list
+        +listed() list
+    }
+    class Kitchen {
+        +int id
+        +str name
+        +str cuisine
+        +int place
+        +int prep
+        +str owner
+        +bool open
     }
     class Cart {
         +dict items
+        +Catalog catalog
         +restaurant() int
-        +add(item)
-        +remove(item)
-        +count() int
-        +subtotal() int
-        +total() int
-        +clear()
+        +add(item) remove(item) clear()
+        +count() subtotal() total()
     }
     class Dish {
-        <<frozen dataclass>>
         +str id
         +str name
         +str detail
         +int restaurant
         +int price
     }
+    class Offer {
+        +matches(pickup, destination, party) bool
+        +reserve(party)
+        +release(party)
+    }
+    class Candidate {
+        +str name
+        +str zone
+        +int eta
+        +float accept
+        +float surge
+        +bool last
+        +str account
+        +features() list
+    }
+    class LearningLab {
+        +reset()
+        +train(episodes, lr)
+        +result() dict
+    }
+    class Panel
+    class RouteMap
+    class OutlookChart
+    class Bar
+    class LearningCurve
     App <|-- AtlasGoApp
+    StencilView <|-- LiveMap
     BoxLayout <|-- Panel
     Widget <|-- RouteMap
     Widget <|-- OutlookChart
     Widget <|-- Bar
     Widget <|-- LearningCurve
-    AtlasGoApp "1" *-- "1" LocalStore : owns
-    AtlasGoApp ..> Panel : builds cards
-    AtlasGoApp ..> RouteMap : draws route
-    AtlasGoApp ..> OutlookChart : surge outlook
-    AtlasGoApp ..> LearningCurve : lab chart
-    AtlasGoApp "1" o-- "0..1" LearningLab : sandbox
-    AtlasGoApp ..> Candidate : choose(pickup)
-    OutlookChart ..> Hour : draws
-    Acceptance --> AtlasGoApp : drives controls
-    LocalStore "1" *-- "1" Cart : basket
-    LocalStore "1" *-- "4" Offer : shared seats
-    Cart ..> Dish : prices from MENU
+    AtlasGoApp --> LocalStore
+    AtlasGoApp --> LiveMap
+    AtlasGoApp --> DeviceLocation
+    AtlasGoApp --> LearningLab
+    AtlasGoApp ..> Candidate : ranks
+    LiveMap --> TileLoader
+    LocalStore --> Catalog
+    LocalStore --> Cart
+    LocalStore "1" --> "4" Offer
+    Catalog --> Kitchen
+    Catalog --> Dish
+    Cart --> Catalog
 ```
 
-Module functions in [`intelligence.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/intelligence.py):
-
-| Area | Functions |
-| --- | --- |
-| Calendar | `easter_sunday`, `first_monday`, `last_monday`, `public_holidays(year)` (Ireland, any year), `jazz_weekend(year)`, `event_kind(day, hour)`, `agent_tag`, `weektype` |
-| Surge outlook | `outlook(day)` → 24 `Hour`s, `day_summary(day)`, `day_title`, `upcoming(today, days, limit)`, `windows`, `span`, `clock`, `ratio_text` |
-| Dispatch policy | `score(candidate)`, `rank(pickup)` (softmax probabilities), `choose(pickup)` → driver and explanation, `explain(chosen, nearest)`; `DRIVER_POOLS` holds four illustrative candidates per saved place |
-| Courier timing | `courier_plan(restaurant)`, `courier_text(plan)`; `PREP_MINUTES` per kitchen, `COURIER_TRAVEL` |
-| Learning lab | `expected_cost(candidate)`, `LearningLab` (REINFORCE from zero, evaluated against the nearest-driver rule and the approved policy) |
-
-Module functions in [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/domain.py): `distance(pickup, destination)` reads the 4 × 4 kilometre table, `fare(pickup, destination, comfort)` returns `(350 + km × 170)` cents with a 30 % comfort uplift, and `money(cents)` formats euros. All money is integer cents.
+Module functions: `accounts` — `hash_password`, `verify_password`, `clean_name`, `clean_email`, `clean_phone`, `check_password`, `clean_plate`, `clean_licence`, `clean_business`, `parse_int`, `parse_price`, `public_view`. `geo` — `haversine_km`, `eta_minutes`, `leg_seconds`, `lerp`, `nearest_place`, `valid_point`, `zone_drift`, `world_px`, `from_world_px`, `tile_range`, `fit_zoom`, `ride_legs`, `ride_position`, `ride_eta_text`, `order_position`. `intelligence` (new in 1.2.0) — `surge_level`, `acceptance`, `registered_candidate`, `self_test`; `rank`/`choose` take `extra` candidates and `exclude` account ids; `courier_plan` takes a `prep` time. The full generated list is in [ARCHITECTURE.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
 
 ### Screen navigation
 
 ```mermaid
 stateDiagram-v2
-    [*] --> home
-    home --> ride : Ride
-    home --> share : Share ride
-    home --> food : Food
-    ride --> active_ride : book_solo
-    share --> active_ride : book_shared
-    active_ride --> activity : completed or cancelled
-    food --> menu : open_menu
-    menu --> cart : basket
-    cart --> active_order : checkout
-    active_order --> activity : delivered
+    [*] --> welcome : no session
+    [*] --> home : passenger or guest
+    [*] --> driver : driver signed in
+    [*] --> seller : seller signed in
+    welcome --> register : Create an account
+    welcome --> login : Sign in
+    welcome --> home : Continue as guest
+    welcome --> privacy
+    register --> home : passenger created
+    register --> driver : driver created
+    register --> seller : seller created
+    login --> home
+    login --> driver
+    login --> seller
+    state "Passenger" as P {
+        home --> ride
+        home --> share
+        home --> food
+        home --> map
+        ride --> active_ride : book_solo
+        share --> active_ride : book_shared
+        food --> menu
+        menu --> cart
+        cart --> active_order : checkout
+        active_ride --> activity : completed / cancelled
+        active_order --> activity : delivered
+    }
+    state "Driver" as D {
+        driver --> driver : accept · decline · arrived · start · complete
+    }
+    state "Seller" as S {
+        seller --> seller_menu : Edit menu
+        seller --> seller : accept order · food ready
+    }
     home --> profile : You
-    profile --> privacy
-    home --> intelligence : How ATLAS learns
+    driver --> profile : You
+    seller --> profile : You
+    profile --> welcome : Sign out · Delete account · Erase all
     profile --> intelligence : How ATLAS learns
-    intelligence --> intelligence : previous / next day · train lab
-    note right of home
-        Bottom bar on every screen:
-        Home · Share · Food · Activity · You (profile)
-    end note
+    profile --> privacy
 ```
 
-The current screen and form choices, including the outlook day offset, are saved in `ui` so the app reopens where the user left it. The `ride` screen shows the dispatch card (ranked drivers and the reason for the choice), and the `cart` and `active_order` screens show the courier-timing plan.
+Bottom bar by role — passenger/guest: Home · Map · Food · Activity · You; driver: Drive · Map · Trips · You; seller: Kitchen · Menu · Orders · You. `render()` redirects a role away from screens it may not use.
 
 ### On-device ride and order lifecycles
 
 ```mermaid
 stateDiagram-v2
     state "Ride" as R {
-        [*] --> driver_confirmed : book (stage 0)
-        driver_confirmed --> at_pickup : simulate (stage 1)
-        at_pickup --> on_your_way : simulate (stage 2)
-        on_your_way --> Completed : complete
-        driver_confirmed --> Cancelled : cancel
-        at_pickup --> Cancelled : cancel
-        on_your_way --> Cancelled : cancel
+        [*] --> pending : book with a registered driver
+        [*] --> on_the_way : book with a simulated driver or shared offer
+        pending --> on_the_way : driver accepts
+        pending --> pending : driver declines · next registered driver
+        pending --> on_the_way : declines · next simulated driver
+        on_the_way --> at_pickup : car reaches pickup (tick) · or driver taps Arrived
+        at_pickup --> on_your_way : 8 s time-lapse wait (tick) · or driver taps Start
+        on_your_way --> Completed : car reaches destination (tick) · or driver taps Complete
+        pending --> Cancelled
+        on_the_way --> Cancelled
+        at_pickup --> Cancelled
+        on_your_way --> Cancelled
     }
     state "Food order" as F {
-        [*] --> kitchen_preparing : checkout (stage 0)
-        kitchen_preparing --> courier_on_the_way : simulate (stage 1)
-        courier_on_the_way --> arriving : simulate (stage 2)
-        arriving --> Delivered : mark delivered
+        [*] --> waiting_for_kitchen : seller kitchen
+        [*] --> preparing : built-in kitchen
+        waiting_for_kitchen --> preparing : seller accepts
+        preparing --> courier_on_the_way : prep time elapsed (tick) · or seller taps Ready
+        courier_on_the_way --> arriving : courier reaches address (tick)
+        arriving --> Delivered : 6 s (tick)
     }
 ```
 
-Solo rides are assigned to the driver chosen by the bundled dispatch policy, and the explanation is stored with the ride. Shared rides keep the offer's driver. Each food order stores the courier plan computed at checkout. Only one active ride and one active order can exist. Cancelling a shared ride releases its seats back to the offer. Completed, cancelled and delivered records move to `history`. Stages advance only when the user presses the simulation button.
+`stage` stays 0..2 as in 1.1.0; `pending` marks the waiting states. Legs are straight lines at 25 km/h played 10× faster (`geo.leg_seconds`). *Skip to next stage* still advances simulated journeys by hand. On completion a registered driver's `earnings` and `trips` increase; on delivery a seller kitchen's `orders` and `sales` (food total without the €2.50 delivery fee) increase.
 
 ### On-device data model (`state.json`)
 
-The app's only database is one JSON document in app-private storage. Each save writes `state.tmp`, calls `fsync`, then atomically replaces `state.json`. Damaged JSON is kept as `state.invalid.json` and a clean demo state is created. Android backup is disabled.
+One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atomic replace. `LocalStore.validate` checks every field before a screen reads it; damaged files are kept as `state.invalid.json`. All 1.2.0 fields are optional, so a 1.1.0 file loads unchanged. Map tiles are cached separately under `tiles/{z}/{x}/{y}.png`.
 
 ```mermaid
 erDiagram
+    STATE ||--o{ ACCOUNT : "accounts"
+    STATE ||--o| ACCOUNT : "session"
+    STATE ||--o{ KITCHEN : "kitchens (sellers)"
     STATE ||--|| CART : "cart"
     STATE ||--o| RIDE : "ride (active)"
     STATE ||--o| ORDER : "order (active)"
     STATE ||--o{ HISTORY_RECORD : "history"
     STATE ||--o{ SEATS : "seats per offer"
     STATE ||--|| UI : "ui"
+    ACCOUNT ||--o| DRIVER_PROFILE : "driver"
+    ACCOUNT ||--o| SELLER_LINK : "seller"
+    SELLER_LINK ||--|| KITCHEN : "kitchen id"
+    KITCHEN ||--o{ KITCHEN_DISH : "dishes"
+    RIDE }o--o| ACCOUNT : "passenger, driver_id"
+    ORDER }o--o| ACCOUNT : "passenger"
+    ORDER }o--|| KITCHEN : "restaurant"
     ORDER ||--o| COURIER_PLAN : "courier"
-    CART ||--o{ CART_ITEM : "items"
-    ORDER ||--|{ CART_ITEM : "items"
     STATE {
+        array accounts
+        string session "account id or null"
+        bool guest
+        array kitchens
         object cart
         array history
         object ride
@@ -448,44 +504,90 @@ erDiagram
         object seats
         object ui
     }
-    CART_ITEM {
-        string dish_id "bowl, wrap, juice, pizza, ..."
-        int quantity "1 to 10"
+    ACCOUNT {
+        string id "U- plus nanosecond timestamp"
+        string role "passenger, driver, seller"
+        string name
+        string email "unique, lower case"
+        string phone "E.164"
+        string salt "16 random bytes, hex"
+        string hash "PBKDF2-HMAC-SHA256, hex"
+        int iterations "200000"
+        int created "epoch seconds"
+    }
+    DRIVER_PROFILE {
+        string vehicle
+        string plate "Irish format, e.g. 241-C-1234"
+        string licence "SPSV number, format-checked"
+        int seats "1..8"
+        int base "0..3 PLACES"
+        bool online
+        int offered
+        int accepted "<= offered"
+        int earnings "cents"
+        int trips
+        array location "lat, lon or null"
+    }
+    SELLER_LINK {
+        int kitchen
+    }
+    KITCHEN {
+        int id ">= 3; 0..2 are built in"
+        string owner "account id or deleted"
+        string name "unique"
+        string cuisine
+        string registration "food business number"
+        int place "0..3"
+        int prep "5..90 minutes"
+        bool open
+        int orders
+        int sales "cents"
+    }
+    KITCHEN_DISH {
+        string id "k<kitchen>-<n>"
+        string name
+        string detail
+        int price "50..20000 cents"
+        bool archived
     }
     RIDE {
         string id "R- plus nanosecond timestamp"
-        int pickup "0..3 PLACES"
-        int destination "0..3, not pickup"
+        int pickup
+        int destination
         bool shared
-        int party "1 or 2"
-        string offer "pool-1..pool-4 or null"
-        string driver "policy choice for solo rides"
-        string why "dispatch explanation, solo rides only (1.1.0)"
+        int party
+        string offer
+        string driver "display name"
+        string driver_id "registered driver or null"
+        bool pending "waiting for driver"
+        array declined "account ids"
+        string passenger "account id, null for guest"
+        string why "dispatch explanation"
+        object live "start lat-lon, t stage start"
         int fare "cents"
         int stage "0..2"
-        string status "Completed or Cancelled in history"
+        string status "Completed or Cancelled"
     }
     ORDER {
         string id "F- plus nanosecond timestamp"
-        int restaurant "0..2"
-        int address "0..3 PLACES"
+        int restaurant "kitchen id"
+        int address
         object items
         int fare "cents incl. 250 delivery"
+        string passenger
+        bool pending "waiting for seller"
+        object live "kitchen lat-lon, t"
+        object courier
         int stage "0..2"
-        object courier "optional courier plan (1.1.0)"
-        string status "Delivered in history"
+        string status "Delivered"
     }
     COURIER_PLAN {
-        int prep "kitchen minutes"
-        int travel "courier minutes to the kitchen"
-        int dispatch_after "minutes to wait before sending"
+        int prep
+        int travel
+        int dispatch_after
         int arrive
-        int courier_wait "minutes at the counter"
-        int naive_wait "counter wait if sent at once"
-    }
-    SEATS {
-        string offer_id "pool-1..pool-4"
-        int seats "0..capacity"
+        int courier_wait
+        int naive_wait
     }
     UI {
         string screen
@@ -495,44 +597,122 @@ erDiagram
         bool comfort
         int restaurant
         int address
-        int outlook_day "-400..400, 1.1.0"
+        int outlook_day
+        string reg_role
     }
 ```
 
-Reference data is compiled into [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/ffd5e2e447f0f993d698ddf8252c28427a1e31d7/android-app/atlas_go/domain.py), not stored: four places (UCC Campus, Cork City Centre, Kent Station, Cork Airport), three restaurants (Green Bowl Kitchen, Marina Pizza, Spice Route), nine dishes, and four shared-ride offers seeded by `LocalStore.reset`. `LocalStore.validate` checks every loaded field (types, ranges, known offer IDs, basket limits, the optional `why` text and non-negative integer courier fields) before a screen reads it. The 1.1.0 fields are optional, so a 1.0.0 `state.json` loads unchanged.
+Account deletion removes the account, replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock).
 
-### Booking and ordering on the device
+### Registration and sign-in
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as AtlasGoApp
+    participant Store as LocalStore
+    participant Acc as accounts.py
+    participant File as state.json
+    User->>UI: Create account (role, details, password, consent)
+    UI->>UI: check consent and password confirmation
+    UI->>Store: register(role, name, email, phone, password, role fields)
+    Store->>Acc: clean_name, clean_email, clean_phone, check_password
+    Store->>Acc: clean_plate, clean_licence, parse_int (driver) or clean_business, parse_int (seller)
+    Store->>Store: reject duplicate email or kitchen name
+    Store->>Acc: hash_password(password) → salt, hash, iterations
+    Store->>File: save() accounts (+ kitchen) and session
+    Store-->>UI: account → driver, seller or home screen
+    User->>UI: Sign in
+    UI->>Store: login(email, password)
+    Store->>Store: lockout check
+    Store->>Acc: verify_password (constant-time compare)
+    Store->>File: save() session
+```
+
+### Ride with a registered driver on the same phone
 
 ```mermaid
 sequenceDiagram
     actor Passenger
+    actor Driver
     participant UI as AtlasGoApp
     participant AI as intelligence.py
     participant Store as LocalStore
-    participant Domain as domain.py
-    participant File as state.json
+    participant Map as LiveMap
+    Driver->>UI: Go online (starting area or phone location)
+    UI->>Store: set_online(True, base) · update_location(point)
     Passenger->>UI: Book ride
-    UI->>AI: choose(pickup)
-    AI-->>UI: driver and explanation (policy v1.4)
-    UI->>Store: book(pickup, destination, comfort, offer_id, party, driver, why)
-    Store->>Domain: distance() and fare(), or Offer.matches() and reserve()
-    Store->>File: save() via temp file and atomic replace
-    Store-->>UI: ride at stage 0 · driver confirmed
-    Passenger->>UI: Add dishes, check out
-    UI->>AI: courier_plan(restaurant)
-    AI-->>UI: wait N minutes, then dispatch
-    UI->>Store: update_cart('add', item) then checkout(address, courier)
-    Store->>Domain: Cart.add(), Cart.total()
-    Store->>File: save()
-    Store-->>UI: order at stage 0 · kitchen preparing
-    Passenger->>UI: Simulate next stage
-    UI->>Store: advance_ride() or advance_order()
-    Store->>File: save() and move finished records to history
+    UI->>Store: online_drivers()
+    UI->>AI: registered_candidate(account, position, pickup, surge_level(now), last)
+    UI->>AI: choose(pickup, extra=[registered], exclude=declined)
+    AI-->>UI: chosen candidate and explanation
+    UI->>Store: book(..., driver_id, start)
+    Store-->>UI: ride pending
+    Driver->>UI: Sign in · Accept
+    UI->>Store: driver_respond(True) · offered+1, accepted+1
+    loop Every second
+        UI->>Store: tick(now)
+        UI->>Map: set_layers(car = geo.ride_position(ride, now), routes)
+    end
+    Driver->>UI: Arrived · Start trip · Complete trip
+    UI->>Store: driver_advance() × 3
+    Store-->>UI: history + driver earnings and trips
 ```
 
-### On-device intelligence (1.1.0)
+If the driver declines, `job_decline` asks `choose` again with that driver excluded and passes the result to `driver_respond(False, fallback)`.
 
-The reinforcement-learning features run on the phone in pure Python, from constants that simulations produced offline. Nothing is sent anywhere, and no numpy or model files are packaged. All data behind the constants is synthetic; holiday dates follow Ireland's real public-holiday rules.
+### Food order from a seller kitchen
+
+```mermaid
+sequenceDiagram
+    actor Seller
+    actor Passenger
+    participant UI as AtlasGoApp
+    participant AI as intelligence.py
+    participant Store as LocalStore
+    Seller->>UI: Add dish (name, detail, price)
+    UI->>Store: add_dish() → Catalog lists the open kitchen
+    Passenger->>UI: Add dish, check out
+    UI->>AI: courier_plan(kitchen, prep=kitchen.prep)
+    UI->>Store: update_cart('add', dish) · checkout(address, courier)
+    Store-->>UI: order pending (seller kitchen)
+    Seller->>UI: Accept and start cooking · Food is ready
+    UI->>Store: seller_accept() · seller_ready()
+    loop Every second
+        UI->>Store: tick(now) moves the courier to the address, then delivers
+    end
+    Store-->>UI: history + kitchen orders and sales
+```
+
+### Live map and location
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as AtlasGoApp
+    participant Loc as DeviceLocation
+    participant Android as LocationManager
+    participant Map as LiveMap
+    participant Tiles as TileLoader
+    participant OSM as Tile server
+    User->>UI: Open Map
+    UI->>Map: LiveMap(interactive) · set_layers(places, drivers, kitchens, ride, courier)
+    Map->>Tiles: texture(z, x, y) for visible tiles
+    Tiles->>Tiles: disk cache hit?
+    Tiles->>OSM: GET /{z}/{x}/{y}.png (worker thread, User-Agent ATLASGo/1.2.0)
+    OSM-->>Tiles: PNG → cache → texture on main thread
+    Tiles-->>Map: redraw
+    Note over Map,Tiles: 3 failures → offline for 45 s, schematic Cork layer drawn
+    User->>UI: Me
+    UI->>Loc: start()
+    Loc->>Android: request ACCESS_FINE/COARSE_LOCATION (first time)
+    Android-->>Loc: onLocationChanged(lat, lon, accuracy)
+    Loc-->>UI: on_location → blue dot · driver position saved
+```
+
+### On-device intelligence (1.2.0)
+
+The models run on the phone in pure Python from constants that simulations produced offline; no numpy or model files are packaged. All training data is synthetic; holiday dates follow Ireland's real public-holiday rules. `training/export_learned.py` reproduced the bundled `learned.py` byte for byte for 1.2.0.
 
 ```mermaid
 flowchart LR
@@ -544,27 +724,34 @@ flowchart LR
     subgraph APK["Inside the app"]
         LC[("learned.py<br/>RIDE_WEIGHTS · COURIER_DELAY<br/>BASE_DEMAND · SURGE_RATIO · BOOST")]
         AI["intelligence.py"]
+        ACM["acceptance(offered, accepted)<br/>Beta(9,1) posterior"]
+        SL["surge_level(day, hour)"]
         LAB["LearningLab<br/>sandbox · never dispatches"]
+        ST["self_test()"]
     end
     RS --> EX
     CS --> EX
     EX --> LC
     LC --> AI
-    AI --> UIs["Screens: ride dispatch card · courier timing ·<br/>How ATLAS learns · home outlook card"]
+    ACM --> AI
+    SL --> AI
+    AI --> UIs["Ride dispatch card · driver requests · courier timing ·<br/>seller prep · outlook · when to drive"]
     LAB --> UIs
+    ST --> UIs
 ```
 
-| Feature | Learned by | Constant | Used on |
+| Model | Learned by | Constant / function | Used on |
 | --- | --- | --- | --- |
-| Driver choice (policy v1.4) | REINFORCE over four features: closer ETA, likelihood to accept, keeping the last car in an area about to surge, avoiding surging areas; delayed reward from pickup time, cancellations and shortage caused elsewhere | `RIDE_WEIGHTS` | Ride screen dispatch card; `book_solo` stores the chosen driver and the reason |
-| Courier timing | Q-learning from kitchen slack (prep estimate − courier travel) to minutes to wait | `COURIER_DELAY` | Basket and order screens; stored as `order.courier` |
-| Surge outlook | Demand ratio per calendar context and hour from two simulated years | `BASE_DEMAND`, `SURGE_RATIO` | How ATLAS learns screen and the home card |
-| Extra drivers | Supply agent's learned boost per calendar context, weekday type and hour | `BOOST` | Violet marks on the outlook chart |
-| Learning lab | Retrains a dispatch policy from zero on the device (30,000 simulated rides) | — | How ATLAS learns screen; compared with the nearest-driver rule and approved v1.4 |
+| Dispatch policy v1.4 | REINFORCE over four features (closer ETA, likely to accept, keep the last car in a surging area, avoid surging areas); delayed reward | `RIDE_WEIGHTS`, `rank`, `choose`, `explain` | Ride screen; `book_solo` and `redispatch`; driver decline hand-over. Registered online drivers join the simulated pool |
+| Acceptance model | Beta(9, 1) prior updated by each registered driver's accept/decline counts | `acceptance` | `accept` feature of registered drivers; driver *Your week* card |
+| Surge outlook | Demand ratio per calendar context and hour from two simulated years | `BASE_DEMAND`, `SURGE_RATIO`, `outlook`, `day_summary`, `surge_level` | Intelligence, home and driver cards; current-hour `surge` feature for registered drivers; busy-period notice on fares |
+| Supply agent | Learned extra-driver boost per context, weekday type and hour | `BOOST` | Violet outlook marks; *when to drive* |
+| Courier timing | Q-learning from kitchen slack to dispatch delay; margin extrapolated beyond the table | `COURIER_DELAY`, `courier_plan(kitchen, prep)` | Basket, order and seller screens; stored as `order.courier` |
+| Learning lab | Retrains a dispatch policy from zero (30,000 simulated rides) | `LearningLab` | Intelligence screen; compared with the nearest-driver rule and v1.4 |
 
-In the full simulation, the supply agent's log of unserved requests is an input to the LSTM forecaster, which recovers demand that completed trips hide. The app ships the distilled hourly profiles rather than the LSTM, because it has no live demand history. Matches and storms are not on the calendar; in the back end they come from the live forecaster.
+`self_test()` runs each model on known inputs (for example: UCC pickup chooses Morgan to protect Mardyke's last car; St Patrick's Day surges and an ordinary Wednesday does not; the lab improves after 3,000 rides). The Intelligence screen's **Check all models** shows the results; the unit tests require all six to pass.
 
-These on-device roles mirror the back-end ML: the dispatch policy corresponds to the RL agent and approved policy in [`ml/rl.py`](../ml/rl.py) and [`ml/registry.py`](../ml/registry.py), and the outlook corresponds to the LSTM in [`ml/forecast.py`](../ml/forecast.py). When the app is connected, server-approved policies should replace the bundled constants; the learning lab stays a local sandbox.
+These roles mirror the back-end ML: the dispatch policy corresponds to the RL agent and approved policy in [`ml/rl.py`](../ml/rl.py) and [`ml/registry.py`](../ml/registry.py), the outlook to the LSTM in [`ml/forecast.py`](../ml/forecast.py), and the acceptance model to the discrete model in [`ml/discrete.py`](../ml/discrete.py). When the app is connected, server-approved policies should replace the bundled constants, which remain the offline fallback.
 
 ## Component and deployment boundaries
 
@@ -859,7 +1046,7 @@ The LSTM reads 12 five-minute counts. Logistic regression and Isolation Forest r
 
 ## Connecting the Android app to the back end
 
-This section is a design for the next step. None of it is implemented yet: the Android app makes no network calls.
+This section is a design for the next step. None of it is implemented yet: in 1.2.0 the Android app's only network calls are map-tile downloads.
 
 ### Repository boundary
 
@@ -878,6 +1065,25 @@ classDiagram
         +checkout(basket, address)
         +order_status(order_id)
         +history()
+        +register(role, profile, password)
+        +login(email, password)
+        +delete_account(password)
+    }
+    class DriverRepository {
+        <<interface>>
+        +set_online(online, location)
+        +offers()
+        +respond(trip_id, accept)
+        +advance(trip_id)
+    }
+    class SellerRepository {
+        <<interface>>
+        +kitchen()
+        +add_dish(name, detail, price)
+        +archive_dish(dish_id)
+        +update_kitchen(open, prep)
+        +accept_order(order_id)
+        +ready(order_id)
     }
     class LocalStore {
         offline demo · state.json
@@ -893,6 +1099,10 @@ classDiagram
     class AtlasGoApp
     PassengerRepository <|.. LocalStore
     PassengerRepository <|.. RemoteRepository
+    DriverRepository <|.. LocalStore
+    DriverRepository <|.. RemoteRepository
+    SellerRepository <|.. LocalStore
+    SellerRepository <|.. RemoteRepository
     AtlasGoApp --> PassengerRepository
     RemoteRepository --> TokenStore
 ```
@@ -908,10 +1118,15 @@ classDiagram
 | Shared ride | `Offer.matches`, `reserve`, `release` | Not available | [Proposed shared-ride API](#proposed-back-end-extensions-for-the-android-app) |
 | Food menu, basket, checkout, tracking | `Cart`, `checkout`, `advance_order` | Not available | [Proposed food API](#proposed-back-end-extensions-for-the-android-app) |
 | Activity | `history` in `state.json` | Not available | Add `GET /v1/rider/history` |
-| Identity | None (guest profile) | Demo bearer keys per role | Real sign-in and token issuance before any public release |
-| Driver choice and explanation | `intelligence.choose(pickup)` with bundled `RIDE_WEIGHTS` | Dispatch ranks candidates with model scores and the approved RL policy | Return the ranked candidates and a reason with the assignment, pinned to the policy version |
+| Identity | `register`, `login`, `logout`, `delete_account`; PBKDF2 hashes on the phone; guest mode | Demo bearer keys per role | Server accounts for passenger, driver and seller roles; email/phone verification; tokens in Android Keystore; hashing moves to the server (Argon2id or PBKDF2) |
+| Driver online and location | `set_online`, `update_location` (local) | Driver page polls offers | `POST /v1/driver/availability` with location while online |
+| Driver accepts and drives | `driver_respond`, `driver_advance` | `POST /v1/driver/offers/{id}/accept`, completion routes | Add decline (re-match), arrived and start-trip milestones |
+| Seller kitchen and menu | `add_dish`, `archive_dish`, `update_kitchen` | Not available | [Proposed seller API](#proposed-back-end-extensions-for-the-android-app) |
+| Seller order handling | `seller_accept`, `seller_ready` | Not available | Proposed seller API; emits `food.order.accepted`, `food.order.ready` |
+| Live positions | `geo.ride_position`, `geo.order_position` (time-lapse) | Not available | Server-sent driver/courier positions; routing provider for real routes and ETAs |
+| Driver choice and explanation | `intelligence.choose(pickup, extra, exclude)` with bundled `RIDE_WEIGHTS`; registered drivers scored with `acceptance` and `surge_level` | Dispatch ranks candidates with model scores and the approved RL policy | Return the ranked candidates and a reason with the assignment, pinned to the policy version |
 | Surge outlook | `intelligence.day_summary(day)` from bundled profiles | LSTM demand forecast in the model API | Add a read-only `GET /v1/rider/outlook?date=` backed by the forecaster |
-| Courier timing | `intelligence.courier_plan(restaurant)` | Not available | Part of the proposed food API: courier dispatch time decided by the server |
+| Courier timing | `intelligence.courier_plan(kitchen, prep)` | Not available | Part of the proposed food API: courier dispatch time decided by the server |
 | Learning lab | `LearningLab` on the device | Not applicable | Stays a local sandbox; never sends results or dispatches |
 
 ### Connected booking sequence
@@ -943,10 +1158,34 @@ Retries must reuse the same idempotency key, so a lost response never books twic
 
 ### Proposed back-end extensions for the Android app
 
-These tables and routes are a proposal to support the app's food and shared-ride features. They are not in [`infra/schema.sql`](../infra/schema.sql) and no service implements them.
+These tables and routes are a proposal to support the app's accounts, driver, seller, food and shared-ride features (the fields mirror 1.2.0's `state.json`). They are not in [`infra/schema.sql`](../infra/schema.sql) and no service implements them.
 
 ```mermaid
 erDiagram
+    ACCOUNTS ||--o| DRIVER_PROFILES : "driver role"
+    ACCOUNTS ||--o| RESTAURANTS : "seller owns"
+    ACCOUNTS {
+        text id PK
+        text role "passenger, driver, seller"
+        text email UK
+        text phone
+        text password_hash
+        integer verified
+        bigint created_at
+    }
+    DRIVER_PROFILES {
+        text account_id PK, FK
+        text vehicle
+        text plate
+        text spsv_licence
+        integer seats
+        integer verified "operator checked"
+        integer online
+        double lat
+        double lon
+        integer offered
+        integer accepted
+    }
     RESTAURANTS ||--o{ MENU_ITEMS : offers
     RESTAURANTS ||--o{ FOOD_ORDERS : receives
     FOOD_ORDERS ||--|{ ORDER_ITEMS : contains
@@ -956,6 +1195,9 @@ erDiagram
     TRIPS ||--o| SEAT_RESERVATIONS : "shared trip"
     RESTAURANTS {
         text id PK
+        text owner_id FK "seller account; null for partner kitchens"
+        text registration "food business number"
+        integer prep_minutes
         text name
         text place
         integer delivery_fee_cents
@@ -1013,6 +1255,10 @@ Rules carried over from the app: `UNIQUE (rider_id, request_key)` on `food_order
 | `GET /v1/rider/shared-offers?pickup=&destination=&party=` · `POST /v1/rider/shared-offers/{id}/reserve` | Shared-ride search and atomic seat reservation |
 | `POST /v1/rider/trips/{id}/cancel` | Ride cancellation; releases driver and seats |
 | `GET /v1/rider/history` | Activity screen |
+| `POST /v1/accounts` · `POST /v1/sessions` · `DELETE /v1/accounts/me` | Registration for the three roles, sign-in, account deletion |
+| `POST /v1/driver/availability` · `POST /v1/driver/offers/{id}/decline` · `POST /v1/driver/trips/{id}/milestones` | Online/offline with location; decline and re-match; arrived, started, completed |
+| `GET/PUT /v1/seller/kitchen` · `POST /v1/seller/menu-items` · `DELETE /v1/seller/menu-items/{id}` | Kitchen profile, open/closed, preparation time, menu |
+| `POST /v1/seller/orders/{id}/accept` · `POST /v1/seller/orders/{id}/ready` | Seller order handling; the server then schedules the courier from the courier-timing policy |
 
 Each new route must be added to the gateway's `ROUTES` allowlist with its role.
 
@@ -1022,7 +1268,7 @@ Each new route must be added to the gateway's `ROUTES` allowlist with its role.
 2. Implement changes through existing boundaries. Preserve rider and driver ownership, transactional state and outbox writes, deduplication, the state machine, model versions and explicit policy approval.
 3. Test one complete ride, a booking retry with the same key, a forbidden offer acceptance, an invalid state transition, model outputs and one terminal experience. Run `tests.replay` against the configured Kafka broker before claiming deployment readiness.
 4. Treat GPS, routing, offer expiry and re-matching, cancellations, payments, production identity and representative training data as separately scoped extensions.
-5. For the Android app, run `python -m pytest tests` in `android-app/` on the `main` branch (68 cases in 1.1.0) and the emulator acceptance workflow (131 Android assertions, fourteen screenshots) before and after changes. After changing a simulation in `training/`, run `python training/export_learned.py` and commit the regenerated `atlas_go/learned.py`. When connecting it to the back end, add the repository interface first, keep `LocalStore` passing its tests, and test `RemoteRepository` against a staging gateway.
+5. For the Android app, run `python -m pytest tests` in `android-app/` on the `main` branch (117 cases in 1.2.0), the desktop acceptance run (247 assertions, 22 screenshots) and the emulator acceptance workflow before and after changes. After changing a simulation in `training/`, run `python training/export_learned.py` and commit the regenerated `atlas_go/learned.py`. When connecting it to the back end, add the repository interface first, keep `LocalStore` passing its tests, and test `RemoteRepository` against a staging gateway.
 6. Regenerate the blueprint after changing code. Commit the updated generated sections and JSON with the source changes.
 
 From `starter/`, use Python 3.12 and Node.js with npm. The generator uses the Python standard library and the pinned Acorn parser for JavaScript.
@@ -1294,6 +1540,12 @@ These are the explorer, Node static server and blueprint generator symbols. GitH
 
 <!-- BEGIN GENERATED SUPPORT -->
 
+### `dist/atlas-go.js`
+
+[Open source](../../dist/atlas-go.js)
+
+This file declares no functions.
+
 ### `dist/atlas.js`
 
 [Open source](../../dist/atlas.js)
@@ -1314,60 +1566,62 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `$(id)` | — | [L29](../../dist/explorer.js#L29) |
-| Function | `icon(name, size = 18)` | — | [L30](../../dist/explorer.js#L30) |
-| Function | `<callback: links.map>(link)` | — | [L31](../../dist/explorer.js#L31) |
-| Function | `<callback: folders.flatMap>(group)` | — | [L33](../../dist/explorer.js#L33) |
-| Function | `<callback: folders.flatMap>.<callback: group.children.map>(entry)` | — | [L33](../../dist/explorer.js#L33) |
-| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L36](../../dist/explorer.js#L36) |
-| Function | `announce(message)` | — | [L38](../../dist/explorer.js#L38) |
-| Function | `componentColor(id)` | — | [L42](../../dist/explorer.js#L42) |
-| Function | `componentMark(id, size = 19)` | — | [L46](../../dist/explorer.js#L46) |
-| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L50](../../dist/explorer.js#L50) |
-| Function | `updateControls()` | — | [L54](../../dist/explorer.js#L54) |
-| Function | `updateControls.<callback: Object.entries(scenarios).map>([id, trace])` | — | [L56](../../dist/explorer.js#L56) |
-| Function | `architectureView()` | — | [L66](../../dist/explorer.js#L66) |
-| Function | `architectureView.<callback: links.filter>({ from, to })` | — | [L69](../../dist/explorer.js#L69) |
-| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L70](../../dist/explorer.js#L70) |
-| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L72](../../dist/explorer.js#L72) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L73](../../dist/explorer.js#L73) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L73](../../dist/explorer.js#L73) |
-| Function | `architectureView.<callback: [...links].sort>(a, b)` | — | [L75](../../dist/explorer.js#L75) |
-| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L76](../../dist/explorer.js#L76) |
-| Function | `architectureView.<callback: Object.values(groups).map>(group, index)` | — | [L81](../../dist/explorer.js#L81) |
-| Function | `architectureView.<callback: Object.entries(components).map>([id, component])` | — | [L82](../../dist/explorer.js#L82) |
-| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L99](../../dist/explorer.js#L99) |
-| Function | `cardsMarkup()` | — | [L102](../../dist/explorer.js#L102) |
-| Function | `cardsMarkup.<callback: Object.entries(components).filter>([, component])` | — | [L104](../../dist/explorer.js#L104) |
-| Function | `cardsMarkup.<callback: Object.entries(components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L105](../../dist/explorer.js#L105) |
-| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L106](../../dist/explorer.js#L106) |
-| Function | `componentsView()` | — | [L111](../../dist/explorer.js#L111) |
-| Function | `componentsView.<callback: Object.entries(groups).map>([id, group])` | — | [L114](../../dist/explorer.js#L114) |
-| Function | `deploymentView()` | — | [L118](../../dist/explorer.js#L118) |
-| Function | `deploymentView.<callback: zones.map>(zone, index)` | — | [L120](../../dist/explorer.js#L120) |
-| Function | `deploymentView.<callback: zones.map>.<callback: zone.nodes.map>(id)` | — | [L120](../../dist/explorer.js#L120) |
-| Function | `foldersView()` | — | [L124](../../dist/explorer.js#L124) |
-| Function | `foldersView.<callback: folders.map>(group)` | — | [L127](../../dist/explorer.js#L127) |
-| Function | `foldersView.<callback: folders.map>.<callback: group.children.some>(entry)` | — | [L127](../../dist/explorer.js#L127) |
-| Function | `foldersView.<callback: folders.map>.<callback: group.children.map>(entry)` | — | [L127](../../dist/explorer.js#L127) |
-| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L128](../../dist/explorer.js#L128) |
-| Function | `inspectorMarkup()` | — | [L131](../../dist/explorer.js#L131) |
-| Function | `inspectorMarkup.<callback: links.filter>({ to })` | — | [L137](../../dist/explorer.js#L137) |
-| Function | `inspectorMarkup.<callback: links.filter>({ from })` | — | [L138](../../dist/explorer.js#L138) |
-| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L144](../../dist/explorer.js#L144) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L144](../../dist/explorer.js#L144) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L144](../../dist/explorer.js#L144) |
-| Function | `render()` | — | [L152](../../dist/explorer.js#L152) |
-| Function | `stopPlayback()` | — | [L177](../../dist/explorer.js#L177) |
-| Function | `switchView(view)` | — | [L182](../../dist/explorer.js#L182) |
-| Function | `applyStep(step)` | — | [L188](../../dist/explorer.js#L188) |
-| Function | `setScenario(id)` | — | [L207](../../dist/explorer.js#L207) |
-| Function | `playTrace()` | — | [L220](../../dist/explorer.js#L220) |
-| Function | `playTrace.<callback: setInterval>()` | — | [L227](../../dist/explorer.js#L227) |
-| Function | `<callback: document.addEventListener, "click">(event)` | — | [L236](../../dist/explorer.js#L236) |
-| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L273](../../dist/explorer.js#L273) |
-| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L285](../../dist/explorer.js#L285) |
-| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L292](../../dist/explorer.js#L292) |
+| Function | `indexSystem()` | — | [L48](../../dist/explorer.js#L48) |
+| Function | `indexSystem.<callback: S.links.map>(link)` | — | [L50](../../dist/explorer.js#L50) |
+| Function | `indexSystem.<callback: S.folders.flatMap>(group)` | — | [L51](../../dist/explorer.js#L51) |
+| Function | `indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)` | — | [L51](../../dist/explorer.js#L51) |
+| Function | `$(id)` | — | [L55](../../dist/explorer.js#L55) |
+| Function | `icon(name, size = 18)` | — | [L56](../../dist/explorer.js#L56) |
+| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L59](../../dist/explorer.js#L59) |
+| Function | `announce(message)` | — | [L61](../../dist/explorer.js#L61) |
+| Function | `componentColor(id)` | — | [L65](../../dist/explorer.js#L65) |
+| Function | `componentMark(id, size = 19)` | — | [L69](../../dist/explorer.js#L69) |
+| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L73](../../dist/explorer.js#L73) |
+| Function | `updateControls()` | — | [L77](../../dist/explorer.js#L77) |
+| Function | `updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])` | — | [L79](../../dist/explorer.js#L79) |
+| Function | `architectureView()` | — | [L89](../../dist/explorer.js#L89) |
+| Function | `architectureView.<callback: S.links.filter>({ from, to })` | — | [L92](../../dist/explorer.js#L92) |
+| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L93](../../dist/explorer.js#L93) |
+| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L95](../../dist/explorer.js#L95) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L96](../../dist/explorer.js#L96) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L96](../../dist/explorer.js#L96) |
+| Function | `architectureView.<callback: [...S.links].sort>(a, b)` | — | [L98](../../dist/explorer.js#L98) |
+| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L99](../../dist/explorer.js#L99) |
+| Function | `architectureView.<callback: Object.values(S.groups).map>(group, index)` | — | [L104](../../dist/explorer.js#L104) |
+| Function | `architectureView.<callback: Object.entries(S.components).map>([id, component])` | — | [L105](../../dist/explorer.js#L105) |
+| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L122](../../dist/explorer.js#L122) |
+| Function | `cardsMarkup()` | — | [L125](../../dist/explorer.js#L125) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>([, component])` | — | [L127](../../dist/explorer.js#L127) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L128](../../dist/explorer.js#L128) |
+| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L129](../../dist/explorer.js#L129) |
+| Function | `componentsView()` | — | [L134](../../dist/explorer.js#L134) |
+| Function | `componentsView.<callback: Object.entries(S.groups).map>([id, group])` | — | [L137](../../dist/explorer.js#L137) |
+| Function | `deploymentView()` | — | [L141](../../dist/explorer.js#L141) |
+| Function | `deploymentView.<callback: S.zones.map>(zone, index)` | — | [L143](../../dist/explorer.js#L143) |
+| Function | `deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)` | — | [L143](../../dist/explorer.js#L143) |
+| Function | `foldersView()` | — | [L147](../../dist/explorer.js#L147) |
+| Function | `foldersView.<callback: S.folders.map>(group)` | — | [L150](../../dist/explorer.js#L150) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)` | — | [L150](../../dist/explorer.js#L150) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)` | — | [L150](../../dist/explorer.js#L150) |
+| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L151](../../dist/explorer.js#L151) |
+| Function | `inspectorMarkup()` | — | [L154](../../dist/explorer.js#L154) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ to })` | — | [L160](../../dist/explorer.js#L160) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ from })` | — | [L161](../../dist/explorer.js#L161) |
+| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L167](../../dist/explorer.js#L167) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L167](../../dist/explorer.js#L167) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L167](../../dist/explorer.js#L167) |
+| Function | `render()` | — | [L174](../../dist/explorer.js#L174) |
+| Function | `setSystem(id, fromClick = false)` | — | [L201](../../dist/explorer.js#L201) |
+| Function | `stopPlayback()` | — | [L218](../../dist/explorer.js#L218) |
+| Function | `switchView(view)` | — | [L223](../../dist/explorer.js#L223) |
+| Function | `applyStep(step)` | — | [L229](../../dist/explorer.js#L229) |
+| Function | `setScenario(id)` | — | [L248](../../dist/explorer.js#L248) |
+| Function | `playTrace()` | — | [L261](../../dist/explorer.js#L261) |
+| Function | `playTrace.<callback: setInterval>()` | — | [L268](../../dist/explorer.js#L268) |
+| Function | `<callback: document.addEventListener, "click">(event)` | — | [L277](../../dist/explorer.js#L277) |
+| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L315](../../dist/explorer.js#L315) |
+| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L327](../../dist/explorer.js#L327) |
+| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L334](../../dist/explorer.js#L334) |
 
 ### `server.mjs`
 
@@ -1375,9 +1629,9 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L22](../../server.mjs#L22) |
-| Function | `reply(request, response, status, type, body, headers = {})` | — | [L36](../../server.mjs#L36) |
-| Function | `<callback: createServer>(request, response)` | — | [L46](../../server.mjs#L46) |
+| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L23](../../server.mjs#L23) |
+| Function | `reply(request, response, status, type, body, headers = {})` | — | [L37](../../server.mjs#L37) |
+| Function | `<callback: createServer>(request, response)` | — | [L47](../../server.mjs#L47) |
 | Function | `<callback: createServer((request, response) => {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return reply(request, response, 405, textType, "Method not allowed\n", { Allow: "GET, HEAD" });
@@ -1394,7 +1648,7 @@ This file declares no functions.
   }
 
   reply(request, response, 200, asset.type, asset.body);
-}).listen>()` | — | [L62](../../server.mjs#L62) |
+}).listen>()` | — | [L63](../../server.mjs#L63) |
 
 ### `starter/scripts/generate_blueprint.py`
 
