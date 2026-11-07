@@ -22,6 +22,9 @@ suites=[unit] if unit.tag=='testsuite' else list(unit)
 tests=sum(int(s.get('tests',0)) for s in suites)
 assert tests>=40,tests
 assert not any(int(s.get('failures',0))+int(s.get('errors',0)) for s in suites)
+def desktop(name):
+    path=artifact/name/'test-output'/'result.json'
+    return json.loads(path.read_text())['checks'] if path.is_file() else 'all'
 target=Path('android-app/docs/screenshots')
 target.mkdir(parents=True,exist_ok=True)
 for source in sorted(android.glob('*.png')):
@@ -44,12 +47,12 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 ## Results
 
 - {tests} Python domain and persistence cases passed.
-- Standard desktop UI: 102 assertions passed.
-- Narrow desktop UI with font scale 1.2: 102 assertions passed.
+- Standard desktop UI: {desktop('local-data')} assertions passed.
+- Narrow desktop UI with font scale 1.2: {desktop('local-data-narrow')} assertions passed.
 - Android 16 emulator: {result['checks']} assertions passed; {result.get('screenshots')} actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
-- Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
+- Release manifest checked: target API 36, non-debuggable, backups disabled, and only the declared foreground permissions (Internet and network state for map tiles; fine and coarse location, asked at run time); no background location or billing.
 - Non-debuggable release variant installed and launched separately; process and fatal crash logs checked.
 - {alignment}
 
