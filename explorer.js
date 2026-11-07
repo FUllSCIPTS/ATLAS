@@ -29,6 +29,7 @@ const iconPaths = {
 };
 
 if (typeof securityIcons === "object") Object.assign(iconPaths, securityIcons);
+if (typeof cryptoIcons === "object") Object.assign(iconPaths, cryptoIcons);
 
 const systems = {
   starter: {
@@ -171,7 +172,7 @@ function inspectorMarkup() {
     <button class="source-link" type="button" data-action="source" data-keep="source">${icon("folder", 16)}<code>${entry.path}${entry.example[0]}</code>${icon("diagonal", 14)}</button></div>`;
 }
 
-const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView, security: securityView };
+const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView, security: securityView, crypto: cryptoView };
 
 function render() {
   const focusKey = document.activeElement?.dataset.keep;
@@ -179,11 +180,11 @@ function render() {
   const previousInspector = $("inspector").querySelector(".inspector-body");
   updateControls();
   $("view-content").innerHTML = views[state.view]();
-  $("inspector").innerHTML = state.view === "security" ? securityInspector() : inspectorMarkup();
+  $("inspector").innerHTML = state.view === "security" ? securityInspector() : state.view === "crypto" ? cryptoInspector() : inspectorMarkup();
   const map = document.querySelector(".map-scroll");
   if (map && previousMap) map.scrollLeft = previousMap.scrollLeft;
   const inspectorBody = $("inspector").querySelector(".inspector-body");
-  if (state.view !== "security" && previousInspector?.querySelector("#component-title")?.textContent === S.components[state.selected].title) {
+  if (state.view !== "security" && state.view !== "crypto" && previousInspector?.querySelector("#component-title")?.textContent === S.components[state.selected].title) {
     inspectorBody.scrollTop = previousInspector.scrollTop;
   }
   if (state.view === "components") {
@@ -225,7 +226,8 @@ function stopPlayback() {
 function switchView(view) {
   if (state.view !== view) stopPlayback();
   if (view === "security") secSetHash();
-  else if (location.hash.startsWith("#security")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (error) { /* file:// */ } }
+  else if (view === "crypto") crSetHash();
+  else if (location.hash.startsWith("#security") || location.hash.startsWith("#crypto")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (error) { /* file:// */ } }
   state.view = view;
   render();
 }
@@ -282,6 +284,7 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if ((button.dataset.secTopic || button.dataset.secAction) && securityClick(button)) return;
+  if ((button.dataset.crTopic || button.dataset.crAction) && cryptoClick(button)) return;
   const { view, scenario, component, folder, action, system } = button.dataset;
   if (system) setSystem(system, true);
   else if (view) switchView(view);
@@ -346,5 +349,8 @@ $("view-content").addEventListener("toggle", (event) => {
 const initialHash = location.hash.slice(1);
 if (initialHash.startsWith("security")) {
   securityOpen(initialHash.slice(9) || "overview");
+  setSystem("starter");
+} else if (initialHash.startsWith("crypto")) {
+  cryptoOpen(initialHash.slice(7) || "overview");
   setSystem("starter");
 } else setSystem(initialHash || "starter");
