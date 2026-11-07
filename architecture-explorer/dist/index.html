@@ -4,11 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0c1119">
-  <meta name="description" content="Explore the ATLAS ride-hailing stack, trace its data flows, and inspect its deployment and source layout.">
+  <meta name="description" content="Explore the ATLAS ride-hailing and food-delivery stack and the ATLAS Go 1.2.0 Android app with passenger, driver and seller accounts, a live map and on-device intelligence: trace data flows and inspect deployment and source layout.">
   <link rel="icon" href="./atlas.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <title>ATLAS Architecture Explorer</title>
   <script src="./atlas.js" defer></script>
+  <script src="./atlas-go.js" defer></script>
+  <script src="./uml-catalog.js" defer></script>
+  <script src="./security.js" defer></script>
+  <script src="./crypto.js" defer></script>
   <script src="./explorer.js" defer></script>
 </head>
 <body>
@@ -18,20 +22,28 @@
         <img src="./atlas.svg" width="32" height="32" alt="">
         <strong>ATLAS</strong><span>Architecture Explorer</span>
       </a>
-      <span class="private-badge"><span aria-hidden="true">◆</span> Private deployment</span>
+      <span class="access-badge"><span aria-hidden="true">◆</span> Public access</span>
     </div>
   </header>
   <main class="shell">
     <section class="intro" aria-labelledby="page-title">
-      <div class="eyebrow"><span class="status-dot"></span> RIDE-HAILING SYSTEM <span class="slash">/</span> REFERENCE DESIGN</div>
+      <div class="eyebrow"><span class="status-dot"></span> RIDES + FOOD <span class="slash">/</span> RUNNABLE STARTER</div>
       <h1 id="page-title">ATLAS Architecture Explorer<span>.</span></h1>
-      <p>Follow a ride from request to dispatch, then see how trip outcomes feed the next model and policy updates.</p>
+      <p>Trace a ride or a food order — as in the ATLAS Go app — through FastAPI, PostgreSQL and Kafka. Open the build guide for the runnable starter, exact contracts and ML scripts.</p>
+      <div class="guide-actions"><a class="guide-link primary" href="./build.html">Build this app <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter">View source</a></div>
     </section>
+    <div class="system-switch" role="group" aria-label="Which system to explore">
+      <span class="trace-label">SYSTEM</span>
+      <button type="button" data-system="starter" aria-pressed="true"><span data-icon="cloud"></span> Server starter <small>FastAPI · Kafka · ML</small></button>
+      <button type="button" data-system="go" aria-pressed="false"><span data-icon="car"></span> ATLAS Go 1.2.0 app <small>Android · accounts · live map · RL</small></button>
+    </div>
     <div class="view-tabs" role="tablist" aria-label="Explorer views">
       <button id="tab-architecture" type="button" role="tab" aria-selected="true" aria-controls="workspace" data-view="architecture"><span data-icon="map"></span> Architecture</button>
       <button id="tab-components" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="components"><span data-icon="layers"></span> Components</button>
       <button id="tab-deployment" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="deployment"><span data-icon="cloud"></span> Deployment</button>
       <button id="tab-folders" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="folders"><span data-icon="folder"></span> Folder structure</button>
+      <button id="tab-security" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="security"><span data-icon="shield"></span> Security</button>
+      <button id="tab-crypto" type="button" role="tab" aria-selected="false" aria-controls="workspace" tabindex="-1" data-view="crypto"><span data-icon="key"></span> Cryptography</button>
     </div>
     <section id="workspace" role="tabpanel" aria-labelledby="tab-architecture">
       <div id="tracebar" class="tracebar">
@@ -43,7 +55,7 @@
         <aside id="inspector" class="panel inspector" aria-label="Component inspector"></aside>
       </div>
     </section>
-    <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Architecture Explorer</span><span>Reference design with illustrative flows</span></footer>
+    <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Architecture Explorer</span><span>Architecture and implementation guide</span></footer>
     <p id="announcement" class="sr-only" aria-live="polite"></p>
   </main>
 </body>

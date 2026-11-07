@@ -1,6 +1,14 @@
 # ATLAS Architecture Explorer
 
-A self-hosted copy of the interactive ride-hailing reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
+**Live demo** · [Open the ATLAS Architecture Explorer](https://fullscipts.github.io/ATLAS/)
+
+A self-hosted copy of the interactive ride-hailing and food-delivery reference design. It serves the architecture map, the component catalog, the deployment view and the folder tree for two systems: the server starter and the ATLAS Go 1.2.0 Android app with passenger, driver and seller accounts, a live map and its on-device intelligence (dispatch policy, acceptance model, courier timing, holiday surge outlook, learning lab and the offline training that produces `learned.py`). Open the app view directly at `/#go`. The ride, driver and learning flows are illustrative. The server runs the explorer alone. It has no dependencies on FastAPI, PostgreSQL, Kafka, or trained models.
+
+## Run the ride-hailing application
+
+The starter includes the passenger and driver apps, FastAPI services, PostgreSQL and Kafka configuration, trained model commands, and an end-to-end smoke test. [Starter README](starter/README.md) · [Implementation guide](https://fullscipts.github.io/ATLAS/build.html)
+
+[Final handover and runbook](starter/docs/FINAL_HANDOVER.md) · [UML blueprint and exact class/function inventory](starter/docs/UML_BLUEPRINT.md)
 
 ## Run from Git
 
@@ -15,6 +23,24 @@ node server.mjs
 ```
 
 The source repository is public. Access to a running deployment is controlled by your server.
+
+## Security view (information-security teaching)
+
+The **Security** tab ([live](https://fullscipts.github.io/ATLAS/#security)) explains how ATLAS handles authentication, password storage, identity management, role-based access, gateway authentication, single sign-on and Kerberos, and links each control to the code that implements it. Labs run in the browser with Web Crypto: PBKDF2 password hashing with the app's exact parameters, the login lockout, a step-through of the gateway's checks, an OpenID Connect + PKCE flow with real ES256 tokens, and a six-message Kerberos exchange with real AES-GCM and attack scenarios (wrong password, clock skew, tampered ticket, expired ticket, replay). SSO and Kerberos are labelled as teaching extensions: they are not part of the ATLAS code. Deep links: `#security-passwords`, `#security-login`, `#security-identity`, `#security-gateway`, `#security-sso`, `#security-kerberos`, `#security-transport`, `#security-gaps`. The source is `dist/security.js`; the written guide is [docs/INFORMATION_SECURITY.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md).
+
+## Cryptography view
+
+The **Cryptography** tab ([live](https://fullscipts.github.io/ATLAS/#crypto)) shows where ATLAS uses hash functions and checksums, public-key infrastructure (keys and certificates), digital signatures and, as a teaching extension, post-quantum cryptography. Labs use Web Crypto in the browser: the avalanche effect; checking a downloaded APK or AAB against every published SHA-256; the prototype's recovery checksum versus SHA-256; recomputing the real upload certificate's pinned fingerprint; a private CA with mutual-TLS checks (wrong key usage, expired, rogue CA, edited subject, leaf used as CA); ECDSA and SHA256withRSA signing with tamper tests; and a Lamport one-time signature that is forged after key reuse. Deep links: `#crypto-hashes`, `#crypto-pki`, `#crypto-signatures`, `#crypto-pqc`, `#crypto-gaps`. The source is `dist/crypto.js`; the written guide is [docs/CRYPTOGRAPHY.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md).
+
+## UML catalogue links
+
+Every concept in the Security and Cryptography tabs links to its function in the [Security and cryptography catalogue](starter/docs/UML_BLUEPRINT.md#security-and-cryptography-catalogue) of the UML blueprint, which in turn links to the exact source line. Both the catalogue and `dist/uml-catalog.js` are generated from one table in `starter/scripts/security_catalog.py`. After changing any linked code, run it with a checkout of `main` (Android app, workflows and labs live there), then refresh the blueprint, and confirm both with `--check`:
+
+```bash
+python starter/scripts/security_catalog.py --main ../ATLAS-main
+python starter/scripts/generate_blueprint.py
+python starter/scripts/security_catalog.py --main ../ATLAS-main --check && python starter/scripts/generate_blueprint.py --check
+```
 
 ## Access privately
 

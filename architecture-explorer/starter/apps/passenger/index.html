@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ATLAS Passenger Demo</title><link rel="stylesheet" href="/assets/demo.css"><script src="/assets/client.js" defer></script></head>
+<body data-role="rider"><main>
+<nav><a href="/passenger" aria-current="page">Passenger</a><a href="/driver">Driver</a></nav>
+<h1>Book a demo ride</h1>
+<label>Passenger demo key <input id="key" type="password" value="rider-demo" autocomplete="off"></label>
+<form id="booking">
+  <label>Pickup <input name="pickup" value="UCC Main Gate" required maxlength="120"></label>
+  <label>Destination <input name="destination" value="Kent Station" required maxlength="120"></label>
+  <label>Zone <select name="zone"><option value="cork-centre">Cork Centre</option><option value="cork-north">Cork North</option></select></label>
+  <button type="submit">Request ride</button>
+</form>
+<h2>Trip status</h2><p id="status" role="status">Request a ride to begin.</p><pre id="result"></pre>
+</main></body></html>
