@@ -45,10 +45,6 @@ simulated. Application code and tests are in Python.
 |---|---|
 | [Installable Android APK 1.2.0 — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) | **New version 1.2.0:** passenger, driver and food-seller registration, live map (OpenStreetMap, your location, moving drivers and couriers), and six on-device ML models in the live flows. Open the link, click **Request access**; once approved, download with your Google account. Uninstall 1.1.0 first (new signing key). SHA-256 `737c41ec935e4a87d849a04b1434fbe66fa47bdcb9420387e2a94f58400813cb` |
 | [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s. Act I: book a ride, driver receives the pickup location, order food, courier collects at the shop and delivers home (simulated). Act II — The Learner: an RL agent learns from delayed rewards which driver to offer a ride to and when to dispatch a food courier (toy simulation). Act III — The City's Calendar: two years of synthetic Cork demand over Ireland's real 2025–2026 public holidays; the agent pre-positions drivers, and its log of unserved requests helps the LSTM forecast surges 3–6 hours ahead (toy simulation). Act IV: as demand rises to ≈14,000 req/s and falls back, the ATLAS controller moves the six services from Tight (monolith) to Hybrid to Loose (microservices) and, after a 300 s hysteresis dwell, back to Tight — driven by `atlas_sim` on a synthetic surge |
-| [Screenshots and user guide](android-app/docs/USER_GUIDE.md) | Home, solo/shared rides, food, basket, tracking, activity, privacy, How ATLAS learns and the learning lab |
-| [Architecture and integration blueprint](android-app/docs/ARCHITECTURE.md) | Folder structure, classes and future service integration |
-| [Google Play handover](android-app/docs/GOOGLE_PLAY.md) | Signing, store assets, privacy notice and Console submission steps |
-| [Test results](android-app/releases/VALIDATION.md) · [Signing record](android-app/releases/SIGNED_VALIDATION.json) | Source revision, successful build, binary hashes and certificate fingerprint |
 
 | Home | Shared rides | Food | How ATLAS learns |
 |---|---|---|---|
