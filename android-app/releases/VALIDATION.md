@@ -1,15 +1,15 @@
 # Verified Android handover
 
-Application source: [36b8a2855a5041b668df3ab2619c03abc08414a7](https://github.com/FUllSCIPTS/ATLAS/commit/36b8a2855a5041b668df3ab2619c03abc08414a7).
+Application source: [81c5333070a49f7af6def4e6bc15e69304af2a45](https://github.com/FUllSCIPTS/ATLAS/commit/81c5333070a49f7af6def4e6bc15e69304af2a45).
 
-Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42179962012).
+Successful full build and acceptance: [GitHub Actions run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/42344799704).
 
 ## Results
 
-- 68 Python domain and persistence cases passed.
+- 117 Python domain and persistence cases passed.
 - Standard desktop UI: 102 assertions passed.
 - Narrow desktop UI with font scale 1.2: 102 assertions passed.
-- Android 16 emulator: 131 assertions passed; fourteen actual app screenshots captured.
+- Android 16 emulator: 292 assertions passed; 22 actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
 - Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
@@ -17,15 +17,15 @@ Successful full build and acceptance: [GitHub Actions run](https://github.com/FU
 - PASS: 232 64-bit ELF libraries/extensions aligned to 16 KB; 2 Python data archives validated
 
 The source, screenshots, build workflow and documentation are in this repository.
-The [release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) contains the screenshot archive, checksums and evidence.
+The [release](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.2.0) contains the screenshot archive, checksums and evidence.
 The APK and AABs are shared on request from a [restricted Google Drive folder](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV).
 
 ## Public binary SHA-256
 
 | File | SHA-256 |
 |---|---|
-| `atlas-go-demo.apk` | `de65057ebfaf0a2e5009eeb8ede2cca6397bb551c1d2d8f6359a34c173440e2a` |
-| `atlas-go-unsigned.aab` | `1d2e52d366ed9974624bfce030fcc41a96f417cc4b6863b16466ba7c158e3aa1` |
+| `atlas-go-demo.apk` | `1c1520791ed3f3bf386f37aea4e6e28effc5cf994bb51ebe42d1684331f3f38b` |
+| `atlas-go-unsigned.aab` | `142a9929f9fbed7c0ce0f5d835cd8141f34036e8641780694dfa5f24124c822d` |
 
 ## Signing and Play submission
 
