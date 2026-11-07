@@ -385,3 +385,33 @@ h1, h2, h3, p { margin: 0; }
   .sec-field { max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) { .sec-msg { animation: none; } }
+
+/* ------------------------------------------------------------------ Cryptography view (crypto.js) */
+.sec-field.wide { flex: 1 1 280px; max-width: 520px; }
+.cr-bad { color: #ffb3ab; }
+.cr-bitgrid { display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 2px; max-width: 520px; padding: 6px; border: 1px solid var(--line-soft); border-radius: 6px; background: #0b111a; }
+.cr-bitgrid i { aspect-ratio: 1; border-radius: 2px; background: #1c2735; }
+.cr-bitgrid i.on { background: #ffc983; }
+.cr-bitgrid.lam i.one { background: #6f86a3; }
+.cr-bitgrid.lam i.both { background: #ff8f86; }
+.cr-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; }
+.cr-key.one { background: #6f86a3; }
+.cr-key.both { background: #ff8f86; }
+.cr-key.pk { background: #90bfe8; }
+.cr-key.sg { background: #c4aeff; }
+.cr-drop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px; border: 1px dashed #4a5b70; border-radius: 8px; background: #0f1722; color: #c4d0de; font-size: 13px; cursor: pointer; }
+.cr-drop:hover { border-color: var(--green); }
+.cr-drop svg { color: var(--green); }
+.cr-drop input { font: 12px var(--mono); color: var(--muted); max-width: 100%; }
+.cr-bars { display: grid; gap: 8px; }
+.cr-bar-row { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: center; font-size: 12px; color: #c4d0de; }
+.cr-bar-track { position: relative; display: flex; align-items: center; gap: 6px; height: 18px; min-width: 0; }
+.cr-bar { display: block; height: 12px; border-radius: 3px; flex: 0 0 auto; }
+.cr-bar.pk { background: #90bfe8; }
+.cr-bar.sg { background: #c4aeff; }
+.cr-bar.sg.bad { background: #ff8f86; }
+.cr-bar-track b { font: 500 10.5px var(--mono); color: var(--muted); white-space: nowrap; }
+@media (max-width: 790px) {
+  .cr-bar-row { grid-template-columns: 1fr; gap: 3px; }
+  .cr-bitgrid { grid-template-columns: repeat(16, minmax(0, 1fr)); }
+}
