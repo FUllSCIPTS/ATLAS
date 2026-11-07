@@ -24,6 +24,10 @@ node server.mjs
 
 The source repository is public. Access to a running deployment is controlled by your server.
 
+## Security view (information-security teaching)
+
+The **Security** tab ([live](https://fullscipts.github.io/ATLAS/#security)) explains how ATLAS handles authentication, password storage, identity management, role-based access, gateway authentication, single sign-on and Kerberos, and links each control to the code that implements it. Labs run in the browser with Web Crypto: PBKDF2 password hashing with the app's exact parameters, the login lockout, a step-through of the gateway's checks, an OpenID Connect + PKCE flow with real ES256 tokens, and a six-message Kerberos exchange with real AES-GCM and attack scenarios (wrong password, clock skew, tampered ticket, expired ticket, replay). SSO and Kerberos are labelled as teaching extensions: they are not part of the ATLAS code. Deep links: `#security-passwords`, `#security-login`, `#security-identity`, `#security-gateway`, `#security-sso`, `#security-kerberos`, `#security-transport`, `#security-gaps`. The source is `dist/security.js`; the written guide is [docs/INFORMATION_SECURITY.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md).
+
 ## Access privately
 
 The app listens on the server's loopback address, `127.0.0.1:8080`. From your workstation, open an SSH tunnel and visit [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
