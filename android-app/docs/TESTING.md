@@ -1,22 +1,33 @@
-# Testing and release evidence
+# Testing and release evidence (1.2.0)
 
-The delivered application is an offline Python/Kivy model. Tests exercise simulated local bookings, ordering and the bundled learned policies; they do not contact live drivers, restaurants, payments, maps, backend services or ML services.
+ATLAS Go 1.2.0 is a Python/Kivy app with on-phone accounts, a live map and simulated rides and deliveries. Tests exercise local accounts, bookings, ordering, seller and driver workflows, live progress and every bundled model. They do not contact live drivers, restaurants, payments, back-end services or ML services; the map-tile path is tested against a local stand-in tile server.
 
 ## Automated coverage
 
 | Check | Coverage |
 |---|---|
-| 68 Python regression cases | Irish holiday dates and calendar context, learned surge outlooks, dispatch choices and explanations, courier timing, the sandbox learning lab beating the nearest-driver rule, persistence and recovery of learned fields; plus every saved route, Go/Comfort fare symmetry, invalid routes, seat matching and limits, cancellation, basket arithmetic, quantity limits, restaurant isolation, active booking constraints, food/ride coexistence, all persisted journey stages, malformed state recovery, reset and failed-storage rollback |
-| Standard screen configuration | 102 assertions through real Kivy button press/release events and spinner callbacks; 440 × 940 desktop viewport |
-| Narrow screen and larger text | Same 102 assertions at 360 × 780 with font scale 1.2; control dimensions and fourteen framebuffer images verified |
-| Android 16 emulator | Installed Python APK runs the interaction suite, writes results and fourteen actual app screenshots; fatal crash log checked |
-| Release bundle | Bundletool format validation, target SDK, non-debuggable flag, backup disabled and absence of Internet/location/billing permissions |
-| Native runtime | Every packaged 64-bit ELF load segment checked for alignment of at least 16 KB |
-| Release launch | A non-debuggable APK made from the AAB is installed and launched separately; process survival and fatal crash log checked |
+| 117 Python unit tests | The 68 earlier cases (holidays, outlooks, dispatch, courier timing, learning lab, fares, seats, basket, persistence, recovery, rollback) plus: password hashing and verification, sign-in lockout, email/phone/password/plate/licence/business/price validation, registration rules per role, driver accept/decline/advance with earnings and acceptance counts, seller menus, open/closed kitchens, order acceptance and ready-for-courier, time-based live progress for rides and orders, account deletion and anonymisation, quarantine of nine kinds of damaged account/kitchen state, loading 1.1.0 files, Web-Mercator maths against the OSM formula, live positions, registered-driver dispatch, the acceptance model, surge level, courier timing for any preparation time, and the six-model self-test |
+| Standard screen configuration | 247 assertions through real Kivy control events at 440 × 940: guest rides, shared rides and food; live map and zoom; a journey advancing on its own; the model check; driver, seller and passenger registration with an invalid-email retry; a registered driver chosen by the policy, accepting and completing the trip; a seller accepting an order and handing it to the courier; wrong-password refusal; account deletion; erase-all; 22 screenshots |
+| Narrow screen and larger text | The same 247 assertions at 360 × 780 with font scale 1.2 |
+| Live map | Tiles fetched from a local tile server, decoded, cached on disk and drawn at the right positions (Cork centre = tile 13/3903/2709); User-Agent header checked; offline schematic layer when tiles are unavailable; drag-to-pan through Kivy's touch pipeline; simulated GPS fix and nearest-pickup text |
+| Model retraining | `training/export_learned.py` reproduces `atlas_go/learned.py` byte for byte |
+| Release bundle | bundletool validation; manifest: version 1.2.0 / code 3, target 36, not debuggable, backup off, exactly INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, no background location; location hardware optional |
+| Native runtime | All 232 packaged 64-bit ELF libraries aligned to 16 KB |
+| Packaged code | The APK's compiled modules load and run on CPython 3.14 (accounts, store, geo, all six models); every Kivy, pyjnius, android and requests module the UI imports is present in the APK's Python bundle |
+| APK signature | APK Signature Scheme v2 and v3 verified |
+| Android 16 emulator (CI) | On push, the workflow installs the debug APK, runs the same interaction suite on the emulator, captures the screenshots, checks the crash log, then launches a non-debuggable release APK |
 
-The Android debug driver is enabled only when Android marks the APK debuggable and an explicit test launch intent is supplied. The release variant ignores this switch. The UI driver dispatches real Kivy control events; it is not an OS-level touch, TalkBack or physical-device certification.
+The Android debug driver is enabled only when Android marks the APK debuggable and an explicit test launch intent is supplied. The release variant ignores this switch.
 
 ## Bugs fixed during this handover
+
+1.2.0:
+- A ride-request decline without a fallback driver counted as an offer before failing; validation now happens first.
+- The app's driver-picking method was named `dispatch`, which shadowed Kivy's event dispatcher and crashed start-up; renamed `pick_driver`.
+- Courier timing for kitchens slower than the trained range kept the courier waiting at the counter; the table's edge margin is now extrapolated.
+- Registration tabs and map buttons no longer break words on narrow screens with large text.
+
+1.1.0 and earlier:
 
 - Desktop startup no longer depends on a pre-existing configuration directory.
 - Preview geometry is configured before the graphics surface is created, preventing clipped/black upper screen regions.
@@ -45,4 +56,4 @@ See [release validation](../releases/VALIDATION.md) for the exact source revisio
 
 ## Remaining release work
 
-Physical Android phone/tablet testing, TalkBack and switch-access review, large font settings beyond the tested configuration, battery/performance profiling, Play pre-launch reports, developer identity/listing declarations and any account-specific testing requirements remain owner checks. The model does not provide production transport or food services. Google Play review is a separate process; passing these tests does not guarantee acceptance.
+The emulator run for 1.2.0 happens in GitHub Actions after this source is pushed. Real GPS fixes and the location permission dialog, real OpenStreetMap tile downloads on a phone, physical Android phone/tablet testing, TalkBack and switch-access review, large font settings beyond the tested configuration, battery/performance profiling, Play pre-launch reports, developer identity/listing declarations and any account-specific testing requirements remain owner checks. The model does not provide production transport or food services. Google Play review is a separate process; passing these tests does not guarantee acceptance.

@@ -64,8 +64,8 @@ To stop CI signing, delete the three secrets. If the key is ever exposed, delete
 2. Create an **Internal testing** release, enable Play App Signing, and upload `atlas-go-play.aab`. Review Play's bundle analysis and pre-launch/device reports before broader distribution.
 3. Supply your real developer/support contact information and complete the account's identity, organisation/device verification and any testing requirements shown in Console. These cannot be completed from a source repository.
 4. Supply a public privacy policy URL. The [versioned policy](PRIVACY.md) is complete for this offline binary; host the same text on your developer website if Console requires it. It must remain readable without login. Add any real support email required by Console yourself.
-5. Complete Data safety based on the actual binary: no collection or sharing by this offline app, no ads, no login/account creation, no payment or location permissions. Follow the Console questionnaire wording; reassess every answer if a network SDK or backend is added.
-6. Complete the content-rating questionnaire, target-audience declaration, app access declaration (all features accessible without credentials), and any other applicable declarations. Do not select child-directed distribution without reviewing its requirements.
+5. Complete Data safety for 1.2.0 based on the actual binary: personal info (name, email, phone) and precise/approximate location are processed **on the device only** and are not transmitted to the developer, so under Play's definitions they are not *collected*; nothing is shared; no ads; account creation exists in the app and **account deletion is available in the app** (You → Delete my account). Map tiles are requested from OpenStreetMap, which receives the IP address and viewed area; declare this according to the current Console wording. Reassess every answer when a back end, payments or analytics are added.
+6. Complete the content-rating questionnaire, target-audience declaration, app access declaration (every feature can be reached by creating an account in the app, or as a guest passenger; give reviewers test credentials if asked), the location permission declaration (foreground only, used for the map and pickup), and any other applicable declarations. Do not select child-directed distribution without reviewing its requirements.
 7. Add the screenshots and store graphics below. State clearly that rides, restaurant ordering and tracking are simulations. Do not imply an affiliation with Uber or real Cork restaurants.
 8. Fix every blocking Console validation or pre-launch issue. Move from internal to closed/production testing only after your account's requirements are satisfied. Submit for review when ready; upload preparation is not publication.
 
@@ -73,17 +73,17 @@ To stop CI signing, delete the three secrets. If the key is ever exposed, delete
 
 Name: **ATLAS Go — Mobility Demo**
 
-Short description: **Explore simulated rides, shared journeys and food ordering in one offline app.**
+Short description: **Try rides, driving and a food kitchen in one app — simulated, with a live map.**
 
 Full description:
 
-> Explore a Python-powered Android model of a mobility and food application. Preview solo ride fares, join shared journeys with seat availability, browse illustrative restaurant menus, build a basket, and step through simulated ride and delivery tracking. View local activity history and reset demo data whenever you like. Works offline, with no login, ads, location tracking or payment information. All bookings, drivers, restaurants, routes and deliveries are demonstrations. ATLAS Go does not arrange transport or deliver food.
+> ATLAS Go is a Python-powered model of a mobility and food app for Cork. Create a passenger, driver or food-seller account on your phone. Passengers book rides and shared seats and order food; drivers go online and accept trips chosen by a learned dispatch policy; sellers list their kitchen and menu. Follow journeys and couriers on a live OpenStreetMap map. Accounts stay on your phone, location is used only when you ask, and there are no ads or payments. All rides, deliveries and payments are simulations; ATLAS Go does not arrange transport or deliver food.
 
 ## Listing assets
 
 - `docs/play-assets/icon-512.png`: original 512 × 512 app icon.
 - `docs/play-assets/feature-1024x500.png`: original 1024 × 500 feature graphic.
-- `docs/screenshots/01-home.png` through `12-privacy.png`: 9:16 portrait phone screenshots from the Android 16 emulator. The capture verifier checks Play dimension/aspect limits; see [the eight-image listing selection and alt text](play-assets/SCREENSHOTS.md). Use the Home, Ride, Share, Food and Basket images for the listing.
+- `docs/screenshots/01-welcome.png` through `22-seller-order.png`: portrait screenshots (replaced by Android 16 emulator captures when the release workflow runs). The capture verifier checks Play dimension/aspect limits; see [the eight-image listing selection and alt text](play-assets/SCREENSHOTS.md). Use the Home, Ride, Share, Food and Basket images for the listing.
 - In-app icon: original image `assets/icon.png`.
 
 ## Release verification
