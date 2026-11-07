@@ -1,59 +1,89 @@
-# ATLAS Go — Android model application
+# ATLAS Go — Android app (version 1.2.0)
 
-**README option 4:** a Python/Kivy Android passenger app for solo rides, shared rides and food ordering, with interactive Python screens and local persistence.
+**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, and on-device ATLAS intelligence (learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab).
 
-This is a fully runnable **offline demonstration**, not a transport operator. All drivers, restaurants, distances, bookings, payments and tracking stages are simulated. No backend, live ML service, real dispatch, real delivery or payment gateway is connected. Small policies learned offline by ATLAS's reinforcement-learning agents in a simulated Cork run locally from bundled constants (see ATLAS intelligence below). The ATLAS architecture and Python service starter remain separate references on the `architecture-explorer` branch.
+ATLAS Go 1.2.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
-- [Installable APK and upload bundle](releases/README.md)
-- [User guide with real Android screenshots](docs/USER_GUIDE.md)
-- [▶ Demo video — ride booking, driver location, food order and delivery, RL learning and surge forecasting (4 min 52 s)](docs/video/atlas-go-demo.mp4)
-- [Build, signing and Google Play submission](docs/GOOGLE_PLAY.md)
-- [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md)
-- [Privacy notice](docs/PRIVACY.md)
-- [Testing scope and fixes](docs/TESTING.md)
-- [Automated Android acceptance workflow](https://github.com/FUllSCIPTS/ATLAS/actions/workflows/atlas-android.yml)
+- [Installable APK 1.2.0 on Google Drive — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view): open the link, click **Request access**; the owner approves by email
+- [1.2.0 release page: SHA256SUMS, release notes and validation](releases/1.2.0/README.md)
+- [User guide with screenshots of every screen](docs/USER_GUIDE.md)
+- [What changed in 1.2.0](CHANGELOG.md)
+- [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md) · [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
+- [Privacy notice](docs/PRIVACY.md) · [Testing](docs/TESTING.md) · [Build, signing and Google Play](docs/GOOGLE_PLAY.md)
+- [▶ Demo video of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
 
-## What works
+## What's new in 1.2.0
 
-| Area | Working interaction |
+| Area | What works |
 |---|---|
-| Home | Dashboard with Ride, Share ride and Food entry points and five persistent navigation tabs |
-| Solo ride | Pickup/destination selection, Go/Comfort fare estimate, confirmation, simulated progress and cancellation |
-| Shared ride | Exact route matching, one/two-seat party selection, capacity validation, reservation and cancellation releasing seats |
-| Food | Three restaurants, nine menu items, quantity controls, one-restaurant basket and delivery address |
-| Checkout | Exact cent-based totals, delivery fee, simulated order and delivery stages |
-| Activity | Completed/cancelled rides and delivered food orders saved across restarts |
-| Profile | In-app privacy notice and deletion/reset of all local demo data |
-| ATLAS intelligence | Surge outlook for any day (Irish public holidays and Cork events, learned hourly demand, and when the agent adds drivers), upcoming events, the learned dispatch weights, courier timing per kitchen, and a sandbox learning lab that retrains a dispatch policy from zero on the phone |
-| Learned dispatch | Solo rides are assigned by the RL policy (v1.4), which ranks four nearby drivers and explains its choice, e.g. leaving the last car in an area about to surge |
-| Learned courier timing | Checkout shows when the courier will be sent so they arrive as the food is ready; the plan is saved with the order |
+| Accounts | Welcome screen with **Create an account**, **Sign in** and **Continue as a guest passenger**. Passwords are stored only as salted PBKDF2-HMAC-SHA256 hashes (200,000 iterations); five wrong passwords lock sign-in for 60 seconds. Email, Irish/international mobile numbers (normalised to E.164) and password strength are validated. **Delete my account** (password confirmation) and **Erase all data** are in You. |
+| Passenger registration | Name, email, mobile and password. History, rides and orders belong to the signed-in passenger. |
+| Driver registration | Vehicle, Irish registration (e.g. `241-C-1234`), SPSV driver licence number, seats and usual starting area. Drivers go online/offline, use their phone location, receive ride requests from ATLAS dispatch, accept or decline, then mark *arrived*, *start trip* and *complete trip*. Trips, fares and acceptance rate are tracked. |
+| Food seller registration | Kitchen name, cuisine, food business registration number, location and preparation time. Sellers add and remove dishes (prices in euro, stored as cents), open or close the kitchen, accept orders and mark food ready for the courier. Orders and sales are tracked. Open kitchens with dishes appear in Food for passengers. |
+| Live map | OpenStreetMap tiles with pan (drag), zoom (+/−, double tap) and an on-device tile cache; a schematic Cork map takes over automatically when offline. Shows pickup places, nearby drivers moving in real time, registered drivers who are online, kitchens, the active ride's car and route, the courier, and **your location** (blue dot with accuracy) after you allow it. |
+| Live journeys | Rides and deliveries now move on their own in a 10× time-lapse: the car drives to the pickup, waits, then drives to the destination; the courier waits for the kitchen, then rides to you. The ride and order screens embed the live map with an ETA. *Skip to next stage* still jumps ahead. |
+| ATLAS intelligence | All six models are wired into the live flows and can be checked on the phone (**How ATLAS learns → Check all models**). Registered drivers compete with the simulated fleet in the dispatch policy, using their real distance to the pickup, a per-driver acceptance model that learns from their accept/decline history, and the surge forecast for the current hour. Courier timing uses each seller's own preparation time. |
 
-The learned constants live in `atlas_go/learned.py` and are regenerated by `python training/export_learned.py` (development only, needs numpy; the `training/` folder is not packaged). All of them come from synthetic simulations and are illustrative.
+### Models in the app
 
-Shared rides are ATLAS carpool bookings: a passenger joins a pre-seeded driver offer on the same route. They do not expose passenger-created public ride listings, dynamic detours or real rider matching. No claim is made about the availability of other companies' services.
+| Model | Method | Used for |
+|---|---|---|
+| Dispatch policy v1.4 | REINFORCE softmax over four driver features, 30,000 simulated rides | Choosing and explaining the driver for every solo ride, including registered drivers |
+| Acceptance model | Beta(9, 1) prior updated with each registered driver's accept/decline history | The *likely to accept* feature for registered drivers |
+| Surge outlook | Hourly demand learned from two simulated years of Cork with Ireland's public holidays | Intelligence screen, home and driver cards, the *area surge* dispatch feature, busy-period notice on fares |
+| Supply agent | Learned extra-driver boost per calendar context and hour | Violet marks on the outlook; *when to drive* advice for drivers |
+| Courier timing | Q-learning table from kitchen slack to dispatch delay (extrapolated beyond the trained range for slow kitchens) | Basket, order and seller screens; saved with each order |
+| Learning lab | On-device REINFORCE retraining from zero (sandbox) | Intelligence screen; never dispatches |
+
+`python training/export_learned.py` (development only, needs numpy) retrains the dispatch and courier policies and the two-year city simulation and rewrites `atlas_go/learned.py`. For 1.2.0 this was re-run and reproduced the bundled file byte for byte. The training data is synthetic; the models are illustrative, not measurements of real riders, drivers or kitchens.
+
+## Try the three roles on one phone
+
+1. **Create an account → Driver.** Choose *UCC Campus* as the starting area, create the account and tap **Go online**. Sign out (You → Sign out); the driver stays online for dispatch.
+2. **Create an account → Food seller.** Register a kitchen, open **Menu** and add a dish. Sign out.
+3. **Create an account → Passenger.** Book a ride from UCC Campus: ATLAS picks your registered driver (nearest, likely to accept). Then order the seller's dish from **Food**. Sign out.
+4. **Sign in as the driver** to accept the request and drive the trip. **Sign in as the seller** to accept the order and mark it ready. **Sign in as the passenger** to follow the courier on the live map until delivery.
+
+## What "production ready" covers
+
+Done in this release: input validation on every form, hashed passwords with lockout, crash-safe atomic storage with validation and quarantine of damaged files, rollback when a write fails, migration of 1.1.0 data, runtime location permission (foreground only), a non-debuggable release build signed with APK Signature Scheme v2/v3, 16 KB native alignment for Android 15+, privacy notice and account deletion, and 117 unit tests plus 247 UI assertions in two screen configurations.
+
+Still needed before carrying real passengers or food — these are business and infrastructure steps, not app code:
+
+- **Operator back end.** Accounts and bookings are per phone. Real matching between different phones needs the ATLAS server (the [`architecture-explorer` starter](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter) has trip, dispatch and model services; food and accounts APIs are proposed in the UML blueprint).
+- **Verification.** SPSV licences, vehicle registrations and food business registrations are format-checked only. A real launch needs NTA licence checks, insurance, and food-business registration with the competent authority.
+- **Payments.** All fares and totals are simulated. A payment provider (PSD2/SCA) is required.
+- **Map tiles.** The default tile server is OpenStreetMap's community server, which suits light use only. A production launch should use a commercial tile provider (`ATLAS_TILE_URL` changes the source).
+- **Store review and physical-device testing.** See [Testing](docs/TESTING.md) and [Google Play](docs/GOOGLE_PLAY.md).
 
 ## Run from source
 
-For desktop preview, install Python 3.12 and the dependencies below. Android packaging uses Buildozer and python-for-android on Linux/WSL. There are no Java application source files; Android SDK/JDK tooling is used by the packaging tools.
+Desktop preview needs Python 3.12+; Android packaging uses Buildozer and python-for-android on Linux/WSL.
 
 ```bash
 cd android-app
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest tests
-python main.py
-# Android package on Linux, after installing build prerequisites:
+python -m pytest tests                       # 117 tests
+python main.py                               # desktop preview
+ATLAS_FAKE_GPS=51.8990,-8.4700 python main.py  # preview with a simulated location
+# Android packages (Linux, after installing build prerequisites):
 buildozer android debug
 buildozer android release
 ```
 
-Windows: desktop preview runs directly with Python; Android packaging uses WSL2. See [the packaging guide](docs/GOOGLE_PLAY.md). The workflow pins Buildozer and python-for-android source revisions, API 36 and NDK 28c. Build dependencies require an internet connection; installed demo flows do not.
-
-Version 1.1.0 (versionCode 2): [installable APK](https://drive.google.com/file/d/1Opq40u1TQt3Dhx28sE6ninG84Q91PRzL/view) and [all 1.1.0 downloads](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV), including the unsigned AAB to sign before a Play upload. The earlier [signed 1.0.0 `atlas-go-play.aab`](https://drive.google.com/file/d/1-R9rmDFDw9I-X9T3qE15qdI3P5SlU_s2/view) (without ATLAS intelligence) remains available. Downloads of the app files are by request: open a link, click **Request access** in Google Drive, and the owner is notified by email; once approved, you download with your own Google account. See [the signed-bundle record](releases/SIGNED_VALIDATION.json) for the exact SHA-256 and upload certificate. The unsigned AAB remains available on request for reproducible builds; anyone can also build it from this source. The existing private upload key is retained privately for future updates.
+Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android.yml): unit tests, two desktop UI acceptance runs, Buildozer APK/AAB builds, bundle validation and the Android 16 emulator click-through with screenshots. When the upload-key secrets are configured, the release workflow signs the AAB with the owner's upload key.
 
 ## Validation
 
-The GitHub workflow runs Python domain tests, desktop UI acceptance, APK/AAB builds and actual UI interactions on an Android 16 emulator. It captures fourteen screenshots from the Python app and rejects test failures or fatal crash logs. Release evidence and SHA-256 checksums accompany the binaries. No live service, payment, real location or ML accuracy is tested by this workflow.
+| Check | Result (1.2.0) |
+|---|---|
+| Python unit tests | 117 passed |
+| Desktop UI acceptance, 440 × 940 | 247 assertions, 22 screenshots |
+| Desktop UI acceptance, 360 × 780 at font scale 1.2 | 247 assertions, 22 screenshots |
+| Model retraining | `export_learned.py` reproduces `learned.py` byte for byte |
+| Packaged bytecode | The APK's compiled modules run on CPython 3.14 (domain, accounts, store, geo, all six models) |
+| Release bundle | bundletool validation, manifest check (version 1.2.0 / code 3, not debuggable, backup off, foreground-only permissions), 232 native libraries aligned to 16 KB |
+| APK signature | APK Signature Scheme v2 and v3 verified |
 
-This is an educational model suitable for an explicitly labelled demo/test distribution. Store acceptance and any later public service launch require the account owner's Console declarations, testing requirements, rights review and service integrations.
+The Android 16 emulator run happens in GitHub Actions after the code is pushed; it was not available in the environment that produced this release. Details: [releases/1.2.0/VALIDATION.md](releases/1.2.0/VALIDATION.md).

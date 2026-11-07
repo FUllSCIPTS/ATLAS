@@ -5,9 +5,9 @@ package.domain = org.atlas
 source.dir = .
 source.include_exts = py,png,kv,ttf,json
 source.exclude_dirs = tests,docs,releases,scripts,training,.venv,local-data,local-data-narrow,test-output
-version = 1.1.0
-android.numeric_version = 2
-requirements = python3,kivy==2.3.1
+version = 1.2.0
+android.numeric_version = 3
+requirements = python3,kivy==2.3.1,requests,certifi
 orientation = portrait
 fullscreen = 0
 icon.filename = assets/icon.png
@@ -22,7 +22,7 @@ android.accept_sdk_license = True
 android.allow_backup = False
 android.release_artifact = aab
 android.debug_artifact = apk
-android.permissions =
+android.permissions = INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION
 p4a.branch = develop
 p4a.commit = 1c9a4b4f817847bd8505d972d1a0e6f965929a88
 [buildozer]
