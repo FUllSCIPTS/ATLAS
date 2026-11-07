@@ -34,6 +34,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 6) [🔐 Information security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md)
 
+7) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md)
+
 ## Information security in ATLAS (teaching guide)
 
 ATLAS doubles as a worked example for teaching information security. The full guide is
@@ -65,6 +67,28 @@ python3 security_lab/password_storage_demo.py   # real accounts.py: salts, cost 
 Known gaps (lockout kept in memory only, no MFA, `state.json` not encrypted at rest, default demo
 keys, a static internal token over plain HTTP) are listed as student exercises in
 [§11 of the guide](docs/INFORMATION_SECURITY.md#11-known-gaps--exercises-for-students).
+
+## Cryptography in ATLAS (teaching guide)
+
+Where ATLAS uses hash functions, checksums, public-key infrastructure, digital signatures and — as a
+teaching extension — post-quantum cryptography. Full guide:
+**[docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md)**; live labs:
+**[Explorer → Cryptography](https://fullscipts.github.io/ATLAS/#crypto)**.
+
+| Topic | Status | How ATLAS uses it | Where |
+|---|---|---|---|
+| **Hash (SHA-256)** | ✅ | `SHA256SUMS` for every release; CI pins `bundletool.jar` to a committed SHA-256; signing records hash the exact signed bundle; the UML blueprint hashes every source file | `android-app/releases/`, `.github/workflows/atlas-android.yml`, `SIGNED_VALIDATION.json`, `starter/scripts/generate_blueprint.py` |
+| **Checksum vs hash** | ✅ | The prototype compares a cheap state checksum `(count, total, len(seen))` after recovery (crash class C3): detects lost updates, **not** tampering — a deliberate contrast with SHA-256 | `prototype/module_server.py`, `run_recovery_mc.py` |
+| **PKI — private CA** | ✅ | Prototype builds its own CA: RSA-2048 root (`CA:TRUE`), server cert (`serverAuth`, SAN 127.0.0.1) and client cert (`clientAuth`), 30-day lifetime, **mutual TLS** with `CERT_REQUIRED` | `prototype/proto_run.py` |
+| **PKI — Web PKI** | ✅ | Map tiles over HTTPS, verified against public CAs from `certifi` | `android-app/atlas_go/livemap.py` |
+| **Certificate + pinning** | ✅ | Self-signed **RSA-4096** upload certificate (sha384WithRSA, valid to 2059); CI recomputes its SHA-256 fingerprint and fails unless it equals the pinned `059076…44d7` | `releases/upload-certificate.pem`, `scripts/ci-sign-bundle.py` |
+| **Digital signatures** | ✅ | Play bundle signed with **SHA256withRSA** (`jarsigner`), then verified; installable APK signed with **APK Signature Scheme v2/v3**; private key only in a PKCS#12 keystore or encrypted Actions secret | `scripts/sign-release.py`, `releases/1.2.0/` |
+| **Post-quantum (PQC)** | 🎓 | Not in ATLAS. Shor breaks the RSA keys and TLS key exchange; SHA-256, HMAC and PBKDF2 survive. The guide maps ML-KEM (FIPS 203), ML-DSA (FIPS 204) and SLH-DSA (FIPS 205) onto ATLAS; the explorer runs a hash-based **Lamport** signature live | `docs/CRYPTOGRAPHY.md` §6 |
+
+```bash
+python3 security_lab/crypto_lab.py                              # hashes, checksum collision, cert pin, RSA, Lamport
+python3 security_lab/crypto_lab.py --verify atlas-go-1.2.0.apk  # check a download against SHA256SUMS
+```
 
 ## ATLAS Go Android app
 
@@ -128,6 +152,8 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `run_all.sh` | Runs everything in order |
 | `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment |
 | `security_lab/password_storage_demo.py` | Command-line lab that exercises the app's real password hashing and login lockout |
+| `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
+| `security_lab/crypto_lab.py` | Command-line lab: SHA-256, checksum collision, certificate pin, toy RSA signature, Lamport post-quantum signature |
 
 ## Experiment → script → result file
 
