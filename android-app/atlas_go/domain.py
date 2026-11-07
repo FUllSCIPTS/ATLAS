@@ -65,8 +65,57 @@ class Offer:
         self.seats = min(self.capacity, self.seats + party)
 
 
+@dataclass(frozen=True)
+class Kitchen:
+    id: int
+    name: str
+    cuisine: str
+    place: int
+    prep: int                 # kitchen's own preparation estimate, minutes
+    owner: str | None = None  # seller account id; None for the built-in demo kitchens
+    open: bool = True
+
+
+BUILT_IN_KITCHENS = (
+    Kitchen(0, RESTAURANTS[0], 'Fresh bowls & wraps', 1, 12),
+    Kitchen(1, RESTAURANTS[1], 'Stone-baked pizza', 1, 15),
+    Kitchen(2, RESTAURANTS[2], 'Indian comfort food', 0, 18),
+)
+
+
+class Catalog:
+    """Built-in kitchens plus kitchens registered by food sellers on this device."""
+
+    def __init__(self, kitchens: list | None = None):
+        self.kitchens = {k.id: k for k in BUILT_IN_KITCHENS}
+        self.dishes = dict(DISHES)
+        self.archived = set()
+        for data in kitchens or []:
+            kitchen = Kitchen(int(data['id']), data['name'], data['cuisine'], int(data['place']),
+                              int(data['prep']), data['owner'], bool(data.get('open', True)))
+            self.kitchens[kitchen.id] = kitchen
+            for dish in data.get('dishes', []):
+                self.dishes[dish['id']] = Dish(dish['id'], dish['name'], dish['detail'], kitchen.id, int(dish['price']))
+                if dish.get('archived'):
+                    self.archived.add(dish['id'])
+
+    def name(self, kitchen: int) -> str:
+        return self.kitchens[kitchen].name if kitchen in self.kitchens else 'Closed kitchen'
+
+    def menu(self, kitchen: int) -> list:
+        return [d for d in self.dishes.values() if d.restaurant == kitchen and d.id not in self.archived]
+
+    def listed(self) -> list:
+        """Kitchens a passenger can order from: open and with at least one dish."""
+        return [k for k in self.kitchens.values() if k.open and self.menu(k.id)]
+
+
+DEFAULT_CATALOG = Catalog()
+
+
 class Cart:
-    def __init__(self, items: dict | None = None):
+    def __init__(self, items: dict | None = None, catalog: Catalog | None = None):
+        self.catalog = catalog or DEFAULT_CATALOG
         self.items = {}
         for item, quantity in (items or {}).items():
             if not isinstance(quantity, int) or not 1 <= quantity <= 10:
@@ -76,12 +125,12 @@ class Cart:
 
     @property
     def restaurant(self) -> int | None:
-        return DISHES[next(iter(self.items))].restaurant if self.items else None
+        return self.catalog.dishes[next(iter(self.items))].restaurant if self.items else None
 
     def add(self, item: str) -> None:
-        if item not in DISHES:
+        if item not in self.catalog.dishes:
             raise ValueError('Unknown menu item.')
-        if self.restaurant is not None and DISHES[item].restaurant != self.restaurant:
+        if self.restaurant is not None and self.catalog.dishes[item].restaurant != self.restaurant:
             raise ValueError('Clear the basket before choosing a different restaurant.')
         quantity = self.items.get(item, 0)
         if quantity >= 10:
@@ -98,7 +147,7 @@ class Cart:
         return sum(self.items.values())
 
     def subtotal(self) -> int:
-        return sum(DISHES[item].price * qty for item, qty in self.items.items())
+        return sum(self.catalog.dishes[item].price * qty for item, qty in self.items.items())
 
     def total(self) -> int:
         return self.subtotal() + (250 if self.items else 0)

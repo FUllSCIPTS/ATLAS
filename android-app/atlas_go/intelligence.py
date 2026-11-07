@@ -240,6 +240,7 @@ class Candidate:
     accept: float     # predicted probability of accepting the offer (discrete model)
     surge: float      # forecast surge in the driver's current zone, next 10 minutes (0-1)
     last: bool        # last free driver in that zone
+    account: str = '' # registered driver account on this device ('' for simulated drivers)
 
     def features(self) -> list[float]:
         return [-self.eta / 5.0, self.accept, -(self.surge * self.last), -self.surge]
@@ -262,9 +263,10 @@ def score(c: Candidate, weights=L.RIDE_WEIGHTS) -> float:
     return sum(w * f for w, f in zip(weights, c.features()))
 
 
-def rank(pickup: int, weights=L.RIDE_WEIGHTS) -> list[tuple[Candidate, float]]:
-    """Candidates with their policy probability, best first. Dispatch takes the top one."""
-    pool = DRIVER_POOLS[pickup]
+def rank(pickup: int, weights=L.RIDE_WEIGHTS, extra=(), exclude=()) -> list[tuple[Candidate, float]]:
+    """Candidates with their policy probability, best first. Dispatch takes the top one.
+    extra: registered drivers online on this device; exclude: account ids that declined."""
+    pool = [c for c in (*DRIVER_POOLS[pickup], *extra) if not (c.account and c.account in exclude)]
     scores = [score(c, weights) for c in pool]
     top = max(scores)
     exps = [math.exp(s - top) for s in scores]
@@ -272,11 +274,33 @@ def rank(pickup: int, weights=L.RIDE_WEIGHTS) -> list[tuple[Candidate, float]]:
     return sorted(((c, e / total) for c, e in zip(pool, exps)), key=lambda x: -x[1])
 
 
-def choose(pickup: int) -> tuple[Candidate, str]:
-    ranked = rank(pickup)
+def choose(pickup: int, extra=(), exclude=()) -> tuple[Candidate, str]:
+    ranked = rank(pickup, extra=extra, exclude=exclude)
     chosen = ranked[0][0]
-    nearest = min(DRIVER_POOLS[pickup], key=lambda c: c.eta)
+    nearest = min((c for c, _ in ranked), key=lambda c: (c.eta, -c.accept))
     return chosen, explain(chosen, nearest)
+
+
+# --------------------------------------------------------------------------- live features
+
+def surge_level(day: dt.date, hour: int) -> float:
+    """Forecast surge for an hour as 0-1: 0 at ordinary demand, 1 at 2.5x ordinary or more."""
+    h = outlook(day)[hour % 24]
+    return max(0.0, min(1.0, (h.ratio - 1.0) / 1.5))
+
+
+def acceptance(offered: int, accepted: int) -> float:
+    """Discrete acceptance model for a registered driver: Beta(9, 1) prior updated with their own
+    accept/decline history on this device (posterior mean)."""
+    return (accepted + 9.0) / (offered + 10.0)
+
+
+def registered_candidate(account: dict, position, pickup_point, surge: float, last: bool) -> Candidate:
+    from . import geo
+    d = account['driver']
+    return Candidate(account['name'].split()[0], 'Registered · ' + d['vehicle'], geo.eta_minutes(position, pickup_point),
+                     round(acceptance(d.get('offered', 0), d.get('accepted', 0)), 3), round(surge, 3), last,
+                     account['id'])
 
 
 def explain(chosen: Candidate, nearest: Candidate, weights=L.RIDE_WEIGHTS) -> str:
@@ -309,10 +333,14 @@ PREP_MINUTES = (12, 15, 18)   # kitchen estimates per restaurant (illustrative)
 COURIER_TRAVEL = 4            # minutes from the courier to the kitchen
 
 
-def courier_plan(restaurant: int) -> dict:
-    prep = PREP_MINUTES[restaurant]
-    slack = max(min(L.COURIER_DELAY), min(max(L.COURIER_DELAY), round(prep - COURIER_TRAVEL)))
-    wait = L.COURIER_DELAY[slack]
+def courier_plan(restaurant: int, prep: int | None = None) -> dict:
+    """Learned courier timing. Built-in kitchens use their estimate; seller kitchens pass their own."""
+    prep = PREP_MINUTES[restaurant] if prep is None else int(prep)
+    raw = round(prep - COURIER_TRAVEL)
+    top = max(L.COURIER_DELAY)
+    slack = max(min(L.COURIER_DELAY), min(top, raw))
+    # Beyond the trained range (slow seller kitchens) keep the margin the table learned at its edge.
+    wait = L.COURIER_DELAY[slack] + max(0, raw - top)
     arrive = wait + COURIER_TRAVEL
     return dict(prep=prep, travel=COURIER_TRAVEL, dispatch_after=wait, arrive=arrive,
                 courier_wait=max(0, prep - arrive), naive_wait=max(0, prep - COURIER_TRAVEL))
@@ -414,3 +442,67 @@ class LearningLab:
         return dict(episodes=self.episodes, candidate=self._eval_policy(self.w, greedy=True),
                     behaviour=self.curve[-1][1], nearest=self.nearest, approved=self.approved,
                     weights=[round(x, 2) for x in self.w])
+
+
+# --------------------------------------------------------------------------- model self-check
+
+MODELS = (
+    ('Dispatch policy ' + L.POLICY_VERSION, 'REINFORCE softmax over 4 driver features'),
+    ('Acceptance model', 'Beta-Bernoulli posterior per registered driver'),
+    ('Surge outlook', 'Hourly demand learned from two simulated years'),
+    ('Supply agent', 'Extra drivers per calendar context and hour'),
+    ('Courier timing', 'Q-learning table: kitchen slack to dispatch delay'),
+    ('Learning lab', 'On-device REINFORCE retraining (sandbox)'),
+)
+
+
+def self_test(today: dt.date | None = None, lab_episodes: int = 3000) -> list[tuple[str, bool, str]]:
+    """Run every bundled model on known inputs and report whether its output is sane.
+    Used by the Intelligence screen ("Check models") and the unit tests."""
+    today = today or dt.date.today()
+    results = []
+
+    def run(name, fn):
+        try:
+            ok, detail = fn()
+        except Exception as error:  # report, never crash the screen
+            ok, detail = False, f'{type(error).__name__}: {error}'
+        results.append((name, bool(ok), detail))
+
+    def dispatch():
+        probs = [p for _, p in rank(0)]
+        chosen, why = choose(0)
+        return (abs(sum(probs) - 1) < 1e-9 and chosen.name == 'Morgan' and 'Mardyke' in why,
+                f'UCC pickup: {chosen.name} chosen with p={probs[0]:.2f}; protects the last car at Mardyke')
+
+    def accept_model():
+        fresh, keen, picky = acceptance(0, 0), acceptance(10, 10), acceptance(10, 2)
+        return (fresh == .9 and keen > fresh > picky, f'new {fresh:.2f} · accepts all {keen:.2f} · declines most {picky:.2f}')
+
+    def surge():
+        paddy = day_summary(dt.date(today.year, 3, 17))
+        ordinary = outlook(dt.date(2026, 11, 4))
+        return (paddy['surge'] and not any(h.surge for h in ordinary) and len(paddy['hours']) == 24,
+                "St Patrick's Day surges; an ordinary Wednesday does not")
+
+    def supply():
+        boosted = sum(h.boost > 0 for h in outlook(dt.date(today.year, 3, 17)))
+        return boosted > 0, f"Adds drivers in {boosted} hours on St Patrick's Day"
+
+    def courier():
+        plans = [courier_plan(i) for i in range(3)] + [courier_plan(0, prep=30)]
+        ok = all(p['courier_wait'] <= p['naive_wait'] and p['dispatch_after'] >= 0 for p in plans)
+        return ok and plans[0]['dispatch_after'] == 7, (
+            f"Waits {plans[0]['dispatch_after']}, {plans[1]['dispatch_after']}, {plans[2]['dispatch_after']} min; "
+            f"30-min kitchen waits {plans[3]['dispatch_after']} min")
+
+    def lab():
+        sandbox = LearningLab(test_size=120)
+        before = sandbox._eval_policy(sandbox.w, greedy=True)
+        sandbox.train(lab_episodes)
+        after = sandbox.result()['candidate']
+        return after < before, f'{lab_episodes:,} rides: waiting cost {before:.1f} -> {after:.1f} min'
+
+    for (name, _), fn in zip(MODELS, (dispatch, accept_model, surge, supply, courier, lab)):
+        run(name, fn)
+    return results
