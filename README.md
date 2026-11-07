@@ -32,6 +32,40 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
+6) [🔐 Information security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md)
+
+## Information security in ATLAS (teaching guide)
+
+ATLAS doubles as a worked example for teaching information security. The full guide is
+**[docs/INFORMATION_SECURITY.md](docs/INFORMATION_SECURITY.md)**; the
+**[Explorer's Security view](https://fullscipts.github.io/ATLAS/#security)** runs the same material
+live in the browser. Each topic is tagged ✅ **implemented** (in the code today),
+🧪 **demo-grade** (implemented with deliberately simple choices — good "find the weakness"
+exercises), or 🎓 **teaching extension** (a standard protocol mapped onto ATLAS components; **not**
+in the ATLAS code).
+
+| Topic | Status | How ATLAS does it | Where |
+|---|---|---|---|
+| **How user passwords are stored** | ✅ | Never stored. Each account keeps a random 16-byte salt and a **PBKDF2-HMAC-SHA256** hash with **200 000 iterations**; verification recomputes and compares with `hmac.compare_digest` (constant time). `public_view` strips salt and hash before anything reaches the screen | `android-app/atlas_go/accounts.py` |
+| **Authentication** | ✅ | Email + password; **5 failed attempts → 60 s lockout**; the same error for unknown email and wrong password (no user enumeration); session = account id, validated on every load | `android-app/atlas_go/store.py` → `login` |
+| **Identity management** | ✅ | Register (validated email, E.164 phone, role-specific licence/plate/business checks) → sign in → sign out → **delete with re-authentication**, which anonymises history | `accounts.py`, `store.py`, `android-app/docs/PRIVACY.md` |
+| **Authorisation (RBAC)** | ✅ | Three roles — passenger, driver, food seller — enforced twice: screen allow-list in `app.py` and role checks in every `store.py` command | `app.py` → `render`, `store.py` |
+| **Gateway authentication** | 🧪 | Server starter: `Authorization: Bearer` key → constant-time match → route allow-list (method, role, regex) → gateway asserts `X-Atlas-Actor` + internal token → each service re-checks with `internal_actor()` | `starter/services/gateway.py`, `starter/packages/config.py` |
+| **Single sign-on (SSO)** | 🎓 | OpenID Connect (authorisation code + PKCE) with one ATLAS identity provider for the passenger app, driver app, seller portal and explorer; the gateway would validate signed JWTs instead of static keys | Guide §7 |
+| **Kerberos** | 🎓 | The six messages (AS-REQ/REP, TGS-REQ/REP, AP-REQ/REP) mapped onto ATLAS: driver app = client, *ATLAS Identity* = KDC, Dispatch Service = service. **Runs live** in the explorer with AES-GCM, with replay, clock-skew, tampering and expiry attacks | Guide §8, [Explorer → Kerberos](https://fullscipts.github.io/ATLAS/#security-kerberos) |
+| **Transport security** | ✅ | Prototype: **mutual TLS** with a private CA, `serverAuth`/`clientAuth` key usages, `CERT_REQUIRED`, 30-day certificates generated at run time | `prototype/proto_run.py`, `prototype/module_server.py` |
+| **Secure deployment** | ✅ | Explorer server: loopback only + SSH tunnel, GET/HEAD only, strict CSP and security headers, systemd sandbox (`DynamicUser`, `ProtectSystem=strict`); signed APKs with `SHA256SUMS` | `architecture-explorer/server.mjs`, `deploy/atlas-explorer.service`, `android-app/releases/` |
+
+**Try it**
+
+```bash
+python3 security_lab/password_storage_demo.py   # real accounts.py: salts, cost per guess, dictionary attack, lockout
+```
+
+Known gaps (lockout kept in memory only, no MFA, `state.json` not encrypted at rest, default demo
+keys, a static internal token over plain HTTP) are listed as student exercises in
+[§11 of the guide](docs/INFORMATION_SECURITY.md#11-known-gaps--exercises-for-students).
+
 ## ATLAS Go Android app
 
 **Version 1.2.0** — a Python/Kivy Android app for Cork with **passenger, driver and food-seller registration**, a **live map** (OpenStreetMap tiles, device location, moving drivers and couriers, offline fallback), solo and shared rides, food ordering from built-in and seller kitchens, and **six on-device ML models** wired into the live flows (dispatch policy, per-driver acceptance model, surge outlook, supply agent, courier timing, learning lab). Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated until an operator back end is connected.
@@ -92,6 +126,8 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `results/` | Raw result files (JSON/NPZ) and trained model weights used in the paper |
 | `figures/` | Figures as they appear in the paper |
 | `run_all.sh` | Runs everything in order |
+| `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment |
+| `security_lab/password_storage_demo.py` | Command-line lab that exercises the app's real password hashing and login lockout |
 
 ## Experiment → script → result file
 
