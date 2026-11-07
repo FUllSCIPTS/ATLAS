@@ -28,36 +28,26 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [Final handover and acceptance checks](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md) · [UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
-4) [ATLAS Go Python Android app — rides, shared rides and food](android-app/README.md) · [**Download ATLAS Go 1.2.0 APK — request access**](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
+4) [ATLAS Go 1.2.0 Python Android app — passenger, driver and food-seller accounts, live map, rides, shared rides and food](android-app/README.md) · [**Download ATLAS Go 1.2.0 APK — request access**](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
 
 5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
-## ATLAS Go Android app 
+## ATLAS Go Android app
 
-**New: [ATLAS Go 1.2.0 — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view)** adds passenger, driver and food-seller registration, a live map and live on-device ML models.
-
-A Python/Kivy passenger-app model with solo ride booking, shared-seat reservations,
-food menus, basket/checkout, simulated tracking, activity history and local data
-reset. It works offline; all rides, restaurants, deliveries and payments are
-simulated. Application code and tests are in Python.
+**Version 1.2.0** — a Python/Kivy Android app for Cork with **passenger, driver and food-seller registration**, a **live map** (OpenStreetMap tiles, device location, moving drivers and couriers, offline fallback), solo and shared rides, food ordering from built-in and seller kitchens, and **six on-device ML models** wired into the live flows (dispatch policy, per-driver acceptance model, surge outlook, supply agent, courier timing, learning lab). Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated until an operator back end is connected.
 
 | Open or download | Contents |
 |---|---|
 | [Installable Android APK 1.2.0 — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) | **New version 1.2.0:** passenger, driver and food-seller registration, live map (OpenStreetMap, your location, moving drivers and couriers), and six on-device ML models in the live flows. Open the link, click **Request access**; once approved, download with your Google account. Uninstall 1.1.0 first (new signing key). SHA-256 `737c41ec935e4a87d849a04b1434fbe66fa47bdcb9420387e2a94f58400813cb` |
-| [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s. Act I: book a ride, driver receives the pickup location, order food, courier collects at the shop and delivers home (simulated). Act II — The Learner: an RL agent learns from delayed rewards which driver to offer a ride to and when to dispatch a food courier (toy simulation). Act III — The City's Calendar: two years of synthetic Cork demand over Ireland's real 2025–2026 public holidays; the agent pre-positions drivers, and its log of unserved requests helps the LSTM forecast surges 3–6 hours ahead (toy simulation). Act IV: as demand rises to ≈14,000 req/s and falls back, the ATLAS controller moves the six services from Tight (monolith) to Hybrid to Loose (microservices) and, after a 300 s hysteresis dwell, back to Tight — driven by `atlas_sim` on a synthetic surge |
+| [ATLAS Go 1.2.0 downloads](android-app/releases/1.2.0/README.md) | APK link (request access), `SHA256SUMS`, release notes, validation evidence and screenshots |
+| [Changelog](android-app/CHANGELOG.md) | 1.2.0 changes and compatibility |
+| [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s, recorded with 1.1.0: rides, food, how the RL agent learns, two years of Cork's calendar, and ATLAS rewiring itself as load changes |
 
-| Home | Shared rides | Food | How ATLAS learns |
+| Welcome | Live map | Driver request | Seller kitchen |
 |---|---|---|---|
-| <img src="android-app/docs/screenshots/01-home.png" alt="ATLAS Go home screen" width="200"> | <img src="android-app/docs/screenshots/04-shared-rides.png" alt="Shared ride reservations" width="200"> | <img src="android-app/docs/screenshots/06-food-home.png" alt="Restaurant selection" width="200"> | <img src="android-app/docs/screenshots/13-intelligence.png" alt="Surge outlook and learned policies" width="200"> |
+| <img src="android-app/docs/screenshots/01-welcome.png" alt="Welcome screen with account options" width="200"> | <img src="android-app/docs/screenshots/10-live-map.png" alt="Live map of Cork" width="200"> | <img src="android-app/docs/screenshots/21-driver-request.png" alt="Driver receiving a ride request" width="200"> | <img src="android-app/docs/screenshots/22-seller-order.png" alt="Food seller handling an order" width="200"> |
 
-**Verified (1.1.0):** 68 Python regression cases, 102 desktop UI assertions in each of two
-screen configurations, and 131 Android 16 UI assertions passed, with fourteen screenshots
-([evidence](android-app/releases/VALIDATION.md)). The 1.1.0 AAB is unsigned: sign it with your
-private upload key before a Play upload. The signed 1.0.0 bundle's signature and structure were
-validated earlier; the private upload key remains private.
-
-The signed AAB is prepared for an internal-test upload. Google Play account
-declarations, any required testing and store review remain owner steps.
+**Verified (1.2.0):** 117 Python tests; 247 UI assertions in each of two screen configurations with 22 screenshots; model retraining reproduces the bundled models byte for byte; bundle validation, release manifest, 16 KB native alignment and APK v2/v3 signature checks pass ([evidence](android-app/releases/1.2.0/VALIDATION.md)). The Android 16 emulator run executes in GitHub Actions on push.
 
 ## Quick start
 
