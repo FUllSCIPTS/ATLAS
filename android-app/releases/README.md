@@ -1,5 +1,7 @@
 # Android downloads
 
+**Current version: [ATLAS Go 1.2.0](1.2.0/README.md)** — [installable APK on Google Drive (request access)](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view); — installable APK, unsigned AAB, SHA256SUMS, release notes and validation are in [`releases/1.2.0/`](1.2.0/). The table below covers the earlier 1.1.0 and 1.0.0 releases.
+
 Source, tests and documentation are stored in `android-app/`. The app files (APK and AABs) are shared from a [restricted Google Drive folder](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV). Downloads of the app files are by request: open a link, click **Request access** in Google Drive, and the owner is notified by email; once approved, you download with your own Google account. Release notes, checksums and test evidence stay public on the repository's releases: [ATLAS Go 1.1.0](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.1.0) and [ATLAS Go 1.0.0](https://github.com/FUllSCIPTS/ATLAS/releases/tag/atlas-go-v1.0.0).
 
 | Download | Purpose |
@@ -18,7 +20,7 @@ The signed bundle's signature and bundle structure were verified, and all 70 app
 
 The owner retains a separate private upload-key backup containing the keystore and its credentials. The signed AAB and public certificate do not expose that private key. Keep the key for signing future updates; the unsigned variant needs a signature before upload. See [the signing instructions](../docs/GOOGLE_PLAY.md).
 
-Current version 1.1.0 / versionCode 2 (the signed bundle above is 1.0.0 / versionCode 1). Application ID `org.atlas.mobility`. 64-bit Android 8.0+ / target Android 16. The AAB is for Play Console → Internal testing; it cannot be installed by tapping it. All rides, deliveries and payments are simulated. If the application ID is already taken, change it and rebuild before first publication.
+Version 1.1.0 / versionCode 2 (the signed bundle above is 1.0.0 / versionCode 1). Application ID `org.atlas.mobility`. 64-bit Android 8.0+ / target Android 16. The AAB is for Play Console → Internal testing; it cannot be installed by tapping it. All rides, deliveries and payments are simulated. If the application ID is already taken, change it and rebuild before first publication.
 
 The lightweight [verification workflow](../../.github/workflows/publish-signed-android.yml) restores this exact signed file from the tested unsigned build and public ZIP/signature metadata. It checks the input and output hashes and verifies the JAR signature and certificate, and publishes only the signing record and public certificate; the signed AAB itself is shared on request. It cannot sign a changed build and uses no private upload key. [SIGNED_ZIP_RECIPE.json](SIGNED_ZIP_RECIPE.json) contains public archive metadata and signature bytes only.
 
