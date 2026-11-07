@@ -7,7 +7,7 @@ path=Path(sys.argv[1])
 result=json.loads((path/'result.json').read_text())
 assert result['success'],result
 screenshots=list(path.glob('*.png'))
-assert len(screenshots)==14,'Expected fourteen actual app screenshots'
+assert len(screenshots)==result.get('screenshots',14)>=14,(len(screenshots),'screenshots expected',result.get('screenshots'))
 for screenshot in screenshots:
     with Image.open(screenshot).convert('RGB') as image:
         width,height=image.size

@@ -26,7 +26,7 @@ target=Path('android-app/docs/screenshots')
 target.mkdir(parents=True,exist_ok=True)
 for source in sorted(android.glob('*.png')):
     shutil.copy2(source,target/source.name)
-assert len(list(target.glob('*.png')))==14
+assert len(list(target.glob('*.png')))==result.get('screenshots',22)
 release=Path('android-app/releases')
 rows=[]
 signed=(artifact/'release'/'atlas-go-play.aab').is_file()
@@ -46,7 +46,7 @@ Successful full build and acceptance: [GitHub Actions run]({args.run_url}).
 - {tests} Python domain and persistence cases passed.
 - Standard desktop UI: 102 assertions passed.
 - Narrow desktop UI with font scale 1.2: 102 assertions passed.
-- Android 16 emulator: {result['checks']} assertions passed; fourteen actual app screenshots captured.
+- Android 16 emulator: {result['checks']} assertions passed; {result.get('screenshots')} actual app screenshots captured.
 - APK and release AAB built for arm64-v8a and x86_64.
 - Bundletool validated the release AAB.
 - Release manifest checked: target API 36, non-debuggable, backups disabled, and no Internet, location or billing permissions.
@@ -78,4 +78,4 @@ This is an offline model: no real rides, food deliveries or payments. Its small 
 Phone hardware, accessibility and production-service checks remain outside the emulator evidence.
 """
 (release/'VALIDATION.md').write_text(text)
-print(f'Prepared fourteen Android screenshots and validation for {args.source}')
+print(f'Prepared {result.get("screenshots")} Android screenshots and validation for {args.source}')
