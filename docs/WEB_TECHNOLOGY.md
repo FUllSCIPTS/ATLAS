@@ -1,10 +1,230 @@
 # Web Technology: HTML, CSS, JavaScript, Database, Backend and API Integration
 
-**ATLAS option 11 — Standalone concept + practical laboratory textbook.** This is a self-contained beginner-to-intermediate course, with 18 explained lessons, diagrams, a working browser demonstration, 12 Colab-ready experiments, database queries and integration tests.
+**ATLAS option 11 — Standalone concept + practical laboratory textbook.** This is a self-contained beginner-to-intermediate course, with 12 foundation lessons and 18 application-focused lessons, diagrams, a working browser demonstration, 12 Colab-ready experiments, database queries and integration tests.
 
 **Start:** [Full-stack lab manual](../web_lab/README.md) · [Open Colab experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [Web lab source](../web_lab/) · [ATLAS UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md) · [ATLAS Go Android method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
 
 > **Architecture distinction:** ATLAS Go 1.2.0 is a Python/Kivy Android app with on-device JSON storage; it does not currently use a live multi-device backend. The HTML, CSS, JavaScript, FastAPI and SQL reference implementation lives on the separate architecture-explorer branch. The new web_lab teaching app is an independent, local simulation with no authentication or real booking capability.
+
+## Part I — Beginner foundations: start here before practical development
+
+**No prerequisites.** This course now starts from the meaning of the Internet and a webpage before introducing HTML, CSS, JavaScript, databases and Python APIs. Complete B01–B12 in order, then continue to the existing application-oriented lessons 01–18 and labs W01–W12. The examples use fabricated data.
+
+### Roadmap
+
+~~~mermaid
+flowchart LR
+ A[Internet and Web] --> B[HTML]
+ B --> C[CSS]
+ C --> D[JavaScript]
+ D --> E[HTTP and JSON]
+ E --> F[FastAPI]
+ F --> G[(SQL database)]
+~~~
+
+### B01. Internet, Web, browser and server
+
+**Explanation:** The Internet connects computers using network protocols. The World Wide Web is one service on it. A browser is a client that requests pages from a web server. Analogy: the Internet is the road network; a website is a shop reachable by the roads.
+
+**Try it yourself:** Draw a browser requesting an HTML page from a server; explain why email is not the Web.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/README.md) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B02. URL, DNS, HTTPS and ports
+
+**Explanation:** A URL contains a scheme, hostname, optional port, path and query parameters. In https://example.org:443/rides?status=open, HTTPS is the scheme, example.org the host, 443 the port, /rides the path, and status=open the query. DNS resolves hostnames; HTTPS protects traffic using TLS.
+
+**Try it yourself:** Use browser Developer Tools → Network to identify the document request, response code and content type.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/services/gateway.py) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B03. Source files and first webpage
+
+**Explanation:** HTML is structure, CSS is appearance and JavaScript is behavior. A text editor such as VS Code edits source; a browser renders it. Put index.html, style.css and app.js in one folder and link the other two from the HTML head.
+
+**Try it yourself:** Make a webpage displaying Hello ATLAS; change its color and then update a paragraph using JavaScript.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/passenger/index.html) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B04. HTML tags and attributes
+
+**Explanation:** An HTML element commonly has an opening tag, content and closing tag. Semantic main, section, header, nav, h1, h2, p and footer describe meaning. An attribute such as href, src, alt, id or class adds information. Correct nesting and label associations help accessibility.
+
+**Try it yourself:** Create headings, a paragraph, an unordered list, an image with alt text and a link.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/passenger/index.html) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B05. CSS declarations and selectors
+
+**Explanation:** A CSS rule uses selector { property: value; }. Tag selectors target elements, .class targets a class, and #id targets an ID. The box model is content, padding, border and margin. The cascade and specificity determine which competing styles apply.
+
+**Try it yourself:** Compare padding versus margin and inspect computed CSS using Developer Tools.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/shared/demo.css) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B06. Flexbox, CSS Grid and responsiveness
+
+**Explanation:** Flexbox arranges items on one primary axis; Grid can define rows and columns. A responsive design adapts to screen width using fluid dimensions and media queries. Use readable font sizes and accessible contrast.
+
+**Try it yourself:** Display two cards side by side on wide screens and one below another when width is below 700px.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/main/web_lab/static/style.css) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B07. HTML input forms
+
+**Explanation:** A form contains labels, inputs and a submit button. The input name is used by FormData; id connects to label for. The required, maxlength, min and max attributes perform browser validation, but the backend must revalidate every value.
+
+**Try it yourself:** Build a pickup and destination form; inspect FormData when you change the input name.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/driver/index.html) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B08. JavaScript values, variables and functions
+
+**Explanation:** JavaScript values include strings, numbers, booleans, arrays and objects. const binds a name that cannot be reassigned; let permits reassignment. Functions group steps and return results; if selects a branch and for repeats an operation. Use === for strict equality.
+
+**Try it yourself:** Write estimateFare(km) returning 2.5 + 1.5*km; test 4.5 km gives 9.25.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/shared/client.js) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B09. DOM and events
+
+**Explanation:** The Document Object Model represents HTML as a tree of nodes. querySelector finds an element and addEventListener reacts to events. preventDefault avoids default form navigation. textContent inserts text safely; do not place untrusted input into innerHTML.
+
+**Try it yourself:** Add a button that increases a displayed counter and makes a paragraph change.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/main/web_lab/static/app.js) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B10. HTTP requests, JSON and APIs
+
+**Explanation:** An API is a contract between programs. The browser sends JSON with fetch, checks response.ok and reads response.json. GET reads, POST creates, PATCH changes and DELETE removes. 201 means created, 404 missing, 409 conflict and 422 invalid input.
+
+**Try it yourself:** Open the FastAPI /docs endpoint; submit valid and invalid ride JSON and compare status codes.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/services/trips.py) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B11. Database, tables and SQL basics
+
+**Explanation:** A relational database stores rows in tables. Columns represent fields, a primary key identifies a record, a foreign key links tables, and constraints limit invalid data. SQL uses CREATE TABLE, INSERT, SELECT, UPDATE and DELETE. Always bind external parameters instead of concatenating user strings.
+
+**Try it yourself:** Create a rides table with id, pickup, destination and status; insert two synthetic rows and filter requested rides.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/infra/schema.sql) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### B12. How all layers connect
+
+**Explanation:** HTML collects user input. CSS styles the page. JavaScript serializes the form to JSON and uses fetch. FastAPI validates the request, executes parameterized SQL and returns JSON. JavaScript then updates the displayed result. This is a complete web application even when all parts run on one computer.
+
+**Try it yourself:** Run the web_lab demo locally, inspect browser Network requests, /docs and saved SQLite state; explain each step.
+
+**ATLAS connection:** [Inspect the related source](https://github.com/FUllSCIPTS/ATLAS/blob/main/web_lab/app.py) and compare it with the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The web starter is distinct from the Python/Kivy ATLAS Go Android app.
+
+### Worked example 1 — A webpage with HTML, CSS and JavaScript
+
+Create three files in one folder:
+
+~~~text
+first_web/
+  index.html
+  style.css
+  app.js
+~~~
+
+The **HTML** sets the structure and loads the two other files:
+
+~~~html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My first webpage</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main><h1>Hello ATLAS!</h1>
+    <button id="hello">Click me</button>
+    <p id="message" role="status"></p>
+  </main>
+</body>
+</html>
+~~~
+
+The **CSS** sets color, spacing and presentation:
+
+~~~css
+body { font-family: sans-serif; background: #f3f7fe; }
+main { max-width: 650px; margin: auto; padding: 2rem; }
+button { padding: 0.7rem 1rem; }
+~~~
+
+The **JavaScript** handles the click event and updates the DOM:
+
+~~~javascript
+const button = document.querySelector('#hello');
+button.addEventListener('click', () => {
+  document.querySelector('#message').textContent = 'The event worked!';
+});
+~~~
+
+Open index.html locally. This first example needs no database or server. When you later call an API, serve the project using FastAPI instead of relying on a file:// page.
+
+### Worked example 2 — From HTML form to JSON
+
+~~~html
+<form id="booking">
+  <label for="pickup">Pickup</label>
+  <input id="pickup" name="pickup" required>
+  <button type="submit">Send</button>
+</form>
+~~~
+
+~~~javascript
+document.querySelector('#booking').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const values = Object.fromEntries(new FormData(event.currentTarget));
+  console.log(JSON.stringify(values));
+});
+~~~
+
+FormData reads fields by their **name** attribute; JSON.stringify makes a transferable JSON text representation. The browser can send it to an API, where Pydantic must validate it again.
+
+### Worked example 3 — A first SQL table
+
+~~~sql
+CREATE TABLE rides(id TEXT PRIMARY KEY, pickup TEXT NOT NULL, status TEXT NOT NULL);
+INSERT INTO rides(id, pickup, status) VALUES('demo-1', 'UCC', 'requested');
+SELECT * FROM rides WHERE status='requested';
+UPDATE rides SET status='assigned' WHERE id='demo-1';
+DELETE FROM rides WHERE id='demo-1';
+~~~
+
+A database persists records between program calls. The id uniquely identifies a row. When values come from a form, bind them as SQL parameters, for example `db.execute('SELECT * FROM rides WHERE status=?', (status,))`, instead of concatenating user input.
+
+### The complete path, visualized
+
+~~~mermaid
+sequenceDiagram
+ participant User
+ participant Browser
+ participant API as FastAPI
+ participant DB as SQLite
+ User->>Browser: Enter form fields and submit
+ Browser->>API: POST /api/rides JSON
+ API->>API: Validate fields and state
+ API->>DB: INSERT with parameters
+ DB-->>API: Saved row
+ API-->>Browser: 201 + JSON response
+ Browser-->>User: Update displayed ride list
+~~~
+
+**Next:** start [web_lab](../web_lab/README.md) locally and inspect the real HTML, CSS, JavaScript, FastAPI and SQLite files in this order: `static/index.html` → `static/style.css` → `static/app.js` → `app.py` → SQLite. Use [Colab W01–W12](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) to run the API/database experiments. Colab does not host the browser interface publicly.
+
+### Foundation checkpoint
+
+Before proceeding, explain: Internet versus Web; URL versus path; HTML versus CSS versus JavaScript; class versus ID selector; a form name attribute; frontend versus API versus backend; HTTP 201/404/422; table/row/column/primary key; and why browser validation cannot replace server validation.
+
+---
 
 ## Big picture: four-layer system
 
