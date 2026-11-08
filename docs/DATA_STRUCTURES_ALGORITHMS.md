@@ -803,12 +803,12 @@ A **tree** is a connected, acyclic hierarchy of nodes. Vocabulary: **root** (no 
 
 ```mermaid
 flowchart TD
- root["8 root"] --> left["4"]
- root --> right["12"]
- left --> leaf2["2 leaf"]
- left --> leaf6["6 leaf"]
- right --> leaf10["10 leaf"]
- right --> leaf14["14 leaf"]
+ C12_A["8 (root)"] --> C12_B["4"]
+ C12_A --> C12_C["12"]
+ C12_B --> C12_D["2 (leaf)"]
+ C12_B --> C12_E["6 (leaf)"]
+ C12_C --> C12_F["10 (leaf)"]
+ C12_C --> C12_G["14 (leaf)"]
 ```
 
 Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary tree of height h = 2^h − 1, so h ≥ log₂(n + 1).
@@ -824,10 +824,10 @@ Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary t
 
 ```mermaid
 flowchart LR
- depth["Depth first search"] --> stack["Stack LIFO"]
- stack --> traversals["Preorder, inorder, postorder"]
- breadth["Breadth first search"] --> queue["Queue FIFO"]
- queue --> levels["Level order"]
+ C12_DFS["Depth-first traversal"] --> C12_STACK["Stack (LIFO)"]
+ C12_STACK --> C12_ORDER["Preorder, inorder, postorder"]
+ C12_BFS["Breadth-first traversal"] --> C12_QUEUE["Queue (FIFO)"]
+ C12_QUEUE --> C12_LEVEL["Level order"]
 ```
 
 **Iterative inorder trace** (stack shown bottom → top):
@@ -866,9 +866,9 @@ A **binary search tree (BST)** is a binary tree where, for every node, **all key
 
 ```mermaid
 flowchart TD
- skew1["1 root"] --> skew2["2"]
- skew2 --> skew3["3"]
- skew3 --> skew4["4 leaf"]
+ C13_A["1 (root)"] --> C13_B["2"]
+ C13_B --> C13_C["3"]
+ C13_C --> C13_D["4 (leaf)"]
 ```
 
 ### Deletion — three cases
@@ -881,14 +881,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
- oldroot["Before: root 8"] --> oldleft["4"]
- oldroot --> oldright["12 to delete"]
- oldright --> oldten["10"]
- oldright --> oldfourteen["14 successor"]
- oldfourteen --> newroot["After: root 8"]
- newroot --> newleft["4"]
- newroot --> newright["14"]
- newright --> newten["10"]
+ C13_OLD["Before deletion: root 8"] --> C13_DEL["Delete node 12"]
+ C13_DEL --> C13_SUCCESSOR["Find successor 14"]
+ C13_SUCCESSOR --> C13_NEW["After deletion: root 8"]
+ C13_NEW --> C13_LEFT["Left child 4"]
+ C13_NEW --> C13_RIGHT["Right child 14"]
+ C13_RIGHT --> C13_TEN["Left child 10"]
 ```
 
 ~~~python
@@ -927,26 +925,26 @@ An **AVL tree** is a BST that keeps itself balanced: at every node the **balance
 
 ```mermaid
 flowchart LR
- before30["Before: 30"] --> before20["20"]
- before20 --> before10["10"]
- before30 --> rotation["Right rotation at 30"]
- rotation --> after20["After: 20"]
- after20 --> after10["10"]
- after20 --> after30["30"]
+ C14_A["Before: root 30"] --> C14_B["Left child 20"]
+ C14_B --> C14_C["Left child 10"]
+ C14_A --> C14_ROT["Rotate right at 30"]
+ C14_ROT --> C14_D["After: root 20"]
+ C14_D --> C14_E["Left child 10"]
+ C14_D --> C14_F["Right child 30"]
 ```
 
 ```mermaid
 flowchart LR
- first30["Before: 30"] --> first10["10"]
- first10 -->|right child| first20["20"]
- first30 --> rotateleft["Left rotation at 10"]
- rotateleft --> middle30["30"]
- middle30 --> middle20["20"]
- middle20 --> middle10["10"]
- middle30 --> rotateright["Right rotation at 30"]
- rotateright --> final20["20"]
- final20 --> final10["10"]
- final20 --> final30["30"]
+ C14_LR_A["Before: root 30"] --> C14_LR_B["Left child 10"]
+ C14_LR_B --> C14_LR_C["Right child 20"]
+ C14_LR_A --> C14_LR_D["Rotate left at 10"]
+ C14_LR_D --> C14_LR_E["Intermediate: root 30"]
+ C14_LR_E --> C14_LR_F["Left child 20"]
+ C14_LR_F --> C14_LR_G["Left child 10"]
+ C14_LR_E --> C14_LR_H["Rotate right at 30"]
+ C14_LR_H --> C14_LR_I["Final: root 20"]
+ C14_LR_I --> C14_LR_J["Left child 10"]
+ C14_LR_I --> C14_LR_K["Right child 30"]
 ```
 
 **Right rotation in pointers** (y is the unbalanced node, x = y.left, T2 = x.right):
@@ -988,11 +986,11 @@ A **binary min-heap** is a **complete** binary tree (every level full except pos
 
 ```mermaid
 flowchart TD
- heap0["Index 0: 1"] --> heap1["Index 1: 3"]
- heap0 --> heap2["Index 2: 2"]
- heap1 --> heap3["Index 3: 5"]
- heap1 --> heap4["Index 4: 9"]
- heap2 --> heap5["Index 5: 8"]
+ C15_A["Index 0: 1"] --> C15_B["Index 1: 3"]
+ C15_A --> C15_C["Index 2: 2"]
+ C15_B --> C15_D["Index 3: 5"]
+ C15_B --> C15_E["Index 4: 9"]
+ C15_C --> C15_F["Index 5: 8"]
 ```
 
 Array form: `[1, 3, 2, 5, 9, 8]`.
@@ -1030,14 +1028,14 @@ A **trie** stores strings character by character along paths from the root; word
 
 ```mermaid
 flowchart TD
- trieRoot["root"] --> trieC["c"]
- trieC --> trieA["a"]
- trieA --> trieR["r - end of car"]
- trieR --> trieT1["t - end of cart"]
- trieA --> trieT2["t - end of cat"]
- trieRoot --> trieD["d"]
- trieD --> trieO["o"]
- trieO --> trieG["g - end of dog"]
+ C16_ROOT["Root"] --> C16_C["c"]
+ C16_C --> C16_A["a"]
+ C16_A --> C16_R["r (car)"]
+ C16_R --> C16_RT["t (cart)"]
+ C16_A --> C16_T["t (cat)"]
+ C16_ROOT --> C16_D["d"]
+ C16_D --> C16_O["o"]
+ C16_O --> C16_G["g (dog)"]
 ```
 
 Stored: car, cart, cat, dog. "ca" is a valid **path** but not a **word** (no `$`).
@@ -1061,10 +1059,10 @@ A **graph** G = (V, E) has vertices and edges; edges may be **directed** or **un
 
 ```mermaid
 flowchart LR
- graphA["A"] --> graphB["B"]
- graphA --> graphC["C"]
- graphB --> graphD["D"]
- graphC --> graphD
+ C17_A["A"] --> C17_B["B"]
+ C17_A --> C17_C["C"]
+ C17_B --> C17_D["D"]
+ C17_C --> C17_D
 ```
 
 | Representation | Above graph | Space | "Is (u, v) an edge?" | "List neighbours of u" |
@@ -1101,9 +1099,9 @@ Keep a tentative distance for every vertex; repeatedly take the closest unfinish
 
 ```mermaid
 flowchart LR
- shortestA["A distance 0"] -->|weight 2| shortestB["B distance 2"]
- shortestA -->|weight 8| shortestC["C initially 8"]
- shortestB -->|weight 1| shortestCupdated["C improved to 3"]
+ C18_A["A: distance 0"] -->|"weight 2"| C18_B["B: distance 2"]
+ C18_A -->|"weight 8"| C18_C["C: initial distance 8"]
+ C18_B -->|"weight 1"| C18_UPDATED["C: improved distance 3"]
 ```
 
 | Pop | dist A | dist B | dist C | heap after |
@@ -1124,10 +1122,10 @@ A **topological order** lists the vertices of a **directed acyclic graph** so th
 
 ```mermaid
 flowchart LR
- order["Accept order"] --> cook["Cook meal"]
- cook --> pack["Pack meal"]
- pack --> deliver["Deliver order"]
- cook --> notify["Notify courier"]
+ C18_ACCEPT["Accept order"] --> C18_COOK["Cook meal"]
+ C18_COOK --> C18_PACK["Pack meal"]
+ C18_PACK --> C18_DELIVER["Deliver order"]
+ C18_COOK --> C18_NOTIFY["Notify courier"]
 ```
 
 ~~~python
@@ -1204,18 +1202,18 @@ Common bugs: `mid = (lo + hi) // 2` with `hi = len(a)` and `lo <= hi` (off by on
 
 ```mermaid
 flowchart TD
- full["7, 2, 6, 1"] --> leftpair["7, 2"]
- full --> rightpair["6, 1"]
- leftpair --> seven["7"]
- leftpair --> two["2"]
- rightpair --> six["6"]
- rightpair --> one["1"]
- seven --> mergeleft["2, 7"]
- two --> mergeleft
- six --> mergeright["1, 6"]
- one --> mergeright
- mergeleft --> sorted["1, 2, 6, 7"]
- mergeright --> sorted
+ D20_ALL["7, 2, 6, 1"] --> D20_LEFT["7, 2"]
+ D20_ALL --> D20_RIGHT["6, 1"]
+ D20_LEFT --> D20_SEVEN["7"]
+ D20_LEFT --> D20_TWO["2"]
+ D20_RIGHT --> D20_SIX["6"]
+ D20_RIGHT --> D20_ONE["1"]
+ D20_SEVEN --> D20_LMERGE["2, 7"]
+ D20_TWO --> D20_LMERGE
+ D20_SIX --> D20_RMERGE["1, 6"]
+ D20_ONE --> D20_RMERGE
+ D20_LMERGE --> D20_SORTED["1, 2, 6, 7"]
+ D20_RMERGE --> D20_SORTED
 ```
 
 | Algorithm | Idea | Best | Average | Worst | Extra space | Stable |
@@ -1248,14 +1246,14 @@ A **recursive** function solves a problem by calling itself on smaller inputs. I
 
 ```mermaid
 flowchart TD
- fib4["fib 4"] --> fib3["fib 3"]
- fib4 --> fib2a["fib 2"]
- fib3 --> fib2b["fib 2 repeated"]
- fib3 --> fib1a["fib 1"]
- fib2b --> fib1b["fib 1"]
- fib2b --> fib0a["fib 0"]
- fib2a --> fib1c["fib 1"]
- fib2a --> fib0b["fib 0"]
+ D21_F4["fib(4)"] --> D21_F3["fib(3)"]
+ D21_F4 --> D21_F2A["fib(2)"]
+ D21_F3 --> D21_F2B["fib(2) repeated"]
+ D21_F3 --> D21_F1A["fib(1)"]
+ D21_F2B --> D21_F1B["fib(1)"]
+ D21_F2B --> D21_F0A["fib(0)"]
+ D21_F2A --> D21_F1C["fib(1)"]
+ D21_F2A --> D21_F0B["fib(0)"]
 ```
 
 Naive Fibonacci makes 177 calls for fib(10) and 242 785 for fib(25) because the same subproblems are solved again and again (E13).
@@ -1326,10 +1324,10 @@ print("placements tried:", tried, "of", 8 ** 8, "naive")
 
 ```mermaid
 flowchart LR
- pre["Precondition"] --> initial["Invariant holds before loop"]
- initial --> step["Each iteration preserves invariant"]
- step --> exit["Loop terminates"]
- exit --> post["Invariant and exit imply postcondition"]
+ D23_PRE["Precondition"] --> D23_INIT["Invariant initially true"]
+ D23_INIT --> D23_STEP["Each iteration preserves it"]
+ D23_STEP --> D23_STOP["Loop terminates"]
+ D23_STOP --> D23_POST["Invariant implies postcondition"]
 ```
 
 **Structural invariants** are the executable version: every structure in the lab has a `validate()` that the experiments call after every change.
