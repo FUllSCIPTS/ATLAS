@@ -5,6 +5,7 @@
 ATLAS Go 1.2.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
 - [Installable APK 1.2.0 on Google Drive — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view): open the link, click **Request access**; the owner approves by email
+- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.2.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.2.0/atlas-go-1.2.0-source.zip) (SHA-256 `b6339df38ed47b5126306e57aa29e72227796c558a26cfae8b7b224f0e4d9fcb`)
 - [1.2.0 release page: SHA256SUMS, release notes and validation](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
 - [What changed in 1.2.0](CHANGELOG.md)
