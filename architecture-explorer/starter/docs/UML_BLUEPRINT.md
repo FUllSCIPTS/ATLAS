@@ -1312,7 +1312,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
 | <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L204](../../dist/security.js#L204) | Explorer / lab |
 | <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L223](../../dist/security.js#L223) | Explorer / lab |
-| <a name="sec-pw-cli"></a>Command-line lab: salts, cost per guess, dictionary attack | `main` | [security_lab/password_storage_demo.py L35](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L35) | Explorer / lab |
+| <a name="sec-pw-cli"></a>Command-line lab: 20 experiments and 5 study paths on the real accounts.py and store.py | `main` | [security_lab/password_storage_demo.py L592](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L592) | Explorer / lab |
 
 <a name="uml-security-login"></a>
 
