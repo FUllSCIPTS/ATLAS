@@ -1,10 +1,11 @@
-"""Build the Security & cryptography and the Machine learning & optimisation catalogues.
+"""Build the Security & cryptography, Machine learning & optimisation and Data structures & algorithms catalogues.
 
-One table below maps every concept taught in the Architecture Explorer's Security, Cryptography and
-ML & Optimisation tabs to the function, constant or file that implements it. The script resolves
+One table below maps every concept taught in the Architecture Explorer's Security, Cryptography,
+ML & Optimisation and Data Structures tabs to the function, constant or file that implements it. The script resolves
 current line numbers and writes:
 
-  docs/UML_BLUEPRINT.md   blocks between <!-- BEGIN/END SECURITY CATALOG --> and <!-- BEGIN/END ML CATALOG -->,
+  docs/UML_BLUEPRINT.md   blocks between <!-- BEGIN/END SECURITY CATALOG -->, <!-- BEGIN/END ML CATALOG --> and
+                          <!-- BEGIN/END DSA CATALOG -->,
                           one anchor per row
   ../dist/uml-catalog.js  the same rows for the explorer, so each lab links to its catalogue entry
 
@@ -32,7 +33,8 @@ MAIN_URL = "https://github.com/FUllSCIPTS/ATLAS/blob/main/"
 ARCH_URL = "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/"
 EXPLORER_URL = "https://fullscipts.github.io/ATLAS/"
 STATUS = {"impl": "Implemented", "demo": "Demo-grade", "teach": "Teaching extension", "lab": "Explorer / lab",
-          "paper": "Paper (research code)", "synth": "App / starter (synthetic data)"}
+          "paper": "Paper (research code)", "synth": "App / starter (synthetic data)",
+          "related": "Related (similar code, not this exact structure)"}
 
 # Locations. "main:" = file on the main branch; "arch:" = file in architecture-explorer/;
 # "zip:" = file inside prototype.zip on main; "sim:" = file inside atlas_sim.zip on main (the paper's
@@ -247,6 +249,84 @@ ROWS = [
     ("ml-ev-holm", "Holm-Bonferroni correction", "main:run_cluster.py", "holm", "paper"),
     ("ml-ev-stat", "Mean, SD, 95 % t-interval over 30 runs", "main:run_cluster.py", "stat_block", "paper"),
     ("ml-ev-boot", "Block bootstrap CI for forecast errors", "sim:atlas_sim/forecast.py", "block_bootstrap_ci", "paper"),
+    # ---- Data structures & algorithms: ATLAS Go code that uses the idea
+    ("dsa-app-book", "ADT operation: book a ride", "main:android-app/atlas_go/store.py", "LocalStore.book", "impl"),
+    ("dsa-app-checkout", "ADT operation: check out a cart", "main:android-app/atlas_go/store.py", "LocalStore.checkout", "impl"),
+    ("dsa-app-online", "Linear scan: drivers that are online", "main:android-app/atlas_go/store.py", "LocalStore.online_drivers", "impl"),
+    ("dsa-app-history", "Linear scan: the user's ride and order history", "main:android-app/atlas_go/store.py", "LocalStore.my_history", "impl"),
+    ("dsa-app-distances", "2-D table lookup DISTANCES[pickup][destination]", "main:android-app/atlas_go/domain.py", "=DISTANCES", "impl"),
+    ("dsa-app-nearest", "Minimum selection: nearest saved place", "main:android-app/atlas_go/geo.py", "nearest_place", "impl"),
+    ("dsa-app-tiles", "Grid indexing: tiles that cover the view", "main:android-app/atlas_go/geo.py", "tile_range", "impl"),
+    ("dsa-app-fare", "Fare rule evaluated with a stack in the explorer", "main:android-app/atlas_go/domain.py", "fare", "impl"),
+    ("dsa-app-lifo", "LIFO work queue: newest tile request first", "main:android-app/atlas_go/livemap.py", "~self.requests = queue.LifoQueue", "impl"),
+    ("dsa-app-lru-hit", "LRU cache hit: move_to_end on the OrderedDict", "main:android-app/atlas_go/livemap.py", "TileLoader.texture", "impl"),
+    ("dsa-app-lru-evict", "LRU eviction: popitem(last=False) past 160 tiles", "main:android-app/atlas_go/livemap.py", "~self.textures.popitem\\(last=False\\)", "impl"),
+    ("dsa-app-dishes", "Hash table: dish id to Dish", "main:android-app/atlas_go/domain.py", "=DISHES", "impl"),
+    ("dsa-app-cart", "Hash table: cart quantities per dish", "main:android-app/atlas_go/domain.py", "Cart.add", "impl"),
+    ("dsa-app-menu", "Linear filter: a kitchen's menu", "main:android-app/atlas_go/domain.py", "Catalog.menu", "impl"),
+    ("dsa-app-pools", "Drivers and pickup minutes used by the heap and sorting labs", "main:android-app/atlas_go/intelligence.py", "=DRIVER_POOLS", "impl"),
+    ("dsa-app-rank", "Sorting: rank candidates with sorted()", "main:android-app/atlas_go/intelligence.py", "rank", "impl"),
+    ("dsa-app-choose", "Selection: take the best candidate; min for the nearest", "main:android-app/atlas_go/intelligence.py", "choose", "impl"),
+    ("dsa-app-zones", "Zone coordinates: the graph lab's vertices", "main:android-app/atlas_go/geo.py", "=ZONE_COORDS", "impl"),
+    ("dsa-app-haversine", "Great-circle distance: the graph lab's edge weights", "main:android-app/atlas_go/geo.py", "haversine_km", "impl"),
+    ("dsa-app-legs", "Straight-line trip legs (no road graph)", "main:android-app/atlas_go/geo.py", "ride_legs", "related"),
+    ("dsa-app-advance", "State machine: advance a ride", "main:android-app/atlas_go/store.py", "LocalStore.advance_ride", "related"),
+    ("dsa-app-validate", "Invariant check on saved state", "main:android-app/atlas_go/store.py", "LocalStore.validate", "impl"),
+    ("dsa-app-selftest", "Self-test of the on-device models", "main:android-app/atlas_go/intelligence.py", "self_test", "impl"),
+    # ---- Data structures & algorithms: course implementations (dsa_lab on main)
+    ("dsa-lab-linear", "Linear search with a comparison count", "main:dsa_lab/experiments.py", "linear_search", "lab"),
+    ("dsa-lab-binary", "Binary search with a comparison count", "main:dsa_lab/experiments.py", "binary_search", "lab"),
+    ("dsa-lab-first", "First occurrence (bisect_left)", "main:dsa_lab/experiments.py", "first_occurrence", "lab"),
+    ("dsa-lab-dynarray", "Dynamic array: growth policy and copies", "main:dsa_lab/experiments.py", "DynamicArray.append", "lab"),
+    ("dsa-lab-sll-popback", "Singly linked list: pop_back walks to the predecessor", "main:dsa_lab/experiments.py", "SinglyLinkedList.pop_back", "lab"),
+    ("dsa-lab-dll-unlink", "Doubly linked list: unlink a known node", "main:dsa_lab/experiments.py", "DoublyLinkedList.unlink", "lab"),
+    ("dsa-lab-csll", "Circular singly linked list: tail only, head = tail.next", "main:dsa_lab/experiments.py", "~^class CircularSinglyLinkedList", "lab"),
+    ("dsa-lab-csll-rotate", "Circular singly list: rotate by moving the tail", "main:dsa_lab/experiments.py", "CircularSinglyLinkedList.rotate", "lab"),
+    ("dsa-lab-cdll", "Circular doubly linked list with a sentinel", "main:dsa_lab/experiments.py", "~^class CircularDoublyLinkedList", "lab"),
+    ("dsa-lab-cdll-insert", "Sentinel list: insert_after, the only insertion primitive", "main:dsa_lab/experiments.py", "CircularDoublyLinkedList.insert_after", "lab"),
+    ("dsa-lab-cdll-rotate", "Sentinel list: rotate by moving the sentinel", "main:dsa_lab/experiments.py", "CircularDoublyLinkedList.rotate", "lab"),
+    ("dsa-lab-josephus", "Josephus problem on a circular singly list", "main:dsa_lab/experiments.py", "josephus_circular", "lab"),
+    ("dsa-lab-floyd", "Floyd's tortoise and hare: mu and lambda", "main:dsa_lab/experiments.py", "floyd_cycle", "lab"),
+    ("dsa-lab-postfix", "Stack: evaluate a postfix expression", "main:dsa_lab/experiments.py", "evaluate_postfix", "lab"),
+    ("dsa-lab-ring", "Ring buffer: enqueue at (front + count) % capacity", "main:dsa_lab/experiments.py", "RingBuffer.enqueue", "lab"),
+    ("dsa-lab-lru", "LRU cache: dict + circular doubly list", "main:dsa_lab/experiments.py", "LRUCache.get", "lab"),
+    ("dsa-lab-chain", "Hash table with separate chaining and resizing", "main:dsa_lab/experiments.py", "ChainHash.put", "lab"),
+    ("dsa-lab-probe", "Open addressing: linear probing", "main:dsa_lab/experiments.py", "OpenAddressHash.put", "lab"),
+    ("dsa-lab-tomb", "Open addressing: delete with a tombstone", "main:dsa_lab/experiments.py", "OpenAddressHash.delete", "lab"),
+    ("dsa-lab-bstdel", "BST delete: the three cases", "main:dsa_lab/experiments.py", "bst_delete", "lab"),
+    ("dsa-lab-avl", "AVL insert with the four rotations", "main:dsa_lab/experiments.py", "avl_insert", "lab"),
+    ("dsa-lab-traversal", "Level-order traversal with a queue", "main:dsa_lab/experiments.py", "levelorder_queue", "lab"),
+    ("dsa-lab-heap", "Binary min-heap: sift up", "main:dsa_lab/experiments.py", "MinHeap.push", "lab"),
+    ("dsa-lab-trie", "Trie: prefix query", "main:dsa_lab/experiments.py", "Trie.starts_with", "lab"),
+    ("dsa-lab-bfs", "Breadth-first search", "main:dsa_lab/experiments.py", "bfs", "lab"),
+    ("dsa-lab-dfs", "Depth-first search", "main:dsa_lab/experiments.py", "dfs", "lab"),
+    ("dsa-lab-dijkstra", "Dijkstra with a binary heap", "main:dsa_lab/experiments.py", "dijkstra", "lab"),
+    ("dsa-lab-kruskal", "Kruskal minimum spanning tree with union-find", "main:dsa_lab/experiments.py", "kruskal", "lab"),
+    ("dsa-lab-topo", "Topological sort (Kahn)", "main:dsa_lab/experiments.py", "topo_sort_kahn", "lab"),
+    ("dsa-lab-insertion", "Insertion sort with counts", "main:dsa_lab/experiments.py", "insertion_sort", "lab"),
+    ("dsa-lab-merge", "Merge sort with counts", "main:dsa_lab/experiments.py", "merge_sort", "lab"),
+    ("dsa-lab-quick", "Quick sort, random pivot (Lomuto)", "main:dsa_lab/experiments.py", "quick_sort_inplace", "lab"),
+    ("dsa-lab-heapsort", "Heap sort", "main:dsa_lab/experiments.py", "heap_sort", "lab"),
+    ("dsa-lab-stable", "Count stability violations", "main:dsa_lab/experiments.py", "stability_violations", "lab"),
+    ("dsa-lab-fib", "Fibonacci with a memo: call count", "main:dsa_lab/experiments.py", "fib_memo_calls", "lab"),
+    ("dsa-lab-knapsack", "0/1 knapsack by dynamic programming", "main:dsa_lab/experiments.py", "knapsack_01", "lab"),
+    ("dsa-lab-queens", "N queens by backtracking", "main:dsa_lab/experiments.py", "n_queens", "lab"),
+    ("dsa-lab-runner", "Experiment runner E01-E30", "main:dsa_lab/experiments.py", "run_experiment", "lab"),
+    ("dsa-lab-selftest", "Self-test of every structure's invariants", "main:dsa_lab/experiments.py", "self_test", "lab"),
+    # ---- Data structures & algorithms: explorer labs
+    ("dsa-x-lists", "Explorer: draw a list by walking its pointers", "arch:dist/dsa.js", "dsaListSvg", "lab"),
+    ("dsa-x-csll", "Explorer: circular singly list (port)", "arch:dist/dsa.js", "~^class DsaCircularSingly", "lab"),
+    ("dsa-x-cdll", "Explorer: circular doubly list with sentinel (port)", "arch:dist/dsa.js", "~^class DsaCircularDoubly", "lab"),
+    ("dsa-x-josephus", "Explorer: Josephus step", "arch:dist/dsa.js", "dsaJosStep", "lab"),
+    ("dsa-x-floyd", "Explorer: tortoise and hare step", "arch:dist/dsa.js", "dsaFloydStep", "lab"),
+    ("dsa-x-ring", "Explorer: ring buffer", "arch:dist/dsa.js", "dsaRingOp", "lab"),
+    ("dsa-x-lru", "Explorer: LRU cache", "arch:dist/dsa.js", "dsaLruGet", "lab"),
+    ("dsa-x-hash", "Explorer: chaining and probing table", "arch:dist/dsa.js", "dsaHashPut", "lab"),
+    ("dsa-x-avl", "Explorer: AVL insert", "arch:dist/dsa.js", "dsaAvlInsert", "lab"),
+    ("dsa-x-heap", "Explorer: driver min-heap", "arch:dist/dsa.js", "dsaHeapPush", "lab"),
+    ("dsa-x-graph", "Explorer: BFS, DFS, Dijkstra and Prim frames", "arch:dist/dsa.js", "dsaGraphFrames", "lab"),
+    ("dsa-x-sort", "Explorer: counting sorts", "arch:dist/dsa.js", "dsaSortRun", "lab"),
+    ("dsa-x-knapsack", "Explorer: knapsack table", "arch:dist/dsa.js", "dsaKnapsack", "lab"),
 ]
 
 # Explorer topics → rows. Rows may appear under several topics.
@@ -271,6 +351,15 @@ TOPICS = {
     "ml/rl": ["ml-rl-ride", "ml-rl-weights", "ml-rl-rank", "ml-rl-learnlab", "ml-rl-food", "ml-rl-courier", "ml-rl-accept", "ml-rl-supply", "ml-rl-bandit", "ml-rl-approve", "ml-rl-lab", "ml-rl-cli", "ml-x-ml-q", "ml-x-ml-bandit", "ml-x-ml-rank", "ml-x-opt-es"],
     "ml/evaluation": ["ml-ev-tune", "ml-ev-grid", "ml-ev-ablation", "ml-ev-compare", "ml-ev-holm", "ml-ev-stat", "ml-ev-boot", "ml-bip-fsm", "ml-x-ml-metrics", "ml-x-ml-bv"],
     "ml/gaps": ["ml-bip-modules", "ml-bip-solve", "ml-bip-params", "ml-fc-train", "ml-rl-learnlab", "ml-rl-bandit"],
+    "dsa/complexity": ["dsa-app-online", "dsa-app-history", "dsa-app-distances", "dsa-app-nearest", "dsa-app-tiles", "dsa-app-book", "dsa-app-checkout", "dsa-lab-linear", "dsa-lab-binary", "dsa-lab-dynarray", "dsa-lab-runner"],
+    "dsa/lists": ["dsa-lab-sll-popback", "dsa-lab-dll-unlink", "dsa-lab-csll", "dsa-lab-csll-rotate", "dsa-lab-cdll", "dsa-lab-cdll-insert", "dsa-lab-cdll-rotate", "dsa-lab-josephus", "dsa-lab-floyd", "dsa-x-lists", "dsa-x-csll", "dsa-x-cdll", "dsa-x-josephus", "dsa-x-floyd"],
+    "dsa/queues": ["dsa-app-fare", "dsa-app-lifo", "dsa-app-lru-hit", "dsa-app-lru-evict", "dsa-lab-postfix", "dsa-lab-ring", "dsa-lab-lru", "dsa-lab-cdll", "dsa-x-ring", "dsa-x-lru"],
+    "dsa/hashing": ["dsa-app-dishes", "dsa-app-cart", "dsa-app-menu", "dsa-lab-chain", "dsa-lab-probe", "dsa-lab-tomb", "dsa-x-hash"],
+    "dsa/trees": ["dsa-app-pools", "dsa-app-rank", "dsa-app-choose", "dsa-lab-bstdel", "dsa-lab-avl", "dsa-lab-traversal", "dsa-lab-heap", "dsa-lab-trie", "dsa-x-avl", "dsa-x-heap"],
+    "dsa/graphs": ["dsa-app-zones", "dsa-app-haversine", "dsa-app-legs", "dsa-lab-bfs", "dsa-lab-dfs", "dsa-lab-dijkstra", "dsa-lab-kruskal", "dsa-lab-topo", "dsa-x-graph"],
+    "dsa/sorting": ["dsa-app-rank", "dsa-app-pools", "dsa-lab-insertion", "dsa-lab-merge", "dsa-lab-quick", "dsa-lab-heapsort", "dsa-lab-stable", "dsa-lab-first", "dsa-x-sort"],
+    "dsa/design": ["dsa-app-validate", "dsa-app-selftest", "dsa-app-advance", "dsa-lab-fib", "dsa-lab-knapsack", "dsa-lab-queens", "dsa-lab-selftest", "dsa-x-knapsack"],
+    "dsa/gaps": ["dsa-app-history", "dsa-app-rank", "dsa-app-nearest", "dsa-app-legs", "dsa-app-lifo", "dsa-lab-runner"],
 }
 TOPIC_TITLES = {
     "security/passwords": "Security → Password storage", "security/login": "Security → Login & lockout",
@@ -284,6 +373,11 @@ TOPIC_TITLES = {
     "ml/forecasting": "ML & Optimisation → Forecasting", "ml/anomaly": "ML & Optimisation → Isolation Forest",
     "ml/rl": "ML & Optimisation → Reinforcement learning", "ml/evaluation": "ML & Optimisation → Tuning & evaluation",
     "ml/gaps": "ML & Optimisation → Gaps & exercises",
+    "dsa/complexity": "Data Structures → Complexity", "dsa/lists": "Data Structures → Linked lists (all four kinds)",
+    "dsa/queues": "Data Structures → Stacks, queues & LRU", "dsa/hashing": "Data Structures → Hash tables",
+    "dsa/trees": "Data Structures → Trees & heaps", "dsa/graphs": "Data Structures → Graphs",
+    "dsa/sorting": "Data Structures → Sorting & searching", "dsa/design": "Data Structures → Algorithm design",
+    "dsa/gaps": "Data Structures → Experiments & exercises",
 }
 BLOCKS = {  # marker name → (views, introduction)
     "SECURITY CATALOG": (("security", "crypto"), [
@@ -299,6 +393,13 @@ BLOCKS = {  # marker name → (views, introduction)
         "evaluated in the article), **App / starter (synthetic data)** (ATLAS Go or the server starter, trained on",
         "simulations) or **Explorer / lab** (teaching code in the explorer or `ml_lab/`). Teaching guide:",
         "[docs/MACHINE_LEARNING_OPTIMISATION.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/MACHINE_LEARNING_OPTIMISATION.md).",
+        "Generated by `scripts/security_catalog.py`."]),
+    "DSA CATALOG": (("dsa",), [
+        "Every concept in the Architecture Explorer's **Data Structures** tab, linked to the function, constant or file",
+        "that implements it. Status: **Implemented** (the idea runs in ATLAS Go), **Related** (the app does something",
+        "similar without this exact structure) or **Explorer / lab** (the course implementation in `dsa_lab/experiments.py`",
+        "on `main`, or the explorer's own port in `dist/dsa.js`). Teaching guide:",
+        "[docs/DATA_STRUCTURES_ALGORITHMS.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/DATA_STRUCTURES_ALGORITHMS.md).",
         "Generated by `scripts/security_catalog.py`."]),
 }
 
@@ -404,7 +505,7 @@ def script(rows):
     exported = {k: {f: v[f] for f in ("concept", "symbol", "path", "line", "status")} | {"source": v["absolute"]} for k, v in rows.items()}
     data = {"blueprint": BLUEPRINT_URL, "status": STATUS, "rows": exported, "topics": TOPICS}
     return ("// Generated by architecture-explorer/starter/scripts/security_catalog.py; do not edit by hand.\n"
-            "// Maps every Security, Cryptography and ML & Optimisation concept to its entry in the UML blueprint.\n"
+            "// Maps every Security, Cryptography, ML & Optimisation and Data Structures concept to its entry in the UML blueprint.\n"
             "const umlCatalog = " + json.dumps(data, indent=1, ensure_ascii=False) + ";\n")
 
 
