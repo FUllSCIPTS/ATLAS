@@ -150,15 +150,19 @@ function umlSection(topicKey) {
     const r = data.rows[id];
     return [`${r.concept}<small> ${data.status[r.status]}</small>`, r.symbol ? `<code>${secEsc(r.symbol)}</code>` : "—", `<a class="sec-inline-link" href="${r.source}">${secEsc(r.path.split("/").pop())} L${r.line}</a>`, umlChip(id, "Entry")];
   });
-  return secSection("UML CATALOGUE", "Every concept on this page in the UML blueprint", `<p class="sec-text">Each concept links to its function in the <a class="sec-inline-link" href="${umlHref(`uml-${view}-${key}`)}">UML blueprint's security and cryptography catalogue</a>, alongside the class diagrams and the generated symbol catalogue.</p>` + secTable(["Concept", "Function / symbol", "Source", "UML catalogue"], rows, "uml-table"));
+  return secSection("UML CATALOGUE", "Every concept on this page in the UML blueprint", `<p class="sec-text">Each concept links to its function in the <a class="sec-inline-link" href="${umlHref(`uml-${view}-${key}`)}">UML blueprint's ${umlCatalogueName(view)}</a>, alongside the class diagrams and the generated symbol catalogue.</p>` + secTable(["Concept", "Function / symbol", "Source", "UML catalogue"], rows, "uml-table"));
 }
+
+// The ML view has its own catalogue section; Security and Cryptography share one.
+const umlCatalogueName = (view) => (view === "ml" ? "machine learning and optimisation catalogue" : "security and cryptography catalogue");
+const umlCatalogueAnchor = (view) => umlCatalogueName(view).replace(/ /g, "-");
 
 // Overview: one link per topic section of the catalogue.
 function umlTopicsSection(view, topics) {
   const data = umlData();
   if (!data) return "";
   const rows = topics.filter((t) => data.topics[`${view}/${t.id}`]).map((t) => [t.title, `${data.topics[`${view}/${t.id}`].length} concepts`, umlChip(`uml-${view}-${t.id}`, "Section")]);
-  return secSection("UML CATALOGUE", "Every topic in the UML blueprint", `<p class="sec-text">Each topic below has a section in the <a class="sec-inline-link" href="${umlHref("security-and-cryptography-catalogue")}">security and cryptography catalogue</a> of the UML blueprint, with one entry per function.</p>` + secTable(["Topic", "Entries", "UML catalogue"], rows, "uml-table"));
+  return secSection("UML CATALOGUE", "Every topic in the UML blueprint", `<p class="sec-text">Each topic below has a section in the <a class="sec-inline-link" href="${umlHref(umlCatalogueAnchor(view))}">${umlCatalogueName(view)}</a> of the UML blueprint, with one entry per function.</p>` + secTable(["Topic", "Entries", "UML catalogue"], rows, "uml-table"));
 }
 
 // Compact list for the inspector.

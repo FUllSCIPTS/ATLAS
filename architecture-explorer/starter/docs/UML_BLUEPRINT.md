@@ -9,7 +9,7 @@ Use this blueprint to reproduce or extend ATLAS end to end. It covers four layer
 
 The Android app has no back end today; its only network use is map tiles. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-120). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the accounts, food, seller and shared-ride parts the back end does not yet implement.
 
-[Final handover and runbook](FINAL_HANDOVER.md) · [Security and cryptography catalogue](#security-and-cryptography-catalogue) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
+[Final handover and runbook](FINAL_HANDOVER.md) · [Security and cryptography catalogue](#security-and-cryptography-catalogue) · [Machine learning and optimisation catalogue](#machine-learning-and-optimisation-catalogue) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
 ## Start from the implementation
 
@@ -101,6 +101,7 @@ architecture-explorer/
 │   ├── crypto.js
 │   ├── explorer.js
 │   ├── index.html
+│   ├── ml.js
 │   ├── ride-event.schema.json
 │   ├── security.js
 │   ├── styles.css
@@ -1309,8 +1310,8 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-public"></a>Strip salt and hash before display | `public_view` | [android-app/atlas_go/accounts.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L124) | Implemented |
 | <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L260](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L260) | Implemented |
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
-| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L200](../../dist/security.js#L200) | Explorer / lab |
-| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L219](../../dist/security.js#L219) | Explorer / lab |
+| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L204](../../dist/security.js#L204) | Explorer / lab |
+| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L223](../../dist/security.js#L223) | Explorer / lab |
 | <a name="sec-pw-cli"></a>Command-line lab: salts, cost per guess, dictionary attack | `main` | [security_lab/password_storage_demo.py L35](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L35) | Explorer / lab |
 
 <a name="uml-security-login"></a>
@@ -1328,7 +1329,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L326](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L326) | Implemented |
 | <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L613](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L613) | Implemented |
 | Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
-| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L263](../../dist/security.js#L263) | Explorer / lab |
+| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L267](../../dist/security.js#L267) | Explorer / lab |
 
 <a name="uml-security-identity"></a>
 
@@ -1367,7 +1368,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-gw-internal"></a>Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | <a name="sec-gw-trips"></a>Trip Service accepts only gateway-asserted riders | `book` | [architecture-explorer/starter/services/trips.py L32](../services/trips.py#L32) | Demo-grade |
 | <a name="sec-gw-dispatch"></a>Dispatch Service accepts only gateway-asserted drivers | `offers` | [architecture-explorer/starter/services/dispatch.py L35](../services/dispatch.py#L35) | Demo-grade |
-| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L363](../../dist/security.js#L363) | Explorer / lab |
+| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L367](../../dist/security.js#L367) | Explorer / lab |
 
 <a name="uml-security-sso"></a>
 
@@ -1379,7 +1380,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | --- | --- | --- | --- |
 | <a name="sec-sso-target"></a>Where JWT validation would replace bearer keys | `proxy` | [architecture-explorer/starter/services/gateway.py L47](../services/gateway.py#L47) | Teaching extension |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
-| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L416](../../dist/security.js#L416) | Explorer / lab |
+| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L420](../../dist/security.js#L420) | Explorer / lab |
 
 <a name="uml-security-kerberos"></a>
 
@@ -1390,9 +1391,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | <a name="sec-krb-target"></a>What a Kerberos AP-REQ would replace in Dispatch | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Teaching extension |
-| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L496](../../dist/security.js#L496) | Explorer / lab |
-| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L506](../../dist/security.js#L506) | Explorer / lab |
-| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L579](../../dist/security.js#L579) | Explorer / lab |
+| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L500](../../dist/security.js#L500) | Explorer / lab |
+| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L510](../../dist/security.js#L510) | Explorer / lab |
+| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L583](../../dist/security.js#L583) | Explorer / lab |
 | <a name="sec-krb-seal"></a>AES-256-GCM seal used for tickets | `secSeal` | [architecture-explorer/dist/security.js L82](../../dist/security.js#L82) | Explorer / lab |
 
 <a name="uml-security-transport"></a>
@@ -1406,9 +1407,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-tls-ca"></a>Private CA, serverAuth and clientAuth certificates | `make_certs` | [prototype.zip → prototype/proto_run.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-client"></a>Client presents its certificate, verifies the server | `client_ctx` | [prototype.zip → prototype/proto_run.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-server"></a>Server requires a client certificate (CERT_REQUIRED) | `ctx.load_verify_locations(f"{certdir}/ca.crt"); ctx.verify_mode = ssl...` | [prototype.zip → prototype/module_server.py L84](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
-| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L32](../../server.mjs#L32) | Implemented |
-| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L40](../../server.mjs#L40) | Implemented |
-| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L66](../../server.mjs#L66) | Implemented |
+| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L33](../../server.mjs#L33) | Implemented |
+| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L41](../../server.mjs#L41) | Implemented |
+| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L67](../../server.mjs#L67) | Implemented |
 | <a name="sec-dep-systemd"></a>systemd sandbox (DynamicUser, ProtectSystem) | `DynamicUser=yes` | [architecture-explorer/deploy/atlas-explorer.service L10](../../deploy/atlas-explorer.service#L10) | Implemented |
 | <a name="cr-sig-sign"></a>Sign the bundle: jarsigner SHA256withRSA, then verify | `main` | [android-app/scripts/sign-release.py L8](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/sign-release.py#L8) | Implemented |
 
@@ -1517,6 +1518,154 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 
 <!-- END SECURITY CATALOG -->
+
+## Machine learning and optimisation catalogue
+
+<!-- BEGIN ML CATALOG -->
+
+Every concept in the Architecture Explorer's **ML & Optimisation** tab, linked to the function, constant or
+file that implements it, starting with the paper's coupling optimiser (`Sim.bip`). Each row has a stable anchor
+that the explorer links to. Status: **Paper (research code)** (`atlas_sim.zip` and `run_*.py` on `main`, as
+evaluated in the article), **App / starter (synthetic data)** (ATLAS Go or the server starter, trained on
+simulations) or **Explorer / lab** (teaching code in the explorer or `ml_lab/`). Teaching guide:
+[docs/MACHINE_LEARNING_OPTIMISATION.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/MACHINE_LEARNING_OPTIMISATION.md).
+Generated by `scripts/security_catalog.py`.
+
+<a name="uml-ml-optimizer"></a>
+
+### ML & Optimisation → Coupling BIP (the paper's optimiser)
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-optimizer)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-bip-modules"></a>Six modules: visit ratio and service demand | `VISIT` | [atlas_sim.zip → atlas_sim/traffic.py L13](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-params"></a>Objective weights, constraint limits, risk model | `class Params:` | [atlas_sim.zip → atlas_sim/cluster.py L21](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-model"></a>Predict latency, cost, risk, availability of all 2^n configurations | `Sim.eval_all` | [atlas_sim.zip → atlas_sim/cluster.py L166](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-ref"></a>Same model for one configuration (reference point L0, C0) | `Sim.eval_config` | [atlas_sim.zip → atlas_sim/cluster.py L146](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-solve"></a>Solve the BIP: objective J, constraints, argmin over all configurations | `Sim.bip` | [atlas_sim.zip → atlas_sim/cluster.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-loop"></a>Decision epoch: forecast, anomaly score, BIP, overrides, hysteresis | `Sim.run` | [atlas_sim.zip → atlas_sim/cluster.py L280](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-apply"></a>Apply: dual-run extraction, merge back | `Sim.apply` | [atlas_sim.zip → atlas_sim/cluster.py L218](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-fsm"></a>Ablation baseline: fixed load thresholds | `Sim.fsm_thresholds` | [atlas_sim.zip → atlas_sim/cluster.py L386](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-bip-lab"></a>Explorer lab: Sim.eval_all + Sim.bip replica | `mlBipSolve` | [architecture-explorer/dist/ml.js L169](../../dist/ml.js#L169) | Explorer / lab |
+| <a name="ml-bip-lab-eval"></a>Explorer lab: one configuration's latency, cost, risk | `mlEvalConfig` | [architecture-explorer/dist/ml.js L147](../../dist/ml.js#L147) | Explorer / lab |
+| <a name="ml-bip-cli"></a>Command-line lab: load sweep with the real Sim.bip | `section_bip` | [ml_lab/ml_optimisation_lab.py L67](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L67) | Explorer / lab |
+| <a name="ml-bip-cli-inside"></a>Command-line lab: every configuration at one load | `section_inside` | [ml_lab/ml_optimisation_lab.py L86](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L86) | Explorer / lab |
+| <a name="ml-bip-cli-anomaly"></a>Command-line lab: anomaly score raises crash risk | `section_anomaly` | [ml_lab/ml_optimisation_lab.py L106](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L106) | Explorer / lab |
+
+<a name="uml-ml-solvers"></a>
+
+### ML & Optimisation → Solvers
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-solvers)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| Solve the BIP: objective J, constraints, argmin over all configurations | `Sim.bip` | [atlas_sim.zip → atlas_sim/cluster.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-sol-instance"></a>Random linearised BIP instances, n = 6 ... 500 | `instance` | [run_bip_timing.py L15](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_bip_timing.py#L15) | Paper (research code) |
+| <a name="ml-sol-lpround"></a>LP relaxation + risk-aware rounding + greedy repair | `lp_round` | [run_bip_timing.py L31](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_bip_timing.py#L31) | Paper (research code) |
+| <a name="ml-sol-milp"></a>Branch-and-bound (HiGHS via scipy.optimize.milp) | `m = milp(f, constraints=LinearConstraint(A, -np.inf, ub), integrality...` | [run_bip_timing.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_bip_timing.py#L60) | Paper (research code) |
+| <a name="ml-sol-model"></a>Nonlinear model used to judge every method | `model` | [run_round2.py L36](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L36) | Paper (research code) |
+| <a name="ml-sol-solveall"></a>Exact enumeration vs linearised BIP vs LP method | `solve_all` | [run_round2.py L86](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L86) | Paper (research code) |
+| <a name="ml-sol-repair"></a>Phase 3: verify on the nonlinear model, greedy flips | `repair` | [run_round2.py L67](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L67) | Paper (research code) |
+| <a name="ml-sol-refined"></a>Sequential linearisation | `solve_refined` | [run_round2.py L381](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L381) | Paper (research code) |
+| <a name="ml-sol-local"></a>1-flip local search on the nonlinear objective | `local_search` | [run_round2.py L364](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L364) | Paper (research code) |
+| <a name="ml-sol-lab"></a>Explorer lab: enumerate 2^n in the browser | `mlEnumerateTiming` | [architecture-explorer/dist/ml.js L248](../../dist/ml.js#L248) | Explorer / lab |
+| <a name="ml-sol-cli"></a>Command-line lab: enumeration vs branch-and-bound vs LP | `section_solvers` | [ml_lab/ml_optimisation_lab.py L126](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L126) | Explorer / lab |
+
+<a name="uml-ml-forecasting"></a>
+
+### ML & Optimisation → Forecasting
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-forecasting)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-fc-trace"></a>Paper traffic model: daily, weekly, noise, flash sales | `ecommerce_trace` | [atlas_sim.zip → atlas_sim/traffic.py L17](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-lstm"></a>LSTM / Bi-LSTM forecaster (2 x 128, dropout 0.2) | `class LSTMForecaster(nn.Module):` | [atlas_sim.zip → atlas_sim/forecast.py L11](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-train"></a>Training: Adam, gradient clipping, early stopping | `train` | [atlas_sim.zip → atlas_sim/forecast.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-ar"></a>Baseline: Ridge autoregression | `fit_ar` | [atlas_sim.zip → atlas_sim/forecast.py L117](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-naive"></a>Baseline: seasonal naive | `seasonal_naive` | [atlas_sim.zip → atlas_sim/forecast.py L106](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-run"></a>Experiment: 3 seeds, horizons 5, 15, 60 min | `H` | [run_forecast.py L14](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_forecast.py#L14) | Paper (research code) |
+| <a name="ml-fc-starter"></a>Starter DemandLSTM trained with Adam | `train` | [architecture-explorer/starter/ml/forecast.py L20](../ml/forecast.py#L20) | App / starter (synthetic data) |
+| <a name="ml-fc-app"></a>App LSTM in numpy with a hand-written Adam step | `LSTM.step` | [android-app/training/city_sim.py L214](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L214) | App / starter (synthetic data) |
+| Decision epoch: forecast, anomaly score, BIP, overrides, hysteresis | `Sim.run` | [atlas_sim.zip → atlas_sim/cluster.py L280](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-fc-lab"></a>Explorer lab: AR forecaster, gradient descent vs Adam | `mlTrainForecaster` | [architecture-explorer/dist/ml.js L306](../../dist/ml.js#L306) | Explorer / lab |
+| <a name="ml-fc-cli"></a>Command-line lab: gradient descent vs Adam vs least squares | `section_training` | [ml_lab/ml_optimisation_lab.py L157](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L157) | Explorer / lab |
+
+<a name="uml-ml-anomaly"></a>
+
+### ML & Optimisation → Isolation Forest
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-anomaly)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-an-telemetry"></a>Telemetry and injected fault types | `telemetry` | [atlas_sim.zip → atlas_sim/traffic.py L100](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-an-fit"></a>Fit on unlabelled telemetry (100 trees, 256 samples) | `m = IsolationForest(n_estimators=100, max_samples=256, contamination=...` | [run_anomaly.py L66](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_anomaly.py#L66) | Paper (research code) |
+| <a name="ml-an-run"></a>Isolation Forest, normalised score (paper experiment) | `norm_score` | [run_anomaly.py L55](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_anomaly.py#L55) | Paper (research code) |
+| <a name="ml-an-score"></a>Score inside the simulator; blame a module | `Sim.score` | [atlas_sim.zip → atlas_sim/cluster.py L395](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-an-fast"></a>Path-length scorer re-implemented for one row | `FastIForest.score_samples` | [atlas_sim.zip → atlas_sim/cluster.py L523](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| Solve the BIP: objective J, constraints, argmin over all configurations | `Sim.bip` | [atlas_sim.zip → atlas_sim/cluster.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| <a name="ml-an-starter"></a>Starter: acceptance model + driver Isolation Forest | `train` | [architecture-explorer/starter/ml/discrete.py L8](../ml/discrete.py#L8) | App / starter (synthetic data) |
+| <a name="ml-an-serve"></a>Starter: anomaly flag per driver in the scoring API | `score` | [architecture-explorer/starter/ml/serve.py L48](../ml/serve.py#L48) | App / starter (synthetic data) |
+| <a name="ml-an-lab"></a>Explorer lab: grow an Isolation Forest | `mlForestGrow` | [architecture-explorer/dist/ml.js L392](../../dist/ml.js#L392) | Explorer / lab |
+| <a name="ml-an-cli"></a>Command-line lab: Isolation Forest on paper telemetry | `section_iforest` | [ml_lab/ml_optimisation_lab.py L212](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L212) | Explorer / lab |
+
+<a name="uml-ml-rl"></a>
+
+### ML & Optimisation → Reinforcement learning
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-rl)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-rl-ride"></a>Ride dispatch: REINFORCE training | `train_ride` | [android-app/training/rl_sim.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/rl_sim.py#L42) | App / starter (synthetic data) |
+| <a name="ml-rl-weights"></a>Approved dispatch weights (policy v1.4) | `RIDE_WEIGHTS` | [android-app/atlas_go/learned.py L13](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/learned.py#L13) | App / starter (synthetic data) |
+| <a name="ml-rl-rank"></a>Dispatch: softmax over candidate drivers | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | App / starter (synthetic data) |
+| <a name="ml-rl-learnlab"></a>On-device learning lab (REINFORCE, sandbox) | `LearningLab.train` | [android-app/atlas_go/intelligence.py L415](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L415) | App / starter (synthetic data) |
+| <a name="ml-rl-food"></a>Courier timing: tabular Q-learning | `train_food` | [android-app/training/rl_sim.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/rl_sim.py#L88) | App / starter (synthetic data) |
+| <a name="ml-rl-courier"></a>Courier plan from the learned Q-table | `courier_plan` | [android-app/atlas_go/intelligence.py L336](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L336) | App / starter (synthetic data) |
+| <a name="ml-rl-accept"></a>Acceptance: Beta(9, 1) posterior mean | `acceptance` | [android-app/atlas_go/intelligence.py L292](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L292) | App / starter (synthetic data) |
+| <a name="ml-rl-supply"></a>Driver supply agent with hindsight updates | `run_rl` | [android-app/training/city_sim.py L152](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L152) | App / starter (synthetic data) |
+| <a name="ml-rl-bandit"></a>Starter: action values per demand bucket | `fit` | [architecture-explorer/starter/ml/rl.py L32](../ml/rl.py#L32) | App / starter (synthetic data) |
+| <a name="ml-rl-approve"></a>Starter: held-out approval gate before activation | `approve` | [architecture-explorer/starter/ml/rl.py L51](../ml/rl.py#L51) | App / starter (synthetic data) |
+| <a name="ml-rl-lab"></a>Explorer lab: REINFORCE (LearningLab.train port) | `mlRlTrain` | [architecture-explorer/dist/ml.js L460](../../dist/ml.js#L460) | Explorer / lab |
+| <a name="ml-rl-cli"></a>Command-line lab: REINFORCE and Q-learning | `section_rl` | [ml_lab/ml_optimisation_lab.py L234](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L234) | Explorer / lab |
+
+<a name="uml-ml-evaluation"></a>
+
+### ML & Optimisation → Tuning & evaluation
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-evaluation)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-ev-tune"></a>Grid search on validation seeds | `tune` | [run_cluster.py L110](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L110) | Paper (research code) |
+| <a name="ml-ev-grid"></a>ATLAS tuning grid | `"atlas": [dict(switch_pen=a, rho_max=b, hpa_target=c) for a in (.02, ...` | [run_cluster.py L165](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L165) | Paper (research code) |
+| <a name="ml-ev-ablation"></a>Ablation: remove one component at a time | `if "ablation" in which:` | [run_cluster.py L209](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L209) | Paper (research code) |
+| <a name="ml-ev-compare"></a>Paired Wilcoxon test + rank-biserial effect size | `compare` | [run_cluster.py L134](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L134) | Paper (research code) |
+| <a name="ml-ev-holm"></a>Holm-Bonferroni correction | `holm` | [run_cluster.py L145](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L145) | Paper (research code) |
+| <a name="ml-ev-stat"></a>Mean, SD, 95 % t-interval over 30 runs | `stat_block` | [run_cluster.py L120](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L120) | Paper (research code) |
+| <a name="ml-ev-boot"></a>Block bootstrap CI for forecast errors | `block_bootstrap_ci` | [atlas_sim.zip → atlas_sim/forecast.py L139](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| Ablation baseline: fixed load thresholds | `Sim.fsm_thresholds` | [atlas_sim.zip → atlas_sim/cluster.py L386](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+
+<a name="uml-ml-gaps"></a>
+
+### ML & Optimisation → Gaps & exercises
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-gaps)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| Six modules: visit ratio and service demand | `VISIT` | [atlas_sim.zip → atlas_sim/traffic.py L13](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| Solve the BIP: objective J, constraints, argmin over all configurations | `Sim.bip` | [atlas_sim.zip → atlas_sim/cluster.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| Objective weights, constraint limits, risk model | `class Params:` | [atlas_sim.zip → atlas_sim/cluster.py L21](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| Training: Adam, gradient clipping, early stopping | `train` | [atlas_sim.zip → atlas_sim/forecast.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
+| On-device learning lab (REINFORCE, sandbox) | `LearningLab.train` | [android-app/atlas_go/intelligence.py L415](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L415) | App / starter (synthetic data) |
+| Starter: action values per demand bucket | `fit` | [architecture-explorer/starter/ml/rl.py L32](../ml/rl.py#L32) | App / starter (synthetic data) |
+
+<!-- END ML CATALOG -->
 
 ## Generated symbol catalog
 
@@ -1665,14 +1814,14 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `read(location, main)` | — | [L164](../scripts/security_catalog.py#L164) |
-| Function | `python_symbols(text)` | — | [L174](../scripts/security_catalog.py#L174) |
-| Function | `locate(text, path, symbol)` | — | [L186](../scripts/security_catalog.py#L186) |
-| Function | `resolve(main)` | — | [L207](../scripts/security_catalog.py#L207) |
-| Function | `markdown(rows)` | — | [L239](../scripts/security_catalog.py#L239) |
-| Function | `script(rows)` | — | [L262](../scripts/security_catalog.py#L262) |
-| Function | `replace_block(document, content)` | — | [L270](../scripts/security_catalog.py#L270) |
-| Function | `main()` | — | [L279](../scripts/security_catalog.py#L279) |
+| Function | `read(location, main)` | — | [L262](../scripts/security_catalog.py#L262) |
+| Function | `python_symbols(text)` | — | [L272](../scripts/security_catalog.py#L272) |
+| Function | `locate(text, path, symbol)` | — | [L284](../scripts/security_catalog.py#L284) |
+| Function | `resolve(main)` | — | [L305](../scripts/security_catalog.py#L305) |
+| Function | `markdown(rows, views, intro)` | — | [L338](../scripts/security_catalog.py#L338) |
+| Function | `script(rows)` | — | [L359](../scripts/security_catalog.py#L359) |
+| Function | `replace_block(document, content, name)` | — | [L367](../scripts/security_catalog.py#L367) |
+| Function | `main()` | — | [L376](../scripts/security_catalog.py#L376) |
 
 ### `services/dispatch.py`
 
@@ -1924,62 +2073,320 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `indexSystem()` | — | [L51](../../dist/explorer.js#L51) |
-| Function | `indexSystem.<callback: S.links.map>(link)` | — | [L53](../../dist/explorer.js#L53) |
-| Function | `indexSystem.<callback: S.folders.flatMap>(group)` | — | [L54](../../dist/explorer.js#L54) |
-| Function | `indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)` | — | [L54](../../dist/explorer.js#L54) |
-| Function | `$(id)` | — | [L58](../../dist/explorer.js#L58) |
-| Function | `icon(name, size = 18)` | — | [L59](../../dist/explorer.js#L59) |
-| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L62](../../dist/explorer.js#L62) |
-| Function | `announce(message)` | — | [L64](../../dist/explorer.js#L64) |
-| Function | `componentColor(id)` | — | [L68](../../dist/explorer.js#L68) |
-| Function | `componentMark(id, size = 19)` | — | [L72](../../dist/explorer.js#L72) |
-| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L76](../../dist/explorer.js#L76) |
-| Function | `updateControls()` | — | [L80](../../dist/explorer.js#L80) |
-| Function | `updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])` | — | [L82](../../dist/explorer.js#L82) |
-| Function | `architectureView()` | — | [L92](../../dist/explorer.js#L92) |
-| Function | `architectureView.<callback: S.links.filter>({ from, to })` | — | [L95](../../dist/explorer.js#L95) |
-| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L96](../../dist/explorer.js#L96) |
-| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L98](../../dist/explorer.js#L98) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L99](../../dist/explorer.js#L99) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L99](../../dist/explorer.js#L99) |
-| Function | `architectureView.<callback: [...S.links].sort>(a, b)` | — | [L101](../../dist/explorer.js#L101) |
-| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L102](../../dist/explorer.js#L102) |
-| Function | `architectureView.<callback: Object.values(S.groups).map>(group, index)` | — | [L107](../../dist/explorer.js#L107) |
-| Function | `architectureView.<callback: Object.entries(S.components).map>([id, component])` | — | [L108](../../dist/explorer.js#L108) |
-| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L125](../../dist/explorer.js#L125) |
-| Function | `cardsMarkup()` | — | [L128](../../dist/explorer.js#L128) |
-| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>([, component])` | — | [L130](../../dist/explorer.js#L130) |
-| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L131](../../dist/explorer.js#L131) |
-| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L132](../../dist/explorer.js#L132) |
-| Function | `componentsView()` | — | [L137](../../dist/explorer.js#L137) |
-| Function | `componentsView.<callback: Object.entries(S.groups).map>([id, group])` | — | [L140](../../dist/explorer.js#L140) |
-| Function | `deploymentView()` | — | [L144](../../dist/explorer.js#L144) |
-| Function | `deploymentView.<callback: S.zones.map>(zone, index)` | — | [L146](../../dist/explorer.js#L146) |
-| Function | `deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)` | — | [L146](../../dist/explorer.js#L146) |
-| Function | `foldersView()` | — | [L150](../../dist/explorer.js#L150) |
-| Function | `foldersView.<callback: S.folders.map>(group)` | — | [L153](../../dist/explorer.js#L153) |
-| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)` | — | [L153](../../dist/explorer.js#L153) |
-| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)` | — | [L153](../../dist/explorer.js#L153) |
-| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L154](../../dist/explorer.js#L154) |
-| Function | `inspectorMarkup()` | — | [L157](../../dist/explorer.js#L157) |
-| Function | `inspectorMarkup.<callback: S.links.filter>({ to })` | — | [L163](../../dist/explorer.js#L163) |
-| Function | `inspectorMarkup.<callback: S.links.filter>({ from })` | — | [L164](../../dist/explorer.js#L164) |
-| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L170](../../dist/explorer.js#L170) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L170](../../dist/explorer.js#L170) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L170](../../dist/explorer.js#L170) |
-| Function | `render()` | — | [L177](../../dist/explorer.js#L177) |
-| Function | `setSystem(id, fromClick = false)` | — | [L204](../../dist/explorer.js#L204) |
-| Function | `stopPlayback()` | — | [L221](../../dist/explorer.js#L221) |
-| Function | `switchView(view)` | — | [L226](../../dist/explorer.js#L226) |
-| Function | `applyStep(step)` | — | [L235](../../dist/explorer.js#L235) |
-| Function | `setScenario(id)` | — | [L254](../../dist/explorer.js#L254) |
-| Function | `playTrace()` | — | [L267](../../dist/explorer.js#L267) |
-| Function | `playTrace.<callback: setInterval>()` | — | [L274](../../dist/explorer.js#L274) |
-| Function | `<callback: document.addEventListener, "click">(event)` | — | [L283](../../dist/explorer.js#L283) |
-| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L323](../../dist/explorer.js#L323) |
-| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L335](../../dist/explorer.js#L335) |
-| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L342](../../dist/explorer.js#L342) |
+| Function | `indexSystem()` | — | [L52](../../dist/explorer.js#L52) |
+| Function | `indexSystem.<callback: S.links.map>(link)` | — | [L54](../../dist/explorer.js#L54) |
+| Function | `indexSystem.<callback: S.folders.flatMap>(group)` | — | [L55](../../dist/explorer.js#L55) |
+| Function | `indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)` | — | [L55](../../dist/explorer.js#L55) |
+| Function | `$(id)` | — | [L59](../../dist/explorer.js#L59) |
+| Function | `icon(name, size = 18)` | — | [L60](../../dist/explorer.js#L60) |
+| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L63](../../dist/explorer.js#L63) |
+| Function | `announce(message)` | — | [L65](../../dist/explorer.js#L65) |
+| Function | `componentColor(id)` | — | [L69](../../dist/explorer.js#L69) |
+| Function | `componentMark(id, size = 19)` | — | [L73](../../dist/explorer.js#L73) |
+| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L77](../../dist/explorer.js#L77) |
+| Function | `updateControls()` | — | [L81](../../dist/explorer.js#L81) |
+| Function | `updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])` | — | [L83](../../dist/explorer.js#L83) |
+| Function | `architectureView()` | — | [L93](../../dist/explorer.js#L93) |
+| Function | `architectureView.<callback: S.links.filter>({ from, to })` | — | [L96](../../dist/explorer.js#L96) |
+| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L97](../../dist/explorer.js#L97) |
+| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L99](../../dist/explorer.js#L99) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L100](../../dist/explorer.js#L100) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L100](../../dist/explorer.js#L100) |
+| Function | `architectureView.<callback: [...S.links].sort>(a, b)` | — | [L102](../../dist/explorer.js#L102) |
+| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L103](../../dist/explorer.js#L103) |
+| Function | `architectureView.<callback: Object.values(S.groups).map>(group, index)` | — | [L108](../../dist/explorer.js#L108) |
+| Function | `architectureView.<callback: Object.entries(S.components).map>([id, component])` | — | [L109](../../dist/explorer.js#L109) |
+| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L126](../../dist/explorer.js#L126) |
+| Function | `cardsMarkup()` | — | [L129](../../dist/explorer.js#L129) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>([, component])` | — | [L131](../../dist/explorer.js#L131) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L132](../../dist/explorer.js#L132) |
+| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L133](../../dist/explorer.js#L133) |
+| Function | `componentsView()` | — | [L138](../../dist/explorer.js#L138) |
+| Function | `componentsView.<callback: Object.entries(S.groups).map>([id, group])` | — | [L141](../../dist/explorer.js#L141) |
+| Function | `deploymentView()` | — | [L145](../../dist/explorer.js#L145) |
+| Function | `deploymentView.<callback: S.zones.map>(zone, index)` | — | [L147](../../dist/explorer.js#L147) |
+| Function | `deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)` | — | [L147](../../dist/explorer.js#L147) |
+| Function | `foldersView()` | — | [L151](../../dist/explorer.js#L151) |
+| Function | `foldersView.<callback: S.folders.map>(group)` | — | [L154](../../dist/explorer.js#L154) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)` | — | [L154](../../dist/explorer.js#L154) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)` | — | [L154](../../dist/explorer.js#L154) |
+| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L155](../../dist/explorer.js#L155) |
+| Function | `inspectorMarkup()` | — | [L158](../../dist/explorer.js#L158) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ to })` | — | [L164](../../dist/explorer.js#L164) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ from })` | — | [L165](../../dist/explorer.js#L165) |
+| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L171](../../dist/explorer.js#L171) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L171](../../dist/explorer.js#L171) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L171](../../dist/explorer.js#L171) |
+| Function | `render()` | — | [L178](../../dist/explorer.js#L178) |
+| Function | `setSystem(id, fromClick = false)` | — | [L205](../../dist/explorer.js#L205) |
+| Function | `stopPlayback()` | — | [L222](../../dist/explorer.js#L222) |
+| Function | `switchView(view)` | — | [L227](../../dist/explorer.js#L227) |
+| Function | `applyStep(step)` | — | [L237](../../dist/explorer.js#L237) |
+| Function | `setScenario(id)` | — | [L256](../../dist/explorer.js#L256) |
+| Function | `playTrace()` | — | [L269](../../dist/explorer.js#L269) |
+| Function | `playTrace.<callback: setInterval>()` | — | [L276](../../dist/explorer.js#L276) |
+| Function | `<callback: document.addEventListener, "click">(event)` | — | [L285](../../dist/explorer.js#L285) |
+| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L326](../../dist/explorer.js#L326) |
+| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L338](../../dist/explorer.js#L338) |
+| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L345](../../dist/explorer.js#L345) |
+
+### `dist/ml.js`
+
+[Open source](../../dist/ml.js)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `<callback: mlTopics.map>(t)` | — | [L34](../../dist/ml.js#L34) |
+| Function | `mlChip(status)` | — | [L36](../../dist/ml.js#L36) |
+| Function | `mlRng(seed)` | — | [L43](../../dist/ml.js#L43) |
+| Function | `mlRng.uniform()` | — | [L45](../../dist/ml.js#L45) |
+| Function | `mlRng.normal()` | — | [L46](../../dist/ml.js#L46) |
+| Function | `mlRng.range(lo, hi)` | — | [L47](../../dist/ml.js#L47) |
+| Function | `mlRng.int(n)` | — | [L47](../../dist/ml.js#L47) |
+| Function | `mlButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L60](../../dist/ml.js#L60) |
+| Function | `mlSelect(name, label, options, value)` | — | [L64](../../dist/ml.js#L64) |
+| Function | `mlSelect.<callback: options.map>([v, l])` | — | [L65](../../dist/ml.js#L65) |
+| Function | `mlRange(name, label, min, max, step, value, shown)` | — | [L68](../../dist/ml.js#L68) |
+| Function | `mlChart(series, { logX = false, logY = false, xLabel = "", yLabel = "", height = 170, hlines = [], vline = null } = {})` | — | [L73](../../dist/ml.js#L73) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L75](../../dist/ml.js#L75) |
+| Function | `mlChart.<callback: hlines.map>(h)` | — | [L75](../../dist/ml.js#L75) |
+| Function | `mlChart.fx(x)` | — | [L76](../../dist/ml.js#L76) |
+| Function | `mlChart.fy(y)` | — | [L76](../../dist/ml.js#L76) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L77](../../dist/ml.js#L77) |
+| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L77](../../dist/ml.js#L77) |
+| Function | `mlChart.<callback: all.map>(p)` | — | [L77](../../dist/ml.js#L77) |
+| Function | `mlChart.sx(x)` | — | [L81](../../dist/ml.js#L81) |
+| Function | `mlChart.sy(y)` | — | [L82](../../dist/ml.js#L82) |
+| Function | `mlChart.fmt(v)` | — | [L83](../../dist/ml.js#L83) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L84](../../dist/ml.js#L84) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map((f) => y0 + pad + f * (y1 - y0 - 2 * pad)).map>(v)` | — | [L84](../../dist/ml.js#L84) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L85](../../dist/ml.js#L85) |
+| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L85](../../dist/ml.js#L85) |
+| Function | `mlChart.<callback: [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].filter>(v)` | — | [L85](../../dist/ml.js#L85) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L85](../../dist/ml.js#L85) |
+| Function | `mlChart.<callback: ticksY.map>(v)` | — | [L87](../../dist/ml.js#L87) |
+| Function | `mlChart.<callback: ticksX.map>(v)` | — | [L88](../../dist/ml.js#L88) |
+| Function | `mlChart.<callback: hlines.map>(h)` | — | [L91](../../dist/ml.js#L91) |
+| Function | `mlChart.<callback: series.map>(s)` | — | [L93](../../dist/ml.js#L93) |
+| Function | `mlChart.<callback: series.map>.<callback: s.points.map>(p)` | — | [L93](../../dist/ml.js#L93) |
+| Function | `mlLegend(items)` | — | [L97](../../dist/ml.js#L97) |
+| Function | `mlLegend.<callback: items.map>([cls, text])` | — | [L98](../../dist/ml.js#L98) |
+| Function | `mlOverview()` | — | [L112](../../dist/ml.js#L112) |
+| Function | `mlOverview.<callback: Object.keys(mlStatus).map>(k)` | — | [L114](../../dist/ml.js#L114) |
+| Function | `mlOverview.<callback: mlMap.map>([topic, ic, title, status, text, where])` | — | [L115](../../dist/ml.js#L115) |
+| Function | `mlOverview.<callback: [
+      ["Forecast", "λ* = max(load, LSTM 5-min forecast)", "Plan for the load that is coming"],
+      ["Score", "Isolation Forest on telemetry", "Blame the module whose demand deviates most"],
+      ["Optimise", "Sim.bip over 2⁶ = 64 configurations", "min J subject to utilisation, SLA, replicas, availability"],
+      ["Override", "score ≥ 0.9 → all loose; ≥ 0.7 → isolate blamed module", "Safety rules around the optimiser"],
+      ["Hysteresis", "merge back only after 300 s", "Stop the optimiser oscillating"],
+      ["Apply", "dual-run while pods start (8–30 s)", "40 ms state hand-over, measured in the prototype"],
+    ].map>([t, c, s], i)` | — | [L123](../../dist/ml.js#L123) |
+| Function | `mlEvalConfig(c, lam, pCrash)` | — | [L147](../../dist/ml.js#L147) |
+| Function | `mlEvalConfig.<callback: c.map>(x)` | — | [L149](../../dist/ml.js#L149) |
+| Function | `mlEvalConfig.<callback: v.map>(vi, i)` | — | [L155](../../dist/ml.js#L155) |
+| Function | `mlEvalConfig.<callback: reps.reduce>(s, r)` | — | [L157](../../dist/ml.js#L157) |
+| Function | `mlEvalConfig.<callback: c.reduce>(s, x)` | — | [L157](../../dist/ml.js#L157) |
+| Function | `mlEvalConfig.<callback: v.filter>(_, i)` | — | [L158](../../dist/ml.js#L158) |
+| Function | `mlBipSolve(lam, a, anomModule, now, hybrid = true)` | — | [L169](../../dist/ml.js#L169) |
+| Function | `mlBipSolve.<callback: Array.from>(_, i)` | — | [L176](../../dist/ml.js#L176) |
+| Function | `mlBipSolve.<callback: c.reduce>(x, y)` | — | [L177](../../dist/ml.js#L177) |
+| Function | `mlBipSolve.<callback: c.reduce>(x, ci, i)` | — | [L180](../../dist/ml.js#L180) |
+| Function | `mlBipSolve.<callback: m.reps.some>(r)` | — | [L183](../../dist/ml.js#L183) |
+| Function | `mlBipSolve.<callback: rows.filter>(r)` | — | [L188](../../dist/ml.js#L188) |
+| Function | `mlAfterOverrides(choice, a, anomModule)` | — | [L191](../../dist/ml.js#L191) |
+| Function | `mlShape(c)` | — | [L197](../../dist/ml.js#L197) |
+| Function | `mlShape.<callback: c.reduce>(x, y)` | — | [L197](../../dist/ml.js#L197) |
+| Function | `mlConfigChips(c, now = null)` | — | [L199](../../dist/ml.js#L199) |
+| Function | `mlConfigChips.<callback: ML_SERVICES.map>(name, i)` | — | [L200](../../dist/ml.js#L200) |
+| Function | `mlOptimizer()` | — | [L203](../../dist/ml.js#L203) |
+| Function | `mlOptimizer.<callback: res.rows.filter>(r)` | — | [L208](../../dist/ml.js#L208) |
+| Function | `mlOptimizer.<callback: res.rows.filter((r) => r.ok).sort>(x, y)` | — | [L208](../../dist/ml.js#L208) |
+| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L209](../../dist/ml.js#L209) |
+| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L209](../../dist/ml.js#L209) |
+| Function | `mlOptimizer.fmtRow(r)` | — | [L210](../../dist/ml.js#L210) |
+| Function | `mlOptimizer.<callback: Array.from>(_, i)` | — | [L212](../../dist/ml.js#L212) |
+| Function | `mlOptimizer.<callback: loads.map>(lam)` | — | [L213](../../dist/ml.js#L213) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>(name, i)` | — | [L216](../../dist/ml.js#L216) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>.<callback: sweep.map>(c, j)` | — | [L216](../../dist/ml.js#L216) |
+| Function | `mlOptimizer.<callback: [1000, 2500, 5000, 7500, 10000].map>(l)` | — | [L217](../../dist/ml.js#L217) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>(s, i)` | — | [L230](../../dist/ml.js#L230) |
+| Function | `mlOptimizer.<callback: [["latency", best.parts.lat], ["cost", best.parts.cost], ["risk", best.parts.risk], ["switching", best.parts.sw]].map>([k, v])` | — | [L235](../../dist/ml.js#L235) |
+| Function | `mlOptimizer.<callback: extremes.filter>(r)` | — | [L237](../../dist/ml.js#L237) |
+| Function | `mlEnumerateTiming(n, seed = n)` | — | [L248](../../dist/ml.js#L248) |
+| Function | `mlEnumerateTiming.u(lo, hi)` | — | [L249](../../dist/ml.js#L249) |
+| Function | `mlEnumerateTiming.<callback: lm.map>(_, i)` | — | [L252](../../dist/ml.js#L252) |
+| Function | `mlEnumerateTiming.<callback: ln.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
+| Function | `mlEnumerateTiming.<callback: kp.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
+| Function | `mlEnumerateTiming.<callback: pr.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
+| Function | `mlEnumerateTiming.<callback: A[0].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
+| Function | `mlEnumerateTiming.<callback: A[1].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
+| Function | `mlEnumerateTiming.<callback: A[2].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
+| Function | `mlEnumerateTiming.<callback: A[3].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
+| Function | `mlEnumerateTiming.<callback: bestK.toString(2).split("").filter>(x)` | — | [L262](../../dist/ml.js#L262) |
+| Function | `mlSolvers()` | — | [L265](../../dist/ml.js#L265) |
+| Function | `mlSolvers.<callback: ML_TIMING.filter>(r)` | — | [L267](../../dist/ml.js#L267) |
+| Function | `mlSolvers.<callback: ML_TIMING.filter((r) => r[1] != null).map>(r)` | — | [L267](../../dist/ml.js#L267) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L268](../../dist/ml.js#L268) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L269](../../dist/ml.js#L269) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L281](../../dist/ml.js#L281) |
+| Function | `mlSolvers.<callback: [6, 10, 14, 18, 20].map>(n)` | — | [L284](../../dist/ml.js#L284) |
+| Function | `mlSolvers.<callback: ml.enum.map>(e)` | — | [L286](../../dist/ml.js#L286) |
+| Function | `mlTrace(days, seed = 2026)` | — | [L291](../../dist/ml.js#L291) |
+| Function | `mlTrainForecaster(optimiser, lr, { lags = 30, days = 21, maxEpochs = 120, patience = 10 } = {})` | — | [L306](../../dist/ml.js#L306) |
+| Function | `mlTrainForecaster.<callback: Array.from>(x)` | — | [L308](../../dist/ml.js#L308) |
+| Function | `mlTrainForecaster.<callback: y.map>(x)` | — | [L311](../../dist/ml.js#L311) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
+| Function | `mlTrainForecaster.predict(w, t)` | — | [L314](../../dist/ml.js#L314) |
+| Function | `mlTrainForecaster.mse(w, set)` | — | [L315](../../dist/ml.js#L315) |
+| Function | `mlTrainForecaster.mse.<callback: set.reduce>(s, t)` | — | [L315](../../dist/ml.js#L315) |
+| Function | `mlTrainForecaster.back(x)` | — | [L335](../../dist/ml.js#L335) |
+| Function | `mlTrainForecaster.mae(fn)` | — | [L337](../../dist/ml.js#L337) |
+| Function | `mlTrainForecaster.mae.<callback: te.reduce>(s, t)` | — | [L337](../../dist/ml.js#L337) |
+| Function | `mlTrainForecaster.<callback: te.slice(-1440).filter>(_, i)` | — | [L338](../../dist/ml.js#L338) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
+| Function | `mlTrainForecaster.<callback: day.map>(t)` | — | [L342](../../dist/ml.js#L342) |
+| Function | `mlForecasting()` | — | [L346](../../dist/ml.js#L346) |
+| Function | `mlForecasting.<callback: fc.gd.curve.filter>(p)` | — | [L357](../../dist/ml.js#L357) |
+| Function | `mlForecasting.<callback: fc.adam.curve.filter>(p)` | — | [L357](../../dist/ml.js#L357) |
+| Function | `mlForecasting.<callback: [{ points: fc.gd.curve.filter((p) => p[1] < 5), cls: "s1" }, { points: fc.adam.curve.filter((p) => p[1] < 5), cls: "s3" }].filter>(x)` | — | [L357](../../dist/ml.js#L357) |
+| Function | `mlForecasting.<callback: [["gradient descent", fc.gd], ["Adam", fc.adam]].map>([name, r])` | — | [L359](../../dist/ml.js#L359) |
+| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L362](../../dist/ml.js#L362) |
+| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L362](../../dist/ml.js#L362) |
+| Function | `mlForecasting.<callback: [{ points: fc.adam.day.map((p) => [p[0], p[1]]), cls: "s0" }, { points: fc.adam.day.map((p) => [p[0], p[2]]), cls: "s3" }].filter>()` | — | [L362](../../dist/ml.js#L362) |
+| Function | `mlDrivers(subtle = false, seed = 11)` | — | [L372](../../dist/ml.js#L372) |
+| Function | `mlC(n)` | — | [L379](../../dist/ml.js#L379) |
+| Function | `mlTree(points, depth, maxDepth, g)` | — | [L381](../../dist/ml.js#L381) |
+| Function | `mlTree.<callback: points.map>(p)` | — | [L383](../../dist/ml.js#L383) |
+| Function | `mlTree.<callback: points.filter>(p)` | — | [L386](../../dist/ml.js#L386) |
+| Function | `mlTree.<callback: points.filter>(p)` | — | [L386](../../dist/ml.js#L386) |
+| Function | `mlPath(node, x, depth = 0)` | — | [L389](../../dist/ml.js#L389) |
+| Function | `mlForestGrow(nTrees, subtle = false)` | — | [L392](../../dist/ml.js#L392) |
+| Function | `mlForestGrow.score(x)` | — | [L399](../../dist/ml.js#L399) |
+| Function | `mlForestGrow.score.<callback: trees.reduce>(s, tr)` | — | [L399](../../dist/ml.js#L399) |
+| Function | `mlForestGrow.<callback: data.train.map(score).sort>(a, b)` | — | [L400](../../dist/ml.js#L400) |
+| Function | `mlForestGrow.<callback: data.test.map>(x)` | — | [L402](../../dist/ml.js#L402) |
+| Function | `mlForestGrow.<callback: data.odd.map>(x)` | — | [L402](../../dist/ml.js#L402) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L403](../../dist/ml.js#L403) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L403](../../dist/ml.js#L403) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L405](../../dist/ml.js#L405) |
+| Function | `mlForestGrow.depthOf(x)` | — | [L406](../../dist/ml.js#L406) |
+| Function | `mlForestGrow.depthOf.<callback: trees.reduce>(s, tr)` | — | [L406](../../dist/ml.js#L406) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
+| Function | `mlAnomaly()` | — | [L410](../../dist/ml.js#L410) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>()` | — | [L412](../../dist/ml.js#L412) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>.sx(v)` | — | [L413](../../dist/ml.js#L413) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>.sy(v)` | — | [L413](../../dist/ml.js#L413) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>.<callback: [0, 50, 100, 150, 200].map>(v)` | — | [L415](../../dist/ml.js#L415) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>.<callback: [0, 10, 20, 30].map>(v)` | — | [L416](../../dist/ml.js#L416) |
+| Function | `mlAnomaly.<callback: () => {
+    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
+    return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
+      ${[0, 50, 100, 150, 200].map((v) => `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text class="tick" x="${P.l - 6}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`).join("")}
+      ${[0, 10, 20, 30].map((v) => `<text class="tick" x="${sx(v)}" y="${H - P.b + 13}" text-anchor="middle">${v}</text>`).join("")}
+      <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
+      ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
+    </svg>`;
+  }>.<callback: F.pts.map>(p)` | — | [L418](../../dist/ml.js#L418) |
+| Function | `mlFeatures(c)` | — | [L441](../../dist/ml.js#L441) |
+| Function | `mlScore(c, w)` | — | [L442](../../dist/ml.js#L442) |
+| Function | `mlScore.<callback: mlFeatures(c).reduce>(s, f, i)` | — | [L442](../../dist/ml.js#L442) |
+| Function | `mlExpectedCost(c)` | — | [L443](../../dist/ml.js#L443) |
+| Function | `mlCandidates(g)` | — | [L449](../../dist/ml.js#L449) |
+| Function | `mlCandidates.<callback: Array.from>()` | — | [L449](../../dist/ml.js#L449) |
+| Function | `mlSoftmax(scores)` | — | [L450](../../dist/ml.js#L450) |
+| Function | `mlSoftmax.<callback: scores.map>(s)` | — | [L450](../../dist/ml.js#L450) |
+| Function | `mlSoftmax.<callback: ex.reduce>(a, b)` | — | [L450](../../dist/ml.js#L450) |
+| Function | `mlSoftmax.<callback: ex.map>(e)` | — | [L450](../../dist/ml.js#L450) |
+| Function | `mlRlNew()` | — | [L452](../../dist/ml.js#L452) |
+| Function | `mlRlNew.<callback: Array.from>()` | — | [L453](../../dist/ml.js#L453) |
+| Function | `mlRlNew.evalPolicy(w, greedy)` | — | [L454](../../dist/ml.js#L454) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>(s, cs)` | — | [L454](../../dist/ml.js#L454) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.map>(c)` | — | [L454](../../dist/ml.js#L454) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.reduce>(t, c, i)` | — | [L454](../../dist/ml.js#L454) |
+| Function | `mlRlNew.<callback: test.reduce>(s, cs)` | — | [L455](../../dist/ml.js#L455) |
+| Function | `mlRlNew.<callback: test.reduce>.<callback: cs.reduce>(b, c)` | — | [L455](../../dist/ml.js#L455) |
+| Function | `mlRlTrain(state, episodes, lr = 0.004)` | — | [L460](../../dist/ml.js#L460) |
+| Function | `mlRlTrain.<callback: phi.map>(f)` | — | [L464](../../dist/ml.js#L464) |
+| Function | `mlRlTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)` | — | [L464](../../dist/ml.js#L464) |
+| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>(k)` | — | [L469](../../dist/ml.js#L469) |
+| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)` | — | [L469](../../dist/ml.js#L469) |
+| Function | `mlRl()` | — | [L477](../../dist/ml.js#L477) |
+| Function | `mlRl.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])` | — | [L480](../../dist/ml.js#L480) |
+| Function | `mlRl.<callback: pool.map>(c)` | — | [L481](../../dist/ml.js#L481) |
+| Function | `mlRl.<callback: pool.map>(c)` | — | [L481](../../dist/ml.js#L481) |
+| Function | `mlRl.<callback: S.w.map>(x)` | — | [L491](../../dist/ml.js#L491) |
+| Function | `mlRl.<callback: pool.map>(c, i)` | — | [L496](../../dist/ml.js#L496) |
+| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort>(a, b)` | — | [L499](../../dist/ml.js#L499) |
+| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort((a, b) => a[0] - b[0]).map>([s, d])` | — | [L499](../../dist/ml.js#L499) |
+| Function | `mlEvaluation()` | — | [L512](../../dist/ml.js#L512) |
+| Function | `mlEvaluation.<callback: ML_ABLATION.map>([n, p99, sla, cost, tr], i)` | — | [L520](../../dist/ml.js#L520) |
+| Function | `mlGaps()` | — | [L532](../../dist/ml.js#L532) |
+| Function | `mlInspector()` | — | [L564](../../dist/ml.js#L564) |
+| Function | `mlInspector.<callback: info.facts.map>([k, v])` | — | [L569](../../dist/ml.js#L569) |
+| Function | `mlInspector.<callback: info.files.map>([l, u])` | — | [L570](../../dist/ml.js#L570) |
+| Function | `mlInspector.<callback: info.questions.map>(q)` | — | [L572](../../dist/ml.js#L572) |
+| Function | `mlView()` | — | [L579](../../dist/ml.js#L579) |
+| Function | `mlView.<callback: mlTopics.map>(x)` | — | [L582](../../dist/ml.js#L582) |
+| Function | `mlOpen(topic)` | — | [L586](../../dist/ml.js#L586) |
+| Function | `mlSetHash()` | — | [L591](../../dist/ml.js#L591) |
+| Function | `mlRun(busy, task)` | — | [L595](../../dist/ml.js#L595) |
+| Function | `mlRun.<callback: setTimeout>()` | — | [L598](../../dist/ml.js#L598) |
+| Function | `mlClick(button)` | — | [L605](../../dist/ml.js#L605) |
+| Function | `mlClick.<callback: mlRun, "enum">()` | — | [L622](../../dist/ml.js#L622) |
+| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter>(e)` | — | [L622](../../dist/ml.js#L622) |
+| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter((e) => e.n !== n).concat(mlEnumerateTiming(n)).sort>(x, y)` | — | [L622](../../dist/ml.js#L622) |
+| Function | `mlClick.<callback: mlRun, "fc">()` | — | [L623](../../dist/ml.js#L623) |
+| Function | `mlClick.<callback: mlRun, "forest">()` | — | [L624](../../dist/ml.js#L624) |
+| Function | `mlClick.<callback: mlRun, "rl">()` | — | [L626](../../dist/ml.js#L626) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L631](../../dist/ml.js#L631) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L638](../../dist/ml.js#L638) |
 
 ### `dist/security.js`
 
@@ -2022,99 +2429,101 @@ This file declares no functions.
 | Function | `umlChip(anchor, label = "UML catalogue")` | — | [L139](../../dist/security.js#L139) |
 | Function | `umlSection(topicKey)` | — | [L144](../../dist/security.js#L144) |
 | Function | `umlSection.<callback: ids.map>(id)` | — | [L149](../../dist/security.js#L149) |
-| Function | `umlTopicsSection(view, topics)` | — | [L157](../../dist/security.js#L157) |
-| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L160](../../dist/security.js#L160) |
-| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L160](../../dist/security.js#L160) |
-| Function | `umlInspector(topicKey, view, topics)` | — | [L165](../../dist/security.js#L165) |
-| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L169](../../dist/security.js#L169) |
-| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L169](../../dist/security.js#L169) |
-| Function | `umlInspector.<callback: ids.map>(id)` | — | [L172](../../dist/security.js#L172) |
-| Function | `secOverview()` | — | [L188](../../dist/security.js#L188) |
-| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L190](../../dist/security.js#L190) |
-| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L191](../../dist/security.js#L191) |
-| Function | `async secPwHash(again = false)` | — | [L200](../../dist/security.js#L200) |
-| Function | `async secPwVerify()` | — | [L219](../../dist/security.js#L219) |
-| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L222](../../dist/security.js#L222) |
-| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L225](../../dist/security.js#L225) |
-| Function | `secPasswords()` | — | [L229](../../dist/security.js#L229) |
-| Function | `async secLoginInit()` | — | [L255](../../dist/security.js#L255) |
-| Function | `async secLoginAttempt(email, password)` | — | [L263](../../dist/security.js#L263) |
-| Function | `secLogin()` | — | [L292](../../dist/security.js#L292) |
-| Function | `secLogin.<callback: L.log.map>(e)` | — | [L301](../../dist/security.js#L301) |
-| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L301](../../dist/security.js#L301) |
-| Function | `secIdentity()` | — | [L315](../../dist/security.js#L315) |
-| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L326](../../dist/security.js#L326) |
-| Function | `secGatewayRun(s)` | — | [L363](../../dist/security.js#L363) |
-| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L373](../../dist/security.js#L373) |
-| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L376](../../dist/security.js#L376) |
-| Function | `secGateway()` | — | [L392](../../dist/security.js#L392) |
-| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L396](../../dist/security.js#L396) |
-| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L398](../../dist/security.js#L398) |
-| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L400](../../dist/security.js#L400) |
-| Function | `async secSsoNext()` | — | [L416](../../dist/security.js#L416) |
-| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L421](../../dist/security.js#L421) |
-| Function | `secMessages(steps)` | — | [L472](../../dist/security.js#L472) |
-| Function | `secMessages.<callback: steps.map>(m)` | — | [L473](../../dist/security.js#L473) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L473](../../dist/security.js#L473) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L473](../../dist/security.js#L473) |
-| Function | `secSso()` | — | [L476](../../dist/security.js#L476) |
-| Function | `async secKrbSetup()` | — | [L496](../../dist/security.js#L496) |
-| Function | `async secKrbNext()` | — | [L506](../../dist/security.js#L506) |
-| Function | `secKrbNext.kdcNow()` | — | [L511](../../dist/security.js#L511) |
-| Function | `secKrbNext.appNow()` | — | [L512](../../dist/security.js#L512) |
-| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L513](../../dist/security.js#L513) |
-| Function | `secKrbNext.skewOk(t)` | — | [L514](../../dist/security.js#L514) |
-| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L515](../../dist/security.js#L515) |
-| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L543](../../dist/security.js#L543) |
-| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L579](../../dist/security.js#L579) |
-| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L590](../../dist/security.js#L590) |
-| Function | `secKrb()` | — | [L600](../../dist/security.js#L600) |
-| Function | `secKrb.has(who, k)` | — | [L605](../../dist/security.js#L605) |
-| Function | `secKrb.cell(ok)` | — | [L607](../../dist/security.js#L607) |
-| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L612](../../dist/security.js#L612) |
-| Function | `secTransport()` | — | [L623](../../dist/security.js#L623) |
+| Function | `umlCatalogueName(view)` | — | [L157](../../dist/security.js#L157) |
+| Function | `umlCatalogueAnchor(view)` | — | [L158](../../dist/security.js#L158) |
+| Function | `umlTopicsSection(view, topics)` | — | [L161](../../dist/security.js#L161) |
+| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L164](../../dist/security.js#L164) |
+| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L164](../../dist/security.js#L164) |
+| Function | `umlInspector(topicKey, view, topics)` | — | [L169](../../dist/security.js#L169) |
+| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L173](../../dist/security.js#L173) |
+| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L173](../../dist/security.js#L173) |
+| Function | `umlInspector.<callback: ids.map>(id)` | — | [L176](../../dist/security.js#L176) |
+| Function | `secOverview()` | — | [L192](../../dist/security.js#L192) |
+| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L194](../../dist/security.js#L194) |
+| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L195](../../dist/security.js#L195) |
+| Function | `async secPwHash(again = false)` | — | [L204](../../dist/security.js#L204) |
+| Function | `async secPwVerify()` | — | [L223](../../dist/security.js#L223) |
+| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L226](../../dist/security.js#L226) |
+| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L229](../../dist/security.js#L229) |
+| Function | `secPasswords()` | — | [L233](../../dist/security.js#L233) |
+| Function | `async secLoginInit()` | — | [L259](../../dist/security.js#L259) |
+| Function | `async secLoginAttempt(email, password)` | — | [L267](../../dist/security.js#L267) |
+| Function | `secLogin()` | — | [L296](../../dist/security.js#L296) |
+| Function | `secLogin.<callback: L.log.map>(e)` | — | [L305](../../dist/security.js#L305) |
+| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L305](../../dist/security.js#L305) |
+| Function | `secIdentity()` | — | [L319](../../dist/security.js#L319) |
+| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L330](../../dist/security.js#L330) |
+| Function | `secGatewayRun(s)` | — | [L367](../../dist/security.js#L367) |
+| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L377](../../dist/security.js#L377) |
+| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L380](../../dist/security.js#L380) |
+| Function | `secGateway()` | — | [L396](../../dist/security.js#L396) |
+| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L400](../../dist/security.js#L400) |
+| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L402](../../dist/security.js#L402) |
+| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L404](../../dist/security.js#L404) |
+| Function | `async secSsoNext()` | — | [L420](../../dist/security.js#L420) |
+| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L425](../../dist/security.js#L425) |
+| Function | `secMessages(steps)` | — | [L476](../../dist/security.js#L476) |
+| Function | `secMessages.<callback: steps.map>(m)` | — | [L477](../../dist/security.js#L477) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L477](../../dist/security.js#L477) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L477](../../dist/security.js#L477) |
+| Function | `secSso()` | — | [L480](../../dist/security.js#L480) |
+| Function | `async secKrbSetup()` | — | [L500](../../dist/security.js#L500) |
+| Function | `async secKrbNext()` | — | [L510](../../dist/security.js#L510) |
+| Function | `secKrbNext.kdcNow()` | — | [L515](../../dist/security.js#L515) |
+| Function | `secKrbNext.appNow()` | — | [L516](../../dist/security.js#L516) |
+| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L517](../../dist/security.js#L517) |
+| Function | `secKrbNext.skewOk(t)` | — | [L518](../../dist/security.js#L518) |
+| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L519](../../dist/security.js#L519) |
+| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L547](../../dist/security.js#L547) |
+| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L583](../../dist/security.js#L583) |
+| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L594](../../dist/security.js#L594) |
+| Function | `secKrb()` | — | [L604](../../dist/security.js#L604) |
+| Function | `secKrb.has(who, k)` | — | [L609](../../dist/security.js#L609) |
+| Function | `secKrb.cell(ok)` | — | [L611](../../dist/security.js#L611) |
+| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L616](../../dist/security.js#L616) |
+| Function | `secTransport()` | — | [L627](../../dist/security.js#L627) |
 | Function | `secTransport.<callback: [
       ["Private CA", "openssl req -x509 … /CN=atlas-ca", "basicConstraints CA:TRUE, keyUsage keyCertSign, 30 days"],
       ["Server certificate", "extendedKeyUsage=serverAuth", "subjectAltName=IP:127.0.0.1 binds it to the address"],
       ["Client certificate", "extendedKeyUsage=clientAuth", "Cannot be reused as a server certificate"],
       ["Server requires a client cert", "verify_mode = ssl.CERT_REQUIRED", "No certificate from atlas-ca → handshake fails"],
       ["Client verifies the server", "create_default_context(cafile=ca.crt)", "Plus load_cert_chain to present its own identity"],
-    ].map>([t, c, d], i)` | — | [L631](../../dist/security.js#L631) |
-| Function | `secGaps()` | — | [L644](../../dist/security.js#L644) |
-| Function | `securityInspector()` | — | [L682](../../dist/security.js#L682) |
-| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L688](../../dist/security.js#L688) |
-| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L689](../../dist/security.js#L689) |
-| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L691](../../dist/security.js#L691) |
-| Function | `securityView()` | — | [L698](../../dist/security.js#L698) |
-| Function | `securityView.<callback: secTopics.map>(x)` | — | [L704](../../dist/security.js#L704) |
-| Function | `securityOpen(topic)` | — | [L708](../../dist/security.js#L708) |
-| Function | `secSetHash()` | — | [L713](../../dist/security.js#L713) |
-| Function | `async secRun(busy, task)` | — | [L717](../../dist/security.js#L717) |
-| Function | `securityClick(button)` | — | [L725](../../dist/security.js#L725) |
-| Function | `securityClick."pw-hash"()` | — | [L737](../../dist/security.js#L737) |
-| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L737](../../dist/security.js#L737) |
-| Function | `securityClick."pw-again"()` | — | [L738](../../dist/security.js#L738) |
-| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L738](../../dist/security.js#L738) |
-| Function | `securityClick."pw-verify"()` | — | [L739](../../dist/security.js#L739) |
-| Function | `securityClick."login-init"()` | — | [L740](../../dist/security.js#L740) |
-| Function | `securityClick."login-wrong"()` | — | [L741](../../dist/security.js#L741) |
-| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L741](../../dist/security.js#L741) |
-| Function | `securityClick."login-unknown"()` | — | [L742](../../dist/security.js#L742) |
-| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L742](../../dist/security.js#L742) |
-| Function | `securityClick."login-right"()` | — | [L743](../../dist/security.js#L743) |
-| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L743](../../dist/security.js#L743) |
-| Function | `securityClick."login-tick"()` | — | [L744](../../dist/security.js#L744) |
-| Function | `securityClick."login-reset"()` | — | [L745](../../dist/security.js#L745) |
-| Function | `securityClick."gw-step"()` | — | [L746](../../dist/security.js#L746) |
-| Function | `securityClick."gw-all"()` | — | [L747](../../dist/security.js#L747) |
-| Function | `securityClick."sso-next"()` | — | [L748](../../dist/security.js#L748) |
-| Function | `securityClick."sso-reset"()` | — | [L749](../../dist/security.js#L749) |
-| Function | `securityClick."krb-next"()` | — | [L750](../../dist/security.js#L750) |
-| Function | `securityClick."krb-all"()` | — | [L751](../../dist/security.js#L751) |
-| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L751](../../dist/security.js#L751) |
-| Function | `securityClick."krb-reset"()` | — | [L752](../../dist/security.js#L752) |
-| Function | `<callback: document.addEventListener, "input">(event)` | — | [L758](../../dist/security.js#L758) |
-| Function | `<callback: document.addEventListener, "change">(event)` | — | [L763](../../dist/security.js#L763) |
+    ].map>([t, c, d], i)` | — | [L635](../../dist/security.js#L635) |
+| Function | `secGaps()` | — | [L648](../../dist/security.js#L648) |
+| Function | `securityInspector()` | — | [L686](../../dist/security.js#L686) |
+| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L692](../../dist/security.js#L692) |
+| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L693](../../dist/security.js#L693) |
+| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L695](../../dist/security.js#L695) |
+| Function | `securityView()` | — | [L702](../../dist/security.js#L702) |
+| Function | `securityView.<callback: secTopics.map>(x)` | — | [L708](../../dist/security.js#L708) |
+| Function | `securityOpen(topic)` | — | [L712](../../dist/security.js#L712) |
+| Function | `secSetHash()` | — | [L717](../../dist/security.js#L717) |
+| Function | `async secRun(busy, task)` | — | [L721](../../dist/security.js#L721) |
+| Function | `securityClick(button)` | — | [L729](../../dist/security.js#L729) |
+| Function | `securityClick."pw-hash"()` | — | [L741](../../dist/security.js#L741) |
+| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L741](../../dist/security.js#L741) |
+| Function | `securityClick."pw-again"()` | — | [L742](../../dist/security.js#L742) |
+| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L742](../../dist/security.js#L742) |
+| Function | `securityClick."pw-verify"()` | — | [L743](../../dist/security.js#L743) |
+| Function | `securityClick."login-init"()` | — | [L744](../../dist/security.js#L744) |
+| Function | `securityClick."login-wrong"()` | — | [L745](../../dist/security.js#L745) |
+| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L745](../../dist/security.js#L745) |
+| Function | `securityClick."login-unknown"()` | — | [L746](../../dist/security.js#L746) |
+| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L746](../../dist/security.js#L746) |
+| Function | `securityClick."login-right"()` | — | [L747](../../dist/security.js#L747) |
+| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L747](../../dist/security.js#L747) |
+| Function | `securityClick."login-tick"()` | — | [L748](../../dist/security.js#L748) |
+| Function | `securityClick."login-reset"()` | — | [L749](../../dist/security.js#L749) |
+| Function | `securityClick."gw-step"()` | — | [L750](../../dist/security.js#L750) |
+| Function | `securityClick."gw-all"()` | — | [L751](../../dist/security.js#L751) |
+| Function | `securityClick."sso-next"()` | — | [L752](../../dist/security.js#L752) |
+| Function | `securityClick."sso-reset"()` | — | [L753](../../dist/security.js#L753) |
+| Function | `securityClick."krb-next"()` | — | [L754](../../dist/security.js#L754) |
+| Function | `securityClick."krb-all"()` | — | [L755](../../dist/security.js#L755) |
+| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L755](../../dist/security.js#L755) |
+| Function | `securityClick."krb-reset"()` | — | [L756](../../dist/security.js#L756) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L762](../../dist/security.js#L762) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L767](../../dist/security.js#L767) |
 
 ### `dist/uml-catalog.js`
 
@@ -2128,9 +2537,9 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L26](../../server.mjs#L26) |
-| Function | `reply(request, response, status, type, body, headers = {})` | — | [L40](../../server.mjs#L40) |
-| Function | `<callback: createServer>(request, response)` | — | [L50](../../server.mjs#L50) |
+| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L27](../../server.mjs#L27) |
+| Function | `reply(request, response, status, type, body, headers = {})` | — | [L41](../../server.mjs#L41) |
+| Function | `<callback: createServer>(request, response)` | — | [L51](../../server.mjs#L51) |
 | Function | `<callback: createServer((request, response) => {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return reply(request, response, 405, textType, "Method not allowed\n", { Allow: "GET, HEAD" });
@@ -2147,7 +2556,7 @@ This file declares no functions.
   }
 
   reply(request, response, 200, asset.type, asset.body);
-}).listen>()` | — | [L66](../../server.mjs#L66) |
+}).listen>()` | — | [L67](../../server.mjs#L67) |
 
 ### `starter/scripts/generate_blueprint.py`
 

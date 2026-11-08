@@ -1,13 +1,15 @@
-"""Build the Security & cryptography catalogue for the UML blueprint and the explorer.
+"""Build the Security & cryptography and the Machine learning & optimisation catalogues.
 
-One table below maps every security and cryptography concept taught in the Architecture
-Explorer (Security and Cryptography tabs) to the function, constant or file that implements it.
-The script resolves current line numbers and writes:
+One table below maps every concept taught in the Architecture Explorer's Security, Cryptography and
+ML & Optimisation tabs to the function, constant or file that implements it. The script resolves
+current line numbers and writes:
 
-  docs/UML_BLUEPRINT.md   block between <!-- BEGIN/END SECURITY CATALOG --> with one anchor per row
+  docs/UML_BLUEPRINT.md   blocks between <!-- BEGIN/END SECURITY CATALOG --> and <!-- BEGIN/END ML CATALOG -->,
+                          one anchor per row
   ../dist/uml-catalog.js  the same rows for the explorer, so each lab links to its catalogue entry
 
-Android app, research and workflow files live on the `main` branch; pass a checkout of it:
+Android app, research code (atlas_sim.zip, run_*.py), labs and workflow files live on the `main`
+branch; pass a checkout of it:
 
     python scripts/security_catalog.py --main ../../ATLAS-main
     python scripts/security_catalog.py --main ../../ATLAS-main --check   # fail if stale
@@ -29,10 +31,12 @@ BLUEPRINT_URL = "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/
 MAIN_URL = "https://github.com/FUllSCIPTS/ATLAS/blob/main/"
 ARCH_URL = "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/"
 EXPLORER_URL = "https://fullscipts.github.io/ATLAS/"
-STATUS = {"impl": "Implemented", "demo": "Demo-grade", "teach": "Teaching extension", "lab": "Explorer / lab"}
+STATUS = {"impl": "Implemented", "demo": "Demo-grade", "teach": "Teaching extension", "lab": "Explorer / lab",
+          "paper": "Paper (research code)", "synth": "App / starter (synthetic data)"}
 
 # Locations. "main:" = file on the main branch; "arch:" = file in architecture-explorer/;
-# "zip:" = file inside prototype.zip on main. Symbol "=NAME" finds an assignment, "~REGEX" a line.
+# "zip:" = file inside prototype.zip on main; "sim:" = file inside atlas_sim.zip on main (the paper's
+# simulator). Symbol "=NAME" finds an assignment, "~REGEX" a line.
 ROWS = [
     # id, concept, location, symbol, status
     # ---- Security: password storage
@@ -132,6 +136,73 @@ ROWS = [
     ("cr-pqc-lab-verify", "Lamport verify", "arch:dist/crypto.js", "crLamportVerify", "lab"),
     ("cr-pqc-lab-forge", "Forgery after key reuse", "arch:dist/crypto.js", "crLamportForge", "lab"),
     ("cr-pqc-cli", "Command-line lab: Lamport one-time signature", "main:security_lab/crypto_lab.py", "section_pqc", "lab"),
+    # ---- ML & optimisation: the paper's coupling BIP
+    ("ml-bip-modules", "Six modules: visit ratio and service demand", "sim:atlas_sim/traffic.py", "=VISIT", "paper"),
+    ("ml-bip-params", "Objective weights, constraint limits, risk model", "sim:atlas_sim/cluster.py", "~^class Params", "paper"),
+    ("ml-bip-model", "Predict latency, cost, risk, availability of all 2^n configurations", "sim:atlas_sim/cluster.py", "Sim.eval_all", "paper"),
+    ("ml-bip-ref", "Same model for one configuration (reference point L0, C0)", "sim:atlas_sim/cluster.py", "Sim.eval_config", "paper"),
+    ("ml-bip-solve", "Solve the BIP: objective J, constraints, argmin over all configurations", "sim:atlas_sim/cluster.py", "Sim.bip", "paper"),
+    ("ml-bip-loop", "Decision epoch: forecast, anomaly score, BIP, overrides, hysteresis", "sim:atlas_sim/cluster.py", "Sim.run", "paper"),
+    ("ml-bip-apply", "Apply: dual-run extraction, merge back", "sim:atlas_sim/cluster.py", "Sim.apply", "paper"),
+    ("ml-bip-fsm", "Ablation baseline: fixed load thresholds", "sim:atlas_sim/cluster.py", "Sim.fsm_thresholds", "paper"),
+    ("ml-bip-lab", "Explorer lab: Sim.eval_all + Sim.bip replica", "arch:dist/ml.js", "mlBipSolve", "lab"),
+    ("ml-bip-lab-eval", "Explorer lab: one configuration's latency, cost, risk", "arch:dist/ml.js", "mlEvalConfig", "lab"),
+    ("ml-bip-cli", "Command-line lab: load sweep with the real Sim.bip", "main:ml_lab/ml_optimisation_lab.py", "section_bip", "lab"),
+    ("ml-bip-cli-inside", "Command-line lab: every configuration at one load", "main:ml_lab/ml_optimisation_lab.py", "section_inside", "lab"),
+    ("ml-bip-cli-anomaly", "Command-line lab: anomaly score raises crash risk", "main:ml_lab/ml_optimisation_lab.py", "section_anomaly", "lab"),
+    # ---- ML & optimisation: solvers
+    ("ml-sol-instance", "Random linearised BIP instances, n = 6 ... 500", "main:run_bip_timing.py", "instance", "paper"),
+    ("ml-sol-lpround", "LP relaxation + risk-aware rounding + greedy repair", "main:run_bip_timing.py", "lp_round", "paper"),
+    ("ml-sol-milp", "Branch-and-bound (HiGHS via scipy.optimize.milp)", "main:run_bip_timing.py", "~m = milp\\(", "paper"),
+    ("ml-sol-model", "Nonlinear model used to judge every method", "main:run_round2.py", "model", "paper"),
+    ("ml-sol-solveall", "Exact enumeration vs linearised BIP vs LP method", "main:run_round2.py", "solve_all", "paper"),
+    ("ml-sol-repair", "Phase 3: verify on the nonlinear model, greedy flips", "main:run_round2.py", "repair", "paper"),
+    ("ml-sol-refined", "Sequential linearisation", "main:run_round2.py", "solve_refined", "paper"),
+    ("ml-sol-local", "1-flip local search on the nonlinear objective", "main:run_round2.py", "local_search", "paper"),
+    ("ml-sol-lab", "Explorer lab: enumerate 2^n in the browser", "arch:dist/ml.js", "mlEnumerateTiming", "lab"),
+    ("ml-sol-cli", "Command-line lab: enumeration vs branch-and-bound vs LP", "main:ml_lab/ml_optimisation_lab.py", "section_solvers", "lab"),
+    # ---- ML & optimisation: forecasting
+    ("ml-fc-trace", "Paper traffic model: daily, weekly, noise, flash sales", "sim:atlas_sim/traffic.py", "ecommerce_trace", "paper"),
+    ("ml-fc-lstm", "LSTM / Bi-LSTM forecaster (2 x 128, dropout 0.2)", "sim:atlas_sim/forecast.py", "~^class LSTMForecaster", "paper"),
+    ("ml-fc-train", "Training: Adam, gradient clipping, early stopping", "sim:atlas_sim/forecast.py", "train", "paper"),
+    ("ml-fc-ar", "Baseline: Ridge autoregression", "sim:atlas_sim/forecast.py", "fit_ar", "paper"),
+    ("ml-fc-naive", "Baseline: seasonal naive", "sim:atlas_sim/forecast.py", "seasonal_naive", "paper"),
+    ("ml-fc-run", "Experiment: 3 seeds, horizons 5, 15, 60 min", "main:run_forecast.py", "=H", "paper"),
+    ("ml-fc-starter", "Starter DemandLSTM trained with Adam", "arch:starter/ml/forecast.py", "train", "synth"),
+    ("ml-fc-app", "App LSTM in numpy with a hand-written Adam step", "main:android-app/training/city_sim.py", "LSTM.step", "synth"),
+    ("ml-fc-lab", "Explorer lab: AR forecaster, gradient descent vs Adam", "arch:dist/ml.js", "mlTrainForecaster", "lab"),
+    ("ml-fc-cli", "Command-line lab: gradient descent vs Adam vs least squares", "main:ml_lab/ml_optimisation_lab.py", "section_training", "lab"),
+    # ---- ML & optimisation: anomaly detection
+    ("ml-an-run", "Isolation Forest, normalised score (paper experiment)", "main:run_anomaly.py", "norm_score", "paper"),
+    ("ml-an-fit", "Fit on unlabelled telemetry (100 trees, 256 samples)", "main:run_anomaly.py", "~m = IsolationForest\\(", "paper"),
+    ("ml-an-telemetry", "Telemetry and injected fault types", "sim:atlas_sim/traffic.py", "telemetry", "paper"),
+    ("ml-an-score", "Score inside the simulator; blame a module", "sim:atlas_sim/cluster.py", "Sim.score", "paper"),
+    ("ml-an-fast", "Path-length scorer re-implemented for one row", "sim:atlas_sim/cluster.py", "FastIForest.score_samples", "paper"),
+    ("ml-an-starter", "Starter: acceptance model + driver Isolation Forest", "arch:starter/ml/discrete.py", "train", "synth"),
+    ("ml-an-serve", "Starter: anomaly flag per driver in the scoring API", "arch:starter/ml/serve.py", "score", "synth"),
+    ("ml-an-lab", "Explorer lab: grow an Isolation Forest", "arch:dist/ml.js", "mlForestGrow", "lab"),
+    ("ml-an-cli", "Command-line lab: Isolation Forest on paper telemetry", "main:ml_lab/ml_optimisation_lab.py", "section_iforest", "lab"),
+    # ---- ML & optimisation: reinforcement learning
+    ("ml-rl-ride", "Ride dispatch: REINFORCE training", "main:android-app/training/rl_sim.py", "train_ride", "synth"),
+    ("ml-rl-food", "Courier timing: tabular Q-learning", "main:android-app/training/rl_sim.py", "train_food", "synth"),
+    ("ml-rl-weights", "Approved dispatch weights (policy v1.4)", "main:android-app/atlas_go/learned.py", "=RIDE_WEIGHTS", "synth"),
+    ("ml-rl-rank", "Dispatch: softmax over candidate drivers", "main:android-app/atlas_go/intelligence.py", "rank", "synth"),
+    ("ml-rl-learnlab", "On-device learning lab (REINFORCE, sandbox)", "main:android-app/atlas_go/intelligence.py", "LearningLab.train", "synth"),
+    ("ml-rl-courier", "Courier plan from the learned Q-table", "main:android-app/atlas_go/intelligence.py", "courier_plan", "synth"),
+    ("ml-rl-accept", "Acceptance: Beta(9, 1) posterior mean", "main:android-app/atlas_go/intelligence.py", "acceptance", "synth"),
+    ("ml-rl-supply", "Driver supply agent with hindsight updates", "main:android-app/training/city_sim.py", "run_rl", "synth"),
+    ("ml-rl-bandit", "Starter: action values per demand bucket", "arch:starter/ml/rl.py", "fit", "synth"),
+    ("ml-rl-approve", "Starter: held-out approval gate before activation", "arch:starter/ml/rl.py", "approve", "synth"),
+    ("ml-rl-lab", "Explorer lab: REINFORCE (LearningLab.train port)", "arch:dist/ml.js", "mlRlTrain", "lab"),
+    ("ml-rl-cli", "Command-line lab: REINFORCE and Q-learning", "main:ml_lab/ml_optimisation_lab.py", "section_rl", "lab"),
+    # ---- ML & optimisation: tuning and evaluation
+    ("ml-ev-tune", "Grid search on validation seeds", "main:run_cluster.py", "tune", "paper"),
+    ("ml-ev-grid", "ATLAS tuning grid", "main:run_cluster.py", "~\"atlas\": \\[dict\\(switch_pen", "paper"),
+    ("ml-ev-ablation", "Ablation: remove one component at a time", "main:run_cluster.py", "~if \"ablation\" in which", "paper"),
+    ("ml-ev-compare", "Paired Wilcoxon test + rank-biserial effect size", "main:run_cluster.py", "compare", "paper"),
+    ("ml-ev-holm", "Holm-Bonferroni correction", "main:run_cluster.py", "holm", "paper"),
+    ("ml-ev-stat", "Mean, SD, 95 % t-interval over 30 runs", "main:run_cluster.py", "stat_block", "paper"),
+    ("ml-ev-boot", "Block bootstrap CI for forecast errors", "sim:atlas_sim/forecast.py", "block_bootstrap_ci", "paper"),
 ]
 
 # Explorer topics → rows. Rows may appear under several topics.
@@ -149,6 +220,13 @@ TOPICS = {
     "crypto/signatures": ["cr-sig-sign", "cr-sig-ci", "cr-pki-pin", "cr-sig-apk", "cr-sig-lab-keys", "cr-sig-lab-sign", "cr-sig-lab-verify", "cr-sig-cli"],
     "crypto/pqc": ["cr-pki-webpki", "cr-pki-ca", "cr-sig-sign", "cr-pqc-lab-keys", "cr-pqc-lab-sign", "cr-pqc-lab-verify", "cr-pqc-lab-forge", "cr-pqc-cli"],
     "crypto/gaps": ["cr-hash-checksum", "cr-hash-sums", "cr-pki-cert", "cr-pki-webpki", "sec-gw-internal"],
+    "ml/optimizer": ["ml-bip-modules", "ml-bip-params", "ml-bip-model", "ml-bip-ref", "ml-bip-solve", "ml-bip-loop", "ml-bip-apply", "ml-bip-fsm", "ml-bip-lab", "ml-bip-lab-eval", "ml-bip-cli", "ml-bip-cli-inside", "ml-bip-cli-anomaly"],
+    "ml/solvers": ["ml-bip-solve", "ml-sol-instance", "ml-sol-lpround", "ml-sol-milp", "ml-sol-model", "ml-sol-solveall", "ml-sol-repair", "ml-sol-refined", "ml-sol-local", "ml-sol-lab", "ml-sol-cli"],
+    "ml/forecasting": ["ml-fc-trace", "ml-fc-lstm", "ml-fc-train", "ml-fc-ar", "ml-fc-naive", "ml-fc-run", "ml-fc-starter", "ml-fc-app", "ml-bip-loop", "ml-fc-lab", "ml-fc-cli"],
+    "ml/anomaly": ["ml-an-telemetry", "ml-an-fit", "ml-an-run", "ml-an-score", "ml-an-fast", "ml-bip-solve", "ml-an-starter", "ml-an-serve", "ml-an-lab", "ml-an-cli"],
+    "ml/rl": ["ml-rl-ride", "ml-rl-weights", "ml-rl-rank", "ml-rl-learnlab", "ml-rl-food", "ml-rl-courier", "ml-rl-accept", "ml-rl-supply", "ml-rl-bandit", "ml-rl-approve", "ml-rl-lab", "ml-rl-cli"],
+    "ml/evaluation": ["ml-ev-tune", "ml-ev-grid", "ml-ev-ablation", "ml-ev-compare", "ml-ev-holm", "ml-ev-stat", "ml-ev-boot", "ml-bip-fsm"],
+    "ml/gaps": ["ml-bip-modules", "ml-bip-solve", "ml-bip-params", "ml-fc-train", "ml-rl-learnlab", "ml-rl-bandit"],
 }
 TOPIC_TITLES = {
     "security/passwords": "Security → Password storage", "security/login": "Security → Login & lockout",
@@ -158,6 +236,26 @@ TOPIC_TITLES = {
     "crypto/hashes": "Cryptography → Hashes & checksums", "crypto/pki": "Cryptography → PKI & certificates",
     "crypto/signatures": "Cryptography → Digital signatures", "crypto/pqc": "Cryptography → Post-quantum",
     "crypto/gaps": "Cryptography → Gaps & exercises",
+    "ml/optimizer": "ML & Optimisation → Coupling BIP (the paper's optimiser)", "ml/solvers": "ML & Optimisation → Solvers",
+    "ml/forecasting": "ML & Optimisation → Forecasting", "ml/anomaly": "ML & Optimisation → Isolation Forest",
+    "ml/rl": "ML & Optimisation → Reinforcement learning", "ml/evaluation": "ML & Optimisation → Tuning & evaluation",
+    "ml/gaps": "ML & Optimisation → Gaps & exercises",
+}
+BLOCKS = {  # marker name → (views, introduction)
+    "SECURITY CATALOG": (("security", "crypto"), [
+        "Every concept in the Architecture Explorer's **Security** and **Cryptography** tabs, linked to the",
+        "function, constant or file that implements it. Each row has a stable anchor that the explorer links to.",
+        "Status: **Implemented** (in the code), **Demo-grade** (implemented with deliberately simple choices),",
+        "**Teaching extension** (not in ATLAS; shows where a standard protocol would attach) or **Explorer / lab**",
+        "(teaching code in the explorer or `security_lab/`). Generated by `scripts/security_catalog.py`."]),
+    "ML CATALOG": (("ml",), [
+        "Every concept in the Architecture Explorer's **ML & Optimisation** tab, linked to the function, constant or",
+        "file that implements it, starting with the paper's coupling optimiser (`Sim.bip`). Each row has a stable anchor",
+        "that the explorer links to. Status: **Paper (research code)** (`atlas_sim.zip` and `run_*.py` on `main`, as",
+        "evaluated in the article), **App / starter (synthetic data)** (ATLAS Go or the server starter, trained on",
+        "simulations) or **Explorer / lab** (teaching code in the explorer or `ml_lab/`). Teaching guide:",
+        "[docs/MACHINE_LEARNING_OPTIMISATION.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/MACHINE_LEARNING_OPTIMISATION.md).",
+        "Generated by `scripts/security_catalog.py`."]),
 }
 
 
@@ -167,7 +265,7 @@ def read(location, main):
         return (main / path).read_text(encoding="utf-8")
     if kind == "arch":
         return (EXPLORER / path).read_text(encoding="utf-8")
-    with zipfile.ZipFile(main / "prototype.zip") as archive:
+    with zipfile.ZipFile(main / ("atlas_sim.zip" if kind == "sim" else "prototype.zip")) as archive:
         return archive.read(path).decode("utf-8")
 
 
@@ -221,8 +319,9 @@ def resolve(main):
             relative = "../" + path[len("starter/"):] if path.startswith("starter/") else "../../" + path
             url, absolute, shown = f"{relative}#L{line}", f"{ARCH_URL}{path}#L{line}", "architecture-explorer/" + path
         else:
-            url = absolute = f"{MAIN_URL}prototype.zip"
-            shown = f"prototype.zip → {path}"
+            archive = "atlas_sim.zip" if kind == "sim" else "prototype.zip"
+            url = absolute = f"{MAIN_URL}{archive}"
+            shown = f"{archive} → {path}"
         if symbol.startswith("~"):
             text = cache[location].splitlines()[line - 1].strip().replace("|", "\\|").replace("`", "'")
             name = text if len(text) <= 72 else text[:69] + "..."
@@ -236,16 +335,14 @@ def resolve(main):
     return rows
 
 
-def markdown(rows):
-    out = ["Every concept in the Architecture Explorer's **Security** and **Cryptography** tabs, linked to the",
-           "function, constant or file that implements it. Each row has a stable anchor that the explorer links to.",
-           "Status: **Implemented** (in the code), **Demo-grade** (implemented with deliberately simple choices),",
-           "**Teaching extension** (not in ATLAS; shows where a standard protocol would attach) or **Explorer / lab**",
-           "(teaching code in the explorer or `security_lab/`). Generated by `scripts/security_catalog.py`.", ""]
+def markdown(rows, views, intro):
+    out = intro + [""]
     anchored = set()
     for topic, ids in TOPICS.items():
         view, key = topic.split("/")
-        lab = f"{EXPLORER_URL}#{'security' if view == 'security' else 'crypto'}-{key}"
+        if view not in views:
+            continue
+        lab = f"{EXPLORER_URL}#{view}-{key}"
         out += [f'<a name="uml-{view}-{key}"></a>', "", f"### {TOPIC_TITLES[topic]}", "",
                 f"[Open in the explorer ↗]({lab})", "",
                 "| Concept | Function / symbol | Location | Status |", "| --- | --- | --- | --- |"]
@@ -263,14 +360,14 @@ def script(rows):
     exported = {k: {f: v[f] for f in ("concept", "symbol", "path", "line", "status")} | {"source": v["absolute"]} for k, v in rows.items()}
     data = {"blueprint": BLUEPRINT_URL, "status": STATUS, "rows": exported, "topics": TOPICS}
     return ("// Generated by architecture-explorer/starter/scripts/security_catalog.py; do not edit by hand.\n"
-            "// Maps every Security and Cryptography concept to its entry in the UML blueprint catalogue.\n"
+            "// Maps every Security, Cryptography and ML & Optimisation concept to its entry in the UML blueprint.\n"
             "const umlCatalog = " + json.dumps(data, indent=1, ensure_ascii=False) + ";\n")
 
 
-def replace_block(document, content):
-    start, end = "<!-- BEGIN SECURITY CATALOG -->", "<!-- END SECURITY CATALOG -->"
+def replace_block(document, content, name):
+    start, end = f"<!-- BEGIN {name} -->", f"<!-- END {name} -->"
     if document.count(start) != 1 or document.count(end) != 1:
-        raise SystemExit(f"Expected one SECURITY CATALOG marker pair in {MARKDOWN.name}")
+        raise SystemExit(f"Expected one {name} marker pair in {MARKDOWN.name}")
     before, rest = document.split(start, 1)
     _, after = rest.split(end, 1)
     return f"{before}{start}\n\n{content}\n\n{end}{after}"
@@ -282,7 +379,10 @@ def main():
     parser.add_argument("--check", action="store_true", help="fail if an output is stale")
     args = parser.parse_args()
     rows = resolve(args.main.resolve())
-    outputs = {MARKDOWN: replace_block(MARKDOWN.read_text(encoding="utf-8"), markdown(rows)), SCRIPT_OUT: script(rows)}
+    document = MARKDOWN.read_text(encoding="utf-8")
+    for name, (views, intro) in BLOCKS.items():
+        document = replace_block(document, markdown(rows, views, intro), name)
+    outputs = {MARKDOWN: document, SCRIPT_OUT: script(rows)}
     for path, content in outputs.items():
         if args.check:
             if not path.exists() or path.read_text(encoding="utf-8") != content:
