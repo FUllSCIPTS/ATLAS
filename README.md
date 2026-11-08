@@ -36,6 +36,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 7) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md)
 
+8) [📈 Machine learning and optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md)
+
 ## Information security in ATLAS (teaching guide)
 
 ATLAS doubles as a worked example for teaching information security. The full guide is
@@ -88,6 +90,29 @@ teaching extension — post-quantum cryptography. Full guide:
 ```bash
 python3 security_lab/crypto_lab.py                              # hashes, checksum collision, cert pin, RSA, Lamport
 python3 security_lab/crypto_lab.py --verify atlas-go-1.2.0.apk  # check a download against SHA256SUMS
+```
+
+## Machine learning and optimisation in ATLAS (teaching guide)
+
+The paper's core is an **optimisation algorithm**: every 5 s ATLAS solves a **binary integer program
+(BIP)** that decides which modules stay inside one process (tight) and which run as separate services
+(loose). Four learners feed it or run beside it. Full guide:
+**[docs/MACHINE_LEARNING_OPTIMISATION.md](docs/MACHINE_LEARNING_OPTIMISATION.md)**; live labs:
+**[Explorer → ML & Optimisation](https://fullscipts.github.io/ATLAS/#ml)**. 📄 = evaluated in the paper,
+✅ = runs in the ATLAS Go app or server starter (trained on synthetic data).
+
+| Topic | Status | What ATLAS does | Where |
+|---|---|---|---|
+| **Coupling BIP (the paper's optimiser)** | 📄 | min α·L + β·C + γ·Risk + switching cost over c ∈ {0,1}<sup>n</sup>, subject to monolith utilisation ≤ 0.85, 200 ms SLA, ≤ 40 replicas, availability ≥ 0.99; solved by exhaustive enumeration (n = 6, 0.27 ms per decision); 300 s hysteresis before merging back | `atlas_sim/cluster.py` → `Sim.bip`, `Sim.eval_all`, `Sim.run` |
+| **Scaling the solver** | 📄 | LP relaxation + risk-aware rounding + greedy repair vs HiGHS branch-and-bound: 6.4 ms vs 401 ms at n = 500, median gap 0.23 %; agrees with the exact nonlinear optimum in 96 % of 32 400 recorded states | `run_bip_timing.py`, `run_round2.py` |
+| **Tuning** | 📄 | Grid search on validation seeds (101–110), tested on seeds 1–30; every baseline tuned the same way | `run_cluster.py` → `tune` |
+| **Forecasting** | 📄 ✅ | LSTM (2 × 128, Adam, gradient clipping, early stopping): 5-min MAE 51.7 req/s vs 72.2 persistence; the optimiser plans for max(load, forecast). Starter and app: small LSTMs (the app's has a hand-written Adam step) | `atlas_sim/forecast.py`, `starter/ml/forecast.py`, `training/city_sim.py` |
+| **Anomaly detection** | 📄 ✅ | Isolation Forest, no labels: ROC-AUC 0.9999; the score raises a module's crash risk in the BIP, ≥ 0.9 triggers emergency mode | `run_anomaly.py`, `Sim.score`, `starter/ml/discrete.py` |
+| **Reinforcement learning** | ✅ | Ride dispatch by **REINFORCE** (softmax over 4 drivers, 5.38 vs 6.42 expected minutes for nearest-driver); courier timing by **Q-learning**; driver supply with hindsight updates; starter bandit with an offline approval gate | `atlas_go/intelligence.py`, `training/rl_sim.py`, `starter/ml/rl.py` |
+
+```bash
+python3 ml_lab/ml_optimisation_lab.py              # BIP decisions, solvers, GD vs Adam, Isolation Forest, RL
+python3 ml_lab/ml_optimisation_lab.py --section 4  # one section: the three BIP solvers
 ```
 
 ## ATLAS Go Android app
@@ -154,6 +179,8 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `security_lab/password_storage_demo.py` | Command-line lab that exercises the app's real password hashing and login lockout |
 | `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
 | `security_lab/crypto_lab.py` | Command-line lab: SHA-256, checksum collision, certificate pin, toy RSA signature, Lamport post-quantum signature |
+| `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
+| `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
 
 ## Experiment → script → result file
 
