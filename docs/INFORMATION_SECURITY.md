@@ -24,7 +24,10 @@ attacks) using real AES-GCM in your browser.
 
 **Command-line lab:** `python3 security_lab/password_storage_demo.py` runs 20 experiments against
 the app's real `accounts.py` and `store.py` (no extra dependencies). `--list` shows them; `--path NAME`
-runs a study path; `-e N` runs one experiment.
+runs a study path; `-e N` runs one experiment. Each category is also its own file, runnable alone:
+`lab_a_password_storage.py` (1-8), `lab_b_registration_identity.py` (9-11), `lab_c_signin_defences.py`
+(12-15) and `lab_d_integrity_lifecycle.py` (16-20); [security_lab/README.md](../security_lab/README.md)
+indexes them.
 
 | Study path | Experiments | Question it answers |
 |---|---|---|
