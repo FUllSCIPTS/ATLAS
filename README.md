@@ -64,6 +64,7 @@ in the ATLAS code).
 
 ```bash
 python3 security_lab/password_storage_demo.py   # 20 experiments on the real accounts.py + store.py
+python3 security_lab/lab_c_signin_defences.py   # or one category: lab_a_ ... lab_d_ (see security_lab/README.md)
 python3 security_lab/password_storage_demo.py --list            # experiments and study paths
 python3 security_lab/password_storage_demo.py --path attacker   # foundations | attacker | defender | integrity | lifecycle
 ```
@@ -178,7 +179,9 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `figures/` | Figures as they appear in the paper |
 | `run_all.sh` | Runs everything in order |
 | `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment |
-| `security_lab/password_storage_demo.py` | Command-line lab: 20 experiments and 5 study paths on the app's real password hashing, validation, lockout, sessions, tamper checks and account deletion |
+| `security_lab/README.md` | Index of the labs: categories, experiments, study paths and the gaps they expose |
+| `security_lab/lab_a_password_storage.py` … `lab_d_integrity_lifecycle.py` | Information-security lab in four categories (A stored passwords 1–8, B registration and identity 9–11, C sign-in defences 12–15, D integrity and lifecycle 16–20), each runnable on its own |
+| `security_lab/password_storage_demo.py` | Runner for all 20 experiments and the 5 study paths (shared code in `lab_common.py`) |
 | `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
 | `security_lab/crypto_lab.py` | Command-line lab: SHA-256, checksum collision, certificate pin, toy RSA signature, Lamport post-quantum signature |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
