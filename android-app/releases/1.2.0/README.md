@@ -7,6 +7,7 @@ Version 1.2.0 / versionCode 3 · application ID `org.atlas.mobility` · Android 
 | [atlas-go-1.2.0.apk on Google Drive](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) (request access) | Installable release APK (not debuggable), signed with APK Signature Scheme v2 and v3. Open the link and click **Request access**; the owner is notified by email and, once approved, you download with your Google account. |
 | atlas-go-1.2.0-unsigned.aab | Android App Bundle for Google Play, available from the owner on request; sign it with your upload key before uploading ([how](../../docs/GOOGLE_PLAY.md#signing-and-package-ownership)). The Android workflow also builds an AAB from this source on every push to `main`. |
 | [SHA256SUMS](SHA256SUMS) | Checksums for the APK and the AAB |
+| [atlas-go-1.2.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.2.0/atlas-go-1.2.0-source.zip) | **Source code** of 1.2.0, public under the [MIT licence](../../../LICENSE): the `atlas_go` package, tests, training scripts, build files and docs (94 entries). SHA-256 `b6339df38ed47b5126306e57aa29e72227796c558a26cfae8b7b224f0e4d9fcb`. It is a snapshot taken when 1.2.0 was built: its Python code is identical to [`android-app/`](../../) on `main`, where the documentation has since been updated. |
 | [atlas-go-1.2.0-screenshots.zip](atlas-go-1.2.0-screenshots.zip) | The 22 screenshots from the acceptance run |
 | [RELEASE_NOTES.md](RELEASE_NOTES.md) · [VALIDATION.md](VALIDATION.md) | What changed and how this build was checked |
 | [release-manifest.xml](release-manifest.xml) · [native-alignment.txt](native-alignment.txt) · [ui-results-440x940.json](ui-results-440x940.json) · [ui-results-360x780.json](ui-results-360x780.json) | Raw evidence |
@@ -15,6 +16,7 @@ Check the downloads:
 
 ```bash
 sha256sum -c SHA256SUMS
+echo "b6339df38ed47b5126306e57aa29e72227796c558a26cfae8b7b224f0e4d9fcb  atlas-go-1.2.0-source.zip" | sha256sum -c
 # optional, with the Android SDK build tools:
 apksigner verify --print-certs atlas-go-1.2.0.apk
 ```
