@@ -801,7 +801,11 @@ Expected probes for a successful search under linear probing ≈ ½(1 + 1/(1−�
 
 A **tree** is a connected, acyclic hierarchy of nodes. Vocabulary: **root** (no parent), **parent/child**, **siblings**, **leaf** (no children), **internal node**, **depth** of a node (edges from the root), **height** of a tree (**nodes** on the longest root-to-leaf path in this course), **subtree**. A **binary tree** gives each node at most two children, `left` and `right`.
 
-```mermaid
+![Binary tree with root 8, children 4 and 12, leaves 2, 6, 10 and 14](img/dsa/l12-tree.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  n8(("8 root")) --> n4((4))
  n8 --> n12((12))
@@ -810,6 +814,8 @@ flowchart TD
  n12 --> n10(("10 leaf"))
  n12 --> n14(("14 leaf"))
 ```
+
+</details>
 
 Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary tree of height h = 2^h − 1, so h ≥ log₂(n + 1).
 
@@ -822,11 +828,17 @@ Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary t
 
 **Recursion vs an explicit stack/queue.** The three depth-first orders are naturally recursive; replacing the call stack by an explicit **stack** avoids Python's recursion limit. Level order needs a **queue**. The tree itself is stored as linked nodes; the stack and queue are only *auxiliary* structures used while walking.
 
-```mermaid
+![Depth-first traversal uses a stack; breadth-first traversal uses a queue](img/dsa/l12-traversal-structures.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  DF["Depth-first traversal"] --> ST["Stack (LIFO)"] --> OR["Preorder · inorder · postorder"]
  BF["Breadth-first traversal"] --> QU["Queue (FIFO)"] --> LV["Level order"]
 ```
+
+</details>
 
 **Iterative inorder trace** (stack shown bottom → top):
 
@@ -862,10 +874,16 @@ A **binary search tree (BST)** is a binary tree where, for every node, **all key
 
 **Insertion order decides the shape.** Inserting 8, 4, 12, 2, 6, 10, 14 gives the perfect tree of Lesson 12 (height 3). Inserting 1, 2, 3, …, 7 gives a **skewed** tree — a linked list leaning right — with height 7.
 
-```mermaid
+![Skewed BST: 1, 2, 3, 4 each hung as a right child](img/dsa/l13-skewed-bst.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  s1(("1 root")) -->|right| s2((2)) -->|right| s3((3)) -->|right| s4(("4 leaf"))
 ```
+
+</details>
 
 ### Deletion — three cases
 
@@ -875,7 +893,11 @@ flowchart TD
 | one child | delete 4 after 2 is gone | splice: parent points to 4's only child (6) |
 | two children | delete 12 | copy the **inorder successor** (smallest key in the right subtree, 14) into 12's node, then delete 14 from the right subtree |
 
-```mermaid
+![Deleting 12 from the BST: successor 14 replaces it](img/dsa/l13-delete-two-children.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  subgraph before["Before"]
   b8((8)) --> b4((4))
@@ -890,6 +912,8 @@ flowchart LR
  end
  before -- "copy 14 into 12, remove old 14" --> after
 ```
+
+</details>
 
 ~~~python
 root = None
@@ -925,7 +949,11 @@ An **AVL tree** is a BST that keeps itself balanced: at every node the **balance
 | LR: BF(z) = +2, BF(z.left) < 0 | left child's right is heavy | left rotation at z.left, then right at z |
 | RL: BF(z) = −2, BF(z.right) > 0 | right child's left is heavy | right rotation at z.right, then left at z |
 
-```mermaid
+![AVL LL case fixed by a right rotation at 30](img/dsa/l14-ll-rotation.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  subgraph ll["Before: LL case"]
   l30((30)) -->|left| l20((20)) -->|left| l10((10))
@@ -937,7 +965,13 @@ flowchart LR
  ll --> llr
 ```
 
-```mermaid
+</details>
+
+![AVL LR case: left rotation at 10, then right rotation at 30](img/dsa/l14-lr-rotation.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  subgraph lr1["Before: LR case"]
   p30((30)) -->|left| p10((10)) -->|right| p20((20))
@@ -952,9 +986,15 @@ flowchart LR
  lr1 --> lr2 --> lr3
 ```
 
+</details>
+
 **Right rotation in pointers** (y is the unbalanced node, x = y.left, T2 = x.right):
 
-```mermaid
+![Right rotation: x becomes the parent of y, T2 moves to y](img/dsa/l14-right-rotation-pointers.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  subgraph b["Before"]
   Y1((y)) --> X1((x))
@@ -970,6 +1010,8 @@ flowchart LR
  end
  b --> a
 ```
+
+</details>
 
 Inorder order T1, x, T2, y, T3 is unchanged by the rotation.
 
@@ -1000,7 +1042,11 @@ An AVL tree of height h has at least F(h+2) − 1 nodes (F = Fibonacci), so **h 
 
 A **binary min-heap** is a **complete** binary tree (every level full except possibly the last, filled left to right) in which every parent ≤ its children. It is *not* a BST: siblings are unordered. Completeness lets it live in an array with **no pointers**: children of i are 2i+1 and 2i+2, the parent of i is (i−1)//2.
 
-```mermaid
+![Min-heap [1, 3, 2, 5, 9, 8] drawn as a tree with array indices](img/dsa/l15-heap.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  h0(("1 · idx 0")) --> h1(("3 · idx 1"))
  h0 --> h2(("2 · idx 2"))
@@ -1008,6 +1054,8 @@ flowchart TD
  h1 --> h4(("9 · idx 4"))
  h2 --> h5(("8 · idx 5"))
 ```
+
+</details>
 
 Array form: `[1, 3, 2, 5, 9, 8]`.
 
@@ -1042,7 +1090,11 @@ assert heapq.heappop(jobs) == (1, "urgent")
 
 A **trie** stores strings character by character along paths from the root; words that share a prefix share the path. A marker (`$`) says "a word ends here". Lookup and insertion cost O(L) for a word of length L, **independent of how many words are stored**.
 
-```mermaid
+![Trie storing car, cart, cat and dog](img/dsa/l16-trie.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  R(("root")) --> C((c))
  R --> D((d))
@@ -1053,6 +1105,8 @@ flowchart TD
  D --> O((o))
  O --> G(("g $ dog"))
 ```
+
+</details>
 
 Stored: car, cart, cat, dog. "ca" is a valid **path** but not a **word** (no `$`).
 
@@ -1073,13 +1127,19 @@ assert t.delete("cart") and not t.contains("cart") and t.contains("car")   # pru
 
 A **graph** G = (V, E) has vertices and edges; edges may be **directed** or **undirected**, **weighted** or not. Representations:
 
-```mermaid
+![Directed graph A to B and C, B and C to D](img/dsa/l17-graph.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  A((A)) --> B((B))
  A --> C((C))
  B --> D((D))
  C --> D
 ```
+
+</details>
 
 | Representation | Above graph | Space | "Is (u, v) an edge?" | "List neighbours of u" |
 |---|---|---|---|---|
@@ -1113,12 +1173,18 @@ assert dist == {"A": 0, "B": 1, "C": 1, "D": 2} and examined == 4   # each edge 
 
 Keep a tentative distance for every vertex; repeatedly take the closest unfinished vertex from a **min-heap** and **relax** its outgoing edges (`if dist[u] + w < dist[v]: dist[v] = dist[u] + w`). With a binary heap: O((V + E) log V). **Requires w ≥ 0** — a negative edge could make a "finished" vertex cheaper later (use Bellman–Ford instead).
 
-```mermaid
+![Dijkstra example: C improves from 8 to 3 via B](img/dsa/l18-dijkstra.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
  A(("A · dist 0")) -->|"w = 2"| B(("B · dist 2"))
  A -->|"w = 8"| C(("C · 8 then 3"))
  B -->|"w = 1"| C
 ```
+
+</details>
 
 | Pop | dist A | dist B | dist C | heap after |
 |---|---|---|---|---|
@@ -1136,13 +1202,19 @@ assert dsa.dijkstra_path(g, "A", "C") == (["A", "B", "C"], 3)
 
 A **topological order** lists the vertices of a **directed acyclic graph** so that every edge goes forward — e.g. the steps of a food order: accept → cook → pack → deliver. **Kahn's algorithm** repeatedly removes a vertex of in-degree 0; if vertices remain at the end, the graph has a cycle and no order exists. DFS gives the same result by reversing finishing times. Both Θ(V + E).
 
-```mermaid
+![Food-order DAG: accept, cook, then pack and notify, then deliver](img/dsa/l18-topological-order.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  acc["Accept order"] --> cook["Cook meal"]
  cook --> pack["Pack meal"]
  cook --> notify["Notify courier"]
  pack --> del["Deliver order"]
 ```
+
+</details>
 
 ~~~python
 dag = {"accept": ["cook"], "cook": ["pack", "notify"], "pack": ["deliver"], "notify": [], "deliver": []}
@@ -1216,7 +1288,11 @@ Common bugs: `mid = (lo + hi) // 2` with `hi = len(a)` and `lo <= hi` (off by on
 
 **ATLAS link:** [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) relies on Python's `sorted` (Timsort: stable, O(n log n) worst case, O(n) on already-sorted runs).
 
-```mermaid
+![Merge sort splitting and merging [7, 2, 6, 1]](img/dsa/l20-merge-sort.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  s0["7, 2, 6, 1"] --> s1["7, 2"]
  s0 --> s2["6, 1"]
@@ -1231,6 +1307,8 @@ flowchart TD
  m1 --> out["1, 2, 6, 7"]
  m2 --> out
 ```
+
+</details>
 
 | Algorithm | Idea | Best | Average | Worst | Extra space | Stable |
 |---|---|---|---|---|---|---|
@@ -1260,7 +1338,11 @@ assert dsa.quick_sort_inplace([5, 1, 4, 2, 3])[0] == [1, 2, 3, 4, 5]
 
 A **recursive** function solves a problem by calling itself on smaller inputs. It needs a **base case** that stops the recursion and a **progress** argument that every call is smaller. Each active call is a **stack frame**; Python's default limit is about 1 000 frames.
 
-```mermaid
+![Call tree of naive fib(4) showing repeated subcalls](img/dsa/l21-fib-call-tree.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  f4["fib(4)"] --> f3["fib(3)"]
  f4 --> f2b["fib(2) repeated"]
@@ -1271,6 +1353,8 @@ flowchart TD
  f2b --> f1c["fib(1)"]
  f2b --> f0b["fib(0)"]
 ```
+
+</details>
 
 fib(2), fib(1) and fib(0) are each computed more than once.
 
@@ -1340,13 +1424,19 @@ print("placements tried:", tried, "of", 8 ** 8, "naive")
 
 **Loop invariant proof** in five steps:
 
-```mermaid
+![Five steps of a loop-invariant proof](img/dsa/l23-loop-invariant.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
  P["Precondition"] --> I["Invariant is true on entry"]
  I --> K["Each iteration preserves the invariant"]
  K --> T["Loop terminates"]
- T --> Q["Invariant + termination ⇒ postcondition"]
+ T --> Q["Invariant and termination give the postcondition"]
 ```
+
+</details>
 
 **Structural invariants** are the executable version: every structure in the lab has a `validate()` that the experiments call after every change.
 
