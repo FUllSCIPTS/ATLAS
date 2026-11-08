@@ -659,8 +659,8 @@ function secGaps() {
     ])}
     ${secSection("LESSON PLAN", "Eight sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
       ["1", "CIA triad, threat modelling", "Security map + Architecture tab (STRIDE)"],
-      ["2", "Password storage", "Password storage tab + security_lab/password_storage_demo.py"],
-      ["3", "Authentication & identity", "Login & lockout, Identity & roles"],
+      ["2", "Password storage", "Password storage tab + security_lab/password_storage_demo.py --path foundations, then --path attacker"],
+      ["3", "Authentication & identity", "Login & lockout, Identity & roles + lab --path defender and --path lifecycle"],
       ["4", "Authorisation", "Gateway auth: driver key on rider route"],
       ["5", "SSO & federation", "Single sign-on tab"],
       ["6", "Kerberos", "Kerberos live: run every attack scenario"],

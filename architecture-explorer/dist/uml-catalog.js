@@ -84,12 +84,12 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L223"
   },
   "sec-pw-cli": {
-   "concept": "Command-line lab: salts, cost per guess, dictionary attack",
+   "concept": "Command-line lab: 20 experiments and 5 study paths on the real accounts.py and store.py",
    "symbol": "main",
    "path": "security_lab/password_storage_demo.py",
-   "line": 35,
+   "line": 592,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L35"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L592"
   },
   "sec-login": {
    "concept": "Sign in, 5 failures → 60 s lockout, generic error",
