@@ -20,8 +20,25 @@ hash text or a downloaded APK and check it against the published `SHA256SUMS`, v
 certificate's pinned fingerprint, build a small certificate authority, sign and verify releases with
 ECDSA and RSA-PSS, and run a post-quantum Lamport signature, all with Web Crypto in your browser.
 
-**Command-line lab:** `python3 security_lab/crypto_lab.py` (standard library only; add
-`--verify atlas-go-1.2.0.apk` to check a download).
+**Command-line lab:** `python3 security_lab/crypto_lab.py` runs 20 experiments on ATLAS's real
+artefacts (standard library only; add `--verify atlas-go-1.2.0.apk` to check a download). They are split
+into five files you can run on their own, and grouped into study paths (`--path NAME`):
+
+| File | Category | Experiments |
+|---|---|---|
+| `crypto_a_hashing.py` | A. Hashing and integrity | 1 basics and the Unicode trap · 2 avalanche, measured · 3 truncated-hash preimages and collisions · 4 forging the prototype checksum · 5 forging CRC32 · 6 verifying releases and signing records · 7 supply-chain pins in CI |
+| `crypto_b_mac_kdf_random.py` | B. MACs, key derivation, randomness | 8 length extension vs HMAC · 9 HMAC and PBKDF2 by hand, matching `accounts.py` · 10 predicting `random`, trusting `secrets` |
+| `crypto_c_pki.py` | C. Certificates and PKI | 11 PEM, DER and the fingerprint pin · 12 walking the certificate's DER · 13 verifying its RSA-4096/SHA-384 self-signature by hand · 14 a private CA like the prototype's |
+| `crypto_d_signatures.py` | D. Digital signatures | 15 textbook RSA and malleability · 16 SHA256withRSA (PKCS#1 v1.5) · 17 JAR signing: MANIFEST.MF, .SF and tampering |
+| `crypto_e_post_quantum.py` | E. Post-quantum | 18 Lamport signatures · 19 forging after key reuse · 20 toy LWE KEM in a hybrid with Diffie-Hellman |
+
+| Study path | Experiments | Goal |
+|---|---|---|
+| `foundations` | 1, 2, 4, 6, 11, 16 | Hash, verify, certificate, signature |
+| `release-engineer` | 6, 7, 11, 13, 17 | Verify what ATLAS ships, the way CI does |
+| `attacker` | 3, 5, 8, 10, 15, 19 | Break the weak constructions |
+| `pki` | 11, 12, 13, 14 | Certificates from bytes to trust decisions |
+| `post-quantum` | 3, 18, 19, 20 | What a quantum computer breaks, and what replaces it |
 
 Companion guide: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) covers authentication, password
 storage (PBKDF2), identity management, SSO and Kerberos.
@@ -176,7 +193,7 @@ choose.
 | Public key | RSA, 4096 bits |
 | Signature algorithm | sha384WithRSAEncryption |
 | Validity | 5 Nov 2026 → 13 Sep 2059 |
-| Version | X.509 v1 (no extensions) — typical of `keytool`-generated signing certificates |
+| Version | X.509 v3 with one extension, subjectKeyIdentifier (as current `keytool` adds by default); `notAfter` is a GeneralizedTime because it is after 2049 |
 | SHA-256 fingerprint | `059076082129b3ed2f08c5b88a207bdebf2bba88304c0821b77d128c034944d7` |
 
 A self-signed certificate has no CA vouching for it, so trust comes from **pinning**: the fingerprint
@@ -282,7 +299,7 @@ symmetric ciphers, so SHA-256 and AES-256 keep a comfortable margin.
 public key their hashes; to sign, reveal one value from each pair according to the bits of the
 message's hash. It is quantum-safe but large (16 KB public key, 8 KB signature) and **one-time**:
 signing a second message reveals more secrets and enables forgery. SLH-DSA combines many one-time keys
-in a hash tree to become many-time and compact. Run it in `crypto_lab.py` §6 or in the Explorer.
+in a hash tree to become many-time and compact. Run it in `crypto_e_post_quantum.py` (experiments 18–19) or in the Explorer.
 
 **Hybrid KEM.** During migration, a hybrid key exchange combines a classical and a post-quantum
 shared secret through a KDF, so the session stays secure if *either* holds. For ATLAS this would sit
@@ -301,6 +318,8 @@ under TLS between the app and the gateway, and between services (replacing the s
 | 4 | Tile requests trust the whole Web PKI | `livemap.py` | Discuss certificate pinning for an operator back end, and its operational risk |
 | 5 | Service-to-service traffic in the starter is plain HTTP | `compose.yaml` | Reuse the prototype's private CA for mTLS |
 | 6 | No crypto-agility record | — | Add the inventory in §1 to CI as a check, the first step of a PQ migration |
+| 7 | GitHub Actions are pinned by movable tag (`@v6`), not commit SHA | `.github/workflows/` | Pin each `uses:` to a full commit SHA, as bundletool is pinned by hash (lab 7) |
+| 8 | The prototype snapshot omits per-payment amounts | `module_server.py` | Even a SHA-256 over `snapshot()` misses moved money (lab 4); store and hash amounts per key |
 
 ---
 
@@ -308,12 +327,12 @@ under TLS between the app and the gateway, and between services (replacing the s
 
 | Session | Topic | ATLAS material | Activity |
 |---|---|---|---|
-| 1 | Hash functions | §2, lab §1–3, Explorer *Hashes* | Avalanche effect; verify a real APK download |
-| 2 | Checksums vs hashes vs MACs | §2, lab §2 | Break the prototype checksum; fix it |
-| 3 | Public-key cryptography and certificates | §3, Explorer *PKI* | Build a CA; trip each certificate check |
-| 4 | Trust models | §3.1–3.3 | Private CA vs Web PKI vs pinning: who is trusted, and why? |
-| 5 | Digital signatures | §4, lab §5, Explorer *Signatures* | Sign and tamper; compare ECDSA and RSA sizes |
-| 6 | Post-quantum cryptography | §6, lab §6, Explorer *Post-quantum* | Lamport sign and forge after key reuse; plan ATLAS's migration |
+| 1 | Hash functions | §2, lab 1–3, 6, Explorer *Hashes* | Avalanche effect; birthday bound; verify a real APK download |
+| 2 | Checksums vs hashes vs MACs | §2, §5, lab 4, 5, 8, 9 | Forge the prototype checksum and a CRC32; length-extend a naive MAC; rebuild PBKDF2 |
+| 3 | Public-key cryptography and certificates | §3, lab 11–13, Explorer *PKI* | Parse the real certificate's DER; verify its signature by hand |
+| 4 | Trust models | §3.1–3.3, lab 7, 14 | Private CA vs Web PKI vs pinning; trip each certificate check |
+| 5 | Digital signatures | §4, lab 15–17, Explorer *Signatures* | Textbook RSA forgery; PKCS#1 v1.5; tamper with a JAR-signed bundle |
+| 6 | Post-quantum cryptography | §6, lab 18–20, Explorer *Post-quantum* | Forge after Lamport key reuse; build a hybrid KEM; plan ATLAS's migration |
 
 ---
 
