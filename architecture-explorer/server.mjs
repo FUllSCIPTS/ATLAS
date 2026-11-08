@@ -9,8 +9,18 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 const contentTypes = {
   "index.html": "text/html; charset=utf-8",
+  "build.html": "text/html; charset=utf-8",
+  "build.js": "text/javascript; charset=utf-8",
+  "build-spec.json": "application/json; charset=utf-8",
+  "ride-event.schema.json": "application/schema+json; charset=utf-8",
   "styles.css": "text/css; charset=utf-8",
   "atlas.js": "text/javascript; charset=utf-8",
+  "atlas-go.js": "text/javascript; charset=utf-8",
+  "uml-catalog.js": "text/javascript; charset=utf-8",
+  "security.js": "text/javascript; charset=utf-8",
+  "crypto.js": "text/javascript; charset=utf-8",
+  "ml.js": "text/javascript; charset=utf-8",
+  "dsa.js": "text/javascript; charset=utf-8",
   "explorer.js": "text/javascript; charset=utf-8",
   "atlas.svg": "image/svg+xml",
 };
