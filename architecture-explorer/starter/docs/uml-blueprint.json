@@ -59,7 +59,7 @@
     "requirements.txt": "c389f3b4d23c04757137fdfe15446b1789d3316825a1dc924dd23beab32bbed5",
     "scripts/initialize.sh": "9802c580a934b1979dc700a631f9da9b6f4dae776a952c040e09ad6e0a8f47c8",
     "scripts/local.sh": "12aad3b6b28e44e0cee4fc065322f048ad0bf3131cc069845a4c5d2ee374497b",
-    "scripts/security_catalog.py": "fe208fc6be4a3012e53d2d154f9b7eb033f82b7c90be98a25c6922489f000c47",
+    "scripts/security_catalog.py": "7926d12cb8df19d5a5fcfe69c822fb185f7142a01db578012c787025aac21152",
     "services/dispatch.py": "60bee8fb80be4d407798d0c1b466ca635c6955bdbec49a9bce274bf420c7eefa",
     "services/gateway.py": "88353781d315b133644b2d3ce33cc0bb0c1f5c76df915f4c728f776f631712d1",
     "services/trips.py": "59eaf936bf892b261334f1587252218d6c2a1b804ce27e618936bf57abdc7389",
@@ -564,56 +564,56 @@
         {
           "name": "read",
           "signature": "read(location, main)",
-          "line": 262,
+          "line": 407,
           "async": false,
           "decorators": []
         },
         {
           "name": "python_symbols",
           "signature": "python_symbols(text)",
-          "line": 272,
+          "line": 417,
           "async": false,
           "decorators": []
         },
         {
           "name": "locate",
           "signature": "locate(text, path, symbol)",
-          "line": 284,
+          "line": 429,
           "async": false,
           "decorators": []
         },
         {
           "name": "resolve",
           "signature": "resolve(main)",
-          "line": 305,
+          "line": 450,
           "async": false,
           "decorators": []
         },
         {
           "name": "markdown",
           "signature": "markdown(rows, views, intro)",
-          "line": 338,
+          "line": 483,
           "async": false,
           "decorators": []
         },
         {
           "name": "script",
           "signature": "script(rows)",
-          "line": 359,
+          "line": 504,
           "async": false,
           "decorators": []
         },
         {
           "name": "replace_block",
           "signature": "replace_block(document, content, name)",
-          "line": 367,
+          "line": 512,
           "async": false,
           "decorators": []
         },
         {
           "name": "main",
           "signature": "main()",
-          "line": 376,
+          "line": 521,
           "async": false,
           "decorators": []
         }
@@ -1101,6 +1101,7 @@
     "dist/build.html",
     "dist/build.js",
     "dist/crypto.js",
+    "dist/dsa.js",
     "dist/explorer.js",
     "dist/index.html",
     "dist/ml.js",
@@ -1152,14 +1153,15 @@
     "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
     "dist/build.html": "2eb5b8d86cb3eb2f42dd4b6378a0af4e878e44e2a24fc4315acfe20159778232",
     "dist/build.js": "d5a857be99c9d627cafb780017ceb463d90c7ad50e011d2e0c56cff3b71cdec1",
-    "dist/crypto.js": "5d49e360d7e0c591eccb9329b525be58bf8339e17fae25a5b3bbc7d4f0ead3f0",
-    "dist/explorer.js": "d794bab423ea5e8ce4b4cd7a3e44e8463c5cdf66e673df30ca596d6330c8af10",
-    "dist/index.html": "210f040a12ec4541567fa72adfdb0590d3e093828cad3c1c335c98e6f6e8ff4c",
+    "dist/crypto.js": "1488d15c7543ea9ea58b92d0db92e2418ff9d8311024b7e602dcbbdcfbef4db0",
+    "dist/dsa.js": "f14b7e3ac092546383e18bc59faf162ba0205f33b31f6124da37d0959f746527",
+    "dist/explorer.js": "4c7fb5d0ae04c3713af8f8f4c3404f941c6823c07ea3ede7d40f36260d703d27",
+    "dist/index.html": "18c5f97fa3e4fc2f16944ece773146b48aebc6a34bf0333d6176f34f60d6d204",
     "dist/ml.js": "3f4184d496cd7e9e2970bd554c6cc1e45202ef93ee4f1991c408e29e741bcf3d",
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
-    "dist/security.js": "d7b6b12b6989950d3512cb478b4fe99ba049902ec653b702b17dacb0a3ef760b",
-    "dist/styles.css": "8ac74f46fb84cbe8f457bb77200830b21281c394648be31811e2c568ae307420",
-    "dist/uml-catalog.js": "198320a71c4eadb0fac62e8f8618da42c197c5b53170d030fe94141f96a09728",
+    "dist/security.js": "583a868522e163049446af86aeb7f26ca75ca5c33920abc73cf89a257e609007",
+    "dist/styles.css": "fb681e0c32be4317ffdced73d7a10c72869a24f1c49aa41e024c2c5f33dfad0b",
+    "dist/uml-catalog.js": "a7bff06314b96602d0e6213419dc44e26042df122f081a6337f1c8aaaff443ce",
     "server.mjs": "d75ba767b9d82b38e180c17377f26fa55905c897bf99eb29b10c386ad8f7f7ee",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
@@ -1841,6 +1843,2147 @@
         }
       ]
     },
+    "dist/dsa.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [
+        {
+          "name": "DsaNode",
+          "line": 204,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaNode.constructor",
+              "signature": "DsaNode.constructor(v)",
+              "line": 204,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        },
+        {
+          "name": "DsaSingly",
+          "line": 207,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaSingly.constructor",
+              "signature": "DsaSingly.constructor()",
+              "line": 208,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.pushFront",
+              "signature": "DsaSingly.pushFront(v)",
+              "line": 209,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.pushBack",
+              "signature": "DsaSingly.pushBack(v)",
+              "line": 210,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.popFront",
+              "signature": "DsaSingly.popFront()",
+              "line": 211,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.popBack",
+              "signature": "DsaSingly.popBack()",
+              "line": 212,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.nodes",
+              "signature": "DsaSingly.nodes()",
+              "line": 218,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaSingly.validate",
+              "signature": "DsaSingly.validate()",
+              "line": 219,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        },
+        {
+          "name": "DsaDoubly",
+          "line": 223,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaDoubly.constructor",
+              "signature": "DsaDoubly.constructor()",
+              "line": 224,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.pushFront",
+              "signature": "DsaDoubly.pushFront(v)",
+              "line": 225,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.pushBack",
+              "signature": "DsaDoubly.pushBack(v)",
+              "line": 226,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.popFront",
+              "signature": "DsaDoubly.popFront()",
+              "line": 227,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.popBack",
+              "signature": "DsaDoubly.popBack()",
+              "line": 228,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.nodes",
+              "signature": "DsaDoubly.nodes()",
+              "line": 229,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaDoubly.validate",
+              "signature": "DsaDoubly.validate()",
+              "line": 230,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        },
+        {
+          "name": "DsaCircularSingly",
+          "line": 234,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaCircularSingly.constructor",
+              "signature": "DsaCircularSingly.constructor()",
+              "line": 235,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.head",
+              "signature": "DsaCircularSingly.head()",
+              "line": 236,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.pushFront",
+              "signature": "DsaCircularSingly.pushFront(v)",
+              "line": 237,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.pushBack",
+              "signature": "DsaCircularSingly.pushBack(v)",
+              "line": 238,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.popFront",
+              "signature": "DsaCircularSingly.popFront()",
+              "line": 239,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.popBack",
+              "signature": "DsaCircularSingly.popBack()",
+              "line": 240,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.rotate",
+              "signature": "DsaCircularSingly.rotate(k)",
+              "line": 247,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.nodes",
+              "signature": "DsaCircularSingly.nodes()",
+              "line": 248,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularSingly.validate",
+              "signature": "DsaCircularSingly.validate()",
+              "line": 249,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        },
+        {
+          "name": "DsaCircularDoubly",
+          "line": 253,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaCircularDoubly.constructor",
+              "signature": "DsaCircularDoubly.constructor()",
+              "line": 254,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.insertAfter",
+              "signature": "DsaCircularDoubly.insertAfter(node, v, where)",
+              "line": 255,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.unlink",
+              "signature": "DsaCircularDoubly.unlink(node)",
+              "line": 256,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.pushFront",
+              "signature": "DsaCircularDoubly.pushFront(v)",
+              "line": 257,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.pushBack",
+              "signature": "DsaCircularDoubly.pushBack(v)",
+              "line": 258,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.popFront",
+              "signature": "DsaCircularDoubly.popFront()",
+              "line": 259,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.popBack",
+              "signature": "DsaCircularDoubly.popBack()",
+              "line": 260,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.rotate",
+              "signature": "DsaCircularDoubly.rotate(k)",
+              "line": 261,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.nodes",
+              "signature": "DsaCircularDoubly.nodes()",
+              "line": 268,
+              "async": false,
+              "decorators": []
+            },
+            {
+              "name": "DsaCircularDoubly.validate",
+              "signature": "DsaCircularDoubly.validate()",
+              "line": 269,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        },
+        {
+          "name": "DsaTNode",
+          "line": 652,
+          "bases": [],
+          "fields": [],
+          "instance_fields": [],
+          "methods": [
+            {
+              "name": "DsaTNode.constructor",
+              "signature": "DsaTNode.constructor(k)",
+              "line": 652,
+              "async": false,
+              "decorators": []
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "dsaSlug",
+          "signature": "dsaSlug(n)",
+          "line": 40,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLesson",
+          "signature": "dsaLesson(n, label = `Lesson ${n}`)",
+          "line": 41,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLessons",
+          "signature": "dsaLessons(...ns)",
+          "line": 42,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLessons.<callback: ns.map>",
+          "signature": "dsaLessons.<callback: ns.map>(n)",
+          "line": 42,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: dsaTopics.map>",
+          "signature": "<callback: dsaTopics.map>(t)",
+          "line": 62,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaChip",
+          "signature": "dsaChip(status)",
+          "line": 64,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaButton",
+          "signature": "dsaButton(action, label, { primary = false, iconName = \"\", disabled = false } = {})",
+          "line": 70,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSelect",
+          "signature": "dsaSelect(name, label, options, value)",
+          "line": 74,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSelect.<callback: options.map>",
+          "signature": "dsaSelect.<callback: options.map>([v, l])",
+          "line": 75,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRange",
+          "signature": "dsaRange(name, label, min, max, step, value)",
+          "line": 78,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaPills",
+          "signature": "dsaPills(items)",
+          "line": 82,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaPills.<callback: items.map>",
+          "signature": "dsaPills.<callback: items.map>([text, tone = \"\"])",
+          "line": 83,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOps",
+          "signature": "dsaOps(lines)",
+          "line": 86,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOps.<callback: lines.map>",
+          "signature": "dsaOps.<callback: lines.map>(l)",
+          "line": 87,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLog",
+          "signature": "dsaLog(entries)",
+          "line": 90,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLog.<callback: entries.slice(-6).reverse().map>",
+          "signature": "dsaLog.<callback: entries.slice(-6).reverse().map>(e)",
+          "line": 92,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSvg",
+          "signature": "dsaSvg(w, h, label, body, cls = \"\")",
+          "line": 97,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaText",
+          "signature": "dsaText(x, y, t, cls = \"\", anchor = \"middle\")",
+          "line": 98,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview",
+          "signature": "dsaOverview()",
+          "line": 140,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview.<callback: Object.keys(dsaStatus).map>",
+          "signature": "dsaOverview.<callback: Object.keys(dsaStatus).map>(k)",
+          "line": 142,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview.<callback: dsaMap.map>",
+          "signature": "dsaOverview.<callback: dsaMap.map>([topic, ic, title, status, text, where])",
+          "line": 143,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview.<callback: DSA_ATLAS.map>",
+          "signature": "dsaOverview.<callback: DSA_ATLAS.map>([idea, st, code, file])",
+          "line": 144,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview.<callback: DSA_LESSONS.map>",
+          "signature": "dsaOverview.<callback: DSA_LESSONS.map>(title, i)",
+          "line": 145,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOverview.<callback: DSA_LESSONS.map>.<callback: dsaTopics.find>",
+          "signature": "dsaOverview.<callback: DSA_LESSONS.map>.<callback: dsaTopics.find>(t)",
+          "line": 146,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaCountSearch",
+          "signature": "dsaCountSearch(n)",
+          "line": 153,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaCountSearch.<callback: Array.from>",
+          "signature": "dsaCountSearch.<callback: Array.from>(_, i)",
+          "line": 154,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDuration",
+          "signature": "dsaDuration(sec)",
+          "line": 163,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDuration.<callback: units.find>",
+          "signature": "dsaDuration.<callback: units.find>([d])",
+          "line": 166,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity",
+          "signature": "dsaComplexity()",
+          "line": 170,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: sizes.map>",
+          "signature": "dsaComplexity.<callback: sizes.map>(n)",
+          "line": 172,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: sizes.map>.<callback: Array.from>",
+          "signature": "dsaComplexity.<callback: sizes.map>.<callback: Array.from>()",
+          "line": 174,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.fmt",
+          "signature": "dsaComplexity.fmt(v)",
+          "line": 181,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.map>",
+          "signature": "dsaComplexity.<callback: rows.map>(r)",
+          "line": 184,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.map>",
+          "signature": "dsaComplexity.<callback: rows.map>(r)",
+          "line": 185,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.map>",
+          "signature": "dsaComplexity.<callback: rows.map>(r)",
+          "line": 186,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.map>",
+          "signature": "dsaComplexity.<callback: rows.map>(r)",
+          "line": 187,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.filter>",
+          "signature": "dsaComplexity.<callback: rows.filter>(r, i)",
+          "line": 190,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: rows.filter((r, i) => i % 3 === 0 || r.n === 4096).map>",
+          "signature": "dsaComplexity.<callback: rows.filter((r, i) => i % 3 === 0 || r.n === 4096).map>(r)",
+          "line": 190,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaComplexity.<callback: growth.map>",
+          "signature": "dsaComplexity.<callback: growth.map>([name, v])",
+          "line": 193,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "make",
+          "signature": "make()",
+          "line": 273,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "make",
+          "signature": "make()",
+          "line": 274,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "make",
+          "signature": "make()",
+          "line": 275,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "make",
+          "signature": "make()",
+          "line": 276,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListNew",
+          "signature": "dsaListNew(kind = dsa.listKind)",
+          "line": 279,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg",
+          "signature": "dsaListSvg(L, kind, mark)",
+          "line": 285,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.<callback: cells.map>",
+          "signature": "dsaListSvg.<callback: cells.map>(_, i)",
+          "line": 289,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.<callback: cells.map>",
+          "signature": "dsaListSvg.<callback: cells.map>(c, i)",
+          "line": 292,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.arrow",
+          "signature": "dsaListSvg.arrow(x1, y1, x2, y2, cls = \"\", m = \"dsa-ah\")",
+          "line": 294,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.<callback: cells.forEach>",
+          "signature": "dsaListSvg.<callback: cells.forEach>(c, i)",
+          "line": 295,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.<callback: cells.forEach>",
+          "signature": "dsaListSvg.<callback: cells.forEach>(c, i)",
+          "line": 303,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListSvg.label",
+          "signature": "dsaListSvg.label(node, text, dy = 0)",
+          "line": 322,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaListOp",
+          "signature": "dsaListOp(op)",
+          "line": 331,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosNew",
+          "signature": "dsaJosNew()",
+          "line": 355,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosStep",
+          "signature": "dsaJosStep()",
+          "line": 360,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosFormula",
+          "signature": "dsaJosFormula(n, k)",
+          "line": 370,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosListShifts",
+          "signature": "dsaJosListShifts(n, k)",
+          "line": 371,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosListShifts.<callback: Array.from>",
+          "signature": "dsaJosListShifts.<callback: Array.from>(_, i)",
+          "line": 371,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosSvg",
+          "signature": "dsaJosSvg()",
+          "line": 373,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosSvg.<callback: J.ring.nodes().map>",
+          "signature": "dsaJosSvg.<callback: J.ring.nodes().map>(x)",
+          "line": 374,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosSvg.pos",
+          "signature": "dsaJosSvg.pos(v)",
+          "line": 375,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaJosSvg.<callback: live.forEach>",
+          "signature": "dsaJosSvg.<callback: live.forEach>(node)",
+          "line": 378,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLists",
+          "signature": "dsaLists()",
+          "line": 397,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLists.<callback: L.nodes().map>",
+          "signature": "dsaLists.<callback: L.nodes().map>(x)",
+          "line": 401,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLists.<callback: Object.entries(DSA_KINDS).map>",
+          "signature": "dsaLists.<callback: Object.entries(DSA_KINDS).map>([id, x])",
+          "line": 404,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLists.<callback: [5, 6, 7, 8, 9, 10, 12, 16].map>",
+          "signature": "dsaLists.<callback: [5, 6, 7, 8, 9, 10, 12, 16].map>(v)",
+          "line": 413,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLists.<callback: [2, 3, 4, 5].map>",
+          "signature": "dsaLists.<callback: [2, 3, 4, 5].map>(v)",
+          "line": 413,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydNew",
+          "signature": "dsaFloydNew(mu = dsa.floyd?.mu ?? 3, lam = dsa.floyd?.lam ?? 5)",
+          "line": 427,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydNew.<callback: Array.from>",
+          "signature": "dsaFloydNew.<callback: Array.from>(_, i)",
+          "line": 428,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydNew.<callback: nodes.forEach>",
+          "signature": "dsaFloydNew.<callback: nodes.forEach>(n, i)",
+          "line": 429,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydStep",
+          "signature": "dsaFloydStep()",
+          "line": 432,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg",
+          "signature": "dsaFloydSvg()",
+          "line": 446,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg.pos",
+          "signature": "dsaFloydSvg.pos(i)",
+          "line": 448,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg.pos.<callback: () => { const a = Math.PI + ((i - F.mu) / F.lam) * 2 * Math.PI; return [cx + R * Math.cos(a), Y + R * Math.sin(a)]; }>",
+          "signature": "dsaFloydSvg.pos.<callback: () => { const a = Math.PI + ((i - F.mu) / F.lam) * 2 * Math.PI; return [cx + R * Math.cos(a), Y + R * Math.sin(a)]; }>()",
+          "line": 448,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg.<callback: F.nodes.forEach>",
+          "signature": "dsaFloydSvg.<callback: F.nodes.forEach>(n)",
+          "line": 450,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg.<callback: F.nodes.forEach>",
+          "signature": "dsaFloydSvg.<callback: F.nodes.forEach>(n)",
+          "line": 451,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloydSvg.tag",
+          "signature": "dsaFloydSvg.tag(node, t, dy, cls)",
+          "line": 452,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloyd",
+          "signature": "dsaFloyd()",
+          "line": 456,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloyd.<callback: [0, 1, 2, 3, 4, 5].map>",
+          "signature": "dsaFloyd.<callback: [0, 1, 2, 3, 4, 5].map>(v)",
+          "line": 460,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloyd.<callback: [1, 2, 3, 4, 5, 6, 7].map>",
+          "signature": "dsaFloyd.<callback: [1, 2, 3, 4, 5, 6, 7].map>(v)",
+          "line": 460,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFloyd.<callback: F.log.slice(-4).reverse().map>",
+          "signature": "dsaFloyd.<callback: F.log.slice(-4).reverse().map>(l)",
+          "line": 464,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaPostfixTrace",
+          "signature": "dsaPostfixTrace()",
+          "line": 470,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRingNew",
+          "signature": "dsaRingNew(cap = 8)",
+          "line": 479,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRingOp",
+          "signature": "dsaRingOp(op)",
+          "line": 480,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRingSvg",
+          "signature": "dsaRingSvg()",
+          "line": 498,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRingSvg.p",
+          "signature": "dsaRingSvg.p(r, a)",
+          "line": 503,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRingSvg.mark",
+          "signature": "dsaRingSvg.mark(i, t, cls, rr)",
+          "line": 509,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLruNew",
+          "signature": "dsaLruNew()",
+          "line": 516,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLruGet",
+          "signature": "dsaLruGet(key)",
+          "line": 517,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueues",
+          "signature": "dsaQueues()",
+          "line": 530,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueues.<callback: Array.from>",
+          "signature": "dsaQueues.<callback: Array.from>(_, i)",
+          "line": 534,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueues.<callback: C.list.nodes().map>",
+          "signature": "dsaQueues.<callback: C.list.nodes().map>(x)",
+          "line": 535,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueues.<callback: frames.map>",
+          "signature": "dsaQueues.<callback: frames.map>([t, a, s])",
+          "line": 538,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueues.<callback: DSA_TILES.map>",
+          "signature": "dsaQueues.<callback: DSA_TILES.map>(k)",
+          "line": 549,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashOf",
+          "signature": "dsaHashOf(key)",
+          "line": 571,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashNew",
+          "signature": "dsaHashNew()",
+          "line": 573,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashNew.<callback: Array.from>",
+          "signature": "dsaHashNew.<callback: Array.from>()",
+          "line": 573,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashResize",
+          "signature": "dsaHashResize(H, m)",
+          "line": 574,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashResize.<callback: H.slots.filter>",
+          "signature": "dsaHashResize.<callback: H.slots.filter>(s)",
+          "line": 575,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashResize.<callback: Array.from>",
+          "signature": "dsaHashResize.<callback: Array.from>()",
+          "line": 576,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashPut",
+          "signature": "dsaHashPut(H, key, quiet = false)",
+          "line": 579,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashDelete",
+          "signature": "dsaHashDelete(H)",
+          "line": 593,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashDelete.<callback: H.slots.filter>",
+          "signature": "dsaHashDelete.<callback: H.slots.filter>(s)",
+          "line": 594,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashStats",
+          "signature": "dsaHashStats(H)",
+          "line": 601,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashStats.<callback: H.slots.filter>",
+          "signature": "dsaHashStats.<callback: H.slots.filter>(s)",
+          "line": 602,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashStats.<callback: H.slots.filter>",
+          "signature": "dsaHashStats.<callback: H.slots.filter>(s)",
+          "line": 610,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashSvg",
+          "signature": "dsaHashSvg(H)",
+          "line": 613,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashSvg.<callback: H.chains[i].forEach>",
+          "signature": "dsaHashSvg.<callback: H.chains[i].forEach>(k, j)",
+          "line": 620,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashing",
+          "signature": "dsaHashing()",
+          "line": 630,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashing.<callback: [5, 7, 8, 11, 13].map>",
+          "signature": "dsaHashing.<callback: [5, 7, 8, 11, 13].map>(v)",
+          "line": 635,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHashing.<callback: theory.map>",
+          "signature": "dsaHashing.<callback: theory.map>(t)",
+          "line": 638,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaH",
+          "signature": "dsaH(n)",
+          "line": 653,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaUpd",
+          "signature": "dsaUpd(n)",
+          "line": 654,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaBstInsert",
+          "signature": "dsaBstInsert(n, k)",
+          "line": 655,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRotR",
+          "signature": "dsaRotR(y, log, tag)",
+          "line": 656,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRotL",
+          "signature": "dsaRotL(x, log, tag)",
+          "line": 657,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaRebalance",
+          "signature": "dsaRebalance(n, log)",
+          "line": 658,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaAvlInsert",
+          "signature": "dsaAvlInsert(n, k, log)",
+          "line": 664,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaMin",
+          "signature": "dsaMin(n)",
+          "line": 665,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDelete",
+          "signature": "dsaDelete(n, k, avl, info, log)",
+          "line": 666,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeKeys",
+          "signature": "dsaTreeKeys(n, out = [])",
+          "line": 677,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaPre",
+          "signature": "dsaPre(n, out = [])",
+          "line": 678,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaPost",
+          "signature": "dsaPost(n, out = [])",
+          "line": 679,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLevel",
+          "signature": "dsaLevel(n)",
+          "line": 680,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaCount",
+          "signature": "dsaCount(n)",
+          "line": 681,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSearchSteps",
+          "signature": "dsaSearchSteps(n, k)",
+          "line": 682,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: Array.from>",
+          "signature": "<callback: Array.from>(_, i)",
+          "line": 685,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { const g = mlRng(7), a = Array.from({ length: 15 }, (_, i) => i + 1); for (let i = a.length - 1; i > 0; i--) { const j = g.int(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }>",
+          "signature": "<callback: () => { const g = mlRng(7), a = Array.from({ length: 15 }, (_, i) => i + 1); for (let i = a.length - 1; i > 0; i--) { const j = g.int(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }>()",
+          "line": 686,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { const g = mlRng(7), a = Array.from({ length: 15 }, (_, i) => i + 1); for (let i = a.length - 1; i > 0; i--) { const j = g.int(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }>.<callback: Array.from>",
+          "signature": "<callback: () => { const g = mlRng(7), a = Array.from({ length: 15 }, (_, i) => i + 1); for (let i = a.length - 1; i > 0; i--) { const j = g.int(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }>.<callback: Array.from>(_, i)",
+          "line": 686,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeNew",
+          "signature": "dsaTreeNew()",
+          "line": 689,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeInsert",
+          "signature": "dsaTreeInsert()",
+          "line": 690,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeSvg",
+          "signature": "dsaTreeSvg(root, title, hot)",
+          "line": 692,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeSvg.<callback: keys.map>",
+          "signature": "dsaTreeSvg.<callback: keys.map>(k, i)",
+          "line": 693,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTreeSvg.walk",
+          "signature": "dsaTreeSvg.walk(n, d)",
+          "line": 696,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapNew",
+          "signature": "dsaHeapNew()",
+          "line": 702,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaLess",
+          "signature": "dsaLess(x, y)",
+          "line": 703,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapPush",
+          "signature": "dsaHeapPush(quiet)",
+          "line": 704,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapPop",
+          "signature": "dsaHeapPop()",
+          "line": 710,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapSvg",
+          "signature": "dsaHeapSvg()",
+          "line": 715,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapSvg.pos",
+          "signature": "dsaHeapSvg.pos(i)",
+          "line": 718,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapSvg.<callback: a.forEach>",
+          "signature": "dsaHeapSvg.<callback: a.forEach>(_, i)",
+          "line": 719,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapSvg.<callback: a.forEach>",
+          "signature": "dsaHeapSvg.<callback: a.forEach>([name, eta], i)",
+          "line": 720,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHeapSvg.<callback: a.forEach>",
+          "signature": "dsaHeapSvg.<callback: a.forEach>([name, eta], i)",
+          "line": 722,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrie",
+          "signature": "dsaTrie(prefix)",
+          "line": 727,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrie.collect",
+          "signature": "dsaTrie.collect(m)",
+          "line": 731,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrie.<callback: DSA_TRIE_WORDS.reduce>",
+          "signature": "dsaTrie.<callback: DSA_TRIE_WORDS.reduce>(s, w)",
+          "line": 732,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees",
+          "signature": "dsaTrees()",
+          "line": 735,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: present.map>",
+          "signature": "dsaTrees.<callback: present.map>(k)",
+          "line": 739,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: present.map>",
+          "signature": "dsaTrees.<callback: present.map>(k)",
+          "line": 739,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: Object.entries(DSA_TREE_INPUTS).map>",
+          "signature": "dsaTrees.<callback: Object.entries(DSA_TREE_INPUTS).map>([id, x])",
+          "line": 742,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: present.map>",
+          "signature": "dsaTrees.<callback: present.map>(k)",
+          "line": 742,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: T.rot.map>",
+          "signature": "dsaTrees.<callback: T.rot.map>(r)",
+          "line": 747,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: [\"C\", \"Co\", \"Cork\", \"M\", \"Ma\", \"B\", \"K\", \"S\", \"Do\", \"Z\"].map>",
+          "signature": "dsaTrees.<callback: [\"C\", \"Co\", \"Cork\", \"M\", \"Ma\", \"B\", \"K\", \"S\", \"Do\", \"Z\"].map>(v)",
+          "line": 759,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTrees.<callback: trie.matches.map>",
+          "signature": "dsaTrees.<callback: trie.matches.map>(m)",
+          "line": 761,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaHaversine",
+          "signature": "dsaHaversine(a, b)",
+          "line": 767,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>()",
+          "line": 768,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: Array.from>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: Array.from>()",
+          "line": 769,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map>(z, j)",
+          "line": 770,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter>([j])",
+          "line": 770,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort>(a, b)",
+          "line": 770,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach>([j, d])",
+          "line": 770,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.forEach>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.forEach>(m, i)",
+          "line": 771,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.forEach>.<callback: m.forEach>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.forEach>.<callback: m.forEach>(w, j)",
+          "line": 771,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.map>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.map>(m)",
+          "line": 772,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.map>.<callback: [...m.entries()].sort>",
+          "signature": "<callback: () => { // undirected: every zone to its 3 nearest zones, weight = Haversine km\n  const n = DSA_ZONES.length, adj = Array.from({ length: n }, () => new Map());\n  for (let i = 0; i < n; i++) DSA_ZONES.map((z, j) => [j, dsaHaversine(DSA_ZONES[i], z)]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 3).forEach(([j, d]) => { const w = Math.round(d * 100) / 100; adj[i].set(j, w); adj[j].set(i, w); });\n  const edges = []; adj.forEach((m, i) => m.forEach((w, j) => { if (i < j) edges.push([i, j, w]); }));\n  return { n, adj: adj.map((m) => [...m.entries()].sort((a, b) => a[0] - b[0])), edges };\n}>.<callback: adj.map>.<callback: [...m.entries()].sort>(a, b)",
+          "line": 772,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphFrames",
+          "signature": "dsaGraphFrames(algo, src, dst)",
+          "line": 775,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphFrames.name",
+          "signature": "dsaGraphFrames.name(i)",
+          "line": 776,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphFrames.<callback: pq.sort>",
+          "signature": "dsaGraphFrames.<callback: pq.sort>(a, b)",
+          "line": 798,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphFrames.<callback: pq.filter>",
+          "signature": "dsaGraphFrames.<callback: pq.filter>([, v])",
+          "line": 801,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphFrames.<callback: pq.filter(([, v]) => !done.has(v)).map>",
+          "signature": "dsaGraphFrames.<callback: pq.filter(([, v]) => !done.has(v)).map>([, v])",
+          "line": 801,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphNew",
+          "signature": "dsaGraphNew()",
+          "line": 816,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphSvg",
+          "signature": "dsaGraphSvg(F)",
+          "line": 820,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphSvg.P",
+          "signature": "dsaGraphSvg.P(i)",
+          "line": 821,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphSvg.<callback: (F.tree || []).map>",
+          "signature": "dsaGraphSvg.<callback: (F.tree || []).map>([u, v])",
+          "line": 822,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphSvg.<callback: F.prev.forEach>",
+          "signature": "dsaGraphSvg.<callback: F.prev.forEach>(p, v)",
+          "line": 825,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphSvg.<callback: DSA_ZONES.forEach>",
+          "signature": "dsaGraphSvg.<callback: DSA_ZONES.forEach>(z, i)",
+          "line": 832,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphs",
+          "signature": "dsaGraphs()",
+          "line": 843,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphs.name",
+          "signature": "dsaGraphs.name(i)",
+          "line": 845,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphs.<callback: DSA_ZONES.map>",
+          "signature": "dsaGraphs.<callback: DSA_ZONES.map>(z, i)",
+          "line": 846,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphs.<callback: DSA_GRAPH.adj.map>",
+          "signature": "dsaGraphs.<callback: DSA_GRAPH.adj.map>(nb, i)",
+          "line": 860,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGraphs.<callback: DSA_GRAPH.adj.map>.<callback: nb.map>",
+          "signature": "dsaGraphs.<callback: DSA_GRAPH.adj.map>.<callback: nb.map>([v, w])",
+          "line": 860,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun",
+          "signature": "dsaSortRun(algo, input, trace = null)",
+          "line": 870,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.key",
+          "signature": "dsaSortRun.key(v)",
+          "line": 871,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.lt",
+          "signature": "dsaSortRun.lt(x, y, i, j)",
+          "line": 873,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.swap",
+          "signature": "dsaSortRun.swap(i, j)",
+          "line": 874,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.put",
+          "signature": "dsaSortRun.put(i, v)",
+          "line": 875,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.go",
+          "signature": "dsaSortRun.go(lo, hi)",
+          "line": 880,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.sift",
+          "signature": "dsaSortRun.sift(s, end)",
+          "line": 882,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.<callback: a.slice().sort>",
+          "signature": "dsaSortRun.<callback: a.slice().sort>(x, y)",
+          "line": 883,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortRun.<callback: out.forEach>",
+          "signature": "dsaSortRun.<callback: out.forEach>(v, i)",
+          "line": 883,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortCount",
+          "signature": "dsaSortCount(algo, data)",
+          "line": 886,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput",
+          "signature": "dsaSortInput(n, order)",
+          "line": 889,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput.<callback: Array.from>",
+          "signature": "dsaSortInput.<callback: Array.from>()",
+          "line": 891,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput.<callback: Array.from>",
+          "signature": "dsaSortInput.<callback: Array.from>()",
+          "line": 891,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput.<callback: base.sort>",
+          "signature": "dsaSortInput.<callback: base.sort>(x, y)",
+          "line": 892,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput.<callback: base.sort>",
+          "signature": "dsaSortInput.<callback: base.sort>(x, y)",
+          "line": 893,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSortInput.<callback: base.sort>",
+          "signature": "dsaSortInput.<callback: base.sort>(x, y)",
+          "line": 894,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTraceNew",
+          "signature": "dsaTraceNew()",
+          "line": 898,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTraceNew.<callback: Array.from>",
+          "signature": "dsaTraceNew.<callback: Array.from>()",
+          "line": 899,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaBars",
+          "signature": "dsaBars(F)",
+          "line": 905,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaBars.<callback: F.a.map>",
+          "signature": "dsaBars.<callback: F.a.map>(v, i)",
+          "line": 907,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaStability",
+          "signature": "dsaStability(algo)",
+          "line": 910,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaStability.<callback: DSA_DRIVERS.map>",
+          "signature": "dsaStability.<callback: DSA_DRIVERS.map>(d, i)",
+          "line": 911,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaBinarySearch",
+          "signature": "dsaBinarySearch(a, x)",
+          "line": 916,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting",
+          "signature": "dsaSorting()",
+          "line": 922,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: DSA_SORTS.map>",
+          "signature": "dsaSorting.<callback: DSA_SORTS.map>([id, label, big, stable])",
+          "line": 924,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: DSA_DRIVERS.map>",
+          "signature": "dsaSorting.<callback: DSA_DRIVERS.map>(d)",
+          "line": 925,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: DSA_DRIVERS.map((d) => d[1]).sort>",
+          "signature": "dsaSorting.<callback: DSA_DRIVERS.map((d) => d[1]).sort>(x, y)",
+          "line": 925,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: results.map>",
+          "signature": "dsaSorting.<callback: results.map>(r)",
+          "line": 926,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: [16, 64, 128, 512, 2048].map>",
+          "signature": "dsaSorting.<callback: [16, 64, 128, 512, 2048].map>(v)",
+          "line": 928,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: results.map>",
+          "signature": "dsaSorting.<callback: results.map>(r)",
+          "line": 929,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: results.map>",
+          "signature": "dsaSorting.<callback: results.map>(r)",
+          "line": 931,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: DSA_SORTS.filter>",
+          "signature": "dsaSorting.<callback: DSA_SORTS.filter>(s)",
+          "line": 933,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: DSA_SORTS.filter((s) => s[0] !== \"builtin\").map>",
+          "signature": "dsaSorting.<callback: DSA_SORTS.filter((s) => s[0] !== \"builtin\").map>([id, l])",
+          "line": 933,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>",
+          "signature": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>(id)",
+          "line": 939,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>.<callback: DSA_SORTS.find>",
+          "signature": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>.<callback: DSA_SORTS.find>(x)",
+          "line": 939,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>.<callback: s.order.map>",
+          "signature": "dsaSorting.<callback: [\"merge\", \"insertion\", \"selection\", \"heap\", \"builtin\"].map>.<callback: s.order.map>([nm, e])",
+          "line": 939,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: Array.from>",
+          "signature": "dsaSorting.<callback: Array.from>(_, i)",
+          "line": 941,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: etas.map>",
+          "signature": "dsaSorting.<callback: etas.map>(v, i)",
+          "line": 942,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: etas.map>.<callback: bs.steps.some>",
+          "signature": "dsaSorting.<callback: etas.map>.<callback: bs.steps.some>(s)",
+          "line": 942,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSorting.<callback: bs.steps.map>",
+          "signature": "dsaSorting.<callback: bs.steps.map>([lo, hi, mid, v], i)",
+          "line": 943,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack",
+          "signature": "dsaKnapsack(cap)",
+          "line": 950,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.<callback: Array.from>",
+          "signature": "dsaKnapsack.<callback: Array.from>()",
+          "line": 951,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.greedy",
+          "signature": "dsaKnapsack.greedy(keyFn)",
+          "line": 954,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map>",
+          "signature": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map>(it, i)",
+          "line": 954,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map((it, i) => [i, keyFn(it)]).sort>",
+          "signature": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map((it, i) => [i, keyFn(it)]).sort>(a, b)",
+          "line": 954,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map((it, i) => [i, keyFn(it)]).sort((a, b) => b[1] - a[1]).forEach>",
+          "signature": "dsaKnapsack.greedy.<callback: DSA_ITEMS.map((it, i) => [i, keyFn(it)]).sort((a, b) => b[1] - a[1]).forEach>([i])",
+          "line": 954,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.<callback: greedy>",
+          "signature": "dsaKnapsack.<callback: greedy>(it)",
+          "line": 955,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaKnapsack.<callback: greedy>",
+          "signature": "dsaKnapsack.<callback: greedy>(it)",
+          "line": 955,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFib",
+          "signature": "dsaFib(n)",
+          "line": 957,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFib.f",
+          "signature": "dsaFib.f(m)",
+          "line": 957,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaFib.g",
+          "signature": "dsaFib.g(m)",
+          "line": 957,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueens",
+          "signature": "dsaQueens(n)",
+          "line": 958,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaQueens.place",
+          "signature": "dsaQueens.place(r)",
+          "line": 958,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign",
+          "signature": "dsaDesign()",
+          "line": 960,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.money",
+          "signature": "dsaDesign.money(c)",
+          "line": 961,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: [5, 10, 15, 20, 25, 30, 40].map>",
+          "signature": "dsaDesign.<callback: [5, 10, 15, 20, 25, 30, 40].map>(n)",
+          "line": 962,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: [4, 5, 6, 7, 8, 9, 10, 12].map>",
+          "signature": "dsaDesign.<callback: [4, 5, 6, 7, 8, 9, 10, 12].map>(v)",
+          "line": 969,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: Array.from>",
+          "signature": "dsaDesign.<callback: Array.from>(_, c)",
+          "line": 970,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: ks.T.map>",
+          "signature": "dsaDesign.<callback: ks.T.map>(row, i)",
+          "line": 970,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: ks.T.map>.<callback: row.map>",
+          "signature": "dsaDesign.<callback: ks.T.map>.<callback: row.map>(v)",
+          "line": 970,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: ks.take.map>",
+          "signature": "dsaDesign.<callback: ks.take.map>(i)",
+          "line": 972,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: ks.byRatio.got.map>",
+          "signature": "dsaDesign.<callback: ks.byRatio.got.map>(i)",
+          "line": 973,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: ks.byValue.got.map>",
+          "signature": "dsaDesign.<callback: ks.byValue.got.map>(i)",
+          "line": 974,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: [4, 5, 6, 7, 8, 9, 10].map>",
+          "signature": "dsaDesign.<callback: [4, 5, 6, 7, 8, 9, 10].map>(v)",
+          "line": 977,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaDesign.<callback: Array.from>",
+          "signature": "dsaDesign.<callback: Array.from>(_, i)",
+          "line": 978,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaTopicLink",
+          "signature": "dsaTopicLink(id, k)",
+          "line": 994,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGaps",
+          "signature": "dsaGaps()",
+          "line": 996,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGaps.<callback: DSA_EXPERIMENTS.map>",
+          "signature": "dsaGaps.<callback: DSA_EXPERIMENTS.map>([id, flag, q, topic])",
+          "line": 998,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaGaps.<callback: DSA_EXERCISES.map>",
+          "signature": "dsaGaps.<callback: DSA_EXERCISES.map>([text, topic], i)",
+          "line": 999,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaInspector",
+          "signature": "dsaInspector()",
+          "line": 1025,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaInspector.<callback: info.facts.map>",
+          "signature": "dsaInspector.<callback: info.facts.map>([k, v])",
+          "line": 1030,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaInspector.<callback: t.lessons.map>",
+          "signature": "dsaInspector.<callback: t.lessons.map>(n)",
+          "line": 1031,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaInspector.<callback: info.files.map>",
+          "signature": "dsaInspector.<callback: info.files.map>([l, u])",
+          "line": 1032,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaInspector.<callback: info.questions.map>",
+          "signature": "dsaInspector.<callback: info.questions.map>(x)",
+          "line": 1034,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "lists",
+          "signature": "lists()",
+          "line": 1038,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaView",
+          "signature": "dsaView()",
+          "line": 1040,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaView.<callback: dsaTopics.map>",
+          "signature": "dsaView.<callback: dsaTopics.map>(x)",
+          "line": 1043,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaOpen",
+          "signature": "dsaOpen(topic)",
+          "line": 1047,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaSetHash",
+          "signature": "dsaSetHash()",
+          "line": 1052,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "dsaClick",
+          "signature": "dsaClick(button)",
+          "line": 1056,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"input\">",
+          "signature": "<callback: document.addEventListener, \"input\">(event)",
+          "line": 1105,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"change\">",
+          "signature": "<callback: document.addEventListener, \"change\">(event)",
+          "line": 1112,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
     "dist/explorer.js": {
       "language": "JavaScript",
       "imports": [],
@@ -1849,392 +3992,392 @@
         {
           "name": "indexSystem",
           "signature": "indexSystem()",
-          "line": 52,
+          "line": 53,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.links.map>",
           "signature": "indexSystem.<callback: S.links.map>(link)",
-          "line": 54,
+          "line": 55,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.folders.flatMap>",
           "signature": "indexSystem.<callback: S.folders.flatMap>(group)",
-          "line": 55,
+          "line": 56,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>",
           "signature": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)",
-          "line": 55,
+          "line": 56,
           "async": false,
           "decorators": []
         },
         {
           "name": "$",
           "signature": "$(id)",
-          "line": 59,
+          "line": 60,
           "async": false,
           "decorators": []
         },
         {
           "name": "icon",
           "signature": "icon(name, size = 18)",
-          "line": 60,
+          "line": 61,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>",
           "signature": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>(element)",
-          "line": 63,
+          "line": 64,
           "async": false,
           "decorators": []
         },
         {
           "name": "announce",
           "signature": "announce(message)",
-          "line": 65,
+          "line": 66,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentColor",
           "signature": "componentColor(id)",
-          "line": 69,
+          "line": 70,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentMark",
           "signature": "componentMark(id, size = 19)",
-          "line": 73,
+          "line": 74,
           "async": false,
           "decorators": []
         },
         {
           "name": "viewHeading",
           "signature": "viewHeading(kicker, title, detail, badge = \"\")",
-          "line": 77,
+          "line": 78,
           "async": false,
           "decorators": []
         },
         {
           "name": "updateControls",
           "signature": "updateControls()",
-          "line": 81,
+          "line": 82,
           "async": false,
           "decorators": []
         },
         {
           "name": "updateControls.<callback: Object.entries(S.scenarios).map>",
           "signature": "updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])",
-          "line": 83,
+          "line": 84,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView",
           "signature": "architectureView()",
-          "line": 93,
+          "line": 94,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: S.links.filter>",
           "signature": "architectureView.<callback: S.links.filter>({ from, to })",
-          "line": 96,
+          "line": 97,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: trace?.steps.map>",
           "signature": "architectureView.<callback: trace?.steps.map>([id])",
-          "line": 97,
+          "line": 98,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: [...visibleLinks].flatMap>",
           "signature": "architectureView.<callback: [...visibleLinks].flatMap>({ from, to })",
-          "line": 99,
+          "line": 100,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)",
-          "line": 100,
+          "line": 101,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>(tone)",
-          "line": 100,
+          "line": 101,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: [...S.links].sort>",
           "signature": "architectureView.<callback: [...S.links].sort>(a, b)",
-          "line": 102,
+          "line": 103,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: orderedLinks.map>",
           "signature": "architectureView.<callback: orderedLinks.map>(link)",
-          "line": 103,
+          "line": 104,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.values(S.groups).map>",
           "signature": "architectureView.<callback: Object.values(S.groups).map>(group, index)",
-          "line": 108,
+          "line": 109,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.entries(S.components).map>",
           "signature": "architectureView.<callback: Object.entries(S.components).map>([id, component])",
-          "line": 109,
+          "line": 110,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.entries(kindLabels).map>",
           "signature": "architectureView.<callback: Object.entries(kindLabels).map>([kind, label])",
-          "line": 126,
+          "line": 127,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup",
           "signature": "cardsMarkup()",
-          "line": 129,
+          "line": 130,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: Object.entries(S.components).filter>",
           "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>([, component])",
-          "line": 131,
+          "line": 132,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>",
           "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)",
-          "line": 132,
+          "line": 133,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: matches.map>",
           "signature": "cardsMarkup.<callback: matches.map>([id, component])",
-          "line": 133,
+          "line": 134,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentsView",
           "signature": "componentsView()",
-          "line": 138,
+          "line": 139,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentsView.<callback: Object.entries(S.groups).map>",
           "signature": "componentsView.<callback: Object.entries(S.groups).map>([id, group])",
-          "line": 141,
+          "line": 142,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView",
           "signature": "deploymentView()",
-          "line": 145,
+          "line": 146,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView.<callback: S.zones.map>",
           "signature": "deploymentView.<callback: S.zones.map>(zone, index)",
-          "line": 147,
+          "line": 148,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>",
           "signature": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)",
-          "line": 147,
+          "line": 148,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView",
           "signature": "foldersView()",
-          "line": 151,
+          "line": 152,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>",
           "signature": "foldersView.<callback: S.folders.map>(group)",
-          "line": 154,
+          "line": 155,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>.<callback: group.children.some>",
           "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)",
-          "line": 154,
+          "line": 155,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>.<callback: group.children.map>",
           "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)",
-          "line": 154,
+          "line": 155,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: selected.example.map>",
           "signature": "foldersView.<callback: selected.example.map>(file)",
-          "line": 155,
+          "line": 156,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup",
           "signature": "inspectorMarkup()",
-          "line": 158,
+          "line": 159,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: S.links.filter>",
           "signature": "inspectorMarkup.<callback: S.links.filter>({ to })",
-          "line": 164,
+          "line": 165,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: S.links.filter>",
           "signature": "inspectorMarkup.<callback: S.links.filter>({ from })",
-          "line": 165,
+          "line": 166,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter>",
           "signature": "inspectorMarkup.<callback: neighbors.filter>({ rows })",
-          "line": 171,
+          "line": 172,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })",
-          "line": 171,
+          "line": 172,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)",
-          "line": 171,
+          "line": 172,
           "async": false,
           "decorators": []
         },
         {
           "name": "render",
           "signature": "render()",
-          "line": 178,
+          "line": 179,
           "async": false,
           "decorators": []
         },
         {
           "name": "setSystem",
           "signature": "setSystem(id, fromClick = false)",
-          "line": 205,
+          "line": 206,
           "async": false,
           "decorators": []
         },
         {
           "name": "stopPlayback",
           "signature": "stopPlayback()",
-          "line": 222,
+          "line": 223,
           "async": false,
           "decorators": []
         },
         {
           "name": "switchView",
           "signature": "switchView(view)",
-          "line": 227,
+          "line": 228,
           "async": false,
           "decorators": []
         },
         {
           "name": "applyStep",
           "signature": "applyStep(step)",
-          "line": 237,
+          "line": 239,
           "async": false,
           "decorators": []
         },
         {
           "name": "setScenario",
           "signature": "setScenario(id)",
-          "line": 256,
+          "line": 258,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace",
           "signature": "playTrace()",
-          "line": 269,
+          "line": 271,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace.<callback: setInterval>",
           "signature": "playTrace.<callback: setInterval>()",
-          "line": 276,
+          "line": 278,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"click\">",
           "signature": "<callback: document.addEventListener, \"click\">(event)",
-          "line": 285,
+          "line": 287,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">",
           "signature": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">(event)",
-          "line": 326,
+          "line": 329,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"input\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"input\">(event)",
-          "line": 338,
+          "line": 341,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"toggle\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"toggle\">(event)",
-          "line": 345,
+          "line": 348,
           "async": false,
           "decorators": []
         }
