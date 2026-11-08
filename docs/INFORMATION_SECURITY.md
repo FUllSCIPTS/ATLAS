@@ -609,7 +609,7 @@ sequenceDiagram
   participant S as Dispatch Service (S)
   C->>AS: ① AS-REQ: C, TGS, nonce, {timestamp}K_C  (pre-auth)
   AS-->>C: ② AS-REP: {K_C,TGS, nonce}K_C  +  TGT = {C, K_C,TGS, expiry}K_TGS
-  Note over C: password → K_C → decrypt; then forget the password
+  Note over C: password → K_C → decrypt, then forget the password
   C->>TGS: ③ TGS-REQ: TGT, {C, timestamp}K_C,TGS  (authenticator), S
   TGS-->>C: ④ TGS-REP: {K_C,S}K_C,TGS  +  Ticket = {C, K_C,S, expiry}K_S
   C->>S: ⑤ AP-REQ: Ticket, {C, timestamp}K_C,S
