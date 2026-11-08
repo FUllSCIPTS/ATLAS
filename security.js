@@ -154,7 +154,7 @@ function umlSection(topicKey) {
 }
 
 // The ML view has its own catalogue section; Security and Cryptography share one.
-const umlCatalogueName = (view) => (view === "ml" ? "machine learning and optimisation catalogue" : "security and cryptography catalogue");
+const umlCatalogueName = (view) => (view === "ml" ? "machine learning and optimisation catalogue" : view === "dsa" ? "data structures and algorithms catalogue" : "security and cryptography catalogue");
 const umlCatalogueAnchor = (view) => umlCatalogueName(view).replace(/ /g, "-");
 
 // Overview: one link per topic section of the catalogue.
