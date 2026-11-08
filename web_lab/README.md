@@ -1,5 +1,7 @@
 # Web Technology lab: full-stack concept and practice
 
+**New to web development?** Start with [Part I — Beginner foundations](../docs/WEB_TECHNOLOGY.md#part-i--beginner-foundations-start-here-before-practical-development), which teaches 12 step-by-step basics before the advanced full-stack material: Internet/Web, URLs and DNS, HTML, CSS, JavaScript, forms, DOM, JSON, HTTP, API and SQL. Work through three examples before running the integrated labs.
+
 [Standalone teaching guide](../docs/WEB_TECHNOLOGY.md) · [Google Colab experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
 **Local-only synthetic teaching application:** HTML form → CSS responsive view → JS fetch → FastAPI → parameterized SQLite → JSON response and DOM refresh. It has no authentication and must not be exposed on a public network or populated with real passenger data.
