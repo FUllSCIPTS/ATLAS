@@ -54,6 +54,451 @@ Example: f(n)=3n²+5n+8 has O(n²), Ω(n²), and Θ(n²). It is ALSO O(n³), but
 ## 6. Algorithms, paradigms and correctness
 Searching: linear vs binary (sorted precondition). Sorting: bubble, insertion, merge, quick, heap; compare stability, worst-case, auxiliary storage and input distribution. Recursion: base case, shrinking problem, stack. Divide/conquer (merge sort), greedy (interval scheduling), dynamic programming (Fibonacci, knapsack), backtracking (subsets). For correctness, write preconditions, postconditions, loop invariants and termination arguments. For example, at each binary-search iteration, if x occurs it lies in [lo,hi]; interval shrinks.
 
+
+# Fully illustrated, standalone lessons
+
+**How to use these lessons:** Read the definition; trace the diagram by hand; calculate the worked example; run the Python snippet in Colab; compare the theory with the 20 labs. All Mermaid figures below are source-controlled and render directly on GitHub. Sizes: n=items; V=vertices; E=edges; h=tree height; w=maximum width; m=hash buckets; α=n/m. A comparison count and a runtime in milliseconds are different measurements.
+
+## Lesson 1 — Problem, algorithm, data structure, and ADT
+
+A **problem** specifies an input and desired output; an **algorithm** gives finite, unambiguous steps to obtain that output; a **data structure** organizes values to support those steps. An **abstract data type (ADT)** defines behavior and operations independently of representation. Example: a waiting line is a queue ADT; a linked deque is one implementation; dequeue is an operation; serving the earliest customer is the goal.
+
+~~~mermaid
+flowchart LR
+ A["Problem: serve arrivals fairly"] --> B["ADT: FIFO queue"]
+ B --> C["Implementation: linked deque"]
+ C --> D["Algorithm: enqueue arrivals; dequeue next"]
+ D --> E["Output: service order"]
+~~~
+
+**Worked example:** Find 7 in [2,7,9]. Compare 2 and then 7: two comparisons; returned index is 1 (zero-based). Finding absent 6 takes three comparisons. Python:
+
+~~~python
+def linear_search(a, target):
+    for i, value in enumerate(a):
+        if value == target: return i
+    return -1
+assert linear_search([2,7,9], 7) == 1
+~~~
+
+An algorithm should state **preconditions** (e.g., sorted input for binary search), **postconditions** (correct result) and **termination**. A **loop invariant** is a statement true before and after each iteration, useful for correctness proofs. Linear search invariant: every already inspected position does not contain the target (unless the method returned). **Lab:** E02.
+
+## Lesson 2 — Counting operations and actually measuring complexity
+
+Define n first: for an array it is length, for a graph use V and E, for a 2D matrix use rows and columns. Choose a basic operation: a comparison, swap, hash probe or node visit. A single loop with n visits costs n; nested full loops n²; a triangular loop costs 0+1+...+(n−1)=n(n−1)/2. At n=5 this is 10 operations, at n=10 it is 45.
+
+~~~mermaid
+flowchart TD
+ N["Input size n"] --> A["One loop: n"]
+ N --> B["Two full nested loops: n²"]
+ N --> C["Halve input repeatedly: log₂ n"]
+ N --> D["Split and merge: n log₂ n"]
+~~~
+
+~~~python
+def triangle(n):
+    steps = 0
+    for i in range(n):
+        for j in range(i):
+            steps += 1
+    return steps
+assert triangle(5) == 10
+~~~
+
+**Runtime measurement:** Time the same operation on controlled inputs with time.perf_counter, repeat at least five times and report median plus spread. **Space measurement:** tracemalloc observes traced Python allocations, not total resident memory. Keep data preparation outside timed regions unless it is part of the target algorithm. Re-run with independent random seeds, validate output, note Python/hardware versions and report graph units. Operation counts support mathematical analysis; wall-clock plots alone cannot establish Big-O.
+
+~~~python
+import time, statistics, tracemalloc
+def median_ms(task, repeats=9):
+    times=[]
+    for _ in range(repeats):
+        t=time.perf_counter(); task()
+        times.append(1000*(time.perf_counter()-t))
+    return statistics.median(times)
+tracemalloc.start()
+a=list(range(1000))
+current, peak = tracemalloc.get_traced_memory()
+tracemalloc.stop()
+print("Peak traced KiB",peak/1024)
+~~~
+
+**Labs:** E01,E06,E14.
+
+## Lesson 3 — Big O, Big Ω and Big Θ (the three notations)
+
+For nonnegative functions f and g, **O(g)** is an eventual upper bound: f(n) ≤ c₂g(n) for sufficiently large n; **Ω(g)** is an eventual lower bound f(n) ≥ c₁g(n); **Θ(g)** means both. These bound a chosen function and do **not** automatically mean worst, best or average case.
+
+~~~mermaid
+flowchart TD
+ F["Complexity f(n)"] --> O["O(g): upper bound"]
+ F --> M["Ω(g): lower bound"]
+ O --> T["Θ(g): both bounds = tight"]
+ M --> T
+~~~
+
+**Proof example:** f(n)=3n²+5n+8. For n≥1, 3n² ≤ f(n) ≤ 16n², hence Θ(n²); O(n³) is true but loose. Relative growth for input 64: log₂n=6, n=64, nlog₂n=384, n²=4096. **Cases are separate:** linear search first element takes 1 comparison, absent element n, and uniformly random successful index (n+1)/2 expected comparisons. Hence its best Θ(1), average successful Θ(n), worst Θ(n). **Lab:** E03.
+
+## Lesson 4 — Arrays, 2D and 3D indexing, and strings
+
+An array supports indexed access. Python lists are resizable arrays of *references*: a[i] O(1), append amortized O(1), insertion at front O(n). A Python string is immutable, so producing a modified string usually creates new storage. A 2D row-major R×C numeric array has flat index i·C+j; column-major has j·R+i. A 3D X×Y×Z row-major numeric array has (i·Y+j)·Z+k.
+
+~~~mermaid
+flowchart LR
+ A["index 0 = 12"] --- B["index 1 = 25"] --- C["index 2 = 7"] --- D["index 3 = 40"]
+~~~
+
+~~~mermaid
+flowchart TB
+ M["2 × 3 row-major matrix"] --> R0["row 0: a00 a01 a02 -> offsets 0,1,2"]
+ M --> R1["row 1: a10 a11 a12 -> offsets 3,4,5"]
+~~~
+
+~~~python
+matrix=[[10,20,30],[40,50,60]]
+flat=[x for row in matrix for x in row]
+assert flat[1*3+2] == matrix[1][2] == 60
+assert (1*3+2)*4+3 == 23  # last index of 2×3×4
+~~~
+
+**Important:** Nested Python lists do not themselves imply contiguous numeric-matrix memory. Use a contiguous NumPy array to investigate cache effects. **Lab:** E07; extension: measure traversal order.
+
+## Lesson 5 — Singly and doubly linked lists
+
+A **singly linked node** stores (value,next); a **doubly linked node** stores (value,prev,next). Nodes may be dispersed in memory. Head insertion is O(1); indexed search is O(n). A doubly linked list enables removal of a **known node** in O(1), but locating a key is still O(n).
+
+~~~mermaid
+flowchart LR
+ H["head"] --> A["7 | next"] --> B["11 | next"] --> C["19 | None"]
+~~~
+
+~~~mermaid
+flowchart LR
+ A["None | 7 | next"] <--> B["prev | 11 | next"] <--> C["prev | 19 | None"]
+~~~
+
+~~~python
+class Node:
+    def __init__(self, value, next=None):
+        self.value,self.next=value,next
+head=Node(11,Node(19))
+head=Node(7,head)
+values=[]
+while head:
+    values.append(head.value)
+    head=head.next
+assert values == [7,11,19]
+~~~
+
+Trace head, middle, tail, absent-key and empty-list deletion. Avoid losing the reference to the next node. **Labs:** E07,E16,E17.
+
+## Lesson 6 — Stack, queue and deque
+
+**Stack:** LIFO, like plates: last pushed item is first popped. **Queue:** FIFO, like a ticket line: earliest enqueued item leaves first. **Deque:** both ends are usable. A Python list supports append/pop at end in amortized O(1), while collections.deque provides append/popleft in O(1). list.pop(0) costs O(n), as items shift.
+
+~~~mermaid
+flowchart LR
+ S["Stack: push A then B"] --> P["pop returns B"]
+ Q["Queue: enqueue A then B"] --> R["dequeue returns A"]
+~~~
+
+~~~python
+from collections import deque
+stack=[]; stack.append("A"); stack.append("B")
+assert stack.pop()=="B"
+queue=deque(); queue.append("A"); queue.append("B")
+assert queue.popleft()=="A"
+~~~
+
+Stacks implement iterative depth-first tree/graph traversal; queues implement breadth-first traversal. **Labs:** E08,E19.
+
+## Lesson 7 — Hash tables implemented with linked lists
+
+A **hash table** uses a hash function to choose an array bucket. With integer keys, index=hash(key)%m. A **collision** occurs when different keys select the same bucket. **Separate chaining** stores colliding key/value records in a linked list at that bucket.
+
+~~~mermaid
+flowchart TB
+ K["integer key"] --> H["hash(key) mod 4"]
+ H --> B["bucket array"]
+ B --> B0["0: empty"]
+ B --> B1["1: (9,v9) → (5,v5) → (1,v1)"]
+ B --> B2["2: empty"]
+ B --> B3["3: (7,v7) → (3,v3)"]
+~~~
+
+For m=4, keys 1,5,9 all map to bucket 1. If inserted at the head in that order, the chain is 9→5→1; finding key 1 needs three comparisons. On insert, check whether the key already exists; updating must not add a duplicate. On delete, reconnect predecessor to successor.
+
+~~~mermaid
+flowchart LR
+ A["singly: 9"] --> B["5"] --> C["1"]
+ D["doubly: 9"] <--> E["5"] <--> F["1"]
+~~~
+
+**Singly chain:** (key,value,next) and an auxiliary previous pointer while searching/deleting. **Doubly chain:** (key,value,prev,next); after finding a node, neighbor pointers permit O(1) unlinking. The **load factor** α=n/m estimates occupancy: n=8,m=4 ⇒ α=2. Under uniform hashing expected chain lookup O(1+α); all keys colliding gives worst-case O(n). More buckets reduce expected collisions but consume extra memory.
+
+~~~python
+# In the existing DSA Colab notebook the lab module is named dsa:
+table=dsa.ChainHash(4,"singly")
+for key in (1,5,9):
+    table.put(key,key*10)
+assert table.max_chain()==3
+assert table.get(1)[0]==10
+assert table.delete(5) and table.validate()
+double=dsa.ChainHash(4,"doubly")
+for key in (1,5,9):
+    double.put(key,key)
+assert double.delete(5) and double.validate()
+~~~
+
+Python's built-in dict does *not* use these linked lists; it uses an open-addressing design. Fixed-bucket teaching tables expose collisions but production tables usually resize. **Labs:** E09,E16,E17,E18.
+
+## Lesson 8 — Tree vocabulary and all four traversals
+
+A **tree** is an acyclic connected hierarchy. A **binary tree** allows at most two children per node. A **BST** requires smaller keys in left subtrees and larger keys in right subtrees (our illustrative node insertion ignores duplicates). A **root** has no parent, **leaf** has no children, and **height** measures maximum root-to-leaf depth. Declare whether heights count edges or nodes: the lab uses leaf height=1 and empty height=0.
+
+~~~mermaid
+flowchart TD
+ R["8 root"] --> L["4"]
+ R --> M["12"]
+ L --> A["2 leaf"]
+ L --> B["6 leaf"]
+ M --> C["10 leaf"]
+ M --> D["14 leaf"]
+~~~
+
+The diagram above yields **inorder** 2,4,6,8,10,12,14 (left-root-right), **preorder** 8,4,2,6,12,10,14 (root-left-right), **postorder** 2,6,4,10,14,12,8 (left-right-root), and **level order** 8,4,12,2,6,10,14 (top-down). Trees are stored as linked nodes; stack and queue are **auxiliary traversal mechanisms**, not the tree storage itself.
+
+~~~mermaid
+flowchart LR
+ DFS["Depth-first: stack (LIFO)"] --> IO["Inorder / preorder / postorder"]
+ BFS["Breadth-first: queue (FIFO)"] --> LO["Level order"]
+~~~
+
+~~~python
+root=None
+for key in (8,4,12,2,6,10,14):
+    root=dsa.bst_insert_node(root,key)
+assert dsa.inorder_stack(root)==[2,4,6,8,10,12,14]
+assert dsa.preorder_stack(root)==[8,4,2,6,12,10,14]
+assert dsa.postorder_stack(root)==[2,6,4,10,14,12,8]
+assert dsa.levelorder_queue(root)==[8,4,12,2,6,10,14]
+~~~
+
+Every traversal visits n nodes once, O(n) time; DFS stack O(h), BFS queue O(w), and a collected output sequence adds O(n) space. A balanced BST has O(log n) lookup; ascending insertion into an unbalanced BST makes a chain of height O(n). **Labs:** E10,E19.
+
+## Lesson 9 — AVL trees and the four rotations
+
+An **AVL tree** is a self-balancing BST. Every node must have balance factor BF=height(left)−height(right) in {−1,0,+1}. After inserting a distinct key, update heights and rotate an unbalanced node. Rotations rearrange pointers without changing inorder ordering.
+
+~~~mermaid
+flowchart LR
+ LL["LL insert 30,20,10"] --> RR["Right-rotate root; 20 becomes root"]
+ R1["RR insert 10,20,30"] --> L1["Left-rotate root; 20 becomes root"]
+ LR["LR insert 30,10,20"] --> L2["Left-rotate child then right-rotate root"]
+ RL["RL insert 10,30,20"] --> R2["Right-rotate child then left-rotate root"]
+~~~
+
+~~~mermaid
+flowchart TD
+ subgraph Before["LL before"]
+ A30["30"] --> A20["20"] --> A10["10"]
+ end
+ subgraph After["LL after right rotation"]
+ B20["20"] --> B10["10"]
+ B20 --> B30["30"]
+ end
+~~~
+
+For **LR**, keys [30,10,20] initially form 30(left=10(right=20)). Rotate left at 10, then right at 30, giving 20 with children 10 and 30. For **RL** [10,30,20], rotate right at 30, then left at 10. Insert, search and delete in fully maintained AVL implementations are O(log n); the lab implements AVL **insertion/search**, not full AVL deletion.
+
+~~~python
+root=None
+for key in (30,10,20):
+    root=dsa.avl_insert(root,key)
+assert root.key==20
+assert dsa.inorder_stack(root)==[10,20,30]
+assert dsa.validate_avl(root)==2  # height in nodes
+~~~
+
+Verify four rotation cases, tree ordering, computed heights and BF at every node. **Lab:** E20.
+
+## Lesson 10 — Binary heaps, priority queues, and tries
+
+A **min-heap** is a complete binary tree where each parent key ≤ its children. This differs from a BST: the left subtree need not contain only smaller values. Heaps use array indices: for parent i, children 2i+1 and 2i+2; parent of non-root i is (i−1)//2. Read minimum O(1); push/pop O(log n). Priority queues schedule tasks by urgency.
+
+~~~mermaid
+flowchart TD
+ A["2 minimum"] --> B["5"]
+ A --> C["8"]
+ B --> D["7"]
+ B --> E["9"]
+~~~
+
+~~~python
+import heapq
+jobs=[]
+for p,name in ((5,"later"),(1,"urgent"),(3,"normal")):
+    heapq.heappush(jobs,(p,name))
+assert heapq.heappop(jobs)==(1,"urgent")
+~~~
+
+A **trie** stores characters as edges and shares common prefixes. Search/insert is O(L) expected when child map lookups are O(1), L=word length, at a possible memory cost.
+
+~~~mermaid
+flowchart TD
+ X["root"] --> C["c"] --> CA["a"]
+ CA --> CAT["t end"]
+ CA --> CAR["r end"]
+ X --> D["d"] --> DO["o"] --> DOG["g end"]
+~~~
+
+The trie stores cat, car and dog; prefix ca is a traversable path but is not an accepted word unless marked as an end.
+
+~~~python
+trie={}
+for word in ("cat","car","dog"):
+    node=trie
+    for ch in word: node=node.setdefault(ch,{})
+    node["$"]=True
+~~~
+
+**Extensions:** add a heap scheduler and trie search with assertions to the Colab notebook; the 20 benchmark runs focus on earlier core experiments.
+
+## Lesson 11 — Graphs, BFS, DFS, Dijkstra, topological sort, union-find
+
+A **graph** has V vertices and E edges. Edges may be directed/undirected and weighted/unweighted. In an adjacency list, graph[A] lists neighbors: O(V+E) storage. An adjacency matrix consumes O(V²) storage but checks whether one edge exists in O(1). **BFS** explores by increasing edge count using a queue; **DFS** follows branches using a stack or recursion. Both visit all reachable vertices in O(V+E) time using adjacency lists.
+
+~~~mermaid
+flowchart LR
+ A["A"] --> B["B"]
+ A --> C["C"]
+ B --> D["D"]
+ C --> D
+~~~
+
+Above, adjacency lists A:[B,C], B:[D], C:[D], D:[]. With neighbor ordering as written, BFS from A visits A,B,C,D, while DFS may visit A,B,D,C. A BFS shortest-path guarantee concerns number of edges in **unweighted** graphs.
+
+A **weighted shortest path** considers edge costs. **Dijkstra** uses a priority queue and requires nonnegative edge weights. Common adjacency-list + binary-heap bound O((V+E)log V).
+
+~~~mermaid
+flowchart LR
+ A["A"] -->|"2"| B["B"]
+ A -->|"8"| C["C"]
+ B -->|"1"| C
+~~~
+
+Shortest path A→C is A→B→C, cost 2+1=3 versus direct cost 8.
+
+~~~python
+g={"A":[("B",2),("C",8)],"B":[("C",1)],"C":[]}
+assert dsa.dijkstra(g,"A")["C"]==3
+~~~
+
+**Topological sorting** orders tasks such that each directed dependency appears before its dependent; it is possible only for a directed acyclic graph (DAG). **Union-find** groups items into connected components with parent links; path compression and union by rank provide O(α(n)) amortized operations, with α the inverse Ackermann function. **Labs:** E11,E12.
+
+## Lesson 12 — Searching, sorting, stability and complexity
+
+**Linear search:** scan until found, O(n) worst case, no sorted-input requirement. **Binary search:** inspect midpoint of sorted indexed data, keep only possible half, O(log n) worst case.
+
+~~~mermaid
+flowchart TD
+ A["Sorted [2,4,6,8,10,12,14]; target 12"] --> B["Midpoint value 8"]
+ B --> C["12 > 8: discard left half and 8"]
+ C --> D["Inspect 12: found"]
+~~~
+
+**Bubble sort** swaps adjacent out-of-order values; **insertion sort** grows a sorted prefix; **merge sort** recursively splits and merges; **quicksort** partitions around a pivot; **heap sort** repeatedly removes a heap extreme. **Stable sorting** preserves input order among records with equal sort keys.
+
+~~~mermaid
+flowchart TD
+ A["[7,2,6,1]"] --> B["[7,2]"] --> C["[2,7]"]
+ A --> D["[6,1]"] --> E["[1,6]"]
+ C --> F["merge: [1,2,6,7]"]
+ E --> F
+~~~
+
+| Sort | Best | Average | Worst | Typical auxiliary space | Stable |
+|---|---|---|---|---|---|
+| Bubble with early exit | Θ(n) | Θ(n²) | Θ(n²) | O(1) | Yes |
+| Insertion | Θ(n) | Θ(n²) | Θ(n²) | O(1) | Yes |
+| Merge (array implementation) | Θ(n log n) | Θ(n log n) | Θ(n log n) | O(n) additional arrays | Yes |
+| Conventional in-place quicksort | Θ(n log n) | expected Θ(n log n) under appropriate pivot/input model | Θ(n²) | O(log n) expected recursion | Usually no |
+| In-place heap sort | Θ(n log n) | Θ(n log n) | Θ(n log n) | O(1) | No |
+
+**Caution:** the lab's quick_sort is *functional three-way partitioning*, not an in-place implementation; it copies lists and is stable on equal values in that particular program. **Labs:** E02,E04,E05,E15.
+
+## Lesson 13 — Recursion, divide-and-conquer, greedy, DP and backtracking
+
+**Recursion** invokes a function on smaller inputs and ends at a base case. **Divide-and-conquer** splits into independent subproblems then combines solutions (merge sort: T(n)=2T(n/2)+Θ(n)=Θ(nlog n)). Binary search keeps one half (T(n)=T(n/2)+Θ(1)=Θ(log n)).
+
+~~~mermaid
+flowchart TD
+ F["fib(4)"] --> A["fib(3)"]
+ F --> B["fib(2)"]
+ A --> C["fib(2) repeated"]
+ A --> D["fib(1)"]
+ C --> E["fib(1)"]
+ C --> G["fib(0)"]
+ B --> H["fib(1)"]
+ B --> I["fib(0)"]
+~~~
+
+Naive Fibonacci recursion repeats fib(2), wasting computation; **dynamic programming** caches or iterates over overlapping subproblems. **Greedy** takes a locally preferred choice, but needs a proof that it achieves a global optimum. **Backtracking** explores choices and undoes them when invalid (e.g., N-queens).
+
+~~~python
+def fib_dp(n):
+    a,b=0,1
+    for _ in range(n): a,b=b,a+b
+    return a
+assert fib_dp(10)==55
+~~~
+
+Here fib_dp takes Θ(n) time and Θ(1) additional space for loop variables (big-integer bit complexity is a separate consideration). **Lab:** E13.
+
+## Lesson 14 — How to prove correctness and measure memory
+
+For a loop: state precondition → show invariant initially → show one step preserves it → show termination → derive postcondition. For binary search, maintain “any matching index must lie within [low,high]” and shrink the interval every iteration. Sorting checks: output nondecreasing and multiset unchanged; linked lists: no lost nodes; AVL: height/BST/balance checks; BFS: reachable vertices visited exactly once.
+
+~~~mermaid
+flowchart LR
+ P["Precondition"] --> I["Initialize invariant"]
+ I --> S["One iteration preserves invariant"]
+ S --> T["Termination"]
+ T --> Q["Postcondition"]
+~~~
+
+Auxiliary memory examples: linked-list traversal O(1), DFS tree stack O(h), BFS tree queue O(w), visited set for general graph O(V), merge-sort temporary arrays O(n). Returning a full traversal order additionally stores O(n) values. Distinguish *asymptotic extra memory* from measured traced peak KiB. **Labs:** E14,E17,E19,E20.
+
+## Lesson 15 — Full map of 20 experiments to learning objectives
+
+| ID | Experiment and question | What to derive or inspect |
+|---|---|---|
+| E01 | Growth curves | n, nlog n, n² and ratios |
+| E02 | Linear vs binary search | Comparison counts and sorted precondition |
+| E03 | Search best/average/worst | Distribution and expected comparisons |
+| E04 | Bubble/merge/quick | Count comparisons on identical input |
+| E05 | Insertion sorted/random/reversed | How ordering affects comparisons |
+| E06 | Runtime | Median ms and noise limitations |
+| E07 | Array vs linked list | Front-insert copy vs node prepend |
+| E08 | Stack and queue | list pop vs deque popleft vs list.pop(0) |
+| E09 | Built-in dictionary | Hashing vs linear scan |
+| E10 | BSTs | Balanced vs skewed search path |
+| E11 | BFS vs DFS | Reachability and O(V+E) |
+| E12 | Shortest path | Dijkstra cost and nonnegative edges |
+| E13 | Fibonacci recursion vs DP | Repeated overlapping subproblems |
+| E14 | Memory | List/dict/deque tracked peak KiB |
+| E15 | Sorting stability | Equal-key relative order |
+| E16 | Singly linked hash chains | Collisions, comparisons, deletion |
+| E17 | Doubly linked hash chains | prev/next invariants, updates |
+| E18 | Hash load factor | α=n/m, mean probes, max chain |
+| E19 | Tree DFS stack / BFS queue | Traversal orders and timing |
+| E20 | AVL vs skewed BST | LL/RR/LR/RL and height |
+
+**Example complete lab analysis:** Hypothesis: AVL search remains logarithmic after ascending inserts while a plain BST degenerates. Independent variable n; dependent variable comparisons to last key; controls: same keys and insertion order; expected theory: O(log n) versus Θ(n); run E20, export CSV/PNG, inspect height and explain why wall-clock alone would not prove the bound. Repeat on random permutations and record variability as an extension.
+
+**Run with Google Colab:** [All 20 experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb). The notebook loads the lab script as the module named dsa, so examples using dsa work after its setup cell. [Python implementations](../dsa_lab/experiments.py) · [Lab manual](../dsa_lab/README.md). The figures here are conceptual; the experiment runner generates CSV and PNG graphs when executed.
+
+---
+
 ## 7. 15-week teaching sequence
 
 | Week | Teaching (2 h) | Colab lab (2 h) | Deliverable |
