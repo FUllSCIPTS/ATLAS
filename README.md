@@ -34,7 +34,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 ## Learning path ways
 
-1) [🔐 Information security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
+1) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
 2) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
