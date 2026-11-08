@@ -4,6 +4,13 @@
 
 [Live labs in the Architecture Explorer](https://fullscipts.github.io/ATLAS/#dsa) · [Open the 30 experiments in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](../dsa_lab/README.md) · [All implementations (`dsa_lab/experiments.py`)](../dsa_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
+**Interactive companion:** [ATLAS Architecture Explorer → Data Structures](https://fullscipts.github.io/ATLAS/#dsa) —
+step through singly, doubly and circular linked lists, Josephus and Floyd's cycle detection, a stack,
+ring-buffer queue and LRU cache, open-addressing hashing with tombstones, BST, AVL, heap and trie,
+BFS, DFS, Dijkstra and Prim on Cork's zones, seven sorts with traces, and knapsack, memoised Fibonacci
+and N-Queens. Every lab is a pointer-based port of `dsa_lab/experiments.py` and re-checks the structure
+after each operation; each topic links to the ATLAS code and to the lessons below.
+
 **Running the code in this guide.** Every Python block runs as written. Blocks that call `dsa.…` use the lab module; run this once first (in Colab the notebook's setup cell does it for you):
 
 ~~~python
