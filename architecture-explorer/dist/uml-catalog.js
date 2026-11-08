@@ -736,9 +736,9 @@ const umlCatalog = {
    "concept": "APK Signature Scheme v2/v3; verify with apksigner",
    "symbol": "apksigner verify --print-certs atlas-go-1.2.0.apk",
    "path": "android-app/releases/1.2.0/README.md",
-   "line": 19,
+   "line": 21,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md?plain=1#L19"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md?plain=1#L21"
   },
   "cr-sig-lab-keys": {
    "concept": "Explorer lab: generate ECDSA or RSA key pair",
