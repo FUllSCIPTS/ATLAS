@@ -28,13 +28,13 @@ import experiments as dsa
 | D. Algorithm design | [19 Searching](#lesson-19--searching) · [20 Sorting](#lesson-20--sorting-stability-and-the-n-log-n-lower-bound) · [21 Recursion and divide-and-conquer](#lesson-21--recursion-and-divide-and-conquer) · [22 Greedy, DP, backtracking](#lesson-22--greedy-algorithms-dynamic-programming-and-backtracking) · [23 Correctness](#lesson-23--proving-correctness-and-testing-invariants) |
 | E. Practice | [24 Laboratory protocol and the 30 experiments](#lesson-24--laboratory-protocol-and-the-30-experiments) · [Teaching plan](#15-week-teaching-plan) · [Assessment](#assessment-100-marks) · [Exercises](#exercise-bank) |
 
-~~~mermaid
+```mermaid
 flowchart LR
  A["A. Foundations<br/>ADT · counting · O Ω Θ"] --> B["B. Linear<br/>arrays · linked lists · circular lists<br/>stacks · queues · hashing"]
  B --> C["C. Non-linear<br/>trees · BST · AVL · heaps<br/>tries · graphs"]
  C --> D["D. Design<br/>search · sort · D&C<br/>greedy · DP · backtracking"]
  D --> E["E. Practice<br/>30 experiments · report"]
-~~~
+```
 
 **Notation used throughout.** n = number of items; V, E = vertices, edges; h = tree height **counted in nodes** (empty tree 0, single leaf 1); w = maximum tree width; m = hash buckets; α = n/m (load factor); log means log₂ unless stated. A **comparison count** and a **time in milliseconds** are different measurements and are never plotted as if they were the same unit.
 
@@ -72,7 +72,7 @@ The UML blueprint also documents a separate **server starter** on the `architect
 - A **data structure** is a concrete way of organising data in memory (an array, a linked list, a hash table).
 - An **abstract data type (ADT)** is a promise about behaviour — a set of operations and their meaning — that says nothing about memory. "Queue: `enqueue(x)` adds at the back, `dequeue()` removes the oldest" is an ADT. A Python `deque`, a linked list and a ring buffer are three different **implementations** of it.
 
-~~~mermaid
+```mermaid
 flowchart LR
  P["Problem<br/>serve ride requests fairly"] --> A["ADT<br/>FIFO queue: enqueue, dequeue, is_empty"]
  A --> I1["Implementation 1<br/>linked list"]
@@ -82,7 +82,7 @@ flowchart LR
  I2 --> G
  I3 --> G
  G --> O["Output<br/>service order"]
-~~~
+```
 
 **Why separate ADT from implementation?** Because the *same* program can switch implementation to change performance without changing correctness. A queue built on `list.pop(0)` is correct but each dequeue shifts every remaining element; `deque.popleft()` is O(1). Experiments E08 and E23 measure exactly this.
 
@@ -135,14 +135,14 @@ assert linear_search([], 6) == -1          # the empty input is a valid input
 | halve until 1 | ⌊log₂ n⌋ + 1 | 4 | 10 |
 | split in halves, linear merge | ≈ n log₂ n | 33 | 9 966 |
 
-~~~mermaid
+```mermaid
 flowchart TD
  N["input size n"] --> A["one pass<br/>n"]
  N --> B["all pairs<br/>n²"]
  N --> C["halving<br/>log₂ n"]
  N --> D["halve + merge<br/>n log₂ n"]
  N --> E["all subsets<br/>2ⁿ"]
-~~~
+```
 
 ~~~python
 def triangle(n):
@@ -194,13 +194,13 @@ Rules for honest measurement: build the input **outside** the timed region (E08 
 | f = o(g) | strictly slower | f(n)/g(n) → 0 |
 | f = ω(g) | strictly faster | f(n)/g(n) → ∞ |
 
-~~~mermaid
+```mermaid
 flowchart TD
  F["a cost function f(n)"] --> O["O(g): eventually below c₂·g"]
  F --> M["Ω(g): eventually above c₁·g"]
  O --> T["both ⇒ Θ(g): sandwiched"]
  M --> T
-~~~
+```
 
 **Proof example.** f(n) = 3n² + 5n + 8. For n ≥ 1: 3n² ≤ f(n) ≤ 3n² + 5n² + 8n² = 16n². So c₁ = 3, c₂ = 16, n₀ = 1 and f = Θ(n²). It is also O(n³) (true but loose) and **not** Θ(n³).
 
@@ -241,13 +241,13 @@ flowchart TD
 
 **An array** is a block of equal-sized cells at consecutive addresses. The address of cell i is `base + i × cell_size`, so **indexing is O(1)** whatever i is.
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph block["one contiguous block (capacity 6, size 4)"]
  direction LR
  A0["[0] 12"] --- A1["[1] 25"] --- A2["[2] 7"] --- A3["[3] 40"] --- A4["[4] free"] --- A5["[5] free"]
  end
-~~~
+```
 
 **A dynamic array** (Python `list`, Java `ArrayList`) keeps spare capacity. When it is full it allocates a bigger block and **copies** everything across. With doubling, n appends cause copies of 1 + 2 + 4 + … < 2n elements: amortised O(1) per append. With a fixed increment (+16) the copies add up to ≈ n²/32: Θ(n) per append. E30 counts the copies exactly.
 
@@ -277,11 +277,11 @@ assert arr.to_list() == [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 **2-D and 3-D indexing.** A matrix with R rows and C columns stored **row-major** puts A[i][j] at flat index `i·C + j`; **column-major** (Fortran, MATLAB) uses `j·R + i`. A 3-D X×Y×Z array in row-major order uses `(i·Y + j)·Z + k`.
 
-~~~mermaid
+```mermaid
 flowchart TB
  M["2 × 3 matrix [[a b c],[d e f]]"] --> RM["row-major: a b c d e f<br/>A[1][2] → 1·3+2 = 5"]
  M --> CM["column-major: a d b e c f<br/>A[1][2] → 2·2+1 = 5"]
-~~~
+```
 
 ~~~python
 matrix = [[10, 20, 30], [40, 50, 60]]
@@ -302,15 +302,15 @@ Python's nested lists are lists of *references* to separate row objects, not one
 
 A **singly linked list** is a chain of **nodes**; each node holds a value and a reference `next` to the following node. The list object remembers `head` (first node), optionally `tail` (last node) and `size`. The last node's `next` is `None`. Nodes can be anywhere in memory.
 
-~~~mermaid
+```mermaid
 flowchart LR
  H(["head"]) --> A["7 | next"] --> B["11 | next"] --> C["19 | next"] --> N(["None"])
  T(["tail"]) --> C
-~~~
+```
 
 **Insertion — three positions.**
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph front["push_front(3): new.next = head; head = new"]
  direction LR
@@ -320,7 +320,7 @@ flowchart LR
  direction LR
  A2["7"] --> Y["9"] --> B2["11"]
  end
-~~~
+```
 
 The **order of the two pointer assignments matters**: in `insert_after`, setting `node.next = new` first would lose the rest of the list.
 
@@ -376,14 +376,15 @@ assert s.to_list() == [19, 11, 7] and s.validate()
 
 Each node also stores `prev`. The list can be walked both ways, and a node you already hold can be removed in O(1) because its predecessor is `node.prev`.
 
-~~~mermaid
+```mermaid
 flowchart LR
- N1(["None"]) <-.- A["prev | 7 | next"]
- A <--> B["prev | 11 | next"] <--> C["prev | 19 | next"]
+ A["prev | 7 | next"] -.-> N1(["None"])
+ A <--> B["prev | 11 | next"]
+ B <--> C["prev | 19 | next"]
  C -.-> N2(["None"])
  H(["head"]) --> A
  T(["tail"]) --> C
-~~~
+```
 
 **Unlinking a known node p** — four cases collapse into two independent questions:
 
@@ -419,12 +420,12 @@ assert d.validate() and d.head is d.tail
 
 In a **circular** list the last node's `next` points back to the first node instead of `None`. There is no end: you can keep walking forever, so every loop must stop when it **returns to where it started**.
 
-~~~mermaid
+```mermaid
 flowchart LR
  T(["tail"]) --> D
  A["7 (head)"] --> B["11"] --> C["19"] --> D["23 (tail)"]
  D -- "tail.next = head" --> A
-~~~
+```
 
 **The tail-pointer trick.** Store only `tail`. The head is `tail.next`, so both ends are one step away:
 
@@ -440,7 +441,7 @@ flowchart LR
 
 **The one-node ring and the empty ring** are the edge cases: a single node points to **itself**; an empty list has `tail = None`.
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph one["one node"]
  X["5"] --> X
@@ -448,7 +449,7 @@ flowchart LR
  subgraph empty["empty"]
  E(["tail = None"])
  end
-~~~
+```
 
 **Trace — build [0, 1, 2] and rotate by one.**
 
@@ -515,19 +516,22 @@ assert dsa.josephus_formula(7, 3) == 4                     # J(n) = (J(n-1)+k) m
 
 A **circular doubly linked list** joins the two ends of a doubly linked list. Adding a **sentinel** — a dummy node that holds no data and never leaves — removes every special case: the empty list is the sentinel pointing to itself, `first = sentinel.next`, `last = sentinel.prev`.
 
-~~~mermaid
+```mermaid
 flowchart LR
- S["S (sentinel)"] <--> A["7"] <--> B["11"] <--> C["19"]
- C <-- "wraps" --> S
-~~~
+ S["S (sentinel)"] <--> A["7"]
+ A <--> B["11"]
+ B <--> C["19"]
+ C -->|wraps to sentinel| S
+ S -->|wraps to first| A
+```
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph empty["empty list"]
  S0["S"] -- next --> S0
  S0 -- prev --> S0
  end
-~~~
+```
 
 **Only two primitives are needed**; everything else is built from them:
 
@@ -567,16 +571,18 @@ A **least-recently-used cache** holds at most `capacity` items; on overflow it e
 - find an item by key → a **dict** from key to list node;
 - move that item to "most recent", and find the oldest → a **circular doubly linked list** (front = newest, `sentinel.prev` = oldest).
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph map["dict: key → node"]
  KA["'a'"]
  KC["'c'"]
  end
- S["S"] <--> C["('c',3) newest"] <--> A["('a',1) oldest"] <--> S
+ S["S"] <--> C["('c',3) newest"]
+ C <--> A["('a',1) oldest"]
+ A <--> S
  KA -.-> A
  KC -.-> C
-~~~
+```
 
 ~~~python
 lru = dsa.LRUCache(2)
@@ -592,10 +598,10 @@ E22 compares this with a list-based LRU (`list.remove` is O(n)) and with `collec
 
 A list built by mistake may contain a loop. Move `slow` one step and `fast` two steps; if they ever meet there is a cycle. Then a second walk finds where the cycle starts (μ) and its length (λ). O(n) time, O(1) space.
 
-~~~mermaid
+```mermaid
 flowchart LR
  A["1"] --> B["2 (cycle start, μ = 1)"] --> C["3"] --> D["4"] --> B
-~~~
+```
 
 ~~~python
 n1, n2, n3, n4 = (dsa.Node(v) for v in (1, 2, 3, 4))
@@ -625,10 +631,10 @@ assert dsa.floyd_cycle(dsa.CircularSinglyLinkedList([1, 2, 3]).head)[0]   # a ri
 
 A **stack** is LIFO — last in, first out — like a pile of plates. Operations: `push(x)`, `pop()`, `peek()`, `is_empty()`, all O(1). In Python use a `list` (`append`/`pop` at the end) or a singly linked list (push/pop at the head).
 
-~~~mermaid
+```mermaid
 flowchart LR
  E["empty"] -->|push A| S1["A"] -->|push B| S2["A B"] -->|push C| S3["A B C"] -->|pop → C| S4["A B"]
-~~~
+```
 
 **Applications.**
 
@@ -668,13 +674,13 @@ dequeue():   x = block[front];  front = (front + 1) % capacity;  count -= 1
 full  ⇔ count == capacity            empty ⇔ count == 0
 ~~~
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph ring["capacity 8, front = 4, count = 6 — the queue wraps past index 7"]
  direction LR
  I0["[0] 18"] --- I1["[1] 19"] --- I2["[2] free ← back"] --- I3["[3] free"] --- I4["[4] 14 ← front"] --- I5["[5] 15"] --- I6["[6] 16"] --- I7["[7] 17"]
  end
-~~~
+```
 
 Queue order (front to back) is 14, 15, 16, 17, 18, 19 — indices 4, 5, 6, 7, 0, 1.
 
@@ -721,14 +727,14 @@ E23's measurement is a good lesson in constant factors: the pure-Python ring buf
 
 A **hash table** stores key–value pairs in an array of m **buckets**. A **hash function** turns a key into an integer; `index = hash(key) mod m` picks the bucket. Two different keys landing in the same bucket is a **collision**; the two classic remedies are chaining and open addressing.
 
-~~~mermaid
+```mermaid
 flowchart TB
  K["key"] --> H["hash(key) mod 4"]
  H --> B0["bucket 0: empty"]
  H --> B1["bucket 1: (9,v9) → (5,v5) → (1,v1)"]
  H --> B2["bucket 2: empty"]
  H --> B3["bucket 3: (7,v7) → (3,v3)"]
-~~~
+```
 
 ### Separate chaining
 
@@ -758,10 +764,10 @@ assert len(growing.buckets) >= 16 and growing.load_factor() <= 1.0 and growing.v
 
 All entries live **in the array itself**. On a collision, try the next slot: h, h+1, h+2, … (mod m). Deleting must leave a **tombstone**, otherwise searches for keys further along the probe sequence would stop early at the hole.
 
-~~~mermaid
+```mermaid
 flowchart LR
  S0["[0] 16"] --- S1["[1] 1"] --- S2["[2] 9 ← hash 1, probed to 2"] --- S3["[3] tombstone"] --- S4["[4] 4"] --- S5["[5] free"]
-~~~
+```
 
 ~~~python
 oa = dsa.OpenAddressHash(8, max_load=None)
@@ -795,7 +801,7 @@ Expected probes for a successful search under linear probing ≈ ½(1 + 1/(1−�
 
 A **tree** is a connected, acyclic hierarchy of nodes. Vocabulary: **root** (no parent), **parent/child**, **siblings**, **leaf** (no children), **internal node**, **depth** of a node (edges from the root), **height** of a tree (**nodes** on the longest root-to-leaf path in this course), **subtree**. A **binary tree** gives each node at most two children, `left` and `right`.
 
-~~~mermaid
+```mermaid
 flowchart TD
  R["8 (root, depth 0)"] --> L["4"]
  R --> M["12"]
@@ -803,7 +809,7 @@ flowchart TD
  L --> B["6 (leaf)"]
  M --> C["10 (leaf)"]
  M --> D["14 (leaf, depth 2)"]
-~~~
+```
 
 Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary tree of height h = 2^h − 1, so h ≥ log₂(n + 1).
 
@@ -816,11 +822,11 @@ Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary t
 
 **Recursion vs an explicit stack/queue.** The three depth-first orders are naturally recursive; replacing the call stack by an explicit **stack** avoids Python's recursion limit. Level order needs a **queue**. The tree itself is stored as linked nodes; the stack and queue are only *auxiliary* structures used while walking.
 
-~~~mermaid
+```mermaid
 flowchart LR
  DFS["depth-first: stack (LIFO)"] --> O1["preorder / inorder / postorder"]
  BFS["breadth-first: queue (FIFO)"] --> O2["level order"]
-~~~
+```
 
 **Iterative inorder trace** (stack shown bottom → top):
 
@@ -856,12 +862,12 @@ A **binary search tree (BST)** is a binary tree where, for every node, **all key
 
 **Insertion order decides the shape.** Inserting 8, 4, 12, 2, 6, 10, 14 gives the perfect tree of Lesson 12 (height 3). Inserting 1, 2, 3, …, 7 gives a **skewed** tree — a linked list leaning right — with height 7.
 
-~~~mermaid
+```mermaid
 flowchart TD
  subgraph skew["ascending inserts 1..4: height 4"]
  S1["1"] --> S2["2"] --> S3["3"] --> S4["4"]
  end
-~~~
+```
 
 ### Deletion — three cases
 
@@ -871,7 +877,7 @@ flowchart TD
 | one child | delete 4 after 2 is gone | splice: parent points to 4's only child (6) |
 | two children | delete 12 | copy the **inorder successor** (smallest key in the right subtree, 14) into 12's node, then delete 14 from the right subtree |
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph before["delete 12 (two children)"]
  A8["8"] --> A4["4"]
@@ -885,7 +891,7 @@ flowchart LR
  B14 --> B10["10"]
  end
  before --> after
-~~~
+```
 
 ~~~python
 root = None
@@ -921,7 +927,7 @@ An **AVL tree** is a BST that keeps itself balanced: at every node the **balance
 | LR: BF(z) = +2, BF(z.left) < 0 | left child's right is heavy | left rotation at z.left, then right at z |
 | RL: BF(z) = −2, BF(z.right) > 0 | right child's left is heavy | right rotation at z.right, then left at z |
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph LLb["LL: insert 30, 20, 10"]
  a30["30 (BF +2)"] --> a20["20"] --> a10["10"]
@@ -931,9 +937,9 @@ flowchart LR
  b20 --> b30["30"]
  end
  LLb --> LLa
-~~~
+```
 
-~~~mermaid
+```mermaid
 flowchart LR
  subgraph LRb["LR: insert 30, 10, 20"]
  c30["30"] --> c10["10"]
@@ -947,7 +953,7 @@ flowchart LR
  e20 --> e30["30"]
  end
  LRb --> LRm --> LRa
-~~~
+```
 
 **Right rotation in pointers** (y is the unbalanced node, x = y.left, T2 = x.right):
 
@@ -986,14 +992,14 @@ An AVL tree of height h has at least F(h+2) − 1 nodes (F = Fibonacci), so **h 
 
 A **binary min-heap** is a **complete** binary tree (every level full except possibly the last, filled left to right) in which every parent ≤ its children. It is *not* a BST: siblings are unordered. Completeness lets it live in an array with **no pointers**: children of i are 2i+1 and 2i+2, the parent of i is (i−1)//2.
 
-~~~mermaid
+```mermaid
 flowchart TD
  A["[0] 1"] --> B["[1] 3"]
  A --> C["[2] 2"]
  B --> D["[3] 5"]
  B --> E["[4] 9"]
  C --> F["[5] 8"]
-~~~
+```
 
 Array form: `[1, 3, 2, 5, 9, 8]`.
 
@@ -1028,13 +1034,13 @@ assert heapq.heappop(jobs) == (1, "urgent")
 
 A **trie** stores strings character by character along paths from the root; words that share a prefix share the path. A marker (`$`) says "a word ends here". Lookup and insertion cost O(L) for a word of length L, **independent of how many words are stored**.
 
-~~~mermaid
+```mermaid
 flowchart TD
  R["root"] --> C["c"] --> CA["a"]
  CA --> CAR["r $"] --> CART["t $"]
  CA --> CAT["t $"]
  R --> D["d"] --> DO["o"] --> DOG["g $"]
-~~~
+```
 
 Stored: car, cart, cat, dog. "ca" is a valid **path** but not a **word** (no `$`).
 
@@ -1055,13 +1061,13 @@ assert t.delete("cart") and not t.contains("cart") and t.contains("car")   # pru
 
 A **graph** G = (V, E) has vertices and edges; edges may be **directed** or **undirected**, **weighted** or not. Representations:
 
-~~~mermaid
+```mermaid
 flowchart LR
  A["A"] --> B["B"]
  A --> C["C"]
  B --> D["D"]
  C --> D
-~~~
+```
 
 | Representation | Above graph | Space | "Is (u, v) an edge?" | "List neighbours of u" |
 |---|---|---|---|---|
@@ -1095,12 +1101,12 @@ assert dist == {"A": 0, "B": 1, "C": 1, "D": 2} and examined == 4   # each edge 
 
 Keep a tentative distance for every vertex; repeatedly take the closest unfinished vertex from a **min-heap** and **relax** its outgoing edges (`if dist[u] + w < dist[v]: dist[v] = dist[u] + w`). With a binary heap: O((V + E) log V). **Requires w ≥ 0** — a negative edge could make a "finished" vertex cheaper later (use Bellman–Ford instead).
 
-~~~mermaid
+```mermaid
 flowchart LR
  A["A (0)"] -->|"2"| B["B (2)"]
- A -->|"8"| C["C (8 → 3)"]
- B -->|"1"| C
-~~~
+ A -->|8| C["C (8 → 3)"]
+ B -->|1| C
+```
 
 | Pop | dist A | dist B | dist C | heap after |
 |---|---|---|---|---|
@@ -1118,11 +1124,11 @@ assert dsa.dijkstra_path(g, "A", "C") == (["A", "B", "C"], 3)
 
 A **topological order** lists the vertices of a **directed acyclic graph** so that every edge goes forward — e.g. the steps of a food order: accept → cook → pack → deliver. **Kahn's algorithm** repeatedly removes a vertex of in-degree 0; if vertices remain at the end, the graph has a cycle and no order exists. DFS gives the same result by reversing finishing times. Both Θ(V + E).
 
-~~~mermaid
+```mermaid
 flowchart LR
  shop["accept order"] --> cook --> pack --> deliver
  cook --> notify["notify courier"]
-~~~
+```
 
 ~~~python
 dag = {"accept": ["cook"], "cook": ["pack", "notify"], "pack": ["deliver"], "notify": [], "deliver": []}
@@ -1196,7 +1202,7 @@ Common bugs: `mid = (lo + hi) // 2` with `hi = len(a)` and `lo <= hi` (off by on
 
 **ATLAS link:** [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) relies on Python's `sorted` (Timsort: stable, O(n log n) worst case, O(n) on already-sorted runs).
 
-~~~mermaid
+```mermaid
 flowchart TD
  A["[7, 2, 6, 1]"] --> B["[7, 2]"]
  A --> C["[6, 1]"]
@@ -1210,7 +1216,7 @@ flowchart TD
  C2 --> M2
  M1 --> F["merge → [1, 2, 6, 7]"]
  M2 --> F
-~~~
+```
 
 | Algorithm | Idea | Best | Average | Worst | Extra space | Stable |
 |---|---|---|---|---|---|---|
@@ -1240,7 +1246,7 @@ assert dsa.quick_sort_inplace([5, 1, 4, 2, 3])[0] == [1, 2, 3, 4, 5]
 
 A **recursive** function solves a problem by calling itself on smaller inputs. It needs a **base case** that stops the recursion and a **progress** argument that every call is smaller. Each active call is a **stack frame**; Python's default limit is about 1 000 frames.
 
-~~~mermaid
+```mermaid
 flowchart TD
  F["fib(4)"] --> A["fib(3)"]
  F --> B["fib(2)"]
@@ -1250,7 +1256,7 @@ flowchart TD
  C --> G["fib(0)"]
  B --> H["fib(1)"]
  B --> I["fib(0)"]
-~~~
+```
 
 Naive Fibonacci makes 177 calls for fib(10) and 242 785 for fib(25) because the same subproblems are solved again and again (E13).
 
@@ -1318,13 +1324,13 @@ print("placements tried:", tried, "of", 8 ** 8, "naive")
 
 **Loop invariant proof** in five steps:
 
-~~~mermaid
+```mermaid
 flowchart LR
  P["precondition"] --> I["invariant true<br/>before the loop"]
  I --> S["one iteration<br/>keeps it true"]
  S --> T["loop terminates"]
  T --> Q["invariant + exit<br/>condition ⇒ postcondition"]
-~~~
+```
 
 **Structural invariants** are the executable version: every structure in the lab has a `validate()` that the experiments call after every change.
 
