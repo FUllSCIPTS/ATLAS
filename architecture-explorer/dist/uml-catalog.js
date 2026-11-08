@@ -1275,6 +1275,214 @@ const umlCatalog = {
    "status": "paper",
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/run_cluster.py#L110"
   },
+  "ml-x-opt-runner": {
+   "concept": "Optimisation lab runner: 20 experiments, 7 study paths",
+   "symbol": "main",
+   "path": "ml_lab/optimisation/run_optimisation.py",
+   "line": 39,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/run_optimisation.py#L39"
+  },
+  "ml-x-opt-ga": {
+   "concept": "OPT 17: genetic algorithm vs Sim.bip",
+   "symbol": "evolve",
+   "path": "ml_lab/optimisation/opt17_genetic_algorithm.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt17_genetic_algorithm.py#L18"
+  },
+  "ml-x-opt-pareto": {
+   "concept": "OPT 20: latency-cost Pareto front of the couplings",
+   "symbol": "pareto_ranks",
+   "path": "ml_lab/optimisation/opt20_multi_objective_pareto.py",
+   "line": 17,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt20_multi_objective_pareto.py#L17"
+  },
+  "ml-x-opt-cores": {
+   "concept": "OPT 04: KKT core allocation across the six modules",
+   "symbol": "main",
+   "path": "ml_lab/optimisation/opt04_constrained_core_allocation.py",
+   "line": 17,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt04_constrained_core_allocation.py#L17"
+  },
+  "ml-x-opt-dpscale": {
+   "concept": "OPT 14: DP replica schedule with switching costs",
+   "symbol": "main",
+   "path": "ml_lab/optimisation/opt14_dp_autoscaling_schedule.py",
+   "line": 16,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt14_dp_autoscaling_schedule.py#L16"
+  },
+  "ml-x-opt-bb": {
+   "concept": "OPT 08: branch-and-bound by hand on the coupling BIP",
+   "symbol": "branch_and_bound",
+   "path": "ml_lab/optimisation/opt08_branch_and_bound.py",
+   "line": 19,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt08_branch_and_bound.py#L19"
+  },
+  "ml-x-opt-tabu": {
+   "concept": "OPT 15: local search and tabu search on a 60-module BIP",
+   "symbol": "tabu",
+   "path": "ml_lab/optimisation/opt15_local_search_tabu.py",
+   "line": 40,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt15_local_search_tabu.py#L40"
+  },
+  "ml-x-opt-lp": {
+   "concept": "OPT 05-06: LP, duality and shadow prices",
+   "symbol": "solve",
+   "path": "ml_lab/optimisation/opt05_linear_programming_transport.py",
+   "line": 26,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt05_linear_programming_transport.py#L26"
+  },
+  "ml-x-opt-sa": {
+   "concept": "OPT 16: simulated annealing",
+   "symbol": "anneal",
+   "path": "ml_lab/optimisation/opt16_simulated_annealing.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt16_simulated_annealing.py#L18"
+  },
+  "ml-x-opt-gd": {
+   "concept": "OPT 01-03: gradient descent, Adam, Newton and BFGS",
+   "symbol": "optimise",
+   "path": "ml_lab/optimisation/opt02_momentum_and_adam.py",
+   "line": 31,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt02_momentum_and_adam.py#L31"
+  },
+  "ml-x-ml-runner": {
+   "concept": "ML lab runner: 20 experiments, 7 study paths",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/run_ml.py",
+   "line": 39,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/run_ml.py#L39"
+  },
+  "ml-x-ml-hw": {
+   "concept": "ML 16: Holt-Winters and forecasting baselines",
+   "symbol": "holt_winters",
+   "path": "ml_lab/machine_learning/ml16_time_series_forecasting.py",
+   "line": 16,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml16_time_series_forecasting.py#L16"
+  },
+  "ml-x-ml-cv": {
+   "concept": "ML 11: time-series cross-validation and leakage",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml11_cross_validation_leakage.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml11_cross_validation_leakage.py#L18"
+  },
+  "ml-x-ml-drift": {
+   "concept": "ML 17: concept drift and online learning",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml17_concept_drift_online.py",
+   "line": 16,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml17_concept_drift_online.py#L16"
+  },
+  "ml-x-opt-bo": {
+   "concept": "OPT 19: Bayesian optimisation of the forecaster",
+   "symbol": "main",
+   "path": "ml_lab/optimisation/opt19_bayesian_optimisation.py",
+   "line": 45,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt19_bayesian_optimisation.py#L45"
+  },
+  "ml-x-ml-detect": {
+   "concept": "ML 15: z-score, Mahalanobis, Isolation Forest, LOF",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml15_anomaly_detection.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml15_anomaly_detection.py#L18"
+  },
+  "ml-x-ml-pca": {
+   "concept": "ML 14: PCA reconstruction error",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml14_pca.py",
+   "line": 17,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml14_pca.py#L17"
+  },
+  "ml-x-ml-logit": {
+   "concept": "ML 03: logistic regression from scratch",
+   "symbol": "sigmoid",
+   "path": "ml_lab/machine_learning/ml03_logistic_regression.py",
+   "line": 16,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml03_logistic_regression.py#L16"
+  },
+  "ml-x-ml-ens": {
+   "concept": "ML 07: forests and boosting",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml07_ensembles.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml07_ensembles.py#L18"
+  },
+  "ml-x-ml-nn": {
+   "concept": "ML 09: neural network with backpropagation",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml09_neural_network_backprop.py",
+   "line": 17,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml09_neural_network_backprop.py#L17"
+  },
+  "ml-x-ml-q": {
+   "concept": "ML 20: Q-learning the courier table",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml20_q_learning_courier.py",
+   "line": 22,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml20_q_learning_courier.py#L22"
+  },
+  "ml-x-ml-bandit": {
+   "concept": "ML 19: epsilon-greedy, UCB1, Thompson",
+   "symbol": "simulate",
+   "path": "ml_lab/machine_learning/ml19_bandits.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml19_bandits.py#L18"
+  },
+  "ml-x-ml-rank": {
+   "concept": "ML 18: learning to rank dispatch candidates",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml18_learning_to_rank.py",
+   "line": 20,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml18_learning_to_rank.py#L20"
+  },
+  "ml-x-opt-es": {
+   "concept": "OPT 18: ES, DE and PSO tune the dispatch weights",
+   "symbol": "dispatch_objective",
+   "path": "ml_lab/optimisation/opt18_evolution_strategies_de_pso.py",
+   "line": 22,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt18_evolution_strategies_de_pso.py#L22"
+  },
+  "ml-x-ml-metrics": {
+   "concept": "ML 10: metrics under class imbalance",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml10_metrics_and_imbalance.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml10_metrics_and_imbalance.py#L18"
+  },
+  "ml-x-ml-bv": {
+   "concept": "ML 02: bias, variance and ridge",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml02_bias_variance_regularisation.py",
+   "line": 18,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml02_bias_variance_regularisation.py#L18"
+  },
   "ml-ev-grid": {
    "concept": "ATLAS tuning grid",
    "symbol": "\"atlas\": [dict(switch_pen=a, rho_max=b, hpa_target=c) for a in (.02, ...",
@@ -1487,7 +1695,12 @@ const umlCatalog = {
    "ml-bip-lab-eval",
    "ml-bip-cli",
    "ml-bip-cli-inside",
-   "ml-bip-cli-anomaly"
+   "ml-bip-cli-anomaly",
+   "ml-x-opt-runner",
+   "ml-x-opt-ga",
+   "ml-x-opt-pareto",
+   "ml-x-opt-cores",
+   "ml-x-opt-dpscale"
   ],
   "ml/solvers": [
    "ml-bip-solve",
@@ -1500,7 +1713,12 @@ const umlCatalog = {
    "ml-sol-refined",
    "ml-sol-local",
    "ml-sol-lab",
-   "ml-sol-cli"
+   "ml-sol-cli",
+   "ml-x-opt-bb",
+   "ml-x-opt-tabu",
+   "ml-x-opt-lp",
+   "ml-x-opt-sa",
+   "ml-x-opt-gd"
   ],
   "ml/forecasting": [
    "ml-fc-trace",
@@ -1513,7 +1731,12 @@ const umlCatalog = {
    "ml-fc-app",
    "ml-bip-loop",
    "ml-fc-lab",
-   "ml-fc-cli"
+   "ml-fc-cli",
+   "ml-x-ml-runner",
+   "ml-x-ml-hw",
+   "ml-x-ml-cv",
+   "ml-x-ml-drift",
+   "ml-x-opt-bo"
   ],
   "ml/anomaly": [
    "ml-an-telemetry",
@@ -1525,7 +1748,12 @@ const umlCatalog = {
    "ml-an-starter",
    "ml-an-serve",
    "ml-an-lab",
-   "ml-an-cli"
+   "ml-an-cli",
+   "ml-x-ml-detect",
+   "ml-x-ml-pca",
+   "ml-x-ml-logit",
+   "ml-x-ml-ens",
+   "ml-x-ml-nn"
   ],
   "ml/rl": [
    "ml-rl-ride",
@@ -1539,7 +1767,11 @@ const umlCatalog = {
    "ml-rl-bandit",
    "ml-rl-approve",
    "ml-rl-lab",
-   "ml-rl-cli"
+   "ml-rl-cli",
+   "ml-x-ml-q",
+   "ml-x-ml-bandit",
+   "ml-x-ml-rank",
+   "ml-x-opt-es"
   ],
   "ml/evaluation": [
    "ml-ev-tune",
@@ -1549,7 +1781,9 @@ const umlCatalog = {
    "ml-ev-holm",
    "ml-ev-stat",
    "ml-ev-boot",
-   "ml-bip-fsm"
+   "ml-bip-fsm",
+   "ml-x-ml-metrics",
+   "ml-x-ml-bv"
   ],
   "ml/gaps": [
    "ml-bip-modules",
