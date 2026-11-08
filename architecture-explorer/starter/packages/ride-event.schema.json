@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ATLAS ride event envelope v1",
+  "type": "object",
+  "required": ["schema_version", "event_id", "type", "trip_id", "occurred_at", "data"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "event_id": { "type": "string", "format": "uuid" },
+    "trip_id": { "type": "string", "format": "uuid" },
+    "occurred_at": { "type": "integer", "minimum": 0 },
+    "type": { "enum": ["trip.requested", "dispatch.offer.created", "dispatch.assignment.confirmed", "trip.assigned", "trip.picked_up", "trip.completed"] },
+    "data": { "type": "object" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "trip.requested" } } },
+      "then": { "properties": { "data": { "required": ["zone"], "properties": { "zone": { "enum": ["cork-centre", "cork-north"] } }, "additionalProperties": false } } }
+    },
+    {
+      "if": { "properties": { "type": { "enum": ["dispatch.offer.created", "dispatch.assignment.confirmed", "trip.assigned"] } } },
+      "then": { "properties": { "data": { "required": ["driver_id"], "properties": { "driver_id": { "type": "string" } }, "additionalProperties": false } } }
+    },
+    {
+      "if": { "properties": { "type": { "enum": ["trip.picked_up", "trip.completed"] } } },
+      "then": { "properties": { "data": { "required": ["elapsed_s"], "properties": { "elapsed_s": { "type": "integer", "minimum": 0 } }, "additionalProperties": false } } }
+    }
+  ]
+}
