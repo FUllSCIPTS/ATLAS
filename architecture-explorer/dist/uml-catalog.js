@@ -548,12 +548,68 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L118"
   },
   "cr-hash-cli": {
-   "concept": "Command-line lab: checksum collision",
-   "symbol": "section_checksum",
-   "path": "security_lab/crypto_lab.py",
-   "line": 55,
+   "concept": "Lab A: hashing and integrity (experiments 1-7)",
+   "symbol": "exp_basics",
+   "path": "security_lab/crypto_a_hashing.py",
+   "line": 45,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L55"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L45"
+  },
+  "cr-hash-cli-checksum": {
+   "concept": "Lab A4: forging the prototype checksum",
+   "symbol": "exp_checksum",
+   "path": "security_lab/crypto_a_hashing.py",
+   "line": 129,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L129"
+  },
+  "cr-hash-cli-crc": {
+   "concept": "Lab A5: forging CRC32",
+   "symbol": "crc32_forge",
+   "path": "security_lab/crypto_a_hashing.py",
+   "line": 149,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L149"
+  },
+  "cr-hash-cli-release": {
+   "concept": "Lab A6-A7: verify releases and CI pins",
+   "symbol": "exp_release",
+   "path": "security_lab/crypto_a_hashing.py",
+   "line": 181,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L181"
+  },
+  "cr-mac-cli": {
+   "concept": "Lab B: MACs, key derivation, randomness (experiments 8-10)",
+   "symbol": "exp_length_extension",
+   "path": "security_lab/crypto_b_mac_kdf_random.py",
+   "line": 95,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_b_mac_kdf_random.py#L95"
+  },
+  "cr-mac-cli-pbkdf2": {
+   "concept": "Lab B9: PBKDF2 by hand, matching accounts.py",
+   "symbol": "pbkdf2_sha256",
+   "path": "security_lab/crypto_b_mac_kdf_random.py",
+   "line": 128,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_b_mac_kdf_random.py#L128"
+  },
+  "cr-cli-runner": {
+   "concept": "Crypto lab runner: 20 experiments, 5 study paths",
+   "symbol": "if __name__ == '__main__':",
+   "path": "security_lab/crypto_lab.py",
+   "line": 39,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L39"
+  },
+  "cr-cli-common": {
+   "concept": "Crypto lab helpers: toy RSA, PKCS#1 v1.5, DER reader",
+   "symbol": "emsa_pkcs1_v15",
+   "path": "security_lab/crypto_common.py",
+   "line": 143,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_common.py#L143"
   },
   "cr-pki-ca": {
    "concept": "Private CA for mutual TLS",
@@ -636,12 +692,28 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L196"
   },
   "cr-pki-cli": {
-   "concept": "Command-line lab: certificate and pin",
-   "symbol": "section_certificate",
-   "path": "security_lab/crypto_lab.py",
-   "line": 99,
+   "concept": "Lab C: certificates and PKI (experiments 11-14)",
+   "symbol": "exp_fingerprint",
+   "path": "security_lab/crypto_c_pki.py",
+   "line": 84,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L99"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L84"
+  },
+  "cr-pki-cli-der": {
+   "concept": "Lab C12-C13: parse the DER, verify the self-signature",
+   "symbol": "parse_certificate",
+   "path": "security_lab/crypto_c_pki.py",
+   "line": 53,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L53"
+  },
+  "cr-pki-cli-ca": {
+   "concept": "Lab C14: private CA chain validation",
+   "symbol": "validate",
+   "path": "security_lab/crypto_c_pki.py",
+   "line": 178,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L178"
   },
   "cr-sig-sign": {
    "concept": "Sign the bundle: jarsigner SHA256withRSA, then verify",
@@ -692,12 +764,20 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L293"
   },
   "cr-sig-cli": {
-   "concept": "Command-line lab: textbook RSA hash-then-sign",
-   "symbol": "section_rsa",
-   "path": "security_lab/crypto_lab.py",
-   "line": 149,
+   "concept": "Lab D: digital signatures (experiments 15-17)",
+   "symbol": "exp_textbook",
+   "path": "security_lab/crypto_d_signatures.py",
+   "line": 33,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L149"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L33"
+  },
+  "cr-sig-cli-jar": {
+   "concept": "Lab D17: JAR signing and verification",
+   "symbol": "jar_verify",
+   "path": "security_lab/crypto_d_signatures.py",
+   "line": 107,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L107"
   },
   "cr-pqc-lab-keys": {
    "concept": "Lamport keys from SHA-256 only",
@@ -732,12 +812,28 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L355"
   },
   "cr-pqc-cli": {
-   "concept": "Command-line lab: Lamport one-time signature",
-   "symbol": "section_pqc",
-   "path": "security_lab/crypto_lab.py",
-   "line": 190,
+   "concept": "Lab E: post-quantum (experiments 18-20)",
+   "symbol": "exp_lamport",
+   "path": "security_lab/crypto_e_post_quantum.py",
+   "line": 52,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L190"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L52"
+  },
+  "cr-pqc-cli-forge": {
+   "concept": "Lab E19: forging after Lamport key reuse",
+   "symbol": "exp_lamport_reuse",
+   "path": "security_lab/crypto_e_post_quantum.py",
+   "line": 78,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L78"
+  },
+  "cr-pqc-cli-hybrid": {
+   "concept": "Lab E20: toy LWE KEM in a hybrid with DH",
+   "symbol": "exp_lwe_hybrid",
+   "path": "security_lab/crypto_e_post_quantum.py",
+   "line": 160,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L160"
   },
   "ml-bip-modules": {
    "concept": "Six modules: visit ratio and service demand",
@@ -1324,7 +1420,13 @@ const umlCatalog = {
    "cr-hash-lab-avalanche",
    "cr-hash-lab-file",
    "cr-hash-lab-checksum",
-   "cr-hash-cli"
+   "cr-hash-cli",
+   "cr-hash-cli-checksum",
+   "cr-hash-cli-crc",
+   "cr-hash-cli-release",
+   "cr-mac-cli",
+   "cr-mac-cli-pbkdf2",
+   "cr-cli-runner"
   ],
   "crypto/pki": [
    "cr-pki-ca",
@@ -1337,7 +1439,10 @@ const umlCatalog = {
    "cr-pki-lab-pin",
    "cr-pki-lab-issue",
    "cr-pki-lab-verify",
-   "cr-pki-cli"
+   "cr-pki-cli",
+   "cr-pki-cli-der",
+   "cr-pki-cli-ca",
+   "cr-cli-common"
   ],
   "crypto/signatures": [
    "cr-sig-sign",
@@ -1347,7 +1452,8 @@ const umlCatalog = {
    "cr-sig-lab-keys",
    "cr-sig-lab-sign",
    "cr-sig-lab-verify",
-   "cr-sig-cli"
+   "cr-sig-cli",
+   "cr-sig-cli-jar"
   ],
   "crypto/pqc": [
    "cr-pki-webpki",
@@ -1357,7 +1463,9 @@ const umlCatalog = {
    "cr-pqc-lab-sign",
    "cr-pqc-lab-verify",
    "cr-pqc-lab-forge",
-   "cr-pqc-cli"
+   "cr-pqc-cli",
+   "cr-pqc-cli-forge",
+   "cr-pqc-cli-hybrid"
   ],
   "crypto/gaps": [
    "cr-hash-checksum",
