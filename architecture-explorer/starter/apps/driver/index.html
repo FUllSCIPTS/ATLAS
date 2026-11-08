@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ATLAS Driver Demo</title><link rel="stylesheet" href="/assets/demo.css"><script src="/assets/client.js" defer></script></head>
+<body data-role="driver"><main>
+<nav><a href="/passenger">Passenger</a><a href="/driver" aria-current="page">Driver</a></nav>
+<h1>Drive a demo ride</h1>
+<label>Driver demo key <input id="key" type="password" value="driver-a-demo" autocomplete="off"></label>
+<form id="telemetry">
+  <label><input name="online" type="checkbox" checked> Available</label>
+  <label>Distance (km) <input name="distance_km" type="number" min="0" max="50" step="0.1" value="1.5" required></label>
+  <label>Speed (km/h) <input name="speed_kph" type="number" min="0" max="250" value="29" required></label>
+  <button type="submit">Send availability</button>
+</form>
+<h2>Offers and trips</h2><p id="status" role="status"></p><div id="result"></div>
+</main></body></html>
