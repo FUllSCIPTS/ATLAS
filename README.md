@@ -38,6 +38,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 8) [📈 Machine learning and optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md)
 
+9) [📚 Data Structures and Algorithms — foundation, O/Ω/Θ, linear and non-linear structures, 15 Colab labs with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md)
+
 ## Information security in ATLAS (teaching guide)
 
 ATLAS doubles as a worked example for teaching information security. The full guide is
