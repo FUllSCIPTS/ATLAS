@@ -40,9 +40,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 9) [📚 Data Structures and Algorithms — foundation, O/Ω/Θ, linear and non-linear structures, 20 Colab labs with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md)
 
-## Python programming: combined concepts and Colab labs
-
-The [standalone 20-lesson Python course](docs/PYTHON_PROGRAMMING.md) introduces Python from first principles, links each topic to relevant [ATLAS Go UML functions](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog), and includes [20 Colab experiments with CSV/PNG graphs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) and a [lab manual](python_lab/README.md).
+10) [🐍 Python Programming — standalone beginner-to-intermediate teaching guide, 20 lessons and UML-linked examples](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 ## Interactive Colab security and cryptography laboratories
 
