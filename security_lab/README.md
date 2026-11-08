@@ -1,8 +1,10 @@
 # Security labs
 
-Command-line labs that run the ATLAS Go app's real code (`android-app/atlas_go/accounts.py` and
-`store.py`). They use the Python standard library only, and every experiment works in its own throw-away
-folder, so nothing on your machine is changed. The teaching guides are
+Two command-line labs, 20 experiments each, that run ATLAS's real code and artefacts: the
+information-security lab (`lab_*.py`, on `android-app/atlas_go/accounts.py` and `store.py`) and the
+cryptography lab (`crypto_*.py`, on the releases, certificate, CI workflows and prototype). They use the
+Python standard library only, and every experiment works in its own throw-away folder, so nothing on your
+machine is changed. The teaching guides are
 [docs/INFORMATION_SECURITY.md](../docs/INFORMATION_SECURITY.md) and [docs/CRYPTOGRAPHY.md](../docs/CRYPTOGRAPHY.md).
 
 ## Information-security labs, by category
@@ -76,13 +78,85 @@ python3 security_lab/password_storage_demo.py --path attacker
 - Experiment 3: a record with `iterations = 0` raises instead of failing closed (store validation stops it first).
 - Experiment 9: names may contain the right-to-left override character U+202E.
 
-## Cryptography lab
+## Cryptography labs, by category
 
-| File | Sections |
-|---|---|
-| [`crypto_lab.py`](crypto_lab.py) | SHA-256 and the avalanche effect; checksum vs cryptographic hash; verifying a release with `SHA256SUMS`; the upload certificate's pinned fingerprint; hash-then-sign with toy RSA; a Lamport post-quantum one-time signature |
+Twenty experiments on ATLAS's real artefacts: the release checksums and signing records, the upload
+certificate and its pin, the CI workflows, the prototype's checksum and private CA, and the app's password
+hashing. Large topics are split into small exercises, each of which builds one piece from first principles.
+
+| File | Category | Experiments | ATLAS artefact it uses |
+|---|---|---|---|
+| [`crypto_a_hashing.py`](crypto_a_hashing.py) | A. Hashing and integrity | 1–7 | `releases/SHA256SUMS*`, `SIGNED_VALIDATION.json`, `.github/workflows/`, `prototype.zip` |
+| [`crypto_b_mac_kdf_random.py`](crypto_b_mac_kdf_random.py) | B. MACs, key derivation, randomness | 8–10 | `atlas_go/accounts.py` (PBKDF2, salts), `store.py` (ids) |
+| [`crypto_c_pki.py`](crypto_c_pki.py) | C. Certificates and PKI | 11–14 | `releases/upload-certificate.pem`, `prototype/proto_run.py` |
+| [`crypto_d_signatures.py`](crypto_d_signatures.py) | D. Digital signatures | 15–17 | `scripts/sign-release.py` (SHA256withRSA, JAR signing) |
+| [`crypto_e_post_quantum.py`](crypto_e_post_quantum.py) | E. Post-quantum cryptography | 18–20 | The PQ migration plan in `docs/CRYPTOGRAPHY.md` §6 |
+| [`crypto_lab.py`](crypto_lab.py) | Runner for all five | 1–20 | Loads A–E, adds study paths and `--verify FILE` |
+| [`crypto_common.py`](crypto_common.py) | Shared helpers | – | Toy RSA, PKCS#1 v1.5, DER reader, command line |
 
 ```bash
-python3 security_lab/crypto_lab.py
+python3 security_lab/crypto_c_pki.py                      # one category
+python3 security_lab/crypto_c_pki.py -e 13                # one experiment
+python3 security_lab/crypto_lab.py --path release-engineer
 python3 security_lab/crypto_lab.py --verify atlas-go-1.2.0.apk
 ```
+
+### Experiments
+
+**A. Hashing and integrity** — `crypto_a_hashing.py`
+
+1. SHA-256 basics: one-shot vs streaming, bytes vs text, and the Unicode (NFC/NFD) trap
+2. The avalanche effect, measured over 2,000 single-bit changes
+3. Why 256 bits: brute-forcing preimages and birthday collisions of a truncated hash
+4. Checksum vs hash: forging the prototype's `PaymentModule.checksum`
+5. CRC32 is linear: append four bytes to hit any checksum
+6. Verifying ATLAS releases: `SHA256SUMS`, signing records and a tampered download
+7. Supply-chain pinning: the bundletool hash in CI, and actions pinned by movable tag
+
+**B. MACs, key derivation and randomness** — `crypto_b_mac_kdf_random.py`
+
+8. Length extension: forging `sha256(secret + message)` with a hand-written SHA-256; HMAC resists
+9. HMAC and PBKDF2 built by hand, reproducing a hash from `accounts.hash_password`
+10. Randomness: predicting Python's `random` from 624 outputs; why salts come from `secrets`
+
+**C. Certificates and PKI** — `crypto_c_pki.py`
+
+11. PEM, DER and the fingerprint pin: what CI actually hashes
+12. Walking the certificate's DER bytes: version, names, dates, key, extensions
+13. Verifying the certificate's RSA-4096 / SHA-384 self-signature by hand
+14. A private CA like the prototype's: chains, CA:FALSE, key usage, SAN and expiry
+
+**D. Digital signatures** — `crypto_d_signatures.py`
+
+15. Textbook RSA step by step, and forging by multiplying signatures
+16. SHA256withRSA (PKCS#1 v1.5): hash-then-sign with padding, as jarsigner does
+17. Signing a bundle the JAR way: `MANIFEST.MF`, the `.SF` file and what each tamper breaks
+
+**E. Post-quantum cryptography** — `crypto_e_post_quantum.py`
+
+18. Lamport one-time signatures from SHA-256 alone, with a size comparison to RSA, ML-DSA and SLH-DSA
+19. Why "one-time": forging a release signature after the key is reused
+20. Lattices and hybrids: a toy LWE key encapsulation combined with Diffie-Hellman through HKDF
+
+### Study paths (`crypto_lab.py --path NAME`)
+
+| Path | Experiments | Goal |
+|---|---|---|
+| `foundations` | 1 → 2 → 4 → 6 → 11 → 16 | Hash, verify, certificate, signature |
+| `release-engineer` | 6 → 7 → 11 → 13 → 17 | Verify what ATLAS ships, the way CI does |
+| `attacker` | 3 → 5 → 8 → 10 → 15 → 19 | Break the weak constructions |
+| `pki` | 11 → 12 → 13 → 14 | Certificates from bytes to trust decisions |
+| `post-quantum` | 3 → 18 → 19 → 20 | What a quantum computer breaks, and what replaces it |
+| `full` | 1 → 20 | Everything in order |
+
+### Findings the labs surface (exercises)
+
+- Experiment 4: `snapshot()` keeps no per-payment amounts, so even a SHA-256 over it misses moved money.
+- Experiment 6: `SHA256SUMS` is not signed, so whoever can replace a download can replace its checksum.
+- Experiment 7: all GitHub Actions steps are pinned by movable tag, not by commit SHA.
+- Experiment 10: account, ride and order ids are clock-based, so they are unique but guessable.
+- Experiment 12: the upload certificate is X.509 v3 with a subjectKeyIdentifier, and its `notAfter` is a
+  GeneralizedTime (after 2049).
+
+All toy constructions (RSA without a vetted library, Lamport, LWE, 512-bit Diffie-Hellman) are for
+learning only.
