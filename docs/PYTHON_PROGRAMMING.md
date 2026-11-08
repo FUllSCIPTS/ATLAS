@@ -1,498 +1,1000 @@
-# Python Programming with ATLAS Go — Standalone Concept-and-Lab Textbook
+# Python Programming with ATLAS Go — an illustrated, standalone course
 
-**Level:** absolute beginner to intermediate. **Plan:** 20 integrated lessons over 10–15 weeks, each with a concept, working Python example, ATLAS Go function reference, laboratory experiment, figure and interpretation exercise. **Tools:** Python 3, GitHub and Google Colab. No Android installation needed.
+**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II), 10–15 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
-[Open the 20-lab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Laboratory manual](../python_lab/README.md) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [Verified method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+[Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
-## Learning sequence
+**How every lesson is built:** *idea* (plain-language explanation and a picture) → *worked examples* (run them; the expected output is shown or asserted) → *common mistakes* → *ATLAS Go* (where the real app uses the idea, with a link to the exact function) → *lab* (what the experiment measures and what its chart shows) → *exercises*. Every code block in this guide runs as written; blocks that use ATLAS Go code first add `android-app` to the import path.
 
 ~~~mermaid
 flowchart LR
- A[Syntax and variables] --> B[Control flow]
- B --> C[Collections and functions]
- C --> D[Classes and exceptions]
- D --> E[Persistence and testing]
- E --> F[Profiling and ATLAS Go]
+ A["1–6<br/>running code, values,<br/>types, decisions, loops, text"] --> B["7–10<br/>collections,<br/>comprehensions, functions"]
+ B --> C["11–13<br/>classes, inheritance,<br/>exceptions"]
+ C --> D["14–17<br/>files, generators,<br/>functional style, sorting"]
+ D --> E["18–20<br/>complexity, testing,<br/>profiling"]
+ E --> F["Part II<br/>software testing"]
 ~~~
 
-## How the existing Python application works
+## Where the ideas live in ATLAS Go
 
-ATLAS Go is a Python/Kivy Android application with on-device user, ride and food state. Its *actual* classes are listed in the UML. The standalone lab experiments use **synthetic records and calculations**, not live ride dispatch or payments. In the diagrams, arrows mean functions use other components, not inheritance unless stated.
+ATLAS Go is a Python/Kivy Android app that keeps users, rides and food orders on the phone in a JSON file. Arrows below mean "uses".
 
 ~~~mermaid
 flowchart TD
- UI[AtlasGoApp: screens] --> STORE[LocalStore: account and booking state]
- UI --> GEO[geo: coordinates and travel times]
- UI --> AI[intelligence: dispatch ranking]
- STORE --> DOMAIN[domain: Cart, Catalog and Offer]
- STORE --> FILE[Local JSON state]
+ UI["app.py — AtlasGoApp (Kivy App subclass): screens, buttons"] --> STORE["store.py — LocalStore: accounts, rides, orders, JSON persistence"]
+ UI --> GEO["geo.py — distances, ETAs, map tiles"]
+ UI --> AI["intelligence.py — Candidate, rank, choose, outlook, self_test"]
+ STORE --> DOMAIN["domain.py — fare, Offer, Cart, Catalog"]
+ STORE --> ACC["accounts.py — clean_email, parse_int, password hashing"]
+ STORE --> FILE[("state.json")]
 ~~~
 
-## Course map
-
-| Lesson | Topic | ATLAS Go method | Lab |
+| Lesson | Topic | ATLAS Go code that uses it | Lab |
 |---|---|---|---|
-| 01 | Python setup, print and comments | [AtlasGoApp.build](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) | P01 |
-| 02 | Variables, numbers and operators | [fare](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) | P02 |
-| 03 | Basic data types | [parse_int](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) | P03 |
-| 04 | Conditions and boolean logic | [set_online](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P04 |
-| 05 | Loops and iteration | [outlook](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P05 |
-| 06 | Strings and Unicode | [clean_email](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) | P06 |
-| 07 | Lists and slicing | [my_history](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P07 |
-| 08 | Tuples, sets and dictionaries | [Cart](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) | P08 |
-| 09 | Comprehensions | [online_drivers](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P09 |
-| 10 | Functions and type hints | [eta_minutes](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) | P10 |
-| 11 | Classes, methods and dataclasses | [Candidate](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P11 |
-| 12 | Inheritance and polymorphism | [AtlasGoApp](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) | P12 |
-| 13 | Exceptions and validation | [validate](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P13 |
-| 14 | Files, pathlib and JSON | [commit](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P14 |
-| 15 | Iterators and generators | [visible_tiles](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) | P15 |
-| 16 | Lambda, map and filter | [rank](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P16 |
-| 17 | Sorting, selection and pipelines | [choose](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P17 |
-| 18 | Time complexity and search | [online_drivers](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P18 |
-| 19 | Testing, assertions and debugging | [self_test](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P19 |
-| 20 | Profiling, charts and project structure | [LearningLab](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P20 |
-
-## Lesson 01 — Python setup, print and comments
-
-**Concept explained:** Python executes statements from top to bottom. Notebook cells share a Python runtime. Indentation defines blocks.
-
-**Try in a Python cell:**
-
-~~~python
-print('Hello ATLAS')
-~~~
-
-**Where ATLAS Go uses it:** Entry point and app construction. See the verified [AtlasGoApp.build source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P01:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 02 — Variables, numbers and operators
-
-**Concept explained:** Assignment binds a name to a value. Use +, -, *, /, //, %, and **; calculate money carefully using integer cents.
-
-**Try in a Python cell:**
-
-~~~python
-km=5; rate=2; assert km*rate==10
-~~~
-
-**Where ATLAS Go uses it:** Ride-fare calculation. See the verified [fare source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P02:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 03 — Basic data types
-
-**Concept explained:** int, float, str, bool and None represent numbers, text, logical values and absence. Explicit conversion can fail.
-
-**Try in a Python cell:**
-
-~~~python
-age=int('20'); assert type(age) is int
-~~~
-
-**Where ATLAS Go uses it:** User-input conversion. See the verified [parse_int source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P03:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 04 — Conditions and boolean logic
-
-**Concept explained:** if/elif/else select a branch; and/or/not combine checks; comparison operators test equality and order.
-
-**Try in a Python cell:**
-
-~~~python
-role='driver'; assert (role=='driver')
-~~~
-
-**Where ATLAS Go uses it:** Driver-role guard. See the verified [set_online source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P04:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 05 — Loops and iteration
-
-**Concept explained:** for visits iterable values; while repeats until a condition fails. range, enumerate and break support repeated work.
-
-**Try in a Python cell:**
-
-~~~python
-total=0
-for i in range(5): total+=i
-assert total==10
-~~~
-
-**Where ATLAS Go uses it:** 24-hour forecast loop. See the verified [outlook source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P05:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 06 — Strings and Unicode
-
-**Concept explained:** str is Unicode; bytes are encoded data. Slicing extracts a substring; strings are immutable.
-
-**Try in a Python cell:**
-
-~~~python
-name='ATLAS'; assert name[:2]=='AT'
-~~~
-
-**Where ATLAS Go uses it:** Email normalization/validation. See the verified [clean_email source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P06:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 07 — Lists and slicing
-
-**Concept explained:** Lists are ordered mutable sequences. append, pop and slices operate on elements. Assignment aliases; copy makes a new list.
-
-**Try in a Python cell:**
-
-~~~python
-items=['r1']; items.append('r2'); assert items[-1]=='r2'
-~~~
-
-**Where ATLAS Go uses it:** History stored as list records. See the verified [my_history source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P07:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 08 — Tuples, sets and dictionaries
-
-**Concept explained:** Tuples are immutable sequences; sets enforce uniqueness; dictionaries map hashable keys to values.
-
-**Try in a Python cell:**
-
-~~~python
-d={'ride':1}; assert d['ride']==1
-~~~
-
-**Where ATLAS Go uses it:** Basket item dictionary. See the verified [Cart source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P08:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 09 — Comprehensions
-
-**Concept explained:** A list comprehension transforms/filters an iterable. It is concise but should stay readable.
-
-**Try in a Python cell:**
-
-~~~python
-xs=[x*x for x in range(5) if x%2==0]; assert xs==[0,4,16]
-~~~
-
-**Where ATLAS Go uses it:** Filters online driver records. See the verified [online_drivers source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P09:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 10 — Functions and type hints
-
-**Concept explained:** def defines reusable code; return passes back a result. Parameters may have defaults. Type annotations describe, not enforce, types.
-
-**Try in a Python cell:**
-
-~~~python
-def eta(km,speed=30): return km/speed*60
-assert eta(15)==30
-~~~
-
-**Where ATLAS Go uses it:** Travel-time helper. See the verified [eta_minutes source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P10:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 11 — Classes, methods and dataclasses
-
-**Concept explained:** Classes group fields and methods; self refers to the instance. dataclass automates common record boilerplate.
-
-**Try in a Python cell:**
-
-~~~python
-from dataclasses import dataclass
-@dataclass
-class Ride:
-    km: float
-assert Ride(3).km==3
-~~~
-
-**Where ATLAS Go uses it:** Driver candidate dataclass. See the verified [Candidate source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P11:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 12 — Inheritance and polymorphism
-
-**Concept explained:** Subclasses may override a method. Polymorphism calls the same interface on different object types; composition is often better.
-
-**Try in a Python cell:**
-
-~~~python
-class Base:
-    def label(self): return 'base'
-class Child(Base):
-    def label(self): return 'child'
-assert Child().label()=='child'
-~~~
-
-**Where ATLAS Go uses it:** Subclass of Kivy App. See the verified [AtlasGoApp source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P12:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 13 — Exceptions and validation
-
-**Concept explained:** try/except handles anticipated failures; raise reports invalid inputs. Do not catch every exception silently.
-
-**Try in a Python cell:**
-
-~~~python
-try:
-    int('bad')
-except ValueError:
-    rejected=True
-assert rejected
-~~~
-
-**Where ATLAS Go uses it:** Saved-state validation. See the verified [validate source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P13:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 14 — Files, pathlib and JSON
-
-**Concept explained:** Files persist data across runs. JSON serializes dictionaries, lists and basic scalar values. Atomic writes support consistency.
-
-**Try in a Python cell:**
-
-~~~python
-import json
-assert json.loads(json.dumps({'ok':True}))['ok']
-~~~
-
-**Where ATLAS Go uses it:** Atomic JSON storage. See the verified [commit source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P14:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 15 — Iterators and generators
-
-**Concept explained:** An iterator yields one item at a time; yield creates a lazy generator. Converting to list materializes all values.
-
-**Try in a Python cell:**
-
-~~~python
-def count():
-    yield 1
-    yield 2
-assert list(count())==[1,2]
-~~~
-
-**Where ATLAS Go uses it:** Related iteration; generator is an extension. See the verified [visible_tiles source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P15:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 16 — Lambda, map and filter
-
-**Concept explained:** Higher-order functions take other functions as arguments. Lambda expresses short anonymous operations.
-
-**Try in a Python cell:**
-
-~~~python
-assert sorted([3,1,2],key=lambda x:-x)==[3,2,1]
-~~~
-
-**Where ATLAS Go uses it:** Sorting by scored probability. See the verified [rank source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P16:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 17 — Sorting, selection and pipelines
-
-**Concept explained:** Build features, filter records and rank candidates. Sorting by a key is not graph shortest-path routing.
-
-**Try in a Python cell:**
-
-~~~python
-drivers=[('A',4),('B',2)]; assert min(drivers,key=lambda x:x[1])[0]=='B'
-~~~
-
-**Where ATLAS Go uses it:** Selects scored driver candidate. See the verified [choose source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P17:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 18 — Time complexity and search
-
-**Concept explained:** Count elementary operations as n grows. O is an asymptotic upper bound, not elapsed seconds. Binary search needs sorted input.
-
-**Try in a Python cell:**
-
-~~~python
-a=list(range(100)); assert 99 in a
-~~~
-
-**Where ATLAS Go uses it:** Linear collection scan. See the verified [online_drivers source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P18:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 19 — Testing, assertions and debugging
-
-**Concept explained:** Tests compare expected with actual behavior. Use empty, invalid and boundary cases, and read error traces.
-
-**Try in a Python cell:**
-
-~~~python
-def add(a,b): return a+b
-assert add(2,3)==5
-assert add(-1,1)==0
-~~~
-
-**Where ATLAS Go uses it:** On-device model smoke tests. See the verified [self_test source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P19:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-
-## Lesson 20 — Profiling, charts and project structure
-
-**Concept explained:** perf_counter records elapsed runtime; CSV preserves measurements; plots should carry units. Modules organize reusable source.
-
-**Try in a Python cell:**
-
-~~~python
-import time
-start=time.perf_counter(); sum(range(1000)); assert time.perf_counter()>=start
-~~~
-
-**Where ATLAS Go uses it:** Related learning-lab class; benchmark is teaching code. See the verified [LearningLab source](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) and [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog). A related reference does not mean the app uses the exact simplified exercise implementation.
-
-**Lab P20:** Open the [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb), run this numbered experiment, inspect its CSV and PNG, and explain the input size n, the output values and their units. Predict what should happen if n doubles. **Student challenge:** test zero/empty input or a boundary case; identify the source method in UML and state one difference from the teaching implementation.
-
-## Additional foundation lessons — read while completing P01–P20
-
-### Indentation, error messages and notebook state
-
-Python uses indentation to mark suites after if, for, while, def and class. Four spaces are conventional. SyntaxError indicates malformed syntax; NameError an unknown name; TypeError incompatible operations; IndexError invalid positions; ValueError an invalid value. Notebook variables persist between cells: use **Runtime → Restart and run all** to verify the course runs from a clean state.
-
-### Names, references, shallow copies and mutability
-
-Assignment binds references. If two names refer to the same list, mutating it affects both. A slice or copy normally creates a new outer list, but nested objects may remain shared.
-
-~~~python
-a=[1,2]; b=a; b.append(3)
-assert a==[1,2,3]
-c=a.copy(); c.append(4)
-assert a==[1,2,3]
-~~~
-
-### Scope and safe function defaults
-
-Local variables belong to the function's call. A return statement produces the result; print merely displays it. Avoid mutable default arguments that persist between calls.
-
-~~~python
-def new_order(item, cart=None):
-    if cart is None:
-        cart=[]
-    cart.append(item)
-    return cart
-assert new_order('tea')==['tea']
-assert new_order('coffee')==['coffee']
-~~~
-
-### Packages, imports and project layout
-
-A .py file is a module; a package organizes related modules. Import standard modules such as math, pathlib, json and time rather than copying their code. Avoid naming your own files json.py, random.py or time.py because these names can shadow standard-library modules. ATLAS Go is organized under android-app/atlas_go, while these independent teaching experiments are under python_lab.
-
-### Complexity and meaningful charts
-
-Theory counts operations (P18), while a benchmark measures elapsed milliseconds (P20). Python dict membership is expected O(1) under hashing assumptions, whereas list membership may scan O(n). The P20 measurements are on prebuilt containers and can be noisy; they are **not** benchmarks of ATLAS Go. P01–P19 plot actual computed values/counts, not arbitrary curves or hardware timings. Every chart has an associated machine-readable CSV and JSON.
-
-### Verification, privacy and limitations
-
-Use assert and independent tests to cover empty, duplicate, missing, extreme and malformed cases. No tutorial cell should upload real customer data, passwords, API keys, or location history. ATLAS Go's local app is not a deployed multi-user booking backend. The DSA, security and cryptography manuals provide related advanced extensions.
-
-## Assessment and capstone
-
-| Criterion | Marks |
-|---|---:|
-| Explain concept and expected output | 20 |
-| Correct Python programs and edge cases | 25 |
-| Reproducible experiments and tests | 20 |
-| Interpret CSV/PNG charts and units | 20 |
-| Follow UML to verified app functions | 15 |
-
-**Capstone:** build a *local synthetic* ride-dispatch simulator with a Ride dataclass, dictionary of drivers, list filtering by online status, a simple geographic distance score, ranking, exception handling, JSON save/load and test assertions. Explain how it differs from the actual ATLAS Go classes in UML. Do not make live bookings.
-
-**Lab report for each experiment:** objective → example → input size → predicted result → code and tests → observed table/graph → explanation → UML method used → limitation and improvement.
-
+| 1 | Running Python, print, comments | [`AtlasGoApp.build`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) | P01 execution order |
+| 2 | Numbers and operators | [`domain.fare`, `money`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) | P02 float vs cents |
+| 3 | Types and conversion | [`accounts.parse_int`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) | P03 conversion matrix |
+| 4 | Conditions and Boolean logic | [`LocalStore.set_online`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P04 decision table |
+| 5 | Loops | [`intelligence.outlook`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P05 loop counts |
+| 6 | Strings and Unicode | [`accounts.clean_email`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) | P06 bytes vs characters |
+| 7 | Lists, slicing, aliasing | [`LocalStore.my_history`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P07 list over-allocation |
+| 8 | Tuples, sets, dicts | [`Cart.items`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) | P08 Counter |
+| 9 | Comprehensions | [`geo.tile_range`, `online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) | P09 distance matrix |
+| 10 | Functions, scope, recursion | [`geo.eta_minutes`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) | P10 call counts |
+| 11 | Classes and dataclasses | [`intelligence.Candidate`, `domain.Offer`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P11 Ride class |
+| 12 | Inheritance and polymorphism | [`AtlasGoApp(App)`, `LiveMap(StencilView)`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) | P12 vehicle classes |
+| 13 | Exceptions and validation | [`LocalStore.validate`, `clean_email`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P13 messy records |
+| 14 | Files, pathlib, JSON, CSV | [`LocalStore.save`, `commit`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P14 JSON vs CSV, atomic writes |
+| 15 | Iterators and generators | [`LiveMap.visible_tiles`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) | P15 memory |
+| 16 | Lambda, map, filter, reduce | [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P16 driver pipeline |
+| 17 | Sorting and selection | [`intelligence.choose`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P17 top-k comparisons |
+| 18 | Complexity and searching | [`LocalStore.online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) | P18 search counts |
+| 19 | Testing and debugging | [`intelligence.self_test`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P19 mutation testing |
+| 20 | Profiling and project structure | [`intelligence.LearningLab`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) | P20 timeit |
+
+The labs use **synthetic** data (made-up rides and drivers). A link to ATLAS Go means the real app uses the *idea*; the lab code is a simplified teaching version.
 
 ---
 
-# Part II — Software Testing Fundamentals and Practical ATLAS Go Experiments
+# Part I — Python foundations
 
-**Purpose.** Learn to establish *evidence* that Python code behaves as specified. This is an **extension to the 20 original Python lessons**, not a claim that the sample experiments test a live payment provider, live Google Maps service, or production backend. All examples use local/synthetic values unless explicitly connected to a real component.
+## Lesson 1 — Running Python: statements, print, comments and execution order
 
-**Prerequisites:** Lessons 01–19, Python 3.10+ for the type hints used in the ATLAS Go application. **Learning path:** test a function → test a class → test multiple components → simulate a failure → automate the checks → interpret results.
+**Idea.** A Python program is a list of **statements**. The interpreter runs them **one at a time, top to bottom**, unless a statement (a loop, `if`, function call) sends it elsewhere. `print()` shows a value; a comment (`# …`) is ignored by Python and written for humans. Indentation (4 spaces) groups statements into **blocks**.
+
+~~~mermaid
+flowchart TD
+ S1["1 total = 0"] --> S2{"2 for km in (2, 3):<br/>another km?"}
+ S2 -- "yes" --> S3["3 fare = 350 + 170 * km"] --> S4["4 total = total + fare"] --> S2
+ S2 -- "no" --> S5["5 message = f'total {total} cents'"]
+~~~
+
+~~~python
+# A receipt for two rides: 2 km and 3 km.
+total = 0                          # line 1: start at zero cents
+for km in (2, 3):                  # line 2: repeat for each distance
+    fare = 350 + 170 * km          # line 3: base fare + per-km rate
+    total = total + fare           # line 4
+message = f"total {total} cents"   # line 5
+print(message)                     # total 1550 cents
+assert message == "total 1550 cents"
+~~~
+
+**Ways to run Python:** a Colab/Jupyter cell (cells share variables — use *Runtime → Restart and run all* to check a notebook works from scratch); the interactive prompt `python3` (prints every expression's value); a script `python3 receipt.py` (prints only what you `print`).
+
+**Reading error messages.** Read the **last line first**: it names the error type and message; the lines above show where it happened.
+
+| Error | Typical cause |
+|---|---|
+| `SyntaxError` | malformed code: missing `:` or bracket |
+| `IndentationError` | inconsistent spaces in a block |
+| `NameError` | using a name before assigning it, or a typo |
+| `TypeError` | operation on the wrong type (`"3" + 4`) |
+
+**ATLAS Go:** the app starts in [`AtlasGoApp.build`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py), which runs statement by statement to create the store, load state and build the first screen.
+
+**Lab P01** records which line runs at every step of the program above using `sys.settrace`. The chart plots *step* against *line number*: you can see the jump back to line 2 each time the loop repeats (1, 2, 3, 4, 2, 3, 4, 2, 5).
+
+**Exercises.** (1) Predict the trace if the tuple were `(2, 3, 5)`. (2) Introduce each error in the table on purpose and read the message.
+
+## Lesson 2 — Variables, numbers and operators
+
+**Idea.** `name = value` **binds** a name to a value. Python has whole numbers (`int`, unlimited size), decimals (`float`, 64-bit binary floating point) and `complex`.
+
+| Operator | Meaning | Example | Result |
+|---|---|---|---|
+| `+ - *` | add, subtract, multiply | `350 + 170 * 3` | `860` (precedence: `*` first) |
+| `/` | true division, always float | `7 / 2` | `3.5` |
+| `//` | floor division (rounds **down**) | `7 // 2`, `-7 // 2` | `3`, `-4` |
+| `%` | remainder (sign of the divisor) | `7 % 2`, `-7 % 2` | `1`, `1` |
+| `**` | power | `2 ** 10` | `1024` |
+| `round` | banker's rounding to even | `round(2.5)`, `round(3.5)` | `2`, `4` |
+
+~~~python
+assert 350 + 170 * 3 == 860
+assert (7 // 2, -7 // 2, 7 % 2, -7 % 2) == (3, -4, 1, 1)
+assert divmod(1118, 100) == (11, 18)          # euros and cents
+assert round(2.5) == 2 and round(3.5) == 4    # round half to even
+print(0.1 + 0.2)                               # 0.30000000000000004
+assert 0.1 + 0.2 != 0.3
+~~~
+
+**Why money is stored in integer cents.** 0.10 has no exact binary representation, so adding it repeatedly drifts. `int` cents (or `decimal.Decimal`) are exact.
+
+~~~python
+from decimal import Decimal
+total = 0.0
+for _ in range(10):
+    total += 0.10                                           # ten 10-cent fares as floats
+assert total != 1.0 and total == 0.9999999999999999         # float drift
+# (since Python 3.12, sum() of floats compensates for this; repeated += does not)
+assert sum([10] * 10) == 100                                # integer cents: exact
+assert sum([Decimal("0.10")] * 10) == Decimal("1.00")       # Decimal: exact
+~~~
+
+**ATLAS Go** stores every price in cents: [`domain.fare`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) computes `(350 + distance * 170) * (130 if comfort else 100) // 100` and [`money`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) formats it with `//` and `%`.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.domain import fare, money
+assert fare(0, 1) == 860 and money(fare(0, 1, comfort=True)) == "€11.18"
+~~~
+
+**Lab P02** adds 10 cents *n* times as floats and as integers, for n up to a million, and plots the error against the exact answer (log scale): the float error grows, the integer error stays exactly zero.
+
+**Exercises.** (1) Why is `-7 // 2` equal to −4? (2) Write `split_bill(cents, people)` so the parts are whole cents and add up exactly.
+
+## Lesson 3 — Types and conversion
+
+**Idea.** Every value has a **type**: `int`, `float`, `str`, `bool` (`True`/`False`), `NoneType` (`None`, "no value"). `type(x)` tells you; `isinstance(x, int)` tests it. Text from a keyboard or file is always `str` and must be **converted**, and conversion can fail.
+
+~~~python
+assert type(42) is int and type("42") is str and type(None).__name__ == "NoneType"
+assert int(" 42 ") == 42 and float("3.5") == 3.5 and str(7) == "7"
+assert int("1A", 16) == 26
+assert bool("") is False and bool("False") is True     # any non-empty string is True!
+assert isinstance(True, int)                            # bool is a subclass of int
+try:
+    int("3.5")
+except ValueError as e:
+    print("ValueError:", e)
+~~~
+
+**Truthiness:** `0`, `0.0`, `""`, `[]`, `{}`, `None` and `False` are *falsy*; almost everything else is *truthy*.
+
+**ATLAS Go:** [`accounts.parse_int`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) converts form text, turns a failure into a friendly message and checks the range:
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.accounts import parse_int
+assert parse_int(" 12 ", "Prep time", 1, 60) == 12
+for bad in ("twelve", "0", "61", None):
+    try:
+        parse_int(bad, "Prep time", 1, 60)
+    except ValueError as e:
+        print(repr(bad), "->", e)
+~~~
+
+**Lab P03** tries five converters (`int`, `float`, `int(s, 16)`, `bool`, `Decimal`) on ten strings and draws a success/failure heatmap. Surprises to explain: `int(" 7 ")` works (spaces stripped); `float("1e3")` works; `int("1e3", 16)` works (it is hexadecimal!); the Arabic-Indic digit `"٣"` converts to 3; `bool` never fails.
+
+**Exercises.** (1) Write `to_bool(text)` that accepts yes/no/true/false in any case and rejects anything else. (2) Why can `isinstance(True, int)` cause a validation bug (see Part II, T12)?
+
+## Lesson 4 — Conditions and Boolean logic
+
+**Idea.** `if / elif / else` chooses one branch. Comparisons (`== != < <= > >=`, `in`, `is`) produce `bool`; `and`, `or`, `not` combine them. `and`/`or` **short-circuit**: Python stops as soon as the answer is known.
+
+~~~mermaid
+flowchart TD
+ A{"online?"} -- no --> R1["not eligible"]
+ A -- yes --> B{"rating ≥ 4.5?"}
+ B -- no --> R1
+ B -- yes --> C{"distance ≤ 5 km?"}
+ C -- no --> R1
+ C -- yes --> R2["eligible"]
+~~~
+
+~~~python
+def eligible(online, rating, distance_km):
+    return online and rating >= 4.5 and distance_km <= 5
+
+def describe(rating):
+    if rating >= 4.8:
+        return "excellent"
+    elif rating >= 4.5:
+        return "good"
+    else:
+        return "needs review"
+
+assert eligible(True, 4.6, 3) and not eligible(True, 4.6, 7) and not eligible(False, 5.0, 1)
+assert [describe(r) for r in (4.9, 4.5, 4.0)] == ["excellent", "good", "needs review"]
+assert 3 < 4 < 5                            # chained comparison
+assert (None or "default") == "default"     # or returns the first truthy operand
+~~~
+
+**`==` vs `is`:** `==` compares values; `is` asks "same object?" Use `is` only for `None`, `True`, `False`.
+
+**Decision tables** list every combination of conditions and the expected result — the basis of the boundary tests in Part II.
+
+| online | rating ≥ 4.5 | ≤ 5 km | eligible |
+|---|---|---|---|
+| F | – | – | F |
+| T | F | – | F |
+| T | T | F | F |
+| T | T | T | **T** |
+
+**ATLAS Go:** [`LocalStore.set_online`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) starts with a guard — `if not user or user['role'] != 'driver': raise ValueError(...)` — so only signed-in drivers can go online.
+
+**Lab P04** evaluates the rule over a grid of ratings (3.0–5.0) and distances (0–8 km) and draws the result as a heatmap — the decision table as a picture. It also proves short-circuiting by recording which conditions were actually evaluated.
+
+**Exercises.** (1) Rewrite `describe` with the conditions in the wrong order and find the bug. (2) Write a decision table for "comfort rides need a rating ≥ 4.7 *or* a car newer than 2022".
+
+## Lesson 5 — Loops: for, while, range, enumerate, zip, break, continue
+
+**Idea.** A `for` loop runs its block once **per item** of an iterable (list, string, `range`, dict…). A `while` loop repeats **while a condition is true** — you must make sure it eventually becomes false.
+
+~~~python
+for km in range(1, 4):                # 1, 2, 3   (start, stop is excluded)
+    print(km, "km")
+places = ["UCC", "Kent Station"]
+for i, place in enumerate(places, start=1):
+    print(i, place)                    # 1 UCC / 2 Kent Station
+for place, km in zip(places, [3, 5]):
+    print(place, km)
+total = 0
+for fare in [520, -1, 860, 0, 1200]:
+    if fare < 0:
+        continue                       # skip bad data
+    if fare == 0:
+        break                          # stop at the sentinel
+    total += fare
+assert total == 1380
+~~~
+
+~~~python
+seconds, guess, x = 0, 10.0, 10.0
+while abs(guess * guess - x) > 1e-9:  # Newton's method for √10
+    guess = (guess + x / guess) / 2
+    seconds += 1
+assert round(guess, 6) == round(10 ** 0.5, 6) and seconds < 10
+~~~
+
+**How many times does a loop run?** That number is the heart of complexity (Lesson 18).
+
+| Loop | Iterations for n = 64 |
+|---|---|
+| `for i in range(n)` | 64 |
+| nested `for i … for j in range(n)` | 4 096 |
+| `while n > 1: n //= 2` | 6 |
+
+**ATLAS Go:** [`intelligence.outlook`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) loops `for h in range(24)` to build the 24-hour demand forecast shown on the home screen.
+
+**Lab P05** counts loop iterations for single, nested, halving and Newton loops as n grows (log scale): four different growth shapes from four loop shapes.
+
+**Exercises.** (1) Print a 5×5 multiplication table with nested loops. (2) Write a `while` loop that asks for input until a valid number is given (use `input()` in Colab).
+
+## Lesson 6 — Strings and Unicode
+
+**Idea.** A `str` is an immutable sequence of Unicode **code points**. Text on disk or on a network is **bytes**; `encode()` turns text into bytes, `decode()` back. UTF-8 uses 1 byte for ASCII and 2–4 bytes for other characters.
+
+~~~mermaid
+flowchart LR
+ T["str: 'Átha'<br/>4 code points"] -- ".encode('utf-8')" --> B["bytes: b'\xc3\x81tha'<br/>5 bytes"]
+ B -- ".decode('utf-8')" --> T
+~~~
+
+~~~python
+city = "Baile Átha Cliath"
+assert city[0] == "B" and city[-1] == "h" and city[6:10] == "Átha"     # indexing and slicing
+assert city.lower().startswith("baile") and city.split() == ["Baile", "Átha", "Cliath"]
+assert len(city) == 17 and len(city.encode("utf-8")) == 18             # Á takes 2 bytes
+assert "-".join(["Cork", "Kent"]) == "Cork-Kent" and "  ucc ".strip() == "ucc"
+fare = 1118
+assert f"€{fare // 100}.{fare % 100:02d}" == "€11.18"                  # f-string formatting
+
+import unicodedata
+nfc, nfd = unicodedata.normalize("NFC", "é"), unicodedata.normalize("NFD", "é")
+assert (len(nfc), len(nfd)) == (1, 2) and nfc != nfd                    # same look, different text!
+assert "Straße".casefold() == "strasse"                                 # use casefold() to compare
+~~~
+
+Strings are **immutable**: `s.upper()` returns a *new* string. Build long strings with `"".join(parts)`, not `+=` in a loop.
+
+**ATLAS Go:** [`accounts.clean_email`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) strips spaces, lower-cases, limits the length to 80 and checks a regular expression:
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.accounts import clean_email
+assert clean_email("  Student@Example.IE ") == "student@example.ie"
+~~~
+
+**Lab P06** compares, for six place names (English, Irish, Tamil, Japanese, emoji), the number of characters, UTF-8 bytes and UTF-16 units. A database column limited to "20 bytes" and a form limited to "20 characters" are not the same limit.
+
+**Exercises.** (1) Write `initials("Baile Átha Cliath") → "BÁC"`. (2) Why must you normalise before comparing user-typed names?
+
+## Lesson 7 — Lists: indexing, slicing, mutation, aliasing and copies
+
+**Idea.** A `list` is an ordered, **mutable** sequence. Indexes start at 0; negative indexes count from the end; a slice `a[start:stop:step]` makes a new list.
+
+~~~python
+rides = ["r1", "r2", "r3", "r4"]
+assert rides[0] == "r1" and rides[-1] == "r4" and rides[1:3] == ["r2", "r3"] and rides[::-1][0] == "r4"
+rides.append("r5"); rides.insert(0, "r0"); last = rides.pop()
+assert last == "r5" and rides == ["r0", "r1", "r2", "r3", "r4"]
+rides.remove("r0")
+assert len(rides) == 4 and "r2" in rides and rides.index("r3") == 2
+~~~
+
+**Names are labels, not boxes.** Assignment copies the *reference*, so two names can label one list:
+
+~~~mermaid
+flowchart LR
+ a(["a"]) --> L["list object [1, 2, 3]"]
+ b(["b"]) --> L
+ c(["c = a.copy()"]) --> L2["new list [1, 2, 3, 4]"]
+~~~
+
+~~~python
+a = [1, 2]
+b = a              # alias: same list
+b.append(3)
+assert a == [1, 2, 3] and a is b
+c = a.copy()       # new outer list
+c.append(4)
+assert a == [1, 2, 3] and c == [1, 2, 3, 4]
+grid = [[0], [0]]
+shallow = grid.copy()
+shallow[0].append(1)
+assert grid[0] == [0, 1]                     # inner lists are still shared!
+import copy
+deep = copy.deepcopy(grid); deep[0].append(2)
+assert grid[0] == [0, 1]                     # deepcopy copies the inner lists too
+bad = [[0] * 2] * 2; bad[0][0] = 9
+assert bad == [[9, 0], [9, 0]]               # the same row twice — a classic bug
+~~~
+
+**ATLAS Go:** [`LocalStore.my_history`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) returns a *new* filtered list of the history; [`snapshot`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) uses `deepcopy` so a failed save can restore the previous state exactly.
+
+**Lab P07** records `sys.getsizeof(list)` after each append (0 → 64 items). The chart is a staircase: Python over-allocates room, so most appends are free and a few trigger a resize — the dynamic array of the DSA course.
+
+**Exercises.** (1) Rotate a list by k with slicing. (2) Explain the output of `bad` above and fix it with a comprehension.
+
+## Lesson 8 — Tuples, sets and dictionaries
+
+| Type | Literal | Ordered | Mutable | Duplicates | Typical use |
+|---|---|---|---|---|---|
+| `tuple` | `(51.9, -8.5)` | yes | **no** | yes | fixed records, coordinates, dict keys |
+| `set` | `{"UCC", "Airport"}` | no | yes | **no** | membership, removing duplicates |
+| `dict` | `{"wrap": 2}` | insertion order | yes | keys unique | look-up by key |
+
+~~~python
+point = (51.8935, -8.4920)
+lat, lon = point                                  # tuple unpacking
+assert lat > 51
+morning, evening = {"UCC", "Kent", "Airport"}, {"Kent", "Blackrock"}
+assert morning & evening == {"Kent"} and len(morning | evening) == 4 and morning - evening == {"UCC", "Airport"}
+cart = {}
+for item in ["wrap", "juice", "wrap"]:
+    cart[item] = cart.get(item, 0) + 1           # count with dict.get
+assert cart == {"wrap": 2, "juice": 1}
+assert list(cart.items()) == [("wrap", 2), ("juice", 1)]
+from collections import Counter, defaultdict
+assert Counter(["wrap", "juice", "wrap"]).most_common(1) == [("wrap", 2)]
+by_zone = defaultdict(list); by_zone["Douglas"].append("Orla")
+assert by_zone == {"Douglas": ["Orla"]}
+try:
+    {[1, 2]: "x"}                                 # lists are unhashable: not allowed as keys
+except TypeError as e:
+    print(e)
+~~~
+
+**Membership** `x in s` is a scan for lists (O(n)) but a hash lookup for sets and dicts (O(1) on average) — Lab P20 measures the difference.
+
+**ATLAS Go:** [`Cart.items`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) is a dict from dish id to quantity; `Catalog.dishes` maps dish ids to `Dish` records; [`LocalStore.failures`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) maps an email to `[count, locked_until]` for sign-in lockout.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.domain import Cart
+cart = Cart()
+cart.add("wrap"); cart.add("wrap"); cart.add("juice")
+assert cart.items == {"wrap": 2, "juice": 1} and cart.count() == 3 and cart.subtotal() == 2 * 850 + 390
+~~~
+
+**Lab P08** counts the destinations of 500 synthetic rides with `Counter` and draws a bar chart; it also reports set union and intersection of morning and evening destinations.
+
+**Exercises.** (1) Invert a dict `{name: zone}` into `{zone: [names]}`. (2) Find the drivers who appear in both of two shift lists.
+
+## Lesson 9 — Comprehensions
+
+**Idea.** A comprehension builds a collection from an iterable in one expression: `[expression for item in iterable if condition]`. Set `{…}` and dict `{k: v …}` comprehensions work the same way; nested `for` clauses read left to right like nested loops.
+
+~~~python
+squares = [x * x for x in range(6)]
+evens = [x for x in squares if x % 2 == 0]
+assert squares == [0, 1, 4, 9, 16, 25] and evens == [0, 4, 16]
+lengths = {name: len(name) for name in ["UCC", "Kent"]}
+assert lengths == {"UCC": 3, "Kent": 4}
+pairs = [(r, c) for r in range(2) for c in range(3)]          # = two nested loops
+assert pairs == [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+grid = [[r * 3 + c for c in range(3)] for r in range(2)]       # a 2×3 matrix
+assert grid == [[0, 1, 2], [3, 4, 5]]
+~~~
+
+Keep comprehensions short; if you need several conditions or side effects, write a loop.
+
+**ATLAS Go** uses them in exactly these two shapes: [`LocalStore.online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) filters accounts with `[a for a in self.accounts if a['role'] == 'driver' and …]`, and [`geo.tile_range`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) lists the visible map tiles with a nested comprehension `[(x % n, y) for y in range(...) for x in range(...)]`.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go import geo
+tiles = geo.tile_range(geo.CORK, 13, 512, 256)
+assert len(tiles) >= 2 and all(isinstance(t, tuple) for t in tiles)
+~~~
+
+**Lab P09** builds a 5×5 distance matrix of Cork places with one nested comprehension and the Haversine formula, asserts it is symmetric with a zero diagonal, and draws it as a heatmap.
+
+**Exercises.** (1) Flatten `[[1, 2], [3], [4, 5]]` with a comprehension. (2) Build `{place: nearest_other_place}` from the distance matrix.
+
+## Lesson 10 — Functions: parameters, return, scope, recursion and decorators
+
+**Idea.** `def` packages steps under a name. **Parameters** receive **arguments**; `return` sends a result back (a function without `return` returns `None`). Variables created inside a function are **local**.
+
+~~~python
+def eta_minutes(km: float, speed_kmh: float = 30) -> int:
+    """Whole minutes to travel km at speed_kmh; at least 1."""
+    return max(1, round(km / speed_kmh * 60))
+
+assert eta_minutes(15) == 30 and eta_minutes(15, speed_kmh=60) == 15 and eta_minutes(0.01) == 1
+assert eta_minutes.__doc__.startswith("Whole minutes")
+
+def total(*fares, discount=0):          # *args collects positional arguments
+    return sum(fares) - discount
+assert total(520, 860, discount=80) == 1300
+
+def order(item, cart=None):             # never use a mutable default like cart=[]
+    cart = [] if cart is None else cart
+    cart.append(item)
+    return cart
+assert order("tea") == ["tea"] and order("coffee") == ["coffee"]
+~~~
+
+**Type hints** (`km: float -> int`) document intent; Python does **not** enforce them at run time (tools such as `mypy` check them).
+
+**Recursion and caching.** A function may call itself on a smaller input; it needs a base case. A **decorator** wraps a function to add behaviour — `functools.lru_cache` remembers results.
+
+~~~python
+import functools
+@functools.lru_cache(maxsize=None)
+def fib(n):
+    return n if n < 2 else fib(n - 1) + fib(n - 2)
+assert fib(80) == 23416728348467685          # instant thanks to the cache
+~~~
+
+**ATLAS Go:** [`geo.eta_minutes(a, b)`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) calls `haversine_km` and returns `max(1, round(...))` — the same shape as the example.
+
+**Lab P10** counts calls of a plain recursive `fib(k)` against an `lru_cache` version for k = 1…25 (log scale): exponential versus linear.
+
+**Exercises.** (1) Write a decorator that counts how many times a function was called. (2) Explain why `def f(x, cart=[])` keeps items between calls.
+
+## Lesson 11 — Classes, objects and dataclasses
+
+**Idea.** A **class** is a blueprint; an **object** (instance) is one thing built from it. Objects hold **attributes** (data) and **methods** (functions that receive the object as `self`). `__init__` sets up a new object; `__repr__` controls how it prints.
+
+~~~mermaid
+classDiagram
+ class Ride {
+   +float km
+   +bool comfort
+   +fare_cents() int
+ }
+ class Offer {
+   +str id
+   +int seats
+   +reserve(party)
+   +release(party)
+ }
+~~~
+
+~~~python
+class Account:
+    def __init__(self, name, balance_cents=0):
+        self.name = name
+        self.balance_cents = balance_cents
+    def pay(self, cents):
+        if cents > self.balance_cents:
+            raise ValueError("insufficient balance")
+        self.balance_cents -= cents
+    def __repr__(self):
+        return f"Account({self.name!r}, {self.balance_cents})"
+
+acc = Account("Student", 2000)
+acc.pay(860)
+assert acc.balance_cents == 1140 and repr(acc) == "Account('Student', 1140)"
+
+from dataclasses import dataclass, field
+@dataclass(order=True)
+class Ride:
+    km: float
+    comfort: bool = False
+    tags: list = field(default_factory=list, compare=False)
+    def fare_cents(self) -> int:
+        cents = 350 + round(self.km * 170)
+        return cents * 130 // 100 if self.comfort else cents
+
+assert Ride(3).fare_cents() == 860 and Ride(3, True).fare_cents() == 1118
+assert Ride(3) == Ride(3) and Ride(2) < Ride(5)          # generated __eq__ and __lt__
+print(Ride(3))                                            # Ride(km=3, comfort=False, tags=[])
+~~~
+
+`@dataclass` writes `__init__`, `__repr__` and `__eq__` for you; `frozen=True` makes instances immutable (and hashable).
+
+**ATLAS Go:** [`intelligence.Candidate`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) is a `@dataclass(frozen=True)` with a `features()` method; [`domain.Offer`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) is a mutable dataclass whose `reserve` and `release` methods change `seats`:
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.domain import Offer
+pool = Offer("pool-1", "Alex", 0, 1, capacity=3, price=490, seats=3)
+pool.reserve(2)
+assert pool.seats == 1 and not pool.matches(0, 1, 2)
+pool.release(2)
+assert pool.seats == 3
+~~~
+
+**Lab P11** plots `Ride.fare_cents()` for 1–10 km, standard and comfort, and checks the dataclass's generated comparison methods.
+
+**Exercises.** (1) Add a `__str__` that prints "3.0 km, €8.60". (2) Make `Ride` frozen and explain why `ride.km = 4` now fails.
+
+## Lesson 12 — Inheritance, polymorphism and composition
+
+**Idea.** A **subclass** inherits attributes and methods from a **base class** and may **override** them. **Polymorphism**: code calls `vehicle.cost(km)` without knowing the exact class, and each class answers in its own way. `super()` calls the parent's version. The **method resolution order** (`Class.__mro__`) is the order Python searches for an attribute.
+
+~~~mermaid
+classDiagram
+ Vehicle <|-- Car
+ Vehicle <|-- EBike
+ Car <|-- Van
+ class Vehicle { +cost(km) }
+ class Car { base=350 per_km=170 }
+ class EBike { base=100 per_km=60 +cost(km) range check }
+ class Van { per_km=220 }
+~~~
+
+~~~python
+class Vehicle:
+    base, per_km = 0, 0
+    def cost(self, km):
+        return self.base + self.per_km * km
+
+class Car(Vehicle):
+    base, per_km = 350, 170
+
+class EBike(Vehicle):
+    base, per_km = 100, 60
+    def cost(self, km):
+        if km > 15:
+            raise ValueError("e-bike range is 15 km")
+        return super().cost(km)
+
+class Van(Car):
+    per_km = 220                          # base inherited from Car
+
+fleet = [Car(), EBike(), Van()]
+assert [v.cost(2) for v in fleet] == [690, 220, 790]       # one call, three behaviours
+assert [c.__name__ for c in Van.__mro__] == ["Van", "Car", "Vehicle", "object"]
+assert isinstance(Van(), Vehicle) and not isinstance(EBike(), Car)
+~~~
+
+**Composition** ("has a") is often better than inheritance ("is a"): a `Ride` *has a* `Vehicle` rather than *being* one. Prefer inheritance only when the subclass really is a special kind of the base.
+
+**ATLAS Go:** [`AtlasGoApp(App)`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py) inherits from Kivy's `App` and overrides `build`, `on_start`, `on_pause` and `on_stop`, which Kivy calls polymorphically; [`LiveMap(StencilView)`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) overrides `on_touch_down/move/up`. `LocalStore` uses composition: it *has a* `Cart` and a `Catalog`.
+
+**Lab P12** plots `cost(km)` for the three classes on one chart and records the MRO.
+
+**Exercises.** (1) Add a `Taxi(Car)` with a night surcharge using `super()`. (2) Redesign with composition: `Ride(vehicle, km)`.
+
+## Lesson 13 — Exceptions and validation
+
+**Idea.** An **exception** signals that something went wrong. `raise` creates one; `try / except` handles the kinds you expect; `else` runs if nothing failed; `finally` always runs (cleanup). Catch **specific** exceptions; never silence everything with a bare `except:`.
+
+~~~mermaid
+flowchart TD
+ T["try: risky code"] -->|no exception| E["else: success path"]
+ T -->|ValueError| H["except ValueError: handle"]
+ E --> F["finally: always (close, release)"]
+ H --> F
+~~~
+
+~~~python
+def parse_booking(record):
+    if not isinstance(record, dict):
+        raise TypeError("booking must be a dict")
+    try:
+        km = float(record["km"])
+    except KeyError:
+        raise KeyError("missing km") from None
+    if not 0 < km <= 200:
+        raise ValueError("km out of range")
+    return km
+
+results = []
+for rec in ({"km": "4.5"}, {"km": "five"}, {}, [], {"km": -3}, {"km": None}):
+    try:
+        results.append(parse_booking(rec))
+    except (ValueError, KeyError, TypeError) as exc:
+        results.append(type(exc).__name__)
+    finally:
+        pass                                   # e.g. close a file here
+assert results == [4.5, "ValueError", "KeyError", "TypeError", "ValueError", "TypeError"]
+
+class BookingError(Exception):                 # your own exception type
+    """Raised when a booking breaks a business rule."""
+try:
+    raise BookingError("seats exceeded")
+except BookingError as e:
+    assert str(e) == "seats exceeded"
+~~~
+
+**Validate at the boundary** (where data enters: forms, files, network) and let errors carry a message a user can act on.
+
+**ATLAS Go:** [`LocalStore.validate`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) checks every field of a loaded `state.json` and raises `ValueError` on corruption; [`clean_email`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) raises with a friendly example; `AtlasGoApp.safe` shows those messages in a dialog instead of crashing.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go.store import LocalStore
+try:
+    LocalStore.validate({"history": "not a list"})
+except ValueError as e:
+    print("rejected:", e)
+~~~
+
+**Lab P13** validates 200 messy synthetic booking records and draws a bar chart of the outcomes (accepted, ValueError, TypeError, KeyError).
+
+**Exercises.** (1) Add a `seats` check (1–3) and a test for each failure. (2) When is it right to re-raise an exception?
+
+## Lesson 14 — Files, pathlib, JSON, CSV and atomic writes
+
+**Idea.** Files keep data after the program ends. `pathlib.Path` builds paths portably; `with open(...)` closes the file automatically; **JSON** stores nested dicts/lists/strings/numbers/booleans/null as text; **CSV** stores tables (everything comes back as strings).
+
+~~~python
+import csv, json, tempfile
+from pathlib import Path
+
+folder = Path(tempfile.mkdtemp())
+rides = [{"id": 1, "destination": "Kent Station", "km": 5}, {"id": 2, "destination": "UCC", "km": 3}]
+
+(folder / "rides.json").write_text(json.dumps(rides, indent=2), encoding="utf-8")
+assert json.loads((folder / "rides.json").read_text(encoding="utf-8")) == rides
+
+with (folder / "rides.csv").open("w", newline="", encoding="utf-8") as f:
+    writer = csv.DictWriter(f, fieldnames=["id", "destination", "km"])
+    writer.writeheader(); writer.writerows(rides)
+with (folder / "rides.csv").open(encoding="utf-8") as f:
+    back = list(csv.DictReader(f))
+assert back[0]["km"] == "5"                      # CSV gives strings: convert yourself
+print(sorted(p.name for p in folder.iterdir()))  # ['rides.csv', 'rides.json']
+~~~
+
+**Atomic writes.** If the app crashes half-way through writing `state.json`, the file is corrupt. Write to a temporary file first, flush it to disk, then **rename** it over the old file — a rename on one file system is all-or-nothing.
+
+~~~mermaid
+sequenceDiagram
+ participant App
+ participant Tmp as state.tmp
+ participant Real as state.json
+ App->>Tmp: write full JSON, flush, fsync
+ Note over App,Tmp: crash here → state.json still holds the old, valid data
+ App->>Real: Tmp.replace(Real)  (atomic rename)
+~~~
+
+**ATLAS Go:** [`LocalStore.save`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) does exactly this (`temporary.open('w')`, `json.dump`, `flush`, `os.fsync`, `temporary.replace(self.path)`), and [`commit`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) restores the in-memory snapshot if saving raises `OSError`.
+
+~~~python
+import sys, tempfile, json; sys.path.insert(0, "android-app")
+from pathlib import Path
+from atlas_go.store import LocalStore
+path = Path(tempfile.mkdtemp()) / "state.json"
+store = LocalStore(path)
+store.reset(save=True)
+saved = json.loads(path.read_text(encoding="utf-8"))
+assert saved["history"] == [] and saved["seats"]["pool-1"] == 3
+assert LocalStore(path).cart.items == store.cart.items          # a fresh store reloads the same state
+~~~
+
+**Lab P14** writes 10 → 5 000 rides as JSON and CSV, plots the file sizes, and simulates a crash during an atomic write to show that the previous file survives.
+
+**Exercises.** (1) Add a `version` field to saved state and migrate old files. (2) What does `encoding="utf-8"` protect you from on Windows?
+
+## Lesson 15 — Iterators and generators
+
+**Idea.** An **iterable** can be looped over; an **iterator** produces the next item on each `next()` call and raises `StopIteration` at the end. A **generator function** uses `yield` to produce values **lazily**, one at a time, keeping its place between calls. A generator expression `(x*x for x in data)` is the lazy version of a list comprehension.
+
+~~~python
+def countdown(n):
+    while n > 0:
+        yield n                        # pause here, hand n to the caller
+        n -= 1
+
+it = countdown(3)
+assert next(it) == 3 and next(it) == 2 and list(it) == [1]      # list() drains the rest
+
+def readings(lines):                    # a lazy pipeline: nothing runs until consumed
+    for line in lines:
+        line = line.strip()
+        if line and not line.startswith("#"):
+            yield float(line)
+
+data = ["# speeds", "31.5", "", "28.0", "35.5"]
+assert sum(readings(data)) == 95.0
+squares = (x * x for x in range(10**6))     # no million-item list is built
+assert next(squares) == 0
+
+class Shift:                                 # the iterator protocol by hand
+    def __init__(self, drivers): self.drivers, self.i = drivers, 0
+    def __iter__(self): return self
+    def __next__(self):
+        if self.i == len(self.drivers): raise StopIteration
+        self.i += 1
+        return self.drivers[self.i - 1]
+assert list(Shift(["Ava", "Sam"])) == ["Ava", "Sam"]
+~~~
+
+**ATLAS Go:** [`LiveMap.visible_tiles`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) returns a *list* of tiles (from `geo.tile_range`); turning it into a generator is a good exercise when the map is very large.
+
+**Lab P15** measures peak memory (`tracemalloc`) of a list pipeline versus a generator pipeline for n up to 100 000: the list version grows linearly, the generator version stays flat.
+
+**Exercises.** (1) Write `chunks(items, size)` that yields lists of `size` items. (2) Use `itertools.islice` to take the first 5 values of an infinite generator.
+
+## Lesson 16 — Lambda, map, filter, reduce and key functions
+
+**Idea.** Functions are values: you can pass them to other functions (**higher-order** functions). `lambda args: expression` creates a small unnamed function. `map(f, xs)` applies f to each item; `filter(pred, xs)` keeps items where pred is true; `functools.reduce` folds a sequence into one value. `sorted`, `min` and `max` accept `key=` to say *what* to compare.
+
+~~~python
+from functools import reduce
+drivers = [{"name": "Ava", "km": 2.0, "rating": 4.9, "online": True},
+           {"name": "Sam", "km": 0.5, "rating": 4.2, "online": True},
+           {"name": "Leah", "km": 1.0, "rating": 4.7, "online": False}]
+online = list(filter(lambda d: d["online"], drivers))
+names = list(map(lambda d: d["name"], online))
+assert names == ["Ava", "Sam"]
+assert min(online, key=lambda d: d["km"])["name"] == "Sam"                 # nearest
+assert sorted(online, key=lambda d: (-d["rating"], d["km"]))[0]["name"] == "Ava"   # best rated
+assert reduce(lambda total, d: total + d["km"], drivers, 0) == 3.5
+assert [d["name"] for d in drivers if d["online"]] == names              # comprehension equivalent
+~~~
+
+Comprehensions are usually clearer than `map`/`filter` with a lambda; the `key=` parameter is where lambdas shine.
+
+**ATLAS Go:** [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) ends with `sorted(..., key=lambda x: -x[1])` to put the most probable driver first, and [`choose`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) finds the nearest driver with `min(..., key=lambda c: (c.eta, -c.accept))`.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go import intelligence
+ranked = intelligence.rank(0)                          # candidates near UCC Campus
+probabilities = [p for _, p in ranked]
+assert probabilities == sorted(probabilities, reverse=True) and abs(sum(probabilities) - 1) < 1e-9
+print([c.name for c, _ in ranked])
+~~~
+
+**Lab P16** runs `filter → map → sorted(key=…)` over 40 synthetic drivers and charts the top eight by score.
+
+**Exercises.** (1) Sort by rating descending, then distance ascending, using one key tuple. (2) Rewrite the pipeline with comprehensions and compare readability.
+
+## Lesson 17 — Sorting, selection and pipelines
+
+**Idea.** `sorted(xs)` returns a new list; `xs.sort()` sorts in place and returns `None`. Python's sort (Timsort) is **stable**: equal keys keep their original order, so you can sort by a secondary key first and the primary key second. For "the best k of n", `heapq.nsmallest/nlargest` avoid sorting everything.
+
+~~~python
+import heapq
+rides = [("Kent", 5), ("UCC", 3), ("Airport", 8), ("City", 3)]
+assert sorted(rides, key=lambda r: r[1]) == [("UCC", 3), ("City", 3), ("Kent", 5), ("Airport", 8)]  # stable
+by_two_keys = sorted(sorted(rides, key=lambda r: r[0]), key=lambda r: r[1])   # name, then km
+assert by_two_keys[:2] == [("City", 3), ("UCC", 3)]
+assert heapq.nsmallest(2, rides, key=lambda r: r[1]) == [("UCC", 3), ("City", 3)]
+result = rides.sort(key=lambda r: r[1])
+assert result is None                                     # .sort() works in place
+~~~
+
+A **pipeline** chains small steps: *filter* eligible records → *compute* a feature → *rank* → *select*. Each step is easy to test on its own.
+
+**ATLAS Go:** [`intelligence.choose`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) is such a pipeline: `rank` filters and scores candidates, then `choose` takes `ranked[0]` and separately finds the nearest driver to explain the choice. Ranking candidates is **not** route-finding — no road network is searched.
+
+**Lab P17** counts comparisons (with a wrapper class whose `__lt__` increments a counter) for `sorted(data)[:5]` versus `heapq.nsmallest(5, data)`, n up to 50 000.
+
+**Exercises.** (1) Prove `sorted` is stable with an example of your own. (2) Return the three nearest online drivers using `heapq`.
+
+## Lesson 18 — Complexity and searching
+
+**Idea.** **Time complexity** describes how the number of basic steps grows with the input size n, ignoring constant factors: O(1) constant, O(log n) halving, O(n) one pass, O(n log n) good sorting, O(n²) all pairs. It is about **growth**, not seconds.
+
+| Operation | list | set / dict |
+|---|---|---|
+| `x in container` | O(n) scan | O(1) average |
+| index `a[i]` | O(1) | — |
+| append | O(1) amortised | add O(1) average |
+| insert at front | O(n) | — |
+| sort | O(n log n) | — |
+
+**Linear vs binary search.** Linear search checks every item (works on anything); binary search halves a **sorted** range each step (log₂ n steps).
+
+~~~python
+import bisect
+a = list(range(0, 1000, 2))            # sorted even numbers
+def linear(a, x):
+    for i, v in enumerate(a):
+        if v == x:
+            return i
+    return -1
+def binary(a, x):
+    lo, hi = 0, len(a) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if a[mid] == x: return mid
+        lo, hi = (mid + 1, hi) if a[mid] < x else (lo, mid - 1)
+    return -1
+assert linear(a, 998) == binary(a, 998) == 499 and binary(a, 7) == -1
+i = bisect.bisect_left(a, 500)
+assert a[i] == 500                     # standard-library binary search
+~~~
+
+**ATLAS Go:** [`LocalStore.online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) scans all accounts — O(n), fine for one phone's few accounts; a city-wide server would index drivers by zone in a dict.
+
+**Lab P18** counts comparisons for linear and binary search of an absent key for n = 8 … 32 768 (log scale). See the [DSA course](DATA_STRUCTURES_ALGORITHMS.md) for the full theory.
+
+**Exercises.** (1) How many comparisons does binary search need for one million items? (2) Find the first index of a duplicated value with binary search.
+
+## Lesson 19 — Testing, assertions and debugging
+
+**Idea.** A **test** runs code with chosen inputs and compares the result with the expected answer (the **oracle**). `assert condition, message` stops the program if the condition is false. `unittest` (built in) and `pytest` organise many tests. Choose inputs at the **edges**: empty, zero, one, maximum, just over the maximum, wrong type.
+
+~~~python
+import unittest, io
+
+def fare_cents(km: int, comfort: bool = False) -> int:
+    if km <= 0:
+        raise ValueError("distance must be positive")
+    cents = 350 + 170 * km
+    return cents * 130 // 100 if comfort else cents
+
+class FareTests(unittest.TestCase):
+    def test_typical(self):
+        self.assertEqual(fare_cents(3), 860)
+    def test_boundary_one_km(self):
+        self.assertEqual(fare_cents(1), 520)
+    def test_comfort(self):
+        self.assertEqual(fare_cents(3, comfort=True), 1118)
+    def test_zero_rejected(self):
+        with self.assertRaises(ValueError):
+            fare_cents(0)
+
+run = unittest.TextTestRunner(stream=io.StringIO()).run(
+    unittest.defaultTestLoader.loadTestsFromTestCase(FareTests))
+assert run.wasSuccessful() and run.testsRun == 4
+~~~
+
+**Mutation testing** asks: *would my tests notice a bug?* Change the code slightly (a *mutant*: `<=` → `<`, 170 → 171) and rerun; a good suite fails (**kills** the mutant).
+
+**Debugging:** read the traceback bottom-up; reproduce with the smallest input; print or log intermediate values; use `breakpoint()` (pdb) to step through; fix, then add a test so the bug cannot return.
+
+**ATLAS Go:** [`intelligence.self_test`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) runs named checks on the phone (dispatch, acceptance model, surge, courier timing, learning lab) and reports pass/fail for each.
+
+~~~python
+import sys; sys.path.insert(0, "android-app")
+from atlas_go import intelligence
+checks = intelligence.self_test(lab_episodes=200)
+for name, ok, detail in checks:
+    print("PASS" if ok else "FAIL", name)
+~~~
+
+**Lab P19** builds six mutants of `fare_cents` and runs a weak suite (1 test) and a strong suite (5 tests) against each: the weak suite kills 4 of 6, the strong suite all 6. Part II teaches testing in depth.
+
+**Exercises.** (1) Write the test that kills the `<=` → `<` mutant. (2) Add a test for `fare_cents(-1)`.
+
+## Lesson 20 — Profiling, modules, packages and project structure
+
+**Idea.** Measure before optimising. `timeit` repeats a small statement many times and reports the best; `cProfile` shows which functions use the time; `tracemalloc` shows memory. Report the machine, Python version, repeat count and spread — never a single timing.
+
+~~~python
+import timeit, cProfile, pstats, io
+setup_list, setup_set = list(range(100_000)), set(range(100_000))
+t_list = min(timeit.repeat(lambda: 99_999 in setup_list, number=100, repeat=5))
+t_set = min(timeit.repeat(lambda: 99_999 in setup_set, number=100, repeat=5))
+print(f"list: {t_list/100*1e6:.1f} µs  set: {t_set/100*1e6:.3f} µs")
+assert t_set < t_list
+
+profile = cProfile.Profile()
+profile.enable(); sorted(range(100_000), key=lambda x: -x); profile.disable()
+report = io.StringIO()
+pstats.Stats(profile, stream=report).sort_stats("cumulative").print_stats(3)
+print(report.getvalue()[:400])
+~~~
+
+**Modules and packages.** A `.py` file is a **module**; a folder of modules with `__init__.py` is a **package**; `import` loads them. Never name your files `json.py`, `random.py`, `time.py` — they would hide the standard library. Guard script code with `if __name__ == "__main__":` so importing a module does not run it.
+
+~~~text
+android-app/                 # not importable by name (hyphen) → add it to sys.path
+└── atlas_go/                # package
+    ├── __init__.py
+    ├── domain.py            # pure rules: easy to test
+    ├── store.py             # persistence + rules
+    ├── geo.py, intelligence.py
+    └── app.py               # Kivy UI (needs a display)
+python_lab/experiments.py    # this course's labs: argparse CLI + importable functions
+~~~
+
+**ATLAS Go:** [`intelligence.LearningLab`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) trains and evaluates a dispatch policy on the phone and reports results; it is organised as a class with `reset`, `train` and `result` methods. The pure modules (`domain`, `geo`, `intelligence`) import without Kivy, which is why the examples in this guide can use them.
+
+**Lab P20** times `x in list` and `x in set` with `timeit` for n = 100 … 100 000 (log scale).
+
+**Exercises.** (1) Profile `intelligence.rank` 10 000 times and find the slowest function. (2) Turn your capstone into a package with a CLI entry point.
+
+## Capstone (Part I)
+
+Build a *local, synthetic* ride-dispatch simulator: a `Ride` dataclass; a dict of drivers; filtering of online drivers; Haversine distances; ranking with `sorted(key=…)`; validation with exceptions; atomic JSON save/load; and at least ten tests. Explain in writing how it differs from the real ATLAS Go classes in the [UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go). Do not use real people's data.
+
+**Assessment:** explain concepts and predict output 20 · correct programs with edge cases 25 · reproducible labs and tests 20 · interpret charts and units 20 · trace ideas to the real ATLAS Go code 15.
+
+---
+
+# Part II — Software testing fundamentals with ATLAS Go
+
+**Purpose:** learn to produce *evidence* that code behaves as specified. The tests below run against **real ATLAS Go functions** where possible (`domain.fare`, `Offer`, `LocalStore`) and against small teaching services otherwise; none of them touches a payment provider, a live map or a production backend. Prerequisite: Lessons 1–19.
+
+Every test file below begins with this bootstrap, because the folder `android-app` contains a hyphen and is not an importable package name:
+
+~~~python
+# file: testing_lab/conftest.py
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]          # repository root
+sys.path.insert(0, str(ROOT / "android-app"))
+sys.path.insert(0, str(ROOT / "testing_lab"))
+~~~
+
+Create the folder `testing_lab/` in your checkout, save each block that starts with `# file:` under that name, and run `python -m pytest -q testing_lab` from the repository root. (In Colab: `!mkdir -p testing_lab`, then `%%writefile testing_lab/test_x.py` at the top of a cell, then `!python -m pytest -q testing_lab`.)
 
 ## T01 — What is software testing?
 
-A **requirement** describes the expected behavior; an **input** is the test stimulus; an **oracle** determines the correct output; a **test case** records the input and oracle; a **test suite** groups cases; a **test runner** executes them; a **defect** is a mismatch between required and actual behavior. An *assertion* fails when its condition is false. A *regression* occurs when a previously working behavior breaks after a change.
+A **requirement** says what should happen; a **test case** is an input plus an **oracle** (the expected result); a **test suite** groups cases; a **runner** executes them; a **defect** is a difference between required and actual behaviour; a **regression** is something that used to work and broke after a change.
 
-**Analogy:** Before a driver starts a trip, checking one tyre is a *unit* check, verifying the car drives is an *integration/system* check, and making sure the passenger can complete the journey is an *acceptance* check. Each level catches different problems.
-
-| Level / practice | What is checked? | ATLAS Go teaching example |
+| Level / practice | What is checked | ATLAS Go example |
 |---|---|---|
-| Static checks | Code without running it | Syntax, format, type checker, dependency review |
-| Unit | One function or class in isolation | \`domain.distance\`, \`domain.fare\`, \`Offer.reserve\` |
-| Component | A module and its collaborators | Cart/catalog rules |
-| Integration | Two or more real components | Store + JSON file; UI-to-store boundary |
-| Contract / API | Agreed request/response schema | Proposed FastAPI ride quotation endpoint |
-| System / end-to-end (E2E) | Complete user workflow | Log in → request ride → view history |
-| Acceptance | User/business requirements | Shared ride cannot overbook seats |
-| Smoke / sanity | Small critical subset after build/change | App imports and basic fare calculation |
-| Regression | Old behaviors after new changes | Food ordering still works after ride update |
-| Security | Abuse/misuse cases | Invalid access, unsafe inputs, secret handling |
-| Performance/load/stress | Latency, throughput, resource usage | Dispatch ranking over synthetic candidates |
-| Accessibility/usability | Human use and accessibility | Labels, contrast, keyboard/touch navigation |
+| Static checks | code without running it | `pyflakes`, `mypy`, formatting |
+| Unit | one function or class | `domain.fare`, `Offer.reserve` |
+| Component | one module with its collaborators | `Cart` + `Catalog` |
+| Integration | real components together | `LocalStore` + the JSON file |
+| Contract / API | agreed request/response schema | the teaching FastAPI quote service (T08) |
+| System / end-to-end | a whole user journey | sign in → request ride → see history |
+| Acceptance | business requirements | a shared ride never overbooks seats |
+| Smoke | a quick check after a build | app imports; one fare computes |
+| Regression | old behaviour after changes | food ordering still works after a ride change |
+| Security | misuse and abuse | invalid input, access control, secrets |
+| Performance | latency, throughput, memory | ranking 10 000 synthetic candidates |
+| Accessibility / usability | people can use it | labels, contrast, touch targets |
 
-**Principles:** Testing finds defects but cannot prove an arbitrary program has no defects. Test early, automate repeatable checks, and retain manual exploratory testing for human workflows. A passing test only establishes the behaviors its inputs and assertions cover.
+~~~mermaid
+flowchart BT
+ U["many fast unit tests"] --> I["fewer integration tests"] --> E["few slow end-to-end tests"]
+~~~
+
+Testing can show the presence of defects, never their absence: a passing test only covers the inputs and assertions it contains.
 
 ## T02 — Test design: how to choose inputs
 
-For a shared ride with capacity **3**, partition input values into valid (1–3) and invalid (0, negative, greater than 3, non-integer). Test the **boundaries** \`0, 1, 3, 4\`, not just the easy middle value \`2\`.
+For a shared ride with **capacity 3**, the valid party sizes are 1–3. Test the **boundaries** 0, 1, 3, 4, not just 2.
 
-- **Equivalence partitioning:** one representative from each category of inputs.
-- **Boundary-value analysis:** just below, at and just above a limit.
-- **Decision tables:** combine rules such as driver online/offline and seat availability.
-- **State-transition testing:** available → reserved → released; reject illegal transitions.
-- **Pairwise/combinatorial testing:** cover interacting parameters without testing every possible combination.
-- **White-box coverage:** exercise branches visible in source.
-- **Black-box testing:** derive expectations from requirements rather than implementation.
-- **Risk-based testing:** prioritize money, authentication, privacy and booking correctness.
+- **Equivalence partitioning:** one representative per class of inputs (valid, too small, too large, wrong type).
+- **Boundary-value analysis:** just below, on, and just above each limit.
+- **Decision tables:** every combination of conditions (Lesson 4).
+- **State-transition testing:** available → reserved → released; illegal transitions rejected.
+- **Pairwise testing:** cover every pair of parameter values without every full combination.
+- **White-box:** exercise each branch you can see in the source. **Black-box:** derive expectations from the requirement.
+- **Risk-based:** test money, authentication, privacy and booking correctness first.
 
-Write each test using **Arrange → Act → Assert (AAA)**: prepare values, call the function, check its result. Name tests after behavior: \`test_reserve_rejects_too_many_seats\`, not \`test_1\`.
+Write each test as **Arrange → Act → Assert** and name it after the behaviour: `test_reserve_rejects_more_seats_than_available`, not `test_1`.
 
-## T03 — Experimental setup (local terminal or Google Colab)
-
-From a checkout of this repository:
-
-~~~bash
-python -m pip install pytest pytest-cov
-python -m pytest -q
-~~~
-
-For the experiments below, create a new folder \`testing_lab/\`. In Colab, use \`%%writefile testing_lab/test_example.py\` (create the directory first with \`!mkdir -p testing_lab\`), then run \`!python -m pytest -q testing_lab\`. Colab shell commands start with \`!\`; do **not** enter \`!python\` in a normal Python script. Use a virtual environment locally when practical.
-
-**Independent quick experiment (no installation):**
+## T03 — A first test with no installation (`unittest`)
 
 ~~~python
-import unittest
+import unittest, io
 
 def total_cents(unit_cents: int, quantity: int) -> int:
     if unit_cents < 0 or quantity < 0:
@@ -502,117 +1004,137 @@ def total_cents(unit_cents: int, quantity: int) -> int:
 class TestTotal(unittest.TestCase):
     def test_normal(self):
         self.assertEqual(total_cents(250, 3), 750)
-
     def test_zero(self):
         self.assertEqual(total_cents(250, 0), 0)
-
     def test_invalid(self):
         with self.assertRaises(ValueError):
             total_cents(250, -1)
 
-unittest.TextTestRunner(verbosity=2).run(
-    unittest.defaultTestLoader.loadTestsFromTestCase(TestTotal)
-)
+result = unittest.TextTestRunner(stream=io.StringIO(), verbosity=2).run(
+    unittest.defaultTestLoader.loadTestsFromTestCase(TestTotal))
+assert result.testsRun == 3 and result.wasSuccessful()
 ~~~
 
-Expected: **3 successful tests**. Run the \`unittest\` snippet as one notebook cell. In a CI script use \`python -m unittest discover\` instead.
+From a terminal, `python -m pip install pytest pytest-cov hypothesis` gives the tools used in T04–T15.
 
-## T04 — Unit testing with pytest: fares and invalid inputs (Experiment 1)
-
-This uses **real pure-Python ATLAS Go domain functions**. From the repository root, create \`testing_lab/test_domain.py\`:
+## T04 — Unit tests with pytest: fares (Experiment 1)
 
 ~~~python
+# file: testing_lab/test_domain.py
 import pytest
-from android_app_placeholder import fare  # replace import as explained below
+from atlas_go.domain import fare, distance
 
 @pytest.mark.parametrize("pickup,destination,expected", [
-    (0, 1, 860),   # (350 + 3*170) cents
-    (0, 2, 1200),  # (350 + 5*170) cents
+    (0, 1, 860),    # UCC -> City Centre: 350 + 3*170
+    (0, 2, 1200),   # UCC -> Kent Station: 350 + 5*170
+    (2, 3, 2050),   # Kent Station -> Airport: 350 + 10*170
 ])
 def test_standard_fare(pickup, destination, expected):
     assert fare(pickup, destination) == expected
 
-def test_invalid_same_pickup_and_dropoff():
+def test_comfort_is_30_percent_more():
+    assert fare(0, 1, comfort=True) == 860 * 130 // 100 == 1118
+
+@pytest.mark.parametrize("pickup,destination", [(0, 0), (-1, 1), (0, 4)])
+def test_invalid_routes_rejected(pickup, destination):
     with pytest.raises(ValueError):
-        fare(0, 0)
+        distance(pickup, destination)
 ~~~
 
-**Import correction (required):** The actual module is in \`android-app/atlas_go/domain.py\`, but \`android-app\` contains a hyphen, so it is not a Python package name. Replace the placeholder import with:
+**Oracle:** 860, 1200 and 2050 cents come from the fare formula and the distance table in `domain.py`. Integer cents avoid floating-point comparisons.
+
+## T05 — Testing a class with state (Experiment 2)
 
 ~~~python
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd() / "android-app"))
-from atlas_go.domain import fare
-~~~
-
-Run \`python -m pytest -q testing_lab/test_domain.py\` from the repository root. **Oracle:** 860 cents and 1200 cents; same-place ride raises \`ValueError\`. **Interpretation:** Exact currency values are preferable to comparing binary floating-point euros. **Exercise:** add a comfort-ride expected value and a negative index test.
-
-## T05 — Unit testing classes and state (Experiment 2)
-
-The real \`Offer\` dataclass manages available shared seats. This is a local state-transition test; it does **not** reserve a seat through an external backend.
-
-~~~python
-from atlas_go.domain import Offer
+# file: testing_lab/test_offer.py
 import pytest
+from atlas_go.domain import Offer
 
-def test_offer_reserve_and_release():
-    offer = Offer("demo", "Driver A", 0, 1, 3, 500, 3)
+def test_reserve_and_release():
+    offer = Offer("demo", "Driver A", 0, 1, capacity=3, price=500, seats=3)
     assert offer.matches(0, 1, 2)
     offer.reserve(2)
     assert offer.seats == 1
     with pytest.raises(ValueError):
         offer.reserve(2)
-    assert offer.seats == 1  # invalid attempt must not change state
+    assert offer.seats == 1                  # a failed attempt must not change state
     offer.release(2)
+    assert offer.seats == 3
+
+@pytest.mark.parametrize("party", [0, 4, -1])
+def test_reserve_rejects_out_of_range(party):
+    offer = Offer("demo", "Driver A", 0, 1, capacity=3, price=500, seats=3)
+    with pytest.raises(ValueError):
+        offer.reserve(party)
+    assert offer.seats == 3
+
+def test_release_never_exceeds_capacity():
+    offer = Offer("demo", "Driver A", 0, 1, capacity=3, price=500, seats=3)
+    offer.release(2)                         # double release is clamped
     assert offer.seats == 3
 ~~~
 
-Use the same \`sys.path\` bootstrap from T04 at the top of the file. **Challenge:** test \`reserve(0)\`, \`reserve(4)\` and double release; check the intended business rule for each. **Design caveat:** The model is mutable; checking state before and after an error matters as much as checking that an exception occurred.
+Check the state **after** an error as carefully as the error itself.
 
-## T06 — Test doubles, mocking and dependency injection (Experiment 3)
+## T06 — Test doubles: stubs, fakes, mocks, spies (Experiment 3)
 
-A **stub** returns prearranged data; a **fake** is a simplified working substitute (e.g., in-memory repository); a **mock** checks how code interacts with a dependency; a **spy** records calls. Use doubles to isolate a unit from a clock, network, GPS or payment service; test real integrations separately.
+A **stub** returns canned answers; a **fake** is a simplified working implementation (an in-memory repository); a **mock** verifies how it was called; a **spy** records calls for later checks. Use them to isolate code from clocks, networks, GPS or payments — and test the real integration separately.
 
 ~~~python
+# file: testing_lab/test_doubles.py
 from unittest.mock import Mock
 
 def notify_pickup(sender, ride_id):
     sender.send(ride_id, "Driver assigned")
 
-def test_notification_called_once():
+def eta_text(clock, pickup_at):
+    minutes = max(0, round((pickup_at - clock()) / 60))
+    return f"{minutes} min"
+
+def test_notification_sent_once():
     sender = Mock()
     notify_pickup(sender, "ride-7")
     sender.send.assert_called_once_with("ride-7", "Driver assigned")
+
+def test_eta_with_a_stub_clock():
+    assert eta_text(lambda: 1000.0, pickup_at=1300.0) == "5 min"
 ~~~
 
-**Experiment:** change the implementation to send twice; the test should fail. **Important:** This is a synthetic notification abstraction, **not** evidence ATLAS Go has a production notification service. Avoid mocking the function under test; mock its external dependencies.
+The notifier is a teaching abstraction, **not** an ATLAS Go service. Mock the dependencies, never the function under test.
 
-## T07 — Integration testing with an isolated database/file (Experiment 4)
+## T07 — Integration test with an isolated file (Experiment 4)
 
-ATLAS Go currently stores local state as JSON through \`LocalStore\`; it is **not** a remote SQL database. A genuine integration test can verify that state survives a fresh \`LocalStore\` instance using a temporary directory.
+`LocalStore` persists to a JSON file. pytest's `tmp_path` fixture gives each test a fresh folder, so real user data is never touched.
 
 ~~~python
+# file: testing_lab/test_store.py
+import json
 from atlas_go.store import LocalStore
 
-def test_store_writes_state(tmp_path):
+def test_reset_writes_valid_state(tmp_path):
+    path = tmp_path / "state.json"
+    LocalStore(path).reset(save=True)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["history"] == [] and data["seats"]["pool-1"] == 3
+
+def test_state_survives_a_restart(tmp_path):
     path = tmp_path / "state.json"
     first = LocalStore(path)
     first.reset(save=True)
-    assert path.exists()
-    second = LocalStore(path)
-    assert second.snapshot() == first.snapshot()
+    second = LocalStore(path)                       # a fresh object reads the file
+    assert second.cart.items == first.cart.items
+    assert [o.seats for o in second.offers] == [o.seats for o in first.offers]
+    assert second.history == first.history
 ~~~
 
-Use the same import bootstrap as T04. The \`tmp_path\` fixture isolates each test and avoids modifying actual user data. **If the real app adds SQLite/PostgreSQL later:** test migrations, rollback, unique constraints, transactions, and concurrency with a separate disposable database. Do not label JSON persistence a SQL test.
+Compare **data**, not whole objects: `Cart` defines no `__eq__`, so `second.snapshot() == first.snapshot()` is False even when the state is identical (the previous version of this course made that mistake). ATLAS Go uses JSON, not SQL — the [Web Technology course](WEB_TECHNOLOGY.md) covers database integration tests.
 
-## T08 — API and contract testing (Experiment 5; proposed backend only)
+## T08 — API contract tests with FastAPI (Experiment 5; teaching service)
 
-ATLAS Go's cited Python/Kivy app is local-first. The following **standalone FastAPI teaching service is a proposed extension**, not proof that the current app exposes \`/quote\`.
-
-Create \`testing_lab/quote_api.py\`:
+ATLAS Go is local-first and exposes no `/quote` endpoint; this small FastAPI service is a teaching extension (`pip install fastapi httpx`).
 
 ~~~python
+# file: testing_lab/quote_api.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -628,9 +1150,8 @@ def quote(body: Quote):
     return {"fare_cents": 350 + round(body.km * 170)}
 ~~~
 
-Create \`testing_lab/test_quote_api.py\`:
-
 ~~~python
+# file: testing_lab/test_quote_api.py
 from fastapi.testclient import TestClient
 from quote_api import app
 
@@ -641,127 +1162,132 @@ def test_quote_contract():
     assert response.status_code == 200
     assert response.json() == {"fare_cents": 860}
 
-def test_quote_invalid_distance():
+def test_quote_rejects_bad_input():
     assert client.post("/quote", json={"km": -1}).status_code == 422
+    assert client.post("/quote", json={"km": "far"}).status_code == 422
+    assert client.post("/quote", json={}).status_code == 422
 ~~~
 
-Run from \`testing_lab/\`: \`python -m pip install fastapi httpx pytest\` then \`python -m pytest -q test_quote_api.py\`. **Concepts:** HTTP methods, status codes, JSON schema, positive/negative cases, compatibility, authentication and authorization checks. TestClient executes an in-process ASGI app; it is **not** a real internet/network reliability test.
+`TestClient` calls the app in-process; it does not test the real network.
 
-## T09 — Parameterization, property-based and metamorphic checks (Experiment 6)
+## T09 — Property-based and metamorphic tests (Experiment 6)
 
-Parameterization repeats an assertion over explicitly chosen examples; **property-based testing** generates many examples from constraints. Metamorphic testing checks relationships even when the exact output is difficult to compute.
+A **property** must hold for *every* valid input; Hypothesis generates hundreds of inputs and shrinks any failure to the smallest example. A **metamorphic** test checks a relationship between outputs when the exact output is hard to know.
 
 ~~~python
+# file: testing_lab/test_properties.py
 from hypothesis import given, strategies as st
-from atlas_go.domain import fare
+from atlas_go.domain import fare, distance
 
-@given(
-    pickup=st.integers(min_value=0, max_value=3),
-    destination=st.integers(min_value=0, max_value=3),
-)
+places = st.integers(min_value=0, max_value=3)
+
+@given(pickup=places, destination=places)
 def test_comfort_never_cheaper(pickup, destination):
-    if pickup == destination:
-        return
-    assert fare(pickup, destination, comfort=True) >= fare(
-        pickup, destination, comfort=False
-    )
+    if pickup != destination:
+        assert fare(pickup, destination, comfort=True) >= fare(pickup, destination)
+
+@given(pickup=places, destination=places)
+def test_distance_is_symmetric(pickup, destination):        # metamorphic relation
+    if pickup != destination:
+        assert distance(pickup, destination) == distance(destination, pickup)
 ~~~
 
-Install \`hypothesis\` and reuse T04's import bootstrap. **Property:** for valid routes the comfort option is never cheaper. **Challenge:** propose a second property such as fare non-negativity. Generated examples improve breadth, but the property itself still needs to be correct.
-
-## T10 — Coverage, branches and mutation testing (Experiment 7)
-
-Run from repository root:
+## T10 — Coverage and mutation testing (Experiment 7)
 
 ~~~bash
-python -m pytest -q testing_lab --cov=atlas_go --cov-report=term-missing
+python -m pytest -q testing_lab --cov=atlas_go --cov-branch --cov-report=term-missing
 ~~~
 
-The optional \`pytest-cov\` plugin reports statement/line coverage; use \`--cov-branch\` for branch coverage and \`--cov-report=html\` for a navigable report. Ensure \`android-app\` is available on \`PYTHONPATH\` (or use the bootstrap shown in T04).
+**Coverage** = executed lines (or branches) ÷ measured lines × 100. 90 % coverage does **not** mean 90 % correct: a line can run without its result being checked. **Mutation testing** measures checking: change `if not 1 <= party <= self.seats` in a *local copy* of `Offer.reserve` to `1 < party`, rerun — `test_reserve_and_release` should now fail. Lab P19 automates this idea.
 
-**Coverage equation:** covered executable lines ÷ measured executable lines × 100. Example: 18/20 = 90%. **90% coverage does not mean 90% correctness.** A test can execute a line without checking its result. For a **manual mutation experiment**, change the comparison in a local copy of \`Offer.reserve\` from \`<=\` to \`<\`, rerun the boundary test, and restore the code. If no test fails, strengthen the suite. Do not mutate or commit production code as part of the final result.
+## T11 — Test-driven development and debugging (Experiment 8)
 
-## T11 — Test-driven development (TDD) and debugging (Experiment 8)
-
-Cycle: **Red → Green → Refactor**. Write the failing test first, implement the minimum behavior, then improve the code while keeping tests green.
+**Red → Green → Refactor:** write a failing test, write the least code to pass it, then improve the code with the tests green.
 
 ~~~python
-def test_discount_caps_at_total():
-    assert discount(100, 200) == 0  # RED: discount not yet defined
+# file: testing_lab/test_discount.py
+import pytest
 
-def discount(total, coupon):
-    if total < 0 or coupon < 0:
+def discount(total_cents, coupon_cents):          # written AFTER the tests below failed
+    if total_cents < 0 or coupon_cents < 0:
         raise ValueError("Negative money")
-    return max(0, total - coupon)  # GREEN
+    return max(0, total_cents - coupon_cents)
+
+def test_discount_caps_at_zero():
+    assert discount(100, 200) == 0
+
+def test_discount_rejects_negative():
+    with pytest.raises(ValueError):
+        discount(-1, 0)
 ~~~
 
-Place the test in a file and initially leave out the implementation to observe the expected NameError. Add the implementation above the test and rerun; then improve naming or types without changing the tested behavior. This is a **separate teaching helper**, not an ATLAS Go checkout discount feature. Read tracebacks from the final exception upward; use breakpoints, \`pdb\`, or targeted logging rather than hiding exceptions.
+To see *red*, delete the function and run the tests: `NameError`. This is a teaching helper, not an ATLAS Go feature.
 
-## T12 — Security and robustness testing (Experiment 9)
+## T12 — Security and robustness tests (Experiment 9)
 
-Security test categories include **input validation, authentication, authorization, session expiration, rate limiting, sensitive-data redaction, unsafe deserialization, injection resistance, dependency auditing and privacy**. Test using controlled sample accounts and fixtures only—never production users' private information.
+Categories: input validation, authentication, authorisation, session expiry, rate limiting, secret redaction, unsafe deserialisation, injection, dependency auditing, privacy. Use synthetic fixtures only.
 
 ~~~python
+# file: testing_lab/test_parse.py
 import json
 import pytest
 
 def parse_request(raw):
     data = json.loads(raw)
-    if not isinstance(data, dict) or not isinstance(data.get("seats"), int):
+    seats = data.get("seats") if isinstance(data, dict) else None
+    if type(seats) is not int:                      # rejects True/False too (bool is an int subclass)
         raise ValueError("Invalid seat count")
-    if not 1 <= data["seats"] <= 3:
+    if not 1 <= seats <= 3:
         raise ValueError("Seats outside range")
-    return data["seats"]
+    return seats
 
 @pytest.mark.parametrize("payload", [
-    '{"seats": 0}', '{"seats": 4}', '{"seats": "two"}',
-    '[]', '{"seats": null}', '{"seats": -1}',
+    '{"seats": 0}', '{"seats": 4}', '{"seats": "two"}', '[]',
+    '{"seats": null}', '{"seats": -1}', '{"seats": true}', '{"seats": 2.0}',
 ])
 def test_rejects_bad_requests(payload):
     with pytest.raises(ValueError):
         parse_request(payload)
+
+def test_accepts_valid():
+    assert parse_request('{"seats": 2}') == 2
 ~~~
 
-**Limitation:** this checks input handling only, not the application's full security. Note that in Python \`bool\` is a subclass of \`int\`; if \`true\` must be rejected, use \`type(value) is int\` rather than \`isinstance(value, int)\`. Add that case as an exercise. Never store real passwords or API tokens in test fixtures.
+## T13 — Performance, load and reliability (Experiment 10)
 
-## T13 — Performance, stress and reliability (Experiment 10)
-
-Functional testing asks **“is the answer correct?”** Performance testing asks **“how efficiently is it produced?”** Load tests measure behavior under expected concurrency; stress tests exceed expected load; soak tests run for extended periods; reliability tests simulate failures. Do not confuse a single timing with a benchmark.
+Functional tests ask "is it right?"; performance tests ask "how fast, how much, how many at once?" Load = expected traffic; stress = beyond it; soak = for a long time; reliability = with injected failures.
 
 ~~~python
 from time import perf_counter
+import statistics
 
 def rank_by_distance(drivers):
     return sorted(drivers, key=lambda item: item["km"])
 
-for n in (100, 1000, 10000):
+for n in (1_000, 10_000, 100_000):
     data = [{"id": i, "km": float(n - i)} for i in range(n)]
-    start = perf_counter()
-    ranked = rank_by_distance(data)
-    elapsed_ms = (perf_counter() - start) * 1000
+    samples = []
+    for _ in range(5):
+        start = perf_counter()
+        ranked = rank_by_distance(data)
+        samples.append((perf_counter() - start) * 1000)
     assert ranked[0]["km"] <= ranked[-1]["km"]
-    print(f"{n} drivers: {elapsed_ms:.3f} ms")
+    print(f"{n:>7} drivers: median {statistics.median(samples):.2f} ms (spread {max(samples)-min(samples):.2f})")
 ~~~
 
-**Exercise:** repeat measurements, report median and variability, warm up first, test scaling and include hardware/software details. Timings vary with execution environment; do not invent fixed outputs. This **synthetic ranking** is not a benchmark of the real dispatch model. For live backends, only load-test infrastructure you own or are authorized to test.
+Report the median and spread, warm up first, record hardware and Python version. This synthetic ranking is not a benchmark of ATLAS Go; only load-test systems you own.
 
-## T14 — End-to-end, UI, mobile and exploratory testing (Experiment 11)
+## T14 — End-to-end, UI and exploratory testing (Experiment 11)
 
-Draw a full scenario from the [ATLAS Go UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go): user opens welcome screen → authenticates or uses an allowed guest route → selects ride → enters pickup/destination → confirms ride → views history. Record **preconditions**, **actions**, **expected UI/state**, **actual observation**, **pass/fail** and **defect ID**.
+Write an end-to-end scenario from the [UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go): open → sign in or continue as guest → choose pickup and destination → confirm → see the ride in history. For each step record precondition, action, expected screen/state, actual result, pass/fail, defect id. Run it on a real device or emulator (small and large screens, rotation, offline, denied location permission, app killed and restarted, large fonts). Exploratory charter example: *"try to book more shared seats than exist"*. Never report an E2E pass you did not execute. Browser end-to-end testing with Playwright is shown in the [Web Technology course](WEB_TECHNOLOGY.md).
 
-Test on a real Android device/emulator for small/large screens, rotations, loss of connectivity, denied permissions, restart/recovery, font scaling and touch target accessibility. UI tests require an appropriate mobile test harness and emulator; the pure Python experiments do not replace them. Run manual exploratory sessions using charters such as *“try to book more seats than exist”*. Do not claim an E2E test has passed without executing the actual app workflow.
+## T15 — Continuous integration and defect reports (Experiment 12)
 
-## T15 — Continuous integration, reproducibility and defect reporting (Experiment 12)
-
-A **CI pipeline** runs tests after commits/pull requests; **CD** deploys only after appropriate checks and approvals. A practical gate is: lint/static checks → unit tests → integration tests → security/dependency checks → build → smoke/E2E → release review.
-
-**Example GitHub Actions workflow to add as \`.github/workflows/python-tests.yml\` (illustrative; adapt to existing project CI):**
+A **CI pipeline** runs checks on every push: lint → unit → integration → security/dependencies → build → smoke/E2E → release review. An example workflow (illustrative — adapt it before adding it to the repository):
 
 ~~~yaml
 name: Python tests
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 jobs:
   pytest:
     runs-on: ubuntu-latest
@@ -770,35 +1296,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install pytest pytest-cov hypothesis
-      - run: PYTHONPATH=android-app python -m pytest -q testing_lab
+      - run: python -m pip install pytest pytest-cov hypothesis fastapi httpx
+      - run: python -m pytest -q testing_lab
 ~~~
 
-**Warning:** Keep any optional FastAPI tests' dependencies installed if they are included in the same suite. The YAML above is **an example**, not a claim that this workflow is active. Pin actions/dependencies to reviewed versions or SHAs in production workflows.
+**Defect report:** `ID | commit | environment | steps to reproduce | expected | actual | severity | evidence | owner | status | retest`. Severity = impact; priority = urgency. Give the smallest reproducing input and redact secrets.
 
-**Defect-report template:** \`ID | build/commit | environment | steps to reproduce | expected | actual | severity | evidence | owner | status | retest result\`. Severity describes impact; priority describes urgency. Include minimal reproducible inputs and redact secrets.
+## Testing vocabulary
 
-## Testing vocabulary and practical assessment
-
-| Term | Short meaning |
+| Term | Meaning |
 |---|---|
-| Test fixture | Repeatable starting data/environment |
-| Setup / teardown | Prepare/clean isolated test resources |
-| Test oracle | Basis for deciding expected behavior |
-| Positive / negative | Valid operation / invalid operation |
-| False positive / false negative | Test raises an incorrect alarm / misses a defect |
-| Flaky test | Sometimes passes and sometimes fails without intended code changes |
-| Deterministic test | Same controlled inputs/environment give same verdict |
-| Mock / stub / fake | Interaction verifier / canned responder / lightweight implementation |
-| Branch / line coverage | Executed decision outcomes / executed lines |
-| Integration / E2E | Component interactions / whole user journey |
-| Regression / smoke | Recheck old behavior / quickly check critical behavior |
-| TDD | Write failing test, implement, then refactor |
-| CI | Automated checks on code changes |
+| fixture | repeatable starting data or environment (`tmp_path`) |
+| setup / teardown | prepare / clean up test resources |
+| oracle | how the expected result is known |
+| positive / negative test | valid / invalid use |
+| false positive / false negative | alarm without a defect / defect without an alarm |
+| flaky test | passes and fails without code changes |
+| line / branch coverage | executed lines / executed decision outcomes |
+| mutant killed | a deliberate bug that some test detected |
+| TDD | red → green → refactor |
+| CI | automated checks on every change |
 
-**Laboratory record for every experiment:** 1. Objective and requirement; 2. source reference and scope; 3. environment and versions; 4. initial state/fixture; 5. test inputs and expected outputs; 6. actual result or traceback; 7. passed/failed/skipped counts; 8. code/coverage report; 9. interpretation and limitation; 10. next test to improve confidence. Mark any simulated result as **illustrative**, never as a measured result.
+**Mini-project:** a fare-and-shared-seat module with five parameterised boundary tests, a `tmp_path` integration test, a mock-interaction test, a Hypothesis property, a killed mutant and a coverage report; plus one defect ticket for a bug you introduced on purpose. Label which tests are unit, integration and system tests.
 
-**Final student mini-project:** Build a small fare-and-shared-seat module with \`fare\` and \`Offer\`; add at least five parameterized boundary tests, a temporary-file integration test, one mock-interaction test, one Hypothesis property, one manually killed mutation and a coverage report. Write one defect ticket based on a deliberately introduced bug. Submit code, reproducible commands, results and a short explanation of which checks are **unit**, **integration** and **system** tests.
-
-**Further reading:** [Python unittest](https://docs.python.org/3/library/unittest.html) · [pytest](https://docs.pytest.org/) · [Hypothesis](https://hypothesis.readthedocs.io/) · [Coverage.py](https://coverage.readthedocs.io/) · [OWASP Web Security Testing Guide](https://owasp.org/www-project-web-security-testing-guide/) · [ATLAS Go architecture and method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
-
+**Further reading:** [Python tutorial](https://docs.python.org/3/tutorial/) · [unittest](https://docs.python.org/3/library/unittest.html) · [pytest](https://docs.pytest.org/) · [Hypothesis](https://hypothesis.readthedocs.io/) · [Coverage.py](https://coverage.readthedocs.io/) · [OWASP Web Security Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
