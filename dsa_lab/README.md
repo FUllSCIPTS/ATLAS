@@ -1,6 +1,6 @@
 # DSA laboratory — 30 experiments
 
-[Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Course guide (24 lessons)](../docs/DATA_STRUCTURES_ALGORITHMS.md) · [All implementations](experiments.py)
+[Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Course guide (24 lessons)](../docs/DATA_STRUCTURES_ALGORITHMS.md) · [All implementations](experiments.py) · [Live labs in the Architecture Explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
 ## Quick start
 
