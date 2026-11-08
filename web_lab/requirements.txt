@@ -3,3 +3,5 @@ uvicorn>=0.29,<1
 httpx>=0.27,<1
 pytest>=8,<10
 matplotlib>=3.8,<4
+# Optional, for the browser experiments W05, W06 and W19:
+#   python -m pip install "playwright>=1.40,<2" && python -m playwright install chromium
