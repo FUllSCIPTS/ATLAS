@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ATLAS Web Technology classroom demo">
+  <title>ATLAS Web Technology — Demo Ride Booking</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="top"><strong>ATLAS Web Technology Lab</strong><span>Local, synthetic rides only</span></header>
+  <main class="layout">
+    <section class="panel">
+      <h1>Build a ride request</h1>
+      <p>HTML collects inputs; CSS designs the screen; JavaScript calls the Python API; SQLite persists records.</p>
+      <form id="booking">
+        <label for="passenger">Passenger (demo label)</label><input id="passenger" name="passenger" maxlength="70" value="Student" required>
+        <label for="pickup">Pickup</label><input id="pickup" name="pickup" maxlength="120" value="UCC Main Gate" required>
+        <label for="destination">Destination</label><input id="destination" name="destination" maxlength="120" value="Kent Station" required>
+        <label for="distance">Estimated distance (km)</label><input id="distance" name="distance_km" type="number" step="0.1" min="0.1" max="200" value="4.5" required>
+        <button type="submit">Book demonstration ride</button>
+      </form>
+      <p id="message" role="status" aria-live="polite">Ready. This is a learning simulator, not a ride service.</p>
+    </section>
+    <section class="panel">
+      <div class="heading"><h2>Saved rides</h2><button id="refresh" type="button" class="secondary">Refresh</button></div>
+      <label for="statusFilter">Filter by status</label>
+      <select id="statusFilter"><option value="">All states</option><option>requested</option><option>assigned</option><option>completed</option><option>cancelled</option></select>
+      <div id="rides" aria-live="polite"></div>
+    </section>
+  </main>
+  <footer>Student experiment: inspect Network requests and <code>/docs</code> API schemas. Never enter real personal data.</footer>
+</body>
+</html>

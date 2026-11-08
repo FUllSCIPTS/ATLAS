@@ -1,0 +1,11 @@
+:root {font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1b2b41;background:#f3f6fc}
+*{box-sizing:border-box}body{margin:0}.top{background:#102d53;color:white;display:flex;justify-content:space-between;gap:1rem;padding:1rem 5vw}
+.layout{max-width:1150px;margin:2rem auto;padding:0 1.2rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.3rem}
+.panel{background:white;border:1px solid #dce4ef;border-radius:14px;padding:1.5rem;box-shadow:0 6px 24px #15345112}
+h1,h2{margin-top:0}p{line-height:1.55}form{display:grid;gap:.65rem}label{font-weight:650}input,select,button{font:inherit;padding:.7rem;border:1px solid #a6b6cf;border-radius:8px}
+button{background:#135da6;color:white;border:0;font-weight:650;cursor:pointer}button:hover{background:#0a467f}.secondary{background:#445b79}
+.heading{display:flex;justify-content:space-between;gap:.7rem;align-items:start}
+.ride{border:1px solid #dde5ee;padding:1rem;border-radius:10px;margin-top:.9rem}
+.ride strong{display:block}.ride p{margin:.35rem 0}.actions{display:flex;gap:.5rem;flex-wrap:wrap}.actions button{font-size:.85rem}
+#message{min-height:2rem;font-weight:600}footer{padding:1.5rem;text-align:center;color:#4b5870}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.top{flex-direction:column}}

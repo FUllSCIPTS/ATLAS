@@ -43,6 +43,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 10) [🐍 Python Programming — standalone beginner-to-intermediate teaching guide, 20 lessons and UML-linked examples](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 
+11) [🌐 Web Technology — HTML/CSS/JavaScript frontend, SQL databases, Python FastAPI backend and end-to-end API integration](docs/WEB_TECHNOLOGY.md) · [Runnable full-stack lab](web_lab/README.md) · [12 Colab experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
+
 ## Information security in ATLAS (teaching guide)
 
 ATLAS doubles as a worked example for teaching information security. The full guide is
