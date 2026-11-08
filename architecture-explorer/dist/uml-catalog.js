@@ -432,25 +432,25 @@ const umlCatalog = {
    "concept": "Security headers and CSP",
    "symbol": "securityHeaders",
    "path": "architecture-explorer/server.mjs",
-   "line": 33,
+   "line": 34,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L33"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L34"
   },
   "sec-dep-reply": {
    "concept": "Every response carries the headers",
    "symbol": "reply",
    "path": "architecture-explorer/server.mjs",
-   "line": 41,
+   "line": 42,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L41"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L42"
   },
   "sec-dep-loopback": {
    "concept": "Listen on 127.0.0.1 only",
    "symbol": "}).listen(port, host, () => console.log('ATLAS listening on http://${...",
    "path": "architecture-explorer/server.mjs",
-   "line": 67,
+   "line": 68,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L67"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L68"
   },
   "sec-dep-systemd": {
    "concept": "systemd sandbox (DynamicUser, ProtectSystem)",
