@@ -36,7 +36,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 7) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
-8) [📈 Machine learning and optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md)
+8) [📈 Machine learning and optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [Lab manual — 40 experiments (20 ML + 20 optimisation)](ml_lab/README.md)
 
 9) [📚 Data Structures and Algorithms — foundation, O/Ω/Θ, linear and non-linear structures, 20 Colab labs with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md)
 
@@ -114,6 +114,9 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
 | `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
+| `ml_lab/README.md` | Index of the 40 ML and optimisation experiments, their ATLAS data sources and study paths |
+| `ml_lab/machine_learning/ml01_*.py` … `ml20_*.py` | 20 machine-learning experiments, one file each: regression to reinforcement learning (`run_ml.py` runs them) |
+| `ml_lab/optimisation/opt01_*.py` … `opt20_*.py` | 20 optimisation experiments, one file each: gradient methods, LP/MILP, graphs, DP, metaheuristics, evolutionary, Bayesian, multi-objective (`run_optimisation.py`) |
 
 ## Experiment → script → result file
 
