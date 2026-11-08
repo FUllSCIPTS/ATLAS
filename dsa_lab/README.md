@@ -1,9 +1,9 @@
-# DSA Colab laboratory — 15 experiments
+# DSA Colab laboratory — 20 experiments
 
 Start here: [Open notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Course guide](../docs/DATA_STRUCTURES_ALGORITHMS.md).
 
 ## Quick start
-In Colab open the notebook and select **Runtime → Run all**. The notebook downloads the public experiment script from this repository; network access is required for that first step. It then runs all 15 experiments, shows charts inline, and writes CSV/PNG outputs. On a local machine: `pip install matplotlib` followed by `python dsa_lab/experiments.py --all --output dsa_lab/results`. Execute only one: `python dsa_lab/experiments.py --experiment bst`. To verify implementation: `python dsa_lab/experiments.py` (runs smoke tests then displays usage).
+In Colab open the notebook and select **Runtime → Run all**. The notebook downloads the public experiment script from this repository; network access is required for that first step. It then runs all 20 experiments, shows charts inline, and writes CSV/PNG outputs. On a local machine: `pip install matplotlib` followed by `python dsa_lab/experiments.py --all --output dsa_lab/results`. Execute only one: `python dsa_lab/experiments.py --experiment bst`. To verify implementation: `python dsa_lab/experiments.py` (runs smoke tests then displays usage).
 
 ## Experimental discipline
 - Compare **operation counts** to mathematical bounds; compare **elapsed times** only when environment/input sizes are controlled.
@@ -19,3 +19,13 @@ In Colab open the notebook and select **Runtime → Run all**. The notebook down
 
 ## Extension code cells
 In the notebook, try: (1) rerun shuffled inputs with 10 seeds and error bars; (2) choose n=1024,2048 for non-quadratic routines; (3) study n×m adjacency matrices vs adjacency lists; (4) test heaps/tries/AVL; (5) build an ATLAS-inspired ride dispatch graph.
+
+## Advanced laboratories E16–E20
+
+- **E16 — singly linked hash table:** bucket array + `SNode(key, value, next)`, head insertion, update, lookup and deletion. Inspect collisions using `max_chain()`.
+- **E17 — doubly linked hash table:** bucket array + `DNode(key,value,prev,next)`; validate backward links after deleting head, middle, and tail.
+- **E18 — load factor:** change m for n keys and compare average successful-search node comparisons; discuss α=n/m and malicious collision worst-case.
+- **E19 — tree via stack/queue:** node-linked BST plus explicit stack-based inorder/preorder/postorder and queue-based level-order. Stack/queue are traversal auxiliaries, not tree storage.
+- **E20 — AVL:** LL, RR, LR, RL insertion rotations, stored height and BST invariants, AVL search depths vs ascending-inserted skewed BST.
+
+All five are executed through the same `--all` or `--experiment name` interface; they produce CSV and PNG. Use `python dsa_lab/experiments.py --experiment avl` for a focused test. The runner asserts structural invariants before plotting.

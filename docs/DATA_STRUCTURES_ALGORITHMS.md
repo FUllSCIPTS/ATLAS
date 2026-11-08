@@ -34,9 +34,18 @@ Example: f(n)=3n²+5n+8 has O(n²), Ω(n²), and Θ(n²). It is ALSO O(n³), but
 **Stack (LIFO):** last parked car leaves first; push/pop O(1) amortized using a Python list.
 **Queue (FIFO):** passengers served in arrival order; append/popleft O(1) using deque.
 **Deque:** O(1) inserts/removals at both ends; **hash table:** key-value mapping, expected O(1) operations, collision handling and load factor.
+
+**Building a hash table with linked lists (separate chaining):** Create an array of m bucket heads; map a key to bucket `hash(key) % m`; traverse the linked nodes to update or find a matching key; prepend a new key-value node if absent. **Singly linked chains** have (key,value,next); **doubly linked chains** additionally maintain prev, enabling removal of a known node in O(1) once a reference is available (finding by key still costs O(chain length)). Both allow insertion at head O(1) excluding duplicate scan; lookup/delete are O(1+α) expected under uniform hashing, α=n/m, and O(n) worst-case. The lab deliberately uses a fixed bucket count and deterministic integer keys to visualize collisions; production tables resize and must account for hash-quality/security tradeoffs. See E16–E18.
+
 **Strings:** immutable sequences in Python; slicing and concatenation costs depend on length.
 
 ## 5. Non-linear data structures
+
+**Implementing a tree using stack and queue:** A tree itself is represented by linked nodes (key, left, right), not *stored* in a stack or queue. A **stack** is an auxiliary LIFO structure for iterative depth-first traversals: inorder pushes the left spine, visits, then explores right; preorder pushes right before left; postorder uses a visited flag. A **queue** is an auxiliary FIFO structure for breadth-first/level-order traversal, enqueuing children after visiting their parent. Both visit each node once: O(n) time; auxiliary memory O(h) for depth-first (except the illustrated postorder may use O(h) entries) and O(w) for breadth-first where h=height and w=maximum width, with result list O(n) excluded from auxiliary space.
+
+**AVL trees:** A self-balancing BST that keeps |height(left)−height(right)| ≤ 1 at each node. Update heights after insertion, then fix imbalance with **LL** (single right rotation), **RR** (single left), **LR** (left then right), or **RL** (right then left). Insert and lookup are O(log n) for n distinct keys; duplicates are ignored in the pedagogical lab. Tree rotations modify links without changing sorted inorder order. Compare ascending insertions into a plain BST (height n) against AVL (height O(log n)). See implementations in `dsa_lab/experiments.py`.
+
+
 **Tree:** root, parent, child, leaf, height; binary tree vs binary search tree (BST left < node, right ≥ node), traversals preorder/inorder/postorder/level order. AVL and red-black trees keep height logarithmic; heaps implement priority queues (push/pop O(log n)).
 **Trie:** prefix search in O(L) where L is key length, under fixed-cost child access; often a memory tradeoff.
 **Graph:** V vertices and E edges; directed/undirected, weighted/unweighted; adjacency lists use O(V+E), adjacency matrices O(V²). BFS and DFS O(V+E); BFS finds shortest paths by edge count in unweighted graphs. Dijkstra with a binary heap is O((V+E) log V) under usual assumptions and requires nonnegative weights. Topological sorting applies only to DAGs.
@@ -55,17 +64,17 @@ Searching: linear vs binary (sorted precondition). Sorting: bubble, insertion, m
 | 4 | Arrays, 2D/3D indexing | array_linked | Index formula, timings |
 | 5 | Linked lists | array_linked, node invariants | Implementation |
 | 6 | Stacks and queues | stack_queue | Correct API selection |
-| 7 | Hashing, collision, load | hash | Mean/variance of lookup times |
+| 7 | Hashing, collision, load | hash, hash_singly, hash_doubly, hash_load | Collision-chain analysis |
 | 8 | Sorting basics | sort_cases | Comparisons and cases |
 | 9 | Divide and conquer sorts | sort, sorting_stability | Proof of stability |
-| 10 | Binary trees and BSTs | bst | Balanced vs skewed chart |
-| 11 | Heaps, tries, traversals | Implement heapq and prefix query | Correctness tests |
+| 10 | Binary trees, stack/queue traversals and BSTs | bst, tree_stack_queue | Balanced vs skewed chart |
+| 11 | AVL rotations, heaps and tries | avl; implement heapq and prefix query | AVL invariants and rotations |
 | 12 | Graph representations | graph | BFS/DFS visit sequence |
 | 13 | Weighted paths, DAGs | shortest_path | Shortest-path verification |
 | 14 | Recursion and DP | recursion_dp, memory | Speed-space analysis |
 | 15 | Review and applications | repeat labs + mini-project | Research-style report |
 
-## 8. Laboratory protocol and 15 experiments
+## 8. Laboratory protocol and 20 experiments
 
 Run the self-contained [Colab notebook](../dsa_lab/DSA_Colab_Labs.ipynb), or run the [Python runner](../dsa_lab/experiments.py) and consult the [lab manual](../dsa_lab/README.md). Every experiment exports a CSV and PNG chart (except additional in-notebook conceptual examples), with fixed seed 2026. All charts are exploratory; some pair reference counts and measured times: do not compare unlike units numerically.
 
@@ -86,8 +95,33 @@ Run the self-contained [Colab notebook](../dsa_lab/DSA_Colab_Labs.ipynb), or run
 | E13 | recursion_dp | naive Fibonacci vs iteration | median ms |
 | E14 | memory | list/dict/deque allocations | peak KiB |
 | E15 | sorting_stability | preserve original equal-key order | records / distinct keys |
+| E16 | hash_singly | hash table with singly linked collision chains | mean comparisons, maximum chain, load |
+| E17 | hash_doubly | doubly linked collision chains; delete/update correctness | mean comparisons, maximum chain, load |
+| E18 | hash_load | contrast low and high collision load factors | mean comparisons and chain lengths |
+| E19 | tree_stack_queue | implement inorder/preorder with stack, breadth-first with queue; postorder verified separately | median ms |
+| E20 | avl | LL/RR/LR/RL and search height vs skewed BST | visited nodes and AVL height |
 
-For every E01–E15 record (a) objective, (b) hypothesis, (c) input size and distribution, (d) program and exact basic operation or timing method, (e) plotted graph, (f) complexity derivation, (g) discrepancy/limitations, (h) one extension. Run at least three independent trials for microbenchmarking, report median plus spread rather than claiming precise timings.
+For every E01–E20 record (a) objective, (b) hypothesis, (c) input size and distribution, (d) program and exact basic operation or timing method, (e) plotted graph, (f) complexity derivation, (g) discrepancy/limitations, (h) one extension. Run at least three independent trials for microbenchmarking, report median plus spread rather than claiming precise timings.
+
+### Guided worked examples for the five advanced laboratories
+
+**E16 (singly linked hash chain):** m=3, keys 2,5,8 map to index 2 (integer hash mod 3). Bucket 2 becomes 8→5→2. Looking up 2 takes 3 node comparisons. Updating 5 changes its value rather than adding a duplicate; deleting a head, middle and tail must preserve links.
+
+**E17 (doubly linked hash chain):** the same bucket is 8↔5↔2 with prev/next links. Deleting 5 changes 8.next to 2 and 2.prev to 8; verify both directions and head removal. For comparisons, the extra prev pointer does not magically make key lookup O(1).
+
+**E18 (load factor):** hold keys n constant, vary bucket count m; α=n/m. With more buckets, collisions typically decrease; malicious or bad hashes can still force O(n) chains. Plot measured successful-search node comparisons alongside maximum chain length.
+
+**E19 (tree traversal):** insert 2 with children 1 and 3. Stack-based inorder yields [1,2,3]; preorder [2,1,3]; postorder [1,3,2]; queue-based level order [2,1,3]. Swap a stack for a queue and explain which exploration order changes.
+
+**E20 (AVL rotations):** LL insertion [30,20,10] → right rotation to root 20; RR [10,20,30] → left rotation; LR [30,10,20] → rotate left child then right root; RL [10,30,20] → rotate right child then left root. Validate BST ordering, stored heights and balance factors after every insertion.
+
+### Extension / research questions
+- Change chain bucket count and fit search comparisons against load factor α, not merely n; test custom colliding keys.
+- Compare singly and doubly chain memory overhead via `tracemalloc` and discuss Python object-model effects.
+- Add a sentinel circular doubly linked chain and test edge cases.
+- Implement full AVL deletion and check balancing after every deletion.
+- Compare breadth-first peak frontier memory on balanced vs skewed trees, and stack-based DFS memory.
+- Include random tree insertion orders across seeds and error bars for search depth.
 
 ## 9. Assessment (100 points)
 Theory derivations 20; coding correctness/edge cases 25; protocol and measurement 20; figure/table interpretation 20; reproducibility, discussion and report 15. Require independent explanation of data choice, assumptions, and a case where observed measurements contradict simplistic predictions.

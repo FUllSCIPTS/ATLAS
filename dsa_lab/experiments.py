@@ -1,5 +1,5 @@
 """DSA laboratory: reproducible algorithms, instrumentation, and graphs.
-Colab: %run https://raw.githubusercontent.com/FUllSCIPTS/ATLAS/main/dsa_lab/experiments.py
+Colab: use DSA_Colab_Labs.ipynb (downloads this script)
 Locally: python dsa_lab/experiments.py --all --output dsa_lab/results
 """
 from __future__ import annotations
@@ -157,6 +157,213 @@ class BST:
             p = p[1 if x < p[0] else 2]
         return False, steps
 
+
+# ---------- Explicit chain variants for collision-handling experiments ----------
+class SNode:
+    def __init__(self, key, value, nxt=None):
+        self.key, self.value, self.next = key, value, nxt
+
+class DNode:
+    def __init__(self, key, value, prev=None, nxt=None):
+        self.key, self.value, self.prev, self.next = key, value, prev, nxt
+
+class ChainHash:
+    """Fixed-size pedagogical hash table with separate chaining.
+    kind='singly' or 'doubly'; all colliding keys share a bucket linked list.
+    Integer keys are used for deterministic bucket and probe analyses.
+    """
+    def __init__(self, buckets=17, kind="singly"):
+        if buckets < 1 or kind not in ("singly", "doubly"):
+            raise ValueError("invalid bucket count or chain kind")
+        self.buckets = [None] * buckets
+        self.kind = kind
+        self.size = 0
+    def index(self, key):
+        return hash(key) % len(self.buckets)
+    def put(self, key, value):
+        i = self.index(key)
+        p = self.buckets[i]
+        comparisons = 0
+        while p:
+            comparisons += 1
+            if p.key == key:
+                p.value = value
+                return comparisons
+            p = p.next
+        old = self.buckets[i]
+        if self.kind == "singly":
+            self.buckets[i] = SNode(key, value, old)
+        else:
+            self.buckets[i] = DNode(key, value, None, old)
+            if old is not None:
+                old.prev = self.buckets[i]
+        self.size += 1
+        return comparisons
+    def get(self, key, default=None):
+        p = self.buckets[self.index(key)]
+        comparisons = 0
+        while p:
+            comparisons += 1
+            if p.key == key:
+                return p.value, comparisons
+            p = p.next
+        return default, comparisons
+    def delete(self, key):
+        i = self.index(key)
+        prev, p = None, self.buckets[i]
+        while p:
+            if p.key == key:
+                if prev is None:
+                    self.buckets[i] = p.next
+                else:
+                    prev.next = p.next
+                if self.kind == "doubly" and p.next is not None:
+                    p.next.prev = prev
+                self.size -= 1
+                return True
+            prev, p = p, p.next
+        return False
+    def max_chain(self):
+        top = 0
+        for root in self.buckets:
+            count, p = 0, root
+            while p:
+                count += 1
+                p = p.next
+            top = max(top, count)
+        return top
+    def validate(self):
+        total = 0
+        for root in self.buckets:
+            prev, p = None, root
+            while p:
+                if self.kind == "doubly" and p.prev is not prev:
+                    return False
+                total += 1
+                prev, p = p, p.next
+        return total == self.size
+
+def chain_table(n, buckets, kind):
+    t = ChainHash(buckets, kind)
+    for x in range(n):
+        t.put(x, x * 2)
+    assert t.validate() and t.size == n
+    return t
+
+# ---------- Trees: manual stack / FIFO queue, rotations and AVL invariants ----------
+class TreeNode:
+    def __init__(self, key):
+        self.key, self.left, self.right, self.height = key, None, None, 1
+
+def bst_insert_node(node, key):
+    if node is None: return TreeNode(key)
+    cur = node
+    while True:
+        if key == cur.key: return node
+        side = "left" if key < cur.key else "right"
+        child = getattr(cur, side)
+        if child is None:
+            setattr(cur, side, TreeNode(key))
+            return node
+        cur = child
+
+def inorder_stack(root):
+    stack, order, node = [], [], root
+    while stack or node:
+        while node:
+            stack.append(node)
+            node = node.left
+        node = stack.pop()
+        order.append(node.key)
+        node = node.right
+    return order
+
+def preorder_stack(root):
+    if root is None: return []
+    stack, order = [root], []
+    while stack:
+        node = stack.pop(); order.append(node.key)
+        if node.right: stack.append(node.right)
+        if node.left: stack.append(node.left)
+    return order
+
+def postorder_stack(root):
+    if root is None: return []
+    stack, order = [(root, False)], []
+    while stack:
+        node, seen = stack.pop()
+        if seen:
+            order.append(node.key)
+        else:
+            stack.append((node, True))
+            if node.right: stack.append((node.right, False))
+            if node.left: stack.append((node.left, False))
+    return order
+
+def levelorder_queue(root):
+    if root is None: return []
+    queue, order = deque([root]), []
+    while queue:
+        node = queue.popleft()
+        order.append(node.key)
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)
+    return order
+
+def avl_height(node):
+    return node.height if node else 0
+
+def avl_update(node):
+    node.height = 1 + max(avl_height(node.left), avl_height(node.right))
+
+def avl_rotate_right(y):
+    x, middle = y.left, y.left.right
+    x.right, y.left = y, middle
+    avl_update(y); avl_update(x)
+    return x
+
+def avl_rotate_left(x):
+    y, middle = x.right, x.right.left
+    y.left, x.right = x, middle
+    avl_update(x); avl_update(y)
+    return y
+
+def avl_insert(node, key):
+    if node is None: return TreeNode(key)
+    if key == node.key: return node
+    if key < node.key: node.left = avl_insert(node.left, key)
+    else: node.right = avl_insert(node.right, key)
+    avl_update(node)
+    balance = avl_height(node.left) - avl_height(node.right)
+    if balance > 1:
+        if key > node.left.key:
+            node.left = avl_rotate_left(node.left)  # LR
+        return avl_rotate_right(node)                 # LL
+    if balance < -1:
+        if key < node.right.key:
+            node.right = avl_rotate_right(node.right) # RL
+        return avl_rotate_left(node)                  # RR
+    return node
+
+def validate_avl(node, low=None, high=None):
+    if node is None: return 0
+    if (low is not None and node.key <= low) or (high is not None and node.key >= high):
+        raise AssertionError("BST ordering violated")
+    lh = validate_avl(node.left, low, node.key)
+    rh = validate_avl(node.right, node.key, high)
+    if abs(lh - rh) > 1 or node.height != max(lh, rh) + 1:
+        raise AssertionError("AVL height/balance violated")
+    return node.height
+
+def tree_search_steps(root, key):
+    count = 0
+    while root:
+        count += 1
+        if key == root.key: return count
+        root = root.left if key < root.key else root.right
+    return count
+
+
 def measure(func, repeat=5):
     # Median wall clock: descriptive only, not a complexity proof.
     samples = []
@@ -265,6 +472,49 @@ def run_experiment(name, sizes=(32, 64, 128, 256, 512), repeats=5):
             assert all([j for k, j in stable if k == key] ==
                        [j for k, j in data if k == key] for key in range(5))
             rows.append((n, len(stable), len(set(x[0] for x in stable)), 0))
+        elif name == "hash_singly":
+            # fixed buckets n/4: compare collision handling against Python dict
+            table = chain_table(n, max(1, n // 4), "singly")
+            assert table.get(n - 1)[0] == 2 * (n - 1)
+            probes = statistics.mean(table.get(x)[1] for x in range(n))
+            rows.append((n, probes, table.max_chain(), n / len(table.buckets)))
+        elif name == "hash_doubly":
+            table = chain_table(n, max(1, n // 4), "doubly")
+            assert table.delete(0) and table.validate()
+            table.put(0, 0)
+            probes = statistics.mean(table.get(x)[1] for x in range(n))
+            rows.append((n, probes, table.max_chain(), n / len(table.buckets)))
+        elif name == "hash_load":
+            # Increasing keys with constant bucket count creates growing chains.
+            low = chain_table(n, max(1, n * 2), "singly")
+            high = chain_table(n, max(1, n // 8), "singly")
+            low_steps = statistics.mean(low.get(x)[1] for x in range(n))
+            high_steps = statistics.mean(high.get(x)[1] for x in range(n))
+            rows.append((n, low_steps, high_steps, high.max_chain()))
+        elif name == "tree_stack_queue":
+            # A near-balanced BST; traversal must visit exactly n keys.
+            tree = None
+            def insert_middle(vals):
+                nonlocal tree
+                if not vals: return
+                mid = len(vals) // 2
+                tree = bst_insert_node(tree, vals[mid])
+                insert_middle(vals[:mid]); insert_middle(vals[mid+1:])
+            insert_middle(a)
+            assert inorder_stack(tree) == a
+            assert sorted(levelorder_queue(tree)) == a
+            rows.append((n, measure(lambda: inorder_stack(tree), repeats),
+                         measure(lambda: preorder_stack(tree), repeats),
+                         measure(lambda: levelorder_queue(tree), repeats)))
+        elif name == "avl":
+            avl, plain = None, None
+            for key in a:
+                avl = avl_insert(avl, key)
+                plain = bst_insert_node(plain, key)
+            h = validate_avl(avl)
+            assert inorder_stack(avl) == a
+            rows.append((n, tree_search_steps(avl, n-1),
+                         tree_search_steps(plain, n-1), h))
         else: raise ValueError(f"Unknown experiment: {name}")
     return rows
 
@@ -284,6 +534,11 @@ EXPERIMENTS = {
     "recursion_dp": ("naive Fibonacci ms", "iterative DP ms", "Fibonacci input k"),
     "memory": ("list KiB", "dict KiB", "deque KiB"),
     "sorting_stability": ("records", "distinct keys", "unused"),
+    "hash_singly": ("mean chain comparisons", "maximum chain length", "load factor"),
+    "hash_doubly": ("mean chain comparisons", "maximum chain length", "load factor"),
+    "hash_load": ("low-load mean comparisons", "high-load mean comparisons", "maximum high-load chain"),
+    "tree_stack_queue": ("inorder stack ms", "preorder stack ms", "level-order queue ms"),
+    "avl": ("AVL search steps", "unbalanced BST search steps", "AVL height"),
 }
 def save_plot(name, rows, output):
     labels = EXPERIMENTS[name]
@@ -317,6 +572,28 @@ def self_test():
     assert bfs({0: [1, 2], 1: [3], 2: [], 3: []}, 0) == [0, 1, 2, 3]
     assert dfs({0: [1, 2], 1: [3], 2: [], 3: []}, 0) == [0, 1, 3, 2]
     assert dijkstra({0: [(1, 2), (2, 8)], 1: [(2, 1)], 2: []}, 0)[2] == 3
+    for kind in ("singly", "doubly"):
+        table = ChainHash(2, kind)
+        for k in (0, 2, 4): table.put(k, str(k))
+        assert table.max_chain() == 3 and table.validate()
+        assert table.get(2)[0] == "2"
+        assert table.delete(2) and table.validate()
+        assert table.get(2)[0] is None and not table.delete(2)
+        table.put(4, "updated")
+        assert table.size == 2 and table.get(4)[0] == "updated"
+    for keys in ([30, 20, 10], [10, 20, 30], [30, 10, 20], [10, 30, 20]):
+        root = None
+        for k in keys: root = avl_insert(root, k)
+        assert validate_avl(root) == 2 and root.key == 20
+        assert inorder_stack(root) == [10, 20, 30]
+        assert preorder_stack(root) == [20, 10, 30]
+        assert postorder_stack(root) == [10, 30, 20]
+        assert levelorder_queue(root) == [20, 10, 30]
+    for n in (1, 8, 64):
+        t = None
+        for k in range(n): t = avl_insert(t, k)
+        validate_avl(t)
+        assert inorder_stack(t) == list(range(n))
     print("All algorithm smoke tests passed.")
 
 def main():
