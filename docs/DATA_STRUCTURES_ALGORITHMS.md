@@ -801,13 +801,14 @@ Expected probes for a successful search under linear probing ≈ ½(1 + 1/(1−�
 
 A **tree** is a connected, acyclic hierarchy of nodes. Vocabulary: **root** (no parent), **parent/child**, **siblings**, **leaf** (no children), **internal node**, **depth** of a node (edges from the root), **height** of a tree (**nodes** on the longest root-to-leaf path in this course), **subtree**. A **binary tree** gives each node at most two children, `left` and `right`.
 
-```text
-          8 (root)
-         / \
-        4   12
-       / \  / \
-      2   6 10  14
-     (leaf) (leaf) (leaf) (leaf)
+```mermaid
+flowchart TD
+ n8(("8 root")) --> n4((4))
+ n8 --> n12((12))
+ n4 --> n2(("2 leaf"))
+ n4 --> n6(("6 leaf"))
+ n12 --> n10(("10 leaf"))
+ n12 --> n14(("14 leaf"))
 ```
 
 Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary tree of height h = 2^h − 1, so h ≥ log₂(n + 1).
@@ -821,9 +822,10 @@ Height of this tree = 3 (nodes 8, 4, 2). Number of nodes in a *perfect* binary t
 
 **Recursion vs an explicit stack/queue.** The three depth-first orders are naturally recursive; replacing the call stack by an explicit **stack** avoids Python's recursion limit. Level order needs a **queue**. The tree itself is stored as linked nodes; the stack and queue are only *auxiliary* structures used while walking.
 
-```text
-Depth-first traversal  -->  Stack (LIFO)  -->  Preorder / inorder / postorder
-Breadth-first traversal -->  Queue (FIFO) -->  Level order
+```mermaid
+flowchart LR
+ DF["Depth-first traversal"] --> ST["Stack (LIFO)"] --> OR["Preorder · inorder · postorder"]
+ BF["Breadth-first traversal"] --> QU["Queue (FIFO)"] --> LV["Level order"]
 ```
 
 **Iterative inorder trace** (stack shown bottom → top):
@@ -860,14 +862,9 @@ A **binary search tree (BST)** is a binary tree where, for every node, **all key
 
 **Insertion order decides the shape.** Inserting 8, 4, 12, 2, 6, 10, 14 gives the perfect tree of Lesson 12 (height 3). Inserting 1, 2, 3, …, 7 gives a **skewed** tree — a linked list leaning right — with height 7.
 
-```text
-1 (root)
- \
-  2
-   \
-    3
-     \
-      4 (leaf)
+```mermaid
+flowchart TD
+ s1(("1 root")) -->|right| s2((2)) -->|right| s3((3)) -->|right| s4(("4 leaf"))
 ```
 
 ### Deletion — three cases
@@ -878,14 +875,20 @@ A **binary search tree (BST)** is a binary tree where, for every node, **all key
 | one child | delete 4 after 2 is gone | splice: parent points to 4's only child (6) |
 | two children | delete 12 | copy the **inorder successor** (smallest key in the right subtree, 14) into 12's node, then delete 14 from the right subtree |
 
-```text
-Before (root 8)          After deleting 12
-        8                        8
-       / \                      / \
-      4   12                   4   14
-         / \                      /
-       10   14                   10
-              (successor of 12)
+```mermaid
+flowchart LR
+ subgraph before["Before"]
+  b8((8)) --> b4((4))
+  b8 --> b12((12))
+  b12 --> b10((10))
+  b12 --> b14(("14 successor"))
+ end
+ subgraph after["After deleting 12"]
+  a8((8)) --> a4((4))
+  a8 --> a14((14))
+  a14 --> a10((10))
+ end
+ before -- "copy 14 into 12, remove old 14" --> after
 ```
 
 ~~~python
@@ -922,33 +925,53 @@ An **AVL tree** is a BST that keeps itself balanced: at every node the **balance
 | LR: BF(z) = +2, BF(z.left) < 0 | left child's right is heavy | left rotation at z.left, then right at z |
 | RL: BF(z) = −2, BF(z.right) > 0 | right child's left is heavy | right rotation at z.right, then left at z |
 
-```text
-Before (LL case)               After right rotation at 30
-      30                             20
-     /                              /  \
-   20                              10   30
-  /
-10
+```mermaid
+flowchart LR
+ subgraph ll["Before: LL case"]
+  l30((30)) -->|left| l20((20)) -->|left| l10((10))
+ end
+ subgraph llr["After right rotation at 30"]
+  r20((20)) --> r10((10))
+  r20 --> r30((30))
+ end
+ ll --> llr
 ```
 
-```text
-Before (LR case)     After left rot at 10     After right rot at 30
-      30                   30                        20
-     /                    /                         /  \
-   10                   20                        10   30
-     \                 /
-      20              10
+```mermaid
+flowchart LR
+ subgraph lr1["Before: LR case"]
+  p30((30)) -->|left| p10((10)) -->|right| p20((20))
+ end
+ subgraph lr2["After left rotation at 10"]
+  q30((30)) -->|left| q20((20)) -->|left| q10((10))
+ end
+ subgraph lr3["After right rotation at 30"]
+  t20((20)) --> t10((10))
+  t20 --> t30((30))
+ end
+ lr1 --> lr2 --> lr3
 ```
 
 **Right rotation in pointers** (y is the unbalanced node, x = y.left, T2 = x.right):
 
-~~~text
-      y              x
-     / \            / \
-    x   T3   →     T1  y
-   / \                / \
-  T1  T2             T2  T3        inorder T1 x T2 y T3 is unchanged
-~~~
+```mermaid
+flowchart LR
+ subgraph b["Before"]
+  Y1((y)) --> X1((x))
+  Y1 --> T3a[/T3/]
+  X1 --> T1a[/T1/]
+  X1 --> T2a[/T2/]
+ end
+ subgraph a["After right rotation"]
+  X2((x)) --> T1b[/T1/]
+  X2 --> Y2((y))
+  Y2 --> T2b[/T2/]
+  Y2 --> T3b[/T3/]
+ end
+ b --> a
+```
+
+Inorder order T1, x, T2, y, T3 is unchanged by the rotation.
 
 ~~~python
 for keys in ([30, 20, 10], [10, 20, 30], [30, 10, 20], [10, 30, 20]):   # LL, RR, LR, RL
@@ -977,15 +1000,13 @@ An AVL tree of height h has at least F(h+2) − 1 nodes (F = Fibonacci), so **h 
 
 A **binary min-heap** is a **complete** binary tree (every level full except possibly the last, filled left to right) in which every parent ≤ its children. It is *not* a BST: siblings are unordered. Completeness lets it live in an array with **no pointers**: children of i are 2i+1 and 2i+2, the parent of i is (i−1)//2.
 
-```text
-Array view: [1, 3, 2, 5, 9, 8]
-Tree view (parent i → children 2i+1, 2i+2):
-
-          1 (idx 0)
-         / \
-   3 (1)     2 (2)
-  / \       /
-5(3) 9(4)  8(5)
+```mermaid
+flowchart TD
+ h0(("1 · idx 0")) --> h1(("3 · idx 1"))
+ h0 --> h2(("2 · idx 2"))
+ h1 --> h3(("5 · idx 3"))
+ h1 --> h4(("9 · idx 4"))
+ h2 --> h5(("8 · idx 5"))
 ```
 
 Array form: `[1, 3, 2, 5, 9, 8]`.
@@ -1021,18 +1042,16 @@ assert heapq.heappop(jobs) == (1, "urgent")
 
 A **trie** stores strings character by character along paths from the root; words that share a prefix share the path. A marker (`$`) says "a word ends here". Lookup and insertion cost O(L) for a word of length L, **independent of how many words are stored**.
 
-```text
-        (root)
-       /      \
-      c        d
-      |        |
-      a        o
-     / \       |
-    r   t      g   ← "dog"
-    |   ↑
-    t   "cat"
-    ↑
-  "cart"   (also "car" ends at r)
+```mermaid
+flowchart TD
+ R(("root")) --> C((c))
+ R --> D((d))
+ C --> A((a))
+ A --> AR(("r $ car"))
+ AR --> ART(("t $ cart"))
+ A --> AT(("t $ cat"))
+ D --> O((o))
+ O --> G(("g $ dog"))
 ```
 
 Stored: car, cart, cat, dog. "ca" is a valid **path** but not a **word** (no `$`).
@@ -1054,11 +1073,12 @@ assert t.delete("cart") and not t.contains("cart") and t.contains("car")   # pru
 
 A **graph** G = (V, E) has vertices and edges; edges may be **directed** or **undirected**, **weighted** or not. Representations:
 
-```text
-A ──→ B
-│     │
-↓     ↓
-C ──→ D
+```mermaid
+flowchart LR
+ A((A)) --> B((B))
+ A --> C((C))
+ B --> D((D))
+ C --> D
 ```
 
 | Representation | Above graph | Space | "Is (u, v) an edge?" | "List neighbours of u" |
@@ -1093,14 +1113,11 @@ assert dist == {"A": 0, "B": 1, "C": 1, "D": 2} and examined == 4   # each edge 
 
 Keep a tentative distance for every vertex; repeatedly take the closest unfinished vertex from a **min-heap** and **relax** its outgoing edges (`if dist[u] + w < dist[v]: dist[v] = dist[u] + w`). With a binary heap: O((V + E) log V). **Requires w ≥ 0** — a negative edge could make a "finished" vertex cheaper later (use Bellman–Ford instead).
 
-```text
-A (dist 0)
- ├─ weight 2 → B (dist 2)
- │              └─ weight 1 → C (improved to 3)
- └─ weight 8 → C (initial dist 8, later improved)
-```|"weight 2"| C18_B["B: distance 2"]
- C18_A -->|"weight 8"| C18_C["C: initial distance 8"]
- C18_B -->|"weight 1"| C18_UPDATED["C: improved distance 3"]
+```mermaid
+flowchart LR
+ A(("A · dist 0")) -->|"w = 2"| B(("B · dist 2"))
+ A -->|"w = 8"| C(("C · 8 then 3"))
+ B -->|"w = 1"| C
 ```
 
 | Pop | dist A | dist B | dist C | heap after |
@@ -1119,17 +1136,12 @@ assert dsa.dijkstra_path(g, "A", "C") == (["A", "B", "C"], 3)
 
 A **topological order** lists the vertices of a **directed acyclic graph** so that every edge goes forward — e.g. the steps of a food order: accept → cook → pack → deliver. **Kahn's algorithm** repeatedly removes a vertex of in-degree 0; if vertices remain at the end, the graph has a cycle and no order exists. DFS gives the same result by reversing finishing times. Both Θ(V + E).
 
-```text
-Accept order
-     │
-     ▼
-  Cook meal ──→ Notify courier
-     │
-     ▼
-  Pack meal
-     │
-     ▼
-Deliver order
+```mermaid
+flowchart TD
+ acc["Accept order"] --> cook["Cook meal"]
+ cook --> pack["Pack meal"]
+ cook --> notify["Notify courier"]
+ pack --> del["Deliver order"]
 ```
 
 ~~~python
@@ -1204,16 +1216,20 @@ Common bugs: `mid = (lo + hi) // 2` with `hi = len(a)` and `lo <= hi` (off by on
 
 **ATLAS link:** [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) relies on Python's `sorted` (Timsort: stable, O(n log n) worst case, O(n) on already-sorted runs).
 
-```text
-          [7, 2, 6, 1]
-         /            \
-    [7, 2]            [6, 1]
-    /    \            /    \
-  [7]    [2]        [6]    [1]
-    \    /            \    /
-    [2, 7]            [1, 6]
-         \            /
-          [1, 2, 6, 7]
+```mermaid
+flowchart TD
+ s0["7, 2, 6, 1"] --> s1["7, 2"]
+ s0 --> s2["6, 1"]
+ s1 --> a7["7"]
+ s1 --> a2["2"]
+ s2 --> a6["6"]
+ s2 --> a1["1"]
+ a7 --> m1["2, 7"]
+ a2 --> m1
+ a6 --> m2["1, 6"]
+ a1 --> m2
+ m1 --> out["1, 2, 6, 7"]
+ m2 --> out
 ```
 
 | Algorithm | Idea | Best | Average | Worst | Extra space | Stable |
@@ -1244,17 +1260,19 @@ assert dsa.quick_sort_inplace([5, 1, 4, 2, 3])[0] == [1, 2, 3, 4, 5]
 
 A **recursive** function solves a problem by calling itself on smaller inputs. It needs a **base case** that stops the recursion and a **progress** argument that every call is smaller. Each active call is a **stack frame**; Python's default limit is about 1 000 frames.
 
-```text
-                fib(4)
-               /      \
-          fib(3)       fib(2)
-         /     \       /    \
-     fib(2)   fib(1) fib(1) fib(0)
-    /     \
- fib(1)  fib(0)
-
-(notice fib(2) and fib(1)/fib(0) are recomputed)
+```mermaid
+flowchart TD
+ f4["fib(4)"] --> f3["fib(3)"]
+ f4 --> f2b["fib(2) repeated"]
+ f3 --> f2a["fib(2)"]
+ f3 --> f1a["fib(1)"]
+ f2a --> f1b["fib(1)"]
+ f2a --> f0a["fib(0)"]
+ f2b --> f1c["fib(1)"]
+ f2b --> f0b["fib(0)"]
 ```
+
+fib(2), fib(1) and fib(0) are each computed more than once.
 
 Naive Fibonacci makes 177 calls for fib(10) and 242 785 for fib(25) because the same subproblems are solved again and again (E13).
 
@@ -1322,20 +1340,12 @@ print("placements tried:", tried, "of", 8 ** 8, "naive")
 
 **Loop invariant proof** in five steps:
 
-```text
-Precondition
-     │
-     ▼
-Invariant is true on entry
-     │
-     ▼
-Each iteration preserves the invariant
-     │
-     ▼
-Loop terminates
-     │
-     ▼
-Invariant + termination ⇒ postcondition
+```mermaid
+flowchart TD
+ P["Precondition"] --> I["Invariant is true on entry"]
+ I --> K["Each iteration preserves the invariant"]
+ K --> T["Loop terminates"]
+ T --> Q["Invariant + termination ⇒ postcondition"]
 ```
 
 **Structural invariants** are the executable version: every structure in the lab has a `validate()` that the experiments call after every change.
@@ -1348,7 +1358,7 @@ Invariant + termination ⇒ postcondition
 | circular doubly + sentinel | every `next.prev` is its own node; `size` nodes between sentinel visits |
 | ring buffer | 0 ≤ count ≤ capacity; `to_list` has `count` items |
 | hash table | every node sits in bucket `hash(key) mod m`; total = size |
-| BST / AVL | ordering, stored heights, |BF| ≤ 1 |
+| BST / AVL | ordering, stored heights, \|BF\| ≤ 1 |
 | heap | parent ≤ child for every index |
 | sorted output | non-decreasing **and** a permutation of the input |
 
