@@ -49,7 +49,7 @@ ROWS = [
     ("sec-pw-test", "Test: same password, different salts and hashes", "main:android-app/tests/test_accounts_geo.py", "test_password_hash_roundtrip_and_salt", "impl"),
     ("sec-pw-lab", "Explorer lab: PBKDF2 with the app's parameters", "arch:dist/security.js", "secPwHash", "lab"),
     ("sec-pw-lab-verify", "Explorer lab: verify_password replica", "arch:dist/security.js", "secPwVerify", "lab"),
-    ("sec-pw-cli", "Command-line lab: salts, cost per guess, dictionary attack", "main:security_lab/password_storage_demo.py", "main", "lab"),
+    ("sec-pw-cli", "Command-line lab: 20 experiments and 5 study paths on the real accounts.py and store.py", "main:security_lab/password_storage_demo.py", "main", "lab"),
     # ---- Security: login and lockout
     ("sec-login", "Sign in, 5 failures → 60 s lockout, generic error", "main:android-app/atlas_go/store.py", "LocalStore.login", "impl"),
     ("sec-login-failures", "Failure counter kept in memory only", "main:android-app/atlas_go/store.py", "~self.failures = \\{\\}", "impl"),
