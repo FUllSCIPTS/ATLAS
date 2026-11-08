@@ -1,5 +1,16 @@
 # Security labs
 
+## Illustrated Google Colab laboratories — 40 experiments
+
+[Cryptography: 20 experiments in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Information Security: 20 experiments in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Visual runner](visual_lab.py)
+
+Both Colab notebooks run the **original** numbered ATLAS experiment source and capture the output. For every experiment, the companion runner generates **NN_observed.png** (actual elapsed seconds and exit status) and **NN_concept.png / NN_concept.csv** (a **clearly marked illustrative mathematical/qualitative model — NOT measured data**). It also preserves **NN_run.log** and **NN_summary.json**. Download the notebook-produced ZIP to inspect all figures and results. A failed experiment is visibly marked rather than silently skipped.
+
+From the repository root install matplotlib and run a chosen test: `python security_lab/visual_lab.py --domain crypto --experiment 2`. For information security: `python security_lab/visual_lab.py --domain security --experiment 14`. For all forty: `python security_lab/visual_lab.py --domain both`. Results are written to `security_lab/results` by default; the notebooks use their own `atlas_visual_results` folder. The visualizer requires matplotlib; the underlying ATLAS experiments themselves use the standard library. Running the full suite may require time and normal GitHub cloning/network access on Colab.
+
+**Scientific distinction:** execution time and subprocess pass/fail are genuine observed outputs. Each separate concept chart is *illustrative* and is never an empirical cryptographic benchmark or security proof. Interpret complete logs and threat assumptions before making conclusions.
+
+
 Two command-line labs, 20 experiments each, that run ATLAS's real code and artefacts: the
 information-security lab (`lab_*.py`, on `android-app/atlas_go/accounts.py` and `store.py`) and the
 cryptography lab (`crypto_*.py`, on the releases, certificate, CI workflows and prototype). They use the

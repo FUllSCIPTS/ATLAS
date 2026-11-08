@@ -40,6 +40,10 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 9) [📚 Data Structures and Algorithms — foundation, O/Ω/Θ, linear and non-linear structures, 20 Colab labs with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md)
 
+## Interactive Colab security and cryptography laboratories
+
+Run the [Cryptography Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) or [Information Security Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb). Each covers **20 original source experiments** with observed runtime/status graphics, separately labeled illustrative charts, logs and downloadable ZIP files. See the [lab instructions](security_lab/README.md) and [visual runner](security_lab/visual_lab.py).
+
 ## Information security in ATLAS (teaching guide)
 
 ATLAS doubles as a worked example for teaching information security. The full guide is

@@ -58,6 +58,211 @@ storage (PBKDF2), identity management, SSO and Kerberos.
 
 ---
 
+
+## Standalone illustrated foundations — Cryptography
+
+Read this chapter first. Each topic introduces the idea, a worked example, a GitHub-rendered Mermaid diagram, the limits of the example, and a matching source experiment. The ATLAS laboratory contains 20 source experiments; the companion Colab notebook adds a **measured execution chart** and a **clearly labeled conceptual illustration** for each. A successful test does not prove a cryptosystem secure.
+
+### C1 — Plaintext, ciphertext, keys, and security goals
+
+**Plaintext** is readable information. **Encryption** converts plaintext into ciphertext using a secret or public key; authorized decryption restores plaintext. **Confidentiality** protects against unauthorized reading; **integrity** detects modifications; **authentication** validates the origin; **availability** ensures service. Encryption alone cannot prevent account misuse or unsafe business logic. **Symmetric** encryption shares a secret key, whereas **asymmetric** encryption/signature systems use private and public keys.
+
+~~~mermaid
+flowchart LR
+ A["Plaintext"] -->|"Encryption + key"| B["Ciphertext"]
+ B -->|"Decryption + authorized key"| C["Recovered plaintext"]
+ A -->|"Hash"| D["Fixed-length digest"]
+ A -->|"Sign with private key"| E["Signature"]
+ E -->|"Verify with public key"| F["Origin / integrity check"]
+~~~
+
+**Analogy:** a locked parcel hides the letter (confidentiality); a tamper-evident seal detects alteration (integrity), but neither alone proves the address on the parcel is genuine. Real algorithms require strong keys and trustworthy implementations. Toy RSA and classroom ciphers must never protect real data.
+
+### C2 — SHA-256, encoding, avalanche, preimages and collisions
+
+A cryptographic hash takes bytes and outputs a fixed-length **digest**. SHA-256 always yields **256 bits = 32 bytes = 64 hexadecimal characters**, whether the input has 1 byte or 1 gigabyte. A hash does not encrypt: there is no decryption operation. **Preimage resistance** protects against finding an input for a given digest; **second-preimage resistance** against replacing a fixed message; **collision resistance** against finding any different pair with the same digest.
+
+~~~mermaid
+flowchart TB
+ A["Text → UTF-8 bytes"] --> H["SHA-256"]
+ B["Changed byte / Unicode form"] --> H2["SHA-256"]
+ H --> D["32-byte digest #1"]
+ H2 --> E["32-byte digest #2"]
+~~~
+
+~~~python
+import hashlib, unicodedata
+assert len(hashlib.sha256(b"hello").digest()) == 32
+assert hashlib.sha256(b"hello").digest() != hashlib.sha256(b"Hello").digest()
+assert unicodedata.normalize("NFC", "e\u0301") == "é"
+~~~
+
+The **avalanche effect** predicts roughly 128 changed digest bits after one input bit flips for an ideal 256-bit hash, not exactly 128 each trial. Generic attacks on a b-bit ideal hash take approximately 2^b operations for preimages and 2^(b/2) for birthday collisions. These are work-factor estimates, not measured attack times.
+
+### C3 — Checksums, cryptographic hashes and artifact verification
+
+A checksum such as CRC32 is designed primarily to detect accidental corruption. A malicious modifier can often engineer an equal checksum. A trusted cryptographic digest can detect changed bytes, but the digest must itself be authenticated or delivered through a trusted channel. ATLAS uses SHA256SUMS for release checks, while a simpler prototype checksum intentionally illustrates the limitation.
+
+~~~mermaid
+flowchart LR
+ F["Downloaded APK"] --> H["Calculate SHA-256"]
+ T["Trusted expected digest"] --> C["Compare"]
+ H --> C
+ C -->|"same"| OK["Byte-level integrity match"]
+ C -->|"different"| REJ["Reject altered bytes"]
+~~~
+
+For example, 2 files may have the same length and additive byte sum but different contents; that additive checksum would miss the substitution. A matching hash is not independently proof of the publisher's identity. **Labs C01–C07.**
+
+### C4 — Message authentication codes, HMAC and length extension
+
+A **MAC** is an authenticity/integrity tag produced using a shared secret. **HMAC** wraps a cryptographic hash with inner and outer keyed computations. It resists hash length-extension attacks that affect unsafe constructions such as SHA256(secret || message). Compare tags with a constant-time comparison function to limit data-dependent timing.
+
+~~~mermaid
+sequenceDiagram
+ participant S as Sender
+ participant R as Receiver
+ S->>S: tag = HMAC(key, message)
+ S->>R: message, tag
+ R->>R: recompute HMAC with secret key
+ R-->>S: accept if tags match
+~~~
+
+~~~python
+import hashlib, hmac, secrets
+key = secrets.token_bytes(32)
+text = b"ride=12"
+tag = hmac.new(key, text, hashlib.sha256).digest()
+assert hmac.compare_digest(tag, hmac.new(key, text, hashlib.sha256).digest())
+assert not hmac.compare_digest(tag, hmac.new(key, text+b"!", hashlib.sha256).digest())
+~~~
+
+An ordinary SHA-256 digest of a public message is not a MAC. **Lab C08.**
+
+### C5 — Password hashing, salt, PBKDF2, HKDF and randomness
+
+A **salt** is random, public data generated separately per password; it prevents equal passwords from automatically producing the same stored verifier. PBKDF2-HMAC-SHA256 repeats work to slow offline guessing. In ATLAS Go, account passwords use **16-byte salts and 200,000 iterations**. A larger iteration count makes authorized login slower too; it does not turn weak passwords into strong ones. **HKDF** derives purpose-separated keys from keying material and should not be confused with password-hardening PBKDF2. Use a **cryptographically secure RNG** for keys, salts and nonces, not Python's deterministic random module.
+
+~~~mermaid
+flowchart LR
+ P["User password"] --> D["PBKDF2-HMAC-SHA256"]
+ S["Unique random salt"] --> D
+ I["Iteration count"] --> D
+ D --> V["Stored verifier, not plaintext"]
+~~~
+
+~~~python
+import hashlib, secrets
+salt = secrets.token_bytes(16)
+verifier = hashlib.pbkdf2_hmac("sha256", b"example-password", salt, 200000)
+assert len(verifier) == 32
+~~~
+
+**Labs C09–C10; information-security S01–S08.**
+
+### C6 — Authenticated encryption, AES-GCM, and the nonce rule
+
+**Authenticated encryption with associated data (AEAD)** protects ciphertext confidentiality and integrity together. AES-GCM is one AEAD mode. Its **nonce must not be reused with the same key**; reuse can destroy confidentiality and authenticity. **Associated data (AAD)** is authenticated but not encrypted, for example a protocol header.
+
+~~~mermaid
+flowchart TD
+ P["Plaintext"] --> A["AES-GCM encrypt"]
+ K["Secret key"] --> A
+ N["Unique nonce"] --> A
+ H["Associated data"] --> A
+ A --> C["Ciphertext + authentication tag"]
+ C --> D["Verify tag before releasing plaintext"]
+~~~
+
+This is a conceptual extension: the Android application's local state file is **not encrypted at rest**. Use vetted AEAD libraries, not hand-written ciphers.
+
+### C7 — Public/private keys, RSA and digital signatures
+
+**Public-key encryption:** encrypt for a recipient using its public key; only the recipient's private key decrypts. **Digital signatures:** a signer uses a private key, and verifiers check with the authenticated public key. Textbook RSA has mathematical structure that permits forgery, so real signatures require secure standardized padding/encoding such as RSA-PSS or an appropriate established signature scheme. ATLAS Go's release signing uses SHA256withRSA through release tooling; this is not the insecure textbook RSA from the lab.
+
+~~~mermaid
+flowchart LR
+ M["Release bytes"] --> HASH["SHA-256 digest"]
+ HASH --> SIGN["Private-key signing"]
+ SIGN --> PACKAGE["Signed archive"]
+ PACKAGE --> VERIFY["Public-key verification"]
+ VERIFY --> VALID["Valid / invalid"]
+~~~
+
+**Labs C15–C17.**
+
+### C8 — Certificates, chain of trust, PKI and mutual TLS
+
+A **certificate** binds a public key to identity claims and is signed by a certificate authority (CA). Clients need to verify the trusted chain, identity/SAN, validity period, key usage and any appropriate policy. **PEM** is a textual wrapper of Base64-encoded bytes; **DER** is a binary encoding. A certificate fingerprint uniquely describes the bytes with overwhelming probability, but is meaningful for trust only if compared to a trusted pin.
+
+~~~mermaid
+flowchart TD
+ ROOT["Trusted root CA"] -->|"signs"| INTER["Intermediate CA"]
+ INTER -->|"signs"| SERVER["Server certificate / SAN"]
+ SERVER --> VERIFY["Client validates chain, name, time, use"]
+~~~
+
+**TLS** normally authenticates the server; **mutual TLS (mTLS)** also asks the client to authenticate with a certificate. The ATLAS prototype demonstrates a private CA and mutual TLS; the Android app uses public Web PKI for map tiles. The upload certificate is for software signing, not for online user login. **Labs C11–C14.**
+
+### C9 — Signed software and supply-chain integrity
+
+Build artifacts may contain a manifest with per-entry digests and a signature over signing metadata. Verifying the signature and each archive entry guards against certain alterations, assuming the signing key and verifier are trusted. Pinning a CI tool by an immutable digest is stronger than trusting a movable tag. A valid signature does not mean the signed software is harmless or free of vulnerabilities.
+
+~~~mermaid
+flowchart LR
+ INPUT["App content"] --> MAN["Manifest entry hashes"]
+ MAN --> SF["Signature-file digest"]
+ SF --> SIG["Release signature"]
+ SIG --> CHECK["Verify metadata and entries"]
+~~~
+
+Different packaging mechanisms matter: JAR signing and Android APK Signature Scheme v2/v3 are not identical. **Labs C06,C07,C16,C17.**
+
+### C10 — Post-quantum security, Lamport, LWE and hybrid exchange
+
+Shor's algorithm on a sufficiently large fault-tolerant quantum computer threatens RSA and elliptic-curve Diffie–Hellman. Symmetric keys and hashes face different quantum considerations, including Grover's idealized square-root search. NIST standards include **ML-KEM (FIPS 203)** for key encapsulation, **ML-DSA (FIPS 204)** for signatures and **SLH-DSA (FIPS 205)** for stateless hash-based signatures.
+
+~~~mermaid
+flowchart LR
+ C["Classical key agreement secret"] --> KDF["Protocol-bound hybrid KDF"]
+ P["Post-quantum KEM secret"] --> KDF
+ CTX["Context and transcript"] --> KDF
+ KDF --> KEY["Session traffic keys"]
+~~~
+
+**Lamport signatures** are one-time hash-based signatures; repeated signing with a one-time key leaks material needed for forgeries. **LWE** toy exercises demonstrate lattice-inspired hardness but are not standards-compliant ML-KEM. ATLAS's current PQ examples are **teaching extensions**, not deployed PQC. **Labs C18–C20.**
+
+### C11 — Each cryptography experiment: concept and illustration
+
+The **source runner** performs the real numbered experiment. The visual companion's **observed chart** measures only process elapsed time and exit status; its separately labeled **concept chart** illustrates mathematical behavior or an expected qualitative outcome, not data measured by the experiment.
+
+| Exp. | Real experiment | Explanation task for chart and log |
+|---|---|---|
+| C01 | SHA-256/Unicode | Fixed digest length despite input size |
+| C02 | Bit avalanche | Why 128 changed bits is an expectation |
+| C03 | Truncated hash attacks | Preimage work versus birthday bound |
+| C04 | Prototype checksum forgery | Additive integrity is not authentication |
+| C05 | CRC32 linearity | Accidental-corruption code is forgeable |
+| C06 | Release verification | Trust the expected digest source |
+| C07 | CI supply-chain pin | Immutable digest versus mutable tag |
+| C08 | SHA prefix-MAC extension | HMAC construction is required |
+| C09 | HMAC and PBKDF2 | Work scales with iteration count |
+| C10 | Random-state prediction | CSPRNG versus predictable PRNG |
+| C11 | PEM/DER fingerprint | Identify precisely hashed bytes |
+| C12 | DER certificate fields | Explain issuer, subject and extensions |
+| C13 | RSA certificate signature | Signed fields and key validity |
+| C14 | Private CA validations | Chain, SAN, time, and usage |
+| C15 | Raw textbook RSA | Multiplicativity and forgery risk |
+| C16 | RSA encoded signing | Why safe padding and hashing matter |
+| C17 | JAR signing | Find which modification breaks trust |
+| C18 | Lamport signature | Size and one-time key constraints |
+| C19 | Lamport key reuse | Why repeated signing is hazardous |
+| C20 | Toy lattice + hybrid | Differentiate toy and real KEM |
+
+**Use [Cryptography Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb).** Each experiment exports its source log, actual time/status graph, a clearly non-measured conceptual PNG and CSV, and a JSON summary. The notebook packages these as a ZIP. **Report:** define goal, trust/threat model, exact bytes/keys under test, observed output, theoretical reasoning, interpretation and limitations.
+
+---
+
 ## 1. The cryptographic inventory of ATLAS
 
 Knowing *which* algorithms a system uses, and *where*, is the first step of any crypto review (and of

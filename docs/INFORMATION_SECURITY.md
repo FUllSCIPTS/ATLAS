@@ -64,6 +64,256 @@ reset on restart, `iterations=0` raising instead of failing closed) for students
 
 ---
 
+
+## Standalone illustrated foundations — Information Security
+
+This chapter explains each principle from the beginning, with concrete examples and diagrams. The 20 source experiments exercise ATLAS's actual local application controls. The two visualizations created for each experiment must be interpreted separately: **observed runtime/status** versus **illustrative model (not measured)**.
+
+### S1 — Information security, CIA and threat modelling
+
+The **CIA triad** is **confidentiality** (prevent unauthorized disclosure), **integrity** (detect or stop unauthorized changes) and **availability** (continue providing service). An **asset** is something worth protecting; a **threat** is a possible harmful event; a **vulnerability** is a weakness; a **control** reduces risk. Risk depends on likelihood and impact. A locked account is not enough if its ride history is exposed in a readable file.
+
+~~~mermaid
+flowchart LR
+ ASSET["Asset: rider account/history"] --> THREAT["Threat: device/file theft"]
+ THREAT --> WEAK["Weakness: unencrypted local state"]
+ WEAK --> RISK["Risk: disclosure"]
+ RISK --> CTRL["Controls: minimize, protect storage, monitor"]
+~~~
+
+The ATLAS Go state file is not encrypted at rest. Password hashing protects the verifier against direct reversal but does not encrypt unrelated personal data. **Labs S01,S08,S17.**
+
+### S2 — Identity, authentication, authorization and accountability
+
+**Identification** is claiming an account; **authentication** verifies evidence (password, token, physical authenticator); **authorization** decides permitted operations; **accountability** logs events for audit. Authentication alone does not grant all permissions.
+
+~~~mermaid
+flowchart TD
+ I["Claim email / identity"] --> A["Verify credential"]
+ A --> SESSION["Establish session"]
+ SESSION --> ROLE["Resolve role"]
+ ROLE --> CHECK["Authorize method"]
+ CHECK --> AUDIT["Security event / result"]
+~~~
+
+A passenger may book, a driver may accept, a seller may update a menu. ATLAS Go checks roles in app screens and store operations. **Labs S09–S11,S16.**
+
+### S3 — Password storage, salt, PBKDF2 and offline attacks
+
+Passwords should not be stored in plaintext or via reversible encryption alone. A **salt** is a random per-user value; the app stores salt, iteration count and **password-derived verifier**. ATLAS Go uses PBKDF2-HMAC-SHA256 with 16-byte salts and 200,000 iterations. An attacker who steals the file may still guess offline; increasing iterations increases attacker cost per guess and legitimate login cost. Password distribution matters more than simplistic character-count entropy.
+
+~~~mermaid
+flowchart LR
+ PASSWORD["Password"] --> KDF["PBKDF2-HMAC-SHA256"]
+ SALT["16-byte random salt"] --> KDF
+ ITER["200,000 iterations"] --> KDF
+ KDF --> RECORD["Stored verifier"]
+~~~
+
+~~~python
+import hashlib, hmac, secrets
+password=b"Classroom-Example"
+salt=secrets.token_bytes(16)
+saved=hashlib.pbkdf2_hmac("sha256",password,salt,200000)
+candidate=hashlib.pbkdf2_hmac("sha256",password,salt,200000)
+assert hmac.compare_digest(saved,candidate)
+~~~
+
+**Offline** password guessing happens against a copied record and is not prevented by online account lockout. **Online** guessing goes through the login interface, where rate limits can help. **Labs S01–S08.**
+
+### S4 — Input validation, registration and unique identities
+
+**Validation** restricts formats, lengths and allowable values. **Normalization** makes representations consistent, but must follow a documented rule; Unicode and email-case equivalence are subtle. **Uniqueness** prevents two accounts from claiming an identity under the app's policy. Validation does not prove that a user actually owns an email address or phone number.
+
+~~~mermaid
+flowchart TD
+ INPUT["Registration details"] --> FORMAT["Format, length, range checks"]
+ FORMAT --> NORMAL["Approved normalization"]
+ NORMAL --> UNIQUE["Identity uniqueness"]
+ UNIQUE --> ROLE["Role-specific requirements"]
+ ROLE --> COMMIT["Create account"]
+~~~
+
+**Labs S09 and S10** check validators and duplicate cases against real application code.
+
+### S5 — RBAC, least privilege and state machines
+
+**Role-based access control (RBAC)** maps roles to permissions. **Least privilege** means granting only needed powers. Never rely only on hiding a UI button: the underlying operation must enforce the rule too.
+
+~~~mermaid
+flowchart LR
+ P["Passenger"] --> B["Book ride / food"]
+ D["Driver"] --> R["Accept or advance job"]
+ S["Seller"] --> M["Edit kitchen menu"]
+ GUARD["Store-layer permission checks"] --> B
+ GUARD --> R
+ GUARD --> M
+~~~
+
+A ride's **state machine** controls legal transitions (pending→accepted→in progress→complete) but is not itself a queue data structure. **Lab S11.**
+
+### S6 — Sign-in, lockout, account enumeration and timing attacks
+
+ATLAS Go has a five-failure login lockout lasting 60 seconds. A **lockout counter** makes online guessing harder, but its effectiveness depends on persistence and whether it counts per account, device, source or other scope. ATLAS Go's counter is stored **in memory**, so restarting resets it. **Account enumeration** occurs when error text or time identifies whether a user exists; uniform error messages help but are not sufficient if unknown emails skip expensive password work.
+
+~~~mermaid
+stateDiagram-v2
+ [*] --> Ready
+ Ready --> Ready: failures 1..4
+ Ready --> Locked: failure 5
+ Locked --> Ready: 60-second interval expires
+ Ready --> SignedIn: valid login
+~~~
+
+A **constant-time comparison** limits data-dependent comparison leakage but does not automatically equalize total login-processing time. A dummy hash may reduce one side channel; distributed protection requires stronger rate controls. **Labs S12–S15.**
+
+### S7 — Sessions, guest state, logout and deletion
+
+A **session** records authenticated state. It needs rules for validity, expiry, revocation and role changes. Logout should clear that state. Deletion requires suitable reauthentication and appropriate treatment of linked history. A guest should never acquire a logged-in user's privileges.
+
+~~~mermaid
+flowchart TD
+ REG["Register"] --> LOGIN["Login"]
+ LOGIN --> ACTIVE["Session active"]
+ ACTIVE --> LOGOUT["Logout"]
+ ACTIVE --> DELETE["Reauthenticate, delete account"]
+ DELETE --> ANON["Anonymize relevant history"]
+~~~
+
+The ATLAS Go phone app uses local sessions; a hardened multi-device back end would need server-side token and revocation design. **Labs S16,S19,S20.**
+
+### S8 — Saved-state validation, atomic writes and integrity
+
+**Schema validation** verifies structure, allowable field values and invariants. **Atomic updates** use temporary-file replacement so a failed disk write need not leave half-written state. These controls help consistency but do not supply a cryptographic MAC against an attacker capable of rewriting valid-looking JSON.
+
+~~~mermaid
+flowchart LR
+ OLD["Existing consistent file"] --> COPY["Prepare update"]
+ COPY --> VALIDATE["Validate invariants"]
+ VALIDATE --> TMP["Write temporary file"]
+ TMP --> REPLACE["Atomic replace"]
+ REPLACE --> NEW["Consistent saved state"]
+~~~
+
+ATLAS Go LocalStore demonstrates load, validate and commit. **Labs S08,S17,S18.**
+
+### S9 — Secure APIs, gateways and bearer tokens
+
+A **bearer credential** grants access to whoever possesses it. API gateways must authenticate external callers and avoid trusting unverified identity headers. Each internal service should verify the identity context and authorize the particular operation. TLS protects secrets in transit; secure storage, rotation, expiry and scopes matter.
+
+~~~mermaid
+sequenceDiagram
+ participant Client
+ participant Gateway
+ participant Service
+ Client->>Gateway: Request + credential
+ Gateway->>Gateway: Authenticate and check route
+ Gateway->>Service: Verified identity assertion
+ Service->>Service: Authorize operation
+ Service-->>Client: Result
+~~~
+
+The separate ATLAS architecture starter has a **demo-grade** gateway. The Android app itself does not run this live server back end today.
+
+### S10 — SSO, OAuth 2.0 and OIDC
+
+**Single sign-on (SSO)** means using one login to access several relying applications. **OAuth 2.0** is an authorization framework; **OpenID Connect (OIDC)** adds authentication and identity claims. An **access token** authorizes resource access; an **ID token** conveys authentication claims. For mobile/public clients, authorization-code flow with **PKCE** mitigates intercepted authorization codes.
+
+~~~mermaid
+sequenceDiagram
+ participant App
+ participant IdP as Identity provider
+ participant API
+ App->>IdP: Authorization request + PKCE challenge
+ IdP-->>App: Code after authentication
+ App->>IdP: Code + PKCE verifier
+ IdP-->>App: Tokens
+ App->>API: Access token
+ API-->>App: Allowed response
+~~~
+
+Verify issuer, audience, expiration, signature, authorized redirect and nonce where needed. This is a **teaching extension**, not a feature deployed in ATLAS Go.
+
+### S11 — Kerberos tickets and its six-message exchange
+
+A Kerberos **Key Distribution Center** has an Authentication Service (AS) and Ticket Granting Service (TGS). A client obtains a ticket-granting ticket, exchanges it for a service ticket, and authenticates to the service, typically without passing a reusable password to that service. Freshness, clock synchronization and protected long-term keys matter.
+
+~~~mermaid
+sequenceDiagram
+ participant C as Client
+ participant AS
+ participant TGS
+ participant S as Service
+ C->>AS: 1 AS-REQ
+ AS-->>C: 2 AS-REP
+ C->>TGS: 3 TGS-REQ
+ TGS-->>C: 4 TGS-REP
+ C->>S: 5 AP-REQ
+ S-->>C: 6 AP-REP
+~~~
+
+The ATLAS explorer includes a teaching demonstration. Kerberos is not deployed as Android-app authentication.
+
+### S12 — TLS, mTLS and certificate verification
+
+**TLS** authenticates an endpoint and negotiates protected communication. HTTPS checks the server certificate; **mutual TLS (mTLS)** also requires a client certificate. Certificate validation must verify trusted issuer/chain, hostname/SAN, validity times and key usage. Certificate authentication is distinct from application authorization.
+
+~~~mermaid
+sequenceDiagram
+ participant Client
+ participant Server
+ Client->>Server: ClientHello / key share
+ Server-->>Client: ServerHello / certificate
+ Client->>Client: Validate certificate and identity
+ Client->>Server: Finished / client cert if mTLS
+ Server-->>Client: Encrypted application data
+~~~
+
+This is a simplified conceptual handshake, not a complete TLS 1.3 protocol transcript. ATLAS Go fetches map tiles via HTTPS; the research prototype demonstrates mutual TLS.
+
+### S13 — Supply chain, deployed secrets and boundaries
+
+Build signing protects artifact provenance under trust assumptions, not software correctness. Controls include least-privilege CI, protected signing keys, content-addressed dependencies, release verification, restricted server exposure, secret rotation and audit. Separate **implemented**, **demo-grade** and **teaching-only** functionality: static internal gateway keys and unencrypted phone files are not hardened production patterns.
+
+~~~mermaid
+flowchart LR
+ CODE["Reviewed source"] --> BUILD["Restricted CI build"]
+ BUILD --> HASH["Hash artifacts"]
+ HASH --> SIGN["Sign with protected key"]
+ SIGN --> VERIFY["Verify before install"]
+~~~
+
+### S14 — Each information-security experiment: illustrative and observed results
+
+The original numbered source lab runs the real code. The **observed PNG** reports measured elapsed seconds and exit status. The **conceptual PNG/CSV** shows a clearly marked explanatory model (not a measured output). Full source stdout/stderr is preserved in per-test logs.
+
+| Exp. | Real test | Illustration / discussion |
+|---|---|---|
+| S01 | Stored credential anatomy | Salt and verifier vs plaintext |
+| S02 | Unique per-account salt | Why salted hashes differ |
+| S03 | Verification behavior | Constant-time comparison and malformed input |
+| S04 | Work-factor sweep | Iterations versus per-guess cost |
+| S05 | Guess-space arithmetic | Offline password strength assumptions |
+| S06 | Dictionary attack demonstration | Offline guesses versus stored verifier |
+| S07 | Password policy cases | Accepted/rejected classes |
+| S08 | State-file forensics | What plaintext data remains |
+| S09 | Input checks | Allow/reject boundaries |
+| S10 | Duplicate email | Canonical identity policy |
+| S11 | RBAC | Passenger/driver/seller permissions |
+| S12 | Login lockout | Count and duration |
+| S13 | Error-message consistency | Account enumeration |
+| S14 | Timing difference | Dummy hashing versus no work |
+| S15 | In-memory reset | Restart and persistent controls |
+| S16 | Session lifecycle | Guest and account sessions |
+| S17 | Tampered JSON | Validation versus cryptographic integrity |
+| S18 | Atomic save | Rollback and crash safety |
+| S19 | Deletion and history | Reauth and anonymization |
+| S20 | Password hash upgrade | Iteration migration at login |
+
+**Use [Information Security Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb)** for all 20 experiments, logs, actual timing/status charts and separately identified conceptual graphs. **Report:** threat/asset → assumption → source function → expected defense → observed result → timing and test status → conceptual explanation → limitations and improvements.
+
+---
+
 ## 1. The security map of ATLAS
 
 ATLAS has three runnable parts, and each teaches a different layer of security.
