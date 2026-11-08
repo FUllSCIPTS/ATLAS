@@ -22,8 +22,25 @@ hash a password with the exact ATLAS parameters, trip the login lockout, step th
 authentication, and run a live Kerberos exchange (with replay, clock-skew, tampering and expiry
 attacks) using real AES-GCM in your browser.
 
-**Command-line lab:** `python3 security_lab/password_storage_demo.py` exercises the app's real
-`accounts.py` (no extra dependencies).
+**Command-line lab:** `python3 security_lab/password_storage_demo.py` runs 20 experiments against
+the app's real `accounts.py` and `store.py` (no extra dependencies). `--list` shows them; `--path NAME`
+runs a study path; `-e N` runs one experiment.
+
+| Study path | Experiments | Question it answers |
+|---|---|---|
+| `foundations` | 1, 2, 3, 7, 8 | What exactly is stored, and why can nobody read the password back? |
+| `attacker` | 4, 5, 6, 13, 14, 15 | How fast can a stolen file or a login screen be attacked, and what leaks? |
+| `defender` | 9, 10, 11, 12, 13, 16 | Which controls run at registration and sign-in? |
+| `integrity` | 8, 17, 18, 19 | How does the app keep its stored data trustworthy? |
+| `lifecycle` | 9, 1, 12, 16, 19, 20 | One user from sign-up to deletion, plus rehash-on-login |
+
+Groups: **A** what is stored (1-8: anatomy, salting, verification, work factor, guess-rate arithmetic,
+dictionary attack, policy matrix, file forensics); **B** registration and identity (9-11: input
+validation, one identity per email, role separation); **C** sign-in defences (12-15: lockout timeline,
+no enumeration by message, timing side channel and the dummy-hash fix, limits of an in-memory per-email
+lockout); **D** integrity and lifecycle (16-20: sessions, tamper quarantine, atomic save and rollback,
+account deletion, upgrading old hashes). Several experiments surface real gaps (timing leak, lockout
+reset on restart, `iterations=0` raising instead of failing closed) for students to fix in session 8.
 
 ---
 
@@ -447,8 +464,8 @@ These are real properties of the current code, ideal for "find and fix" assignme
 | Session | Topic | ATLAS material | Activity |
 |---|---|---|---|
 | 1 | CIA triad, threat modelling | §1 security map, §10 | STRIDE on the Explorer's architecture view |
-| 2 | Password storage | §2, `security_lab/password_storage_demo.py`, Explorer *Passwords* tab | Crack a fast SHA-256 hash vs a PBKDF2 hash; time both |
-| 3 | Authentication and identity lifecycle | §3, §4 | Trip the lockout; argue generic error messages |
+| 2 | Password storage | §2, `security_lab/password_storage_demo.py`, Explorer *Passwords* tab | Lab path `foundations` then `attacker`; crack a leaked record, time SHA-256 vs PBKDF2 |
+| 3 | Authentication and identity lifecycle | §3, §4 | Lab paths `defender` and `lifecycle`; trip the lockout; measure the timing leak |
 | 4 | Authorisation | §5, §6 | Try calling a rider route with a driver key; trace the 401 |
 | 5 | SSO and federated identity | §7 | Draw the OIDC + PKCE flow for the seller portal |
 | 6 | Kerberos | §8, Explorer *Kerberos* tab | Run the six messages; trigger each attack; explain which field stopped it |
