@@ -1161,8 +1161,8 @@
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
     "dist/security.js": "583a868522e163049446af86aeb7f26ca75ca5c33920abc73cf89a257e609007",
     "dist/styles.css": "fb681e0c32be4317ffdced73d7a10c72869a24f1c49aa41e024c2c5f33dfad0b",
-    "dist/uml-catalog.js": "a7bff06314b96602d0e6213419dc44e26042df122f081a6337f1c8aaaff443ce",
-    "server.mjs": "d75ba767b9d82b38e180c17377f26fa55905c897bf99eb29b10c386ad8f7f7ee",
+    "dist/uml-catalog.js": "27ac98961f072903bece5e97f3fc33407e26922e207af31126ed0101b5d32d53",
+    "server.mjs": "6f256b13ca968fb6757288ba60fc23f2ee8f9615057bb77d8c57305313c62b22",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
   "supporting_modules": {
@@ -6654,28 +6654,28 @@
         {
           "name": "<callback: Object.entries(contentTypes).map>",
           "signature": "<callback: Object.entries(contentTypes).map>([file, type])",
-          "line": 27,
+          "line": 28,
           "async": true,
           "decorators": []
         },
         {
           "name": "reply",
           "signature": "reply(request, response, status, type, body, headers = {})",
-          "line": 41,
+          "line": 42,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer>",
           "signature": "<callback: createServer>(request, response)",
-          "line": 51,
+          "line": 52,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>",
           "signature": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>()",
-          "line": 67,
+          "line": 68,
           "async": false,
           "decorators": []
         }

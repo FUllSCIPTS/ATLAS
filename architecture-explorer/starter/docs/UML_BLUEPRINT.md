@@ -1414,9 +1414,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-tls-ca"></a>Private CA, serverAuth and clientAuth certificates | `make_certs` | [prototype.zip → prototype/proto_run.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-client"></a>Client presents its certificate, verifies the server | `client_ctx` | [prototype.zip → prototype/proto_run.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-server"></a>Server requires a client certificate (CERT_REQUIRED) | `ctx.load_verify_locations(f"{certdir}/ca.crt"); ctx.verify_mode = ssl...` | [prototype.zip → prototype/module_server.py L84](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
-| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L33](../../server.mjs#L33) | Implemented |
-| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L41](../../server.mjs#L41) | Implemented |
-| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L67](../../server.mjs#L67) | Implemented |
+| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L34](../../server.mjs#L34) | Implemented |
+| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L42](../../server.mjs#L42) | Implemented |
+| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L68](../../server.mjs#L68) | Implemented |
 | <a name="sec-dep-systemd"></a>systemd sandbox (DynamicUser, ProtectSystem) | `DynamicUser=yes` | [architecture-explorer/deploy/atlas-explorer.service L10](../../deploy/atlas-explorer.service#L10) | Implemented |
 | <a name="cr-sig-sign"></a>Sign the bundle: jarsigner SHA256withRSA, then verify | `main` | [android-app/scripts/sign-release.py L8](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/sign-release.py#L8) | Implemented |
 
@@ -3126,9 +3126,9 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L27](../../server.mjs#L27) |
-| Function | `reply(request, response, status, type, body, headers = {})` | — | [L41](../../server.mjs#L41) |
-| Function | `<callback: createServer>(request, response)` | — | [L51](../../server.mjs#L51) |
+| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L28](../../server.mjs#L28) |
+| Function | `reply(request, response, status, type, body, headers = {})` | — | [L42](../../server.mjs#L42) |
+| Function | `<callback: createServer>(request, response)` | — | [L52](../../server.mjs#L52) |
 | Function | `<callback: createServer((request, response) => {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return reply(request, response, 405, textType, "Method not allowed\n", { Allow: "GET, HEAD" });
@@ -3145,7 +3145,7 @@ This file declares no functions.
   }
 
   reply(request, response, 200, asset.type, asset.body);
-}).listen>()` | — | [L67](../../server.mjs#L67) |
+}).listen>()` | — | [L68](../../server.mjs#L68) |
 
 ### `starter/scripts/generate_blueprint.py`
 
