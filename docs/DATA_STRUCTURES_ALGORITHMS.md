@@ -2,6 +2,31 @@
 
 **Course format:** 15 teaching weeks · 2 h theory + 2 h lab weekly · Python 3 / Google Colab. **Audience:** complete beginners through intermediate students. This is an independent course; it does not assert that ATLAS deploys every algorithm.
 
+## Navigate to ATLAS Go UML and function catalogue
+
+The app's complete [ATLAS Go UML class diagrams and function inventory](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) are maintained on the **`architecture-explorer` branch**; the [generated Python class/function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) is on **`main`**. Source links below point to code on `main`. Read them alongside each lesson to identify where the concept appears in the actual application.
+
+**Status legend:** **Implemented in ATLAS Go** means a named function or Python collection actually exists in `android-app/atlas_go/`. **Related application concept** means the app has related behavior but not necessarily the named data structure or algorithm. **Teaching only** means the implementation is in `dsa_lab/`, not the ATLAS Go app.
+
+| DSA topic | Exact ATLAS Go class/function or status | Useful source and catalogue |
+|---|---|---|
+| ADT / operations | **Implemented:** `LocalStore.book`, `checkout`, `commit` | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [LocalStore UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#app-class-diagram) |
+| Lists, scans, filtering | **Implemented:** `LocalStore.online_drivers`, `my_history`, `Catalog.menu` | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [domain.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) |
+| Strings and input validation | **Implemented:** `accounts.clean_name`, `clean_email`, `clean_phone` | [accounts.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py) |
+| Dictionaries / hashing | **Implemented:** `Cart.items`, `Catalog.dishes`, `LocalStore.failures` (Python dict, not linked chaining) | [domain.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) · [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) |
+| Sorting and ranking | **Implemented:** `intelligence.rank` uses `sorted`; `choose` consumes ranking | [intelligence.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) |
+| Selection / nearest | **Implemented:** `geo.nearest_place` uses minimum Haversine distance over saved places | [geo.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) |
+| Geographic visualization | **Implemented:** `geo.ride_position`, `LiveMap.visible_tiles`, `LiveMap._route` | [geo.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) · [livemap.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) |
+| State transitions | **Related concept:** `LocalStore.driver_advance`, `advance_ride`, `advance_order` (not a queue ADT) | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [Lifecycle UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#on-device-ride-and-order-lifecycles) |
+| Linked-list hash chains | **Teaching only:** `ChainHash`, `SNode`, `DNode` | [DSA experiments E16–E18](../dsa_lab/experiments.py) |
+| Stack/queue BST traversal | **Teaching only:** `inorder_stack`, `postorder_stack`, `levelorder_queue` | [DSA experiment E19](../dsa_lab/experiments.py) |
+| AVL trees / rotations | **Teaching only:** `avl_insert`, `avl_rotate_left`, `avl_rotate_right` | [DSA experiment E20](../dsa_lab/experiments.py) |
+| BFS, DFS, Dijkstra | **Teaching only:** graph algorithms in DSA lab; no verified ATLAS Go road-network shortest-path algorithm | [DSA experiments E11–E12](../dsa_lab/experiments.py) |
+| Heap, trie, DP examples | **Teaching only:** illustrated ideas here (DP timing in DSA E13); not identified as ATLAS Go APIs | [DSA laboratory](../dsa_lab/experiments.py) |
+| Correctness / consistency | **Implemented:** `LocalStore.validate`, `snapshot`, `commit`; `intelligence.self_test` | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [intelligence.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) |
+
+For complete method signatures rather than just names, use the [ATLAS Go class/function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) and the [full UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md). The UML blueprint also describes separate **starter back-end** components: do not confuse planned/server starter functions with code running inside today's on-device ATLAS Go app.
+
 ## Outcomes
 Explain algorithms and abstract data types (ADTs); derive operation counts and asymptotic bounds; distinguish time from auxiliary space; implement linear and non-linear structures; test correctness and invariants; profile repeatably in Colab; interpret charts instead of mistaking an empirical curve for a proof.
 
@@ -61,6 +86,10 @@ Searching: linear vs binary (sorted precondition). Sorting: bubble, insertion, m
 
 ## Lesson 1 — Problem, algorithm, data structure, and ADT
 
+**ATLAS Go implementation link:** [`LocalStore.book`, `LocalStore.checkout`, `LocalStore.commit`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) illustrate concrete operations and persistence. Browse the [UML Android app overview](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) and [function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) for class contracts. They are real app methods, not implementations of the lab's abstract queue.
+
+
+
 A **problem** specifies an input and desired output; an **algorithm** gives finite, unambiguous steps to obtain that output; a **data structure** organizes values to support those steps. An **abstract data type (ADT)** defines behavior and operations independently of representation. Example: a waiting line is a queue ADT; a linked deque is one implementation; dequeue is an operation; serving the earliest customer is the goal.
 
 ~~~mermaid
@@ -84,6 +113,10 @@ assert linear_search([2,7,9], 7) == 1
 An algorithm should state **preconditions** (e.g., sorted input for binary search), **postconditions** (correct result) and **termination**. A **loop invariant** is a statement true before and after each iteration, useful for correctness proofs. Linear search invariant: every already inspected position does not contain the target (unless the method returned). **Lab:** E02.
 
 ## Lesson 2 — Counting operations and actually measuring complexity
+
+**ATLAS Go implementation link:** [`LocalStore.online_drivers`, `LocalStore.my_history`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) perform scans with list comprehensions; [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) scores and sorts driver candidates. Use them to count how work scales with accounts, history or candidates. [Source method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
 
 Define n first: for an array it is length, for a graph use V and E, for a 2D matrix use rows and columns. Choose a basic operation: a comparison, swap, hash probe or node visit. A single loop with n visits costs n; nested full loops n²; a triangular loop costs 0+1+...+(n−1)=n(n−1)/2. At n=5 this is 10 operations, at n=10 it is 45.
 
@@ -124,7 +157,11 @@ print("Peak traced KiB",peak/1024)
 
 **Labs:** E01,E06,E14.
 
-## Lesson 3 — Big O, Big Ω and Big Θ (the three notations)
+## Lesson 3 — Big O, Big Ω and Big Θ
+
+**ATLAS Go implementation link:** [`online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) is a practical candidate for O(n) scan analysis, while [`rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) uses Python `sorted` after scoring candidates. These are implementation examples, not claims of measured app-wide bounds. [UML/function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+ (the three notations)
 
 For nonnegative functions f and g, **O(g)** is an eventual upper bound: f(n) ≤ c₂g(n) for sufficiently large n; **Ω(g)** is an eventual lower bound f(n) ≥ c₁g(n); **Θ(g)** means both. These bound a chosen function and do **not** automatically mean worst, best or average case.
 
@@ -139,6 +176,10 @@ flowchart TD
 **Proof example:** f(n)=3n²+5n+8. For n≥1, 3n² ≤ f(n) ≤ 16n², hence Θ(n²); O(n³) is true but loose. Relative growth for input 64: log₂n=6, n=64, nlog₂n=384, n²=4096. **Cases are separate:** linear search first element takes 1 comparison, absent element n, and uniformly random successful index (n+1)/2 expected comparisons. Hence its best Θ(1), average successful Θ(n), worst Θ(n). **Lab:** E03.
 
 ## Lesson 4 — Arrays, 2D and 3D indexing, and strings
+
+**ATLAS Go implementation link:** [`LocalStore.reset`, `online_drivers`, `my_history`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) manipulate Python lists; [`geo.tile_range`, `geo.world_px`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) work with coordinate/tile computations; [`LiveMap.visible_tiles`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) processes visible tile locations. The flat 2D/3D indexing formulas are **teaching examples**, not verified ATLAS Go memory-layout code. [Catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
 
 An array supports indexed access. Python lists are resizable arrays of *references*: a[i] O(1), append amortized O(1), insertion at front O(n). A Python string is immutable, so producing a modified string usually creates new storage. A 2D row-major R×C numeric array has flat index i·C+j; column-major has j·R+i. A 3D X×Y×Z row-major numeric array has (i·Y+j)·Z+k.
 
@@ -163,6 +204,10 @@ assert (1*3+2)*4+3 == 23  # last index of 2×3×4
 **Important:** Nested Python lists do not themselves imply contiguous numeric-matrix memory. Use a contiguous NumPy array to investigate cache effects. **Lab:** E07; extension: measure traversal order.
 
 ## Lesson 5 — Singly and doubly linked lists
+
+**ATLAS Go status — teaching extension:** The explicit `Node`, `SNode` and `DNode` structures are in [the DSA lab](../dsa_lab/experiments.py), not in the current ATLAS Go class catalogue. For an app-side alternative to inspect, see the [`Cart` collection in domain.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) and the [app UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go); this does **not** mean `Cart` is implemented as a linked list.
+
+
 
 A **singly linked node** stores (value,next); a **doubly linked node** stores (value,prev,next). Nodes may be dispersed in memory. Head insertion is O(1); indexed search is O(n). A doubly linked list enables removal of a **known node** in O(1), but locating a key is still O(n).
 
@@ -193,6 +238,10 @@ Trace head, middle, tail, absent-key and empty-list deletion. Avoid losing the r
 
 ## Lesson 6 — Stack, queue and deque
 
+**ATLAS Go status — teaching analogy:** The stack and FIFO queue implementations are in [DSA labs E08 and E19](../dsa_lab/experiments.py). ATLAS Go has ride/order progression methods [`driver_advance`, `advance_ride`, `advance_order`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and related [UML lifecycle diagrams](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#on-device-ride-and-order-lifecycles), but these are **state transitions**, not proof the app uses `deque` as a FIFO scheduler.
+
+
+
 **Stack:** LIFO, like plates: last pushed item is first popped. **Queue:** FIFO, like a ticket line: earliest enqueued item leaves first. **Deque:** both ends are usable. A Python list supports append/pop at end in amortized O(1), while collections.deque provides append/popleft in O(1). list.pop(0) costs O(n), as items shift.
 
 ~~~mermaid
@@ -212,6 +261,10 @@ assert queue.popleft()=="A"
 Stacks implement iterative depth-first tree/graph traversal; queues implement breadth-first traversal. **Labs:** E08,E19.
 
 ## Lesson 7 — Hash tables implemented with linked lists
+
+**ATLAS Go implementation link:** Real dictionary-backed collections are used by [`Cart.items`, `Catalog.dishes`, `Catalog.kitchens`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) and [`LocalStore.failures`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py). Separate-chaining hash tables using `SNode`/`DNode` are **educational implementations** in [E16–E18](../dsa_lab/experiments.py); Python `dict` itself is not linked-list chaining. [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
 
 A **hash table** uses a hash function to choose an array bucket. With integer keys, index=hash(key)%m. A **collision** occurs when different keys select the same bucket. **Separate chaining** stores colliding key/value records in a linked list at that bucket.
 
@@ -253,6 +306,10 @@ Python's built-in dict does *not* use these linked lists; it uses an open-addres
 
 ## Lesson 8 — Tree vocabulary and all four traversals
 
+**ATLAS Go status — teaching extension:** The node BST and stack/queue traversal functions (`bst_insert_node`, `inorder_stack`, `preorder_stack`, `postorder_stack`, `levelorder_queue`) are implemented in the [DSA laboratory](../dsa_lab/experiments.py). They are not listed as ATLAS Go functions in the [app method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
+
 A **tree** is an acyclic connected hierarchy. A **binary tree** allows at most two children per node. A **BST** requires smaller keys in left subtrees and larger keys in right subtrees (our illustrative node insertion ignores duplicates). A **root** has no parent, **leaf** has no children, and **height** measures maximum root-to-leaf depth. Declare whether heights count edges or nodes: the lab uses leaf height=1 and empty height=0.
 
 ~~~mermaid
@@ -286,6 +343,10 @@ assert dsa.levelorder_queue(root)==[8,4,12,2,6,10,14]
 Every traversal visits n nodes once, O(n) time; DFS stack O(h), BFS queue O(w), and a collected output sequence adds O(n) space. A balanced BST has O(log n) lookup; ascending insertion into an unbalanced BST makes a chain of height O(n). **Labs:** E10,E19.
 
 ## Lesson 9 — AVL trees and the four rotations
+
+**ATLAS Go status — teaching extension:** AVL insertion, LL/RR/LR/RL rotation and balance validation occur in [DSA E20](../dsa_lab/experiments.py) only. The [ATLAS Go UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) has no corresponding AVL class/function; do not treat it as production dispatch code.
+
+
 
 An **AVL tree** is a self-balancing BST. Every node must have balance factor BF=height(left)−height(right) in {−1,0,+1}. After inserting a distinct key, update heights and rotate an unbalanced node. Rotations rearrange pointers without changing inorder ordering.
 
@@ -322,6 +383,10 @@ assert dsa.validate_avl(root)==2  # height in nodes
 Verify four rotation cases, tree ordering, computed heights and BF at every node. **Lab:** E20.
 
 ## Lesson 10 — Binary heaps, priority queues, and tries
+
+**ATLAS Go status — teaching extension:** `heapq` and trie examples demonstrate possible data structures. Current ATLAS Go candidate ordering uses [`intelligence.rank` with `sorted`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py), rather than a documented heap-priority queue, and no trie API is listed in the [method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
 
 A **min-heap** is a complete binary tree where each parent key ≤ its children. This differs from a BST: the left subtree need not contain only smaller values. Heaps use array indices: for parent i, children 2i+1 and 2i+2; parent of non-root i is (i−1)//2. Read minimum O(1); push/pop O(log n). Priority queues schedule tasks by urgency.
 
@@ -365,6 +430,10 @@ for word in ("cat","car","dog"):
 
 ## Lesson 11 — Graphs, BFS, DFS, Dijkstra, topological sort, union-find
 
+**ATLAS Go implementation link / limitation:** [`geo.haversine_km`, `geo.nearest_place`, `geo.ride_position`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) calculate geographic distance, nearest saved place and interpolated ride positions; [`LiveMap._route`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) draws a route visualization. The DSA lab's BFS, DFS and Dijkstra are **not evidence** that ATLAS Go performs road-network routing or Dijkstra dispatch. See [UML live map](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#live-map-and-location) and [catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
+
 A **graph** has V vertices and E edges. Edges may be directed/undirected and weighted/unweighted. In an adjacency list, graph[A] lists neighbors: O(V+E) storage. An adjacency matrix consumes O(V²) storage but checks whether one edge exists in O(1). **BFS** explores by increasing edge count using a queue; **DFS** follows branches using a stack or recursion. Both visit all reachable vertices in O(V+E) time using adjacency lists.
 
 ~~~mermaid
@@ -397,6 +466,10 @@ assert dsa.dijkstra(g,"A")["C"]==3
 
 ## Lesson 12 — Searching, sorting, stability and complexity
 
+**ATLAS Go implementation link:** [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) returns driver candidates sorted by computed probability, [`choose`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) selects from the ranked list, [`LocalStore.online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) filters a list, and [`Catalog.menu`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) filters dishes. The bubble/merge/quick sort functions and binary search in this chapter are **lab implementations**, not verified app functions. [Catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
+
 **Linear search:** scan until found, O(n) worst case, no sorted-input requirement. **Binary search:** inspect midpoint of sorted indexed data, keep only possible half, O(log n) worst case.
 
 ~~~mermaid
@@ -428,6 +501,10 @@ flowchart TD
 
 ## Lesson 13 — Recursion, divide-and-conquer, greedy, DP and backtracking
 
+**ATLAS Go implementation link / limitation:** [`intelligence.choose`, `score`, `rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) are genuine dispatch-selection/scoring functions; their use of ranking is **not equivalent to a proven greedy-optimal algorithm**. Fibonacci recursion, merge-sort divide-and-conquer and backtracking here are educational examples, not listed ATLAS Go functions. [Catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
+
 **Recursion** invokes a function on smaller inputs and ends at a base case. **Divide-and-conquer** splits into independent subproblems then combines solutions (merge sort: T(n)=2T(n/2)+Θ(n)=Θ(nlog n)). Binary search keeps one half (T(n)=T(n/2)+Θ(1)=Θ(log n)).
 
 ~~~mermaid
@@ -456,6 +533,10 @@ Here fib_dp takes Θ(n) time and Θ(1) additional space for loop variables (big-
 
 ## Lesson 14 — How to prove correctness and measure memory
 
+**ATLAS Go implementation link:** [`LocalStore.validate`, `snapshot`, `commit`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) check stored state and protect updates; [`intelligence.self_test`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) checks model behavior. Compare these concrete safeguards with DSA loop invariants and smoke tests, while keeping the proof obligations distinct. [UML function catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+
+
+
 For a loop: state precondition → show invariant initially → show one step preserves it → show termination → derive postcondition. For binary search, maintain “any matching index must lie within [low,high]” and shrink the interval every iteration. Sorting checks: output nondecreasing and multiset unchanged; linked lists: no lost nodes; AVL: height/BST/balance checks; BFS: reachable vertices visited exactly once.
 
 ~~~mermaid
@@ -469,6 +550,10 @@ flowchart LR
 Auxiliary memory examples: linked-list traversal O(1), DFS tree stack O(h), BFS tree queue O(w), visited set for general graph O(V), merge-sort temporary arrays O(n). Returning a full traversal order additionally stores O(n) values. Distinguish *asymptotic extra memory* from measured traced peak KiB. **Labs:** E14,E17,E19,E20.
 
 ## Lesson 15 — Full map of 20 experiments to learning objectives
+
+**ATLAS Go implementation links:** use the cross-reference catalogue immediately below to move from theory to a relevant real function, or to a DSA-only educational implementation where the function does not exist in ATLAS Go.
+
+
 
 | ID | Experiment and question | What to derive or inspect |
 |---|---|---|
