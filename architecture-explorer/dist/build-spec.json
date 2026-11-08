@@ -1,0 +1,77 @@
+{
+  "project": "ATLAS ride-hailing starter",
+  "spec_version": "1.0.0",
+  "architecture_url": "https://fullscipts.github.io/ATLAS/",
+  "guide_url": "https://fullscipts.github.io/ATLAS/build.html",
+  "repository": "https://github.com/FUllSCIPTS/ATLAS.git",
+  "branch": "architecture-explorer",
+  "root": "architecture-explorer/starter",
+  "handover": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md",
+  "uml_blueprint": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md",
+  "uml_inventory": "https://raw.githubusercontent.com/FUllSCIPTS/ATLAS/architecture-explorer/architecture-explorer/starter/docs/uml-blueprint.json",
+  "profiles": {
+    "compose": {
+      "start": "docker compose up -d --build",
+      "verify": "docker compose exec -T gateway python -m tests.smoke",
+      "database": "PostgreSQL",
+      "event_transport": "Kafka atlas.ride.v1, keyed by trip ID"
+    },
+    "local": {
+      "requirements": ["Python 3.12", "Bash", "requirements.txt", "torch==2.7.1 CPU"],
+      "start": "bash scripts/local.sh",
+      "verify": "python -m tests.smoke",
+      "database": "SQLite",
+      "event_transport": "Committed outbox drained by the same event handlers"
+    }
+  },
+  "entry_points": {
+    "passenger": "http://127.0.0.1:8000/passenger",
+    "driver": "http://127.0.0.1:8000/driver",
+    "health": "http://127.0.0.1:8000/healthz"
+  },
+  "trip_states": ["requested", "assigned", "picked_up", "completed"],
+  "event_schema": "./ride-event.schema.json",
+  "policy_test": "python -m tests.policy",
+  "replay_test": "python -m tests.replay",
+  "api": [
+    {"method":"POST","path":"/v1/rider/trips","owner":"services/trips.py","requires":["Idempotency-Key","pickup","destination","zone"],"success":202},
+    {"method":"GET","path":"/v1/rider/trips/{id}","owner":"services/trips.py","success":200},
+    {"method":"PUT","path":"/v1/driver/availability","owner":"services/dispatch.py","requires":["online","distance_km","speed_kph"],"success":200},
+    {"method":"GET","path":"/v1/driver/offers","owner":"services/dispatch.py","success":200},
+    {"method":"POST","path":"/v1/driver/offers/{id}/accept","owner":"services/dispatch.py","success":202},
+    {"method":"POST","path":"/v1/driver/trips/{id}/milestones","owner":"services/trips.py","requires":["status"],"success":200},
+    {"method":"POST","path":"/internal/v1/score","owner":"ml/serve.py","requires":["zone","drivers"],"success":200,"internal":true}
+  ],
+  "ml": {
+    "train": "python -m ml.train",
+    "serve": "ml.serve:app",
+    "models": ["PyTorch LSTM demand forecast", "Logistic regression offer acceptance", "Isolation Forest anomaly flag"],
+    "training_data": "seeded synthetic fixture; replace for real deployment",
+    "rl_train_demo": "python -m ml.rl train --demo",
+    "rl_train_recorded": "python -m ml.rl train",
+    "rl_watch": "python -m ml.rl watch --seconds 60",
+    "rl_approve": "python -m ml.rl approve CANDIDATE_VERSION",
+    "rl_rollback": "python -m ml.rl rollback",
+    "rl_enable_inference": "ATLAS_POLICY_ENABLED=1",
+    "states": {"0":"forecast below 8","1":"forecast at least 8"},
+    "actions": {"0":"nearest eligible driver","1":"highest acceptance probability among eligible drivers"}
+  },
+  "acceptance_checks": [
+    "Start both browser clients and all three FastAPI services.",
+    "Create one trip and one outbox row when the same booking key is retried.",
+    "Reject an offer acceptance from a different driver.",
+    "Observe requested, assigned, picked_up and completed in order.",
+    "Return a versioned LSTM forecast, acceptance probability and anomaly flag for the offer.",
+    "Record one RL experience for completion and pin its policy version.",
+    "Require approval for any candidate activation and support rollback.",
+    "Run the smoke test with PostgreSQL and Kafka before claiming the container deployment works."
+  ],
+  "production_extensions": [
+    "Real identity and least-privilege credentials",
+    "Location, routing and ETA integration",
+    "Offer expiry, re-matching and cancellation",
+    "Notifications, payments and auditable receipts",
+    "Consented model training data and monitored policy rollout",
+    "Observability, scaling, backup and incident recovery"
+  ]
+}

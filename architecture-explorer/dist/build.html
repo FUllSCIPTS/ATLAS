@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1119">
+  <meta name="description" content="Executable setup instructions, source files and ML scripts for the ATLAS ride-hailing starter.">
+  <title>Build ATLAS · Implementation Guide</title>
+  <link rel="icon" href="./atlas.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./build.js" defer></script>
+</head>
+<body>
+<header class="topbar"><div class="shell top-inner">
+  <a class="brand" href="./"><img src="./atlas.svg" width="32" height="32" alt=""><strong>ATLAS</strong><span>Architecture Explorer</span></a>
+  <a class="guide-link" href="./">← Architecture map</a>
+</div></header>
+<main class="shell guide">
+  <section class="intro">
+    <div class="eyebrow"><span class="status-dot"></span> IMPLEMENTATION GUIDE</div>
+    <h1>Build and run ATLAS<span>.</span></h1>
+    <p>Start with the runnable ride flow. Use the linked files, API contracts and acceptance checks to extend it with a coding agent.</p>
+    <div class="guide-actions"><a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter">Open runnable source ↗</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint ↗</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md">Final handover ↗</a><a class="guide-link" href="./build-spec.json">Machine-readable spec</a><a class="guide-link" href="./ride-event.schema.json">Kafka event schema</a></div>
+  </section>
+  <div class="guide-grid">
+    <section class="panel guide-card">
+      <p class="section-kicker">01 / START</p>
+      <h2>Run the full demo stack</h2>
+      <p>Use Docker Compose for PostgreSQL and Kafka. The model setup trains on CPU and stores versioned artifacts before serving starts.</p>
+      <pre><code>git clone --branch architecture-explorer --single-branch https://github.com/FUllSCIPTS/ATLAS.git
+cd ATLAS/architecture-explorer/starter
+docker compose up -d --build
+docker compose exec -T gateway python -m tests.smoke
+docker compose exec -T -e KAFKA_BOOTSTRAP=kafka:9092 gateway python -m tests.replay</code></pre>
+      <p>Open <a href="http://127.0.0.1:8000/passenger">Passenger app</a> and <a href="http://127.0.0.1:8000/driver">Driver app</a> after startup. Book, accept, pick up and complete a ride.</p>
+      <p>The starter also includes a Python-only SQLite quickstart. <a href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/README.md#start-locally-without-docker">Local run instructions</a></p>
+    </section>
+    <section class="panel guide-card">
+      <p class="section-kicker">02 / TRAIN AND SERVE</p>
+      <h2>Run the ML pipeline</h2>
+      <dl class="guide-models">
+        <dt>Demand LSTM</dt><dd>Train on ordered counts and predict the next five-minute count per zone.</dd>
+        <dt>Acceptance model</dt><dd>Return a logistic regression probability for each driver from distance and speed.</dd>
+        <dt>Anomaly model</dt><dd>Use Isolation Forest to flag unusual telemetry and log it with the offer.</dd>
+        <dt>RL policy</dt><dd>Learn from completed rides, evaluate a versioned candidate, then explicitly approve or roll it back.</dd>
+      </dl>
+      <p><a href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/README.md#train-serve-and-learn">Training and policy commands ↗</a></p>
+    </section>
+    <section class="panel guide-card">
+      <p class="section-kicker">03 / VERIFY</p>
+      <h2>Know when it works</h2>
+      <ol>
+        <li>A retried booking key returns the same trip and emits one booking event.</li>
+        <li>Only the offered driver can accept. The trip reaches completed in order.</li>
+        <li>The recorded offer shows a model version, forecast, acceptance score and anomaly flag.</li>
+        <li>Completion creates one experience record. The RL approval gate and rollback work.</li>
+      </ol>
+      <p>The starter uses demo accounts and synthetic training data. Real riders require production identity, GPS and routing, re-matching, payments, and evaluation on representative data.</p>
+    </section>
+    <section class="panel guide-card">
+      <p class="section-kicker">04 / HAND OFF</p>
+      <h2>Give this brief to a coding agent</h2>
+      <textarea id="agent-brief" aria-label="Implementation brief" readonly rows="9">Build and run the ATLAS ride-hailing application using https://fullscipts.github.io/ATLAS/build.html and its build-spec.json. Read the final handover, UML blueprint and generated symbol inventory before changing class or function contracts. Clone FUllSCIPTS/ATLAS at branch architecture-explorer. Work inside architecture-explorer/starter.
+
+Start the existing implementation first. Run the PostgreSQL/Kafka Compose smoke test. Show that a ride completes and that the trained LSTM, acceptance model, Isolation Forest, and RL policy commands produce the documented outputs. Keep the nearest-driver fallback and explicit policy approval.
+
+Then implement any requested production extensions in tested increments. Preserve the API/event contracts and add tests for retries, concurrency and replay. Provide working start commands, test results, and any remaining gaps.</textarea>
+      <div class="guide-actions"><button type="button" class="guide-link primary" id="copy-brief">Copy implementation brief</button><span class="copy-status" id="copy-status" aria-live="polite"></span></div>
+    </section>
+    <section class="panel guide-card">
+      <p class="section-kicker">05 / ANDROID APP</p>
+      <h2>ATLAS Go 1.2.0 on the phone</h2>
+      <p>The Android app is separate from this starter. It has passenger, driver and food-seller accounts and a live map, stores everything on the phone, and ships what the agents learned as plain Python constants.</p>
+      <dl class="guide-models">
+        <dt>Dispatch policy v1.4</dt><dd>REINFORCE softmax over ETA, acceptance and surge features; registered drivers online on the phone compete with the simulated fleet, and each booking stores a plain-language reason.</dd>
+        <dt>Acceptance model</dt><dd>A Beta-Bernoulli estimate per registered driver, learned from their own accept/decline history, feeds the dispatch policy.</dd>
+        <dt>Courier timing</dt><dd>A Q-learning table decides how long to wait before sending a courier, so food and courier arrive together.</dd>
+        <dt>Surge outlook</dt><dd>Hourly demand ratios learned from two simulated years of Cork over Ireland's public holidays, with the hours the supply agent adds drivers.</dd>
+        <dt>Learning lab</dt><dd>Retrains a policy from zero on the device and compares it with the nearest-driver rule. It never dispatches.</dd>
+      </dl>
+      <pre><code>cd android-app
+python -m pytest tests      # 117 tests
+python training/export_learned.py   # regenerate atlas_go/learned.py (needs numpy)
+buildozer android debug</code></pre>
+      <p><a href="./#go">Explore the app architecture</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source ↗</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">Download 1.2.0</a></p>
+    </section>
+  </div>
+  <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Implementation Guide</span><span>Ride-hailing starter · ATLAS Go 1.2.0</span></footer>
+</main>
+</body>
+</html>
