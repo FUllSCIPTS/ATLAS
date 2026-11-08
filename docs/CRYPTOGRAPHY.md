@@ -439,7 +439,7 @@ sequenceDiagram
   participant U as User / Play Store
   CI->>CI: build + test unsigned AAB, record SHA-256
   CI->>CI: ci-sign-bundle.py: jarsigner -sigalg SHA256withRSA -digestalg SHA-256
-  CI->>CI: verify signature; SHA-256(certificate) == pinned value?
+  CI->>CI: verify signature and compare SHA-256(certificate) with the pinned value
   CI-->>U: signed AAB + SHA256SUMS
   U->>U: apksigner verify --print-certs (v2/v3), sha256sum -c
 ```
