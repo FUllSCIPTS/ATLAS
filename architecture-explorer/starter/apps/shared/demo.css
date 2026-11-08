@@ -1,0 +1,11 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #101923; color: #edf5ff; }
+main { width: min(650px, 92vw); margin: 2rem auto; }
+nav { display: flex; gap: 1rem; }
+a { color: #bafa89; }
+form, section, pre { display: grid; gap: .6rem; margin-top: .8rem; padding: 1rem; background: #182536; border-radius: .5rem; }
+label { display: grid; gap: .3rem; }
+label:has(input[type=checkbox]) { display: flex; align-items: center; }
+input, select, button { font: inherit; padding: .45rem; }
+button { width: fit-content; cursor: pointer; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+#status { min-height: 1.5rem; }
