@@ -29,6 +29,18 @@ function in the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/archite
 It imports the repository's own code — the BIP from `atlas_sim.zip`, the solvers from
 `run_bip_timing.py`, the learners from `android-app/` — rather than copies.
 
+**Forty experiments, one file each** ([ml_lab/README.md](../ml_lab/README.md)):
+
+| Track | Folder | Experiments | Study paths (`--path`) |
+|---|---|---|---|
+| Machine learning | `ml_lab/machine_learning/` (`run_ml.py`) | 1 linear regression · 2 bias-variance and ridge · 3 logistic regression · 4 kNN and scaling · 5 naive Bayes and Bayes' rule · 6 decision tree · 7 forests and boosting · 8 SVM kernels · 9 neural network and backprop · 10 metrics under imbalance · 11 cross-validation and leakage · 12 k-means · 13 DBSCAN on Cork · 14 PCA · 15 four anomaly detectors · 16 forecasting baselines and Holt-Winters · 17 concept drift and online learning · 18 learning to rank · 19 bandits · 20 Q-learning | `supervised`, `trees-and-ensembles`, `neural-networks`, `unsupervised`, `time-series`, `decisions`, `trustworthy-ml` |
+| Optimisation | `ml_lab/optimisation/` (`run_optimisation.py`) | 1 gradient descent and conditioning · 2 momentum, Nesterov, Adam · 3 Newton and BFGS · 4 KKT core allocation · 5 LP transport of drivers · 6 duality and shadow prices · 7 dynamic programming and knapsack · 8 branch-and-bound on the coupling BIP · 9 Dijkstra, A*, Bellman-Ford · 10 Hungarian assignment · 11 TSP: Held-Karp and 2-opt · 12 bin packing pods · 13 max flow / min cut · 14 DP autoscaling with switching costs · 15 local search and tabu · 16 simulated annealing · 17 genetic algorithm · 18 (1+1)-ES, differential evolution, PSO · 19 Bayesian optimisation · 20 Pareto fronts | `continuous`, `linear-and-integer`, `graphs-and-routing`, `dynamic-programming`, `metaheuristics`, `black-box-tuning`, `atlas-coupling` |
+
+```bash
+python3 ml_lab/machine_learning/run_ml.py --path decisions
+python3 ml_lab/optimisation/opt17_genetic_algorithm.py
+```
+
 Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 [CRYPTOGRAPHY.md](CRYPTOGRAPHY.md).
 
