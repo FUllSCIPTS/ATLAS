@@ -91,7 +91,8 @@ teaching extension — post-quantum cryptography. Full guide:
 | **Post-quantum (PQC)** | 🎓 | Not in ATLAS. Shor breaks the RSA keys and TLS key exchange; SHA-256, HMAC and PBKDF2 survive. The guide maps ML-KEM (FIPS 203), ML-DSA (FIPS 204) and SLH-DSA (FIPS 205) onto ATLAS; the explorer runs a hash-based **Lamport** signature live | `docs/CRYPTOGRAPHY.md` §6 |
 
 ```bash
-python3 security_lab/crypto_lab.py                              # hashes, checksum collision, cert pin, RSA, Lamport
+python3 security_lab/crypto_lab.py                              # 20 experiments: hashing, MACs, PKI, signatures, PQC
+python3 security_lab/crypto_lab.py --path release-engineer     # or a study path, or one file: crypto_a_ ... crypto_e_
 python3 security_lab/crypto_lab.py --verify atlas-go-1.2.0.apk  # check a download against SHA256SUMS
 ```
 
@@ -183,7 +184,8 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `security_lab/lab_a_password_storage.py` … `lab_d_integrity_lifecycle.py` | Information-security lab in four categories (A stored passwords 1–8, B registration and identity 9–11, C sign-in defences 12–15, D integrity and lifecycle 16–20), each runnable on its own |
 | `security_lab/password_storage_demo.py` | Runner for all 20 experiments and the 5 study paths (shared code in `lab_common.py`) |
 | `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
-| `security_lab/crypto_lab.py` | Command-line lab: SHA-256, checksum collision, certificate pin, toy RSA signature, Lamport post-quantum signature |
+| `security_lab/crypto_a_hashing.py` … `crypto_e_post_quantum.py` | Cryptography lab in five categories (A hashing 1–7, B MACs/KDF/randomness 8–10, C PKI 11–14, D signatures 15–17, E post-quantum 18–20), each runnable on its own |
+| `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
 | `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
 
