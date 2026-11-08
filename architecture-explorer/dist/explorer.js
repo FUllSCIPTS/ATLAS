@@ -31,6 +31,7 @@ const iconPaths = {
 if (typeof securityIcons === "object") Object.assign(iconPaths, securityIcons);
 if (typeof cryptoIcons === "object") Object.assign(iconPaths, cryptoIcons);
 if (typeof mlIcons === "object") Object.assign(iconPaths, mlIcons);
+if (typeof dsaIcons === "object") Object.assign(iconPaths, dsaIcons);
 
 const systems = {
   starter: {
@@ -173,7 +174,7 @@ function inspectorMarkup() {
     <button class="source-link" type="button" data-action="source" data-keep="source">${icon("folder", 16)}<code>${entry.path}${entry.example[0]}</code>${icon("diagonal", 14)}</button></div>`;
 }
 
-const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView, security: securityView, crypto: cryptoView, ml: mlView };
+const views = { architecture: architectureView, components: componentsView, deployment: deploymentView, folders: foldersView, security: securityView, crypto: cryptoView, ml: mlView, dsa: dsaView };
 
 function render() {
   const focusKey = document.activeElement?.dataset.keep;
@@ -181,11 +182,11 @@ function render() {
   const previousInspector = $("inspector").querySelector(".inspector-body");
   updateControls();
   $("view-content").innerHTML = views[state.view]();
-  $("inspector").innerHTML = state.view === "security" ? securityInspector() : state.view === "crypto" ? cryptoInspector() : state.view === "ml" ? mlInspector() : inspectorMarkup();
+  $("inspector").innerHTML = state.view === "security" ? securityInspector() : state.view === "crypto" ? cryptoInspector() : state.view === "ml" ? mlInspector() : state.view === "dsa" ? dsaInspector() : inspectorMarkup();
   const map = document.querySelector(".map-scroll");
   if (map && previousMap) map.scrollLeft = previousMap.scrollLeft;
   const inspectorBody = $("inspector").querySelector(".inspector-body");
-  if (!["security", "crypto", "ml"].includes(state.view) && previousInspector?.querySelector("#component-title")?.textContent === S.components[state.selected].title) {
+  if (!["security", "crypto", "ml", "dsa"].includes(state.view) && previousInspector?.querySelector("#component-title")?.textContent === S.components[state.selected].title) {
     inspectorBody.scrollTop = previousInspector.scrollTop;
   }
   if (state.view === "components") {
@@ -229,7 +230,8 @@ function switchView(view) {
   if (view === "security") secSetHash();
   else if (view === "crypto") crSetHash();
   else if (view === "ml") mlSetHash();
-  else if (/^#(security|crypto|ml)/.test(location.hash)) { try { history.replaceState(null, "", location.pathname + location.search); } catch (error) { /* file:// */ } }
+  else if (view === "dsa") dsaSetHash();
+  else if (/^#(security|crypto|ml|dsa)/.test(location.hash)) { try { history.replaceState(null, "", location.pathname + location.search); } catch (error) { /* file:// */ } }
   state.view = view;
   render();
 }
@@ -288,6 +290,7 @@ document.addEventListener("click", (event) => {
   if ((button.dataset.secTopic || button.dataset.secAction) && securityClick(button)) return;
   if ((button.dataset.crTopic || button.dataset.crAction) && cryptoClick(button)) return;
   if ((button.dataset.mlTopic || button.dataset.mlAction) && mlClick(button)) return;
+  if ((button.dataset.dsaTopic || button.dataset.dsaAction) && dsaClick(button)) return;
   const { view, scenario, component, folder, action, system } = button.dataset;
   if (system) setSystem(system, true);
   else if (view) switchView(view);
@@ -358,5 +361,8 @@ if (initialHash.startsWith("security")) {
   setSystem("starter");
 } else if (initialHash === "ml" || initialHash.startsWith("ml-")) {
   mlOpen(initialHash.slice(3) || "overview");
+  setSystem("starter");
+} else if (initialHash === "dsa" || initialHash.startsWith("dsa-")) {
+  dsaOpen(initialHash.slice(4) || "overview");
   setSystem("starter");
 } else setSystem(initialHash || "starter");
