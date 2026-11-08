@@ -49,7 +49,12 @@ ROWS = [
     ("sec-pw-test", "Test: same password, different salts and hashes", "main:android-app/tests/test_accounts_geo.py", "test_password_hash_roundtrip_and_salt", "impl"),
     ("sec-pw-lab", "Explorer lab: PBKDF2 with the app's parameters", "arch:dist/security.js", "secPwHash", "lab"),
     ("sec-pw-lab-verify", "Explorer lab: verify_password replica", "arch:dist/security.js", "secPwVerify", "lab"),
-    ("sec-pw-cli", "Command-line lab: 20 experiments and 5 study paths on the real accounts.py and store.py", "main:security_lab/password_storage_demo.py", "main", "lab"),
+    ("sec-pw-cli", "Command-line lab runner: all 20 experiments and 5 study paths", "main:security_lab/password_storage_demo.py", "~^if __name__ ==", "lab"),
+    ("sec-pw-cli-common", "Lab helpers, experiment registry and command line", "main:security_lab/lab_common.py", "main", "lab"),
+    ("sec-pw-cli-a", "Lab A: what the app stores (experiments 1-8)", "main:security_lab/lab_a_password_storage.py", "exp_record", "lab"),
+    ("sec-pw-cli-b", "Lab B: registration and identity (experiments 9-11)", "main:security_lab/lab_b_registration_identity.py", "exp_validation", "lab"),
+    ("sec-pw-cli-c", "Lab C: sign-in defences (experiments 12-15)", "main:security_lab/lab_c_signin_defences.py", "exp_lockout", "lab"),
+    ("sec-pw-cli-d", "Lab D: integrity, sessions and lifecycle (experiments 16-20)", "main:security_lab/lab_d_integrity_lifecycle.py", "exp_sessions", "lab"),
     # ---- Security: login and lockout
     ("sec-login", "Sign in, 5 failures → 60 s lockout, generic error", "main:android-app/atlas_go/store.py", "LocalStore.login", "impl"),
     ("sec-login-failures", "Failure counter kept in memory only", "main:android-app/atlas_go/store.py", "~self.failures = \\{\\}", "impl"),
@@ -207,9 +212,9 @@ ROWS = [
 
 # Explorer topics → rows. Rows may appear under several topics.
 TOPICS = {
-    "security/passwords": ["sec-pw-params", "sec-pw-hash", "sec-pw-verify", "sec-pw-policy", "sec-pw-public", "sec-pw-register", "sec-pw-test", "sec-pw-lab", "sec-pw-lab-verify", "sec-pw-cli"],
-    "security/login": ["sec-login", "sec-login-failures", "sec-login-session", "sec-login-guest", "sec-login-logout", "sec-login-clear", "sec-pw-verify", "sec-login-lab"],
-    "security/identity": ["sec-pw-register", "sec-id-email", "sec-id-phone", "sec-id-licence", "sec-id-business", "sec-id-delete", "sec-rbac-screens", "sec-rbac-online", "sec-rbac-location", "sec-rbac-respond", "sec-rbac-book", "sec-rbac-checkout", "sec-rbac-kitchen"],
+    "security/passwords": ["sec-pw-params", "sec-pw-hash", "sec-pw-verify", "sec-pw-policy", "sec-pw-public", "sec-pw-register", "sec-pw-test", "sec-pw-lab", "sec-pw-lab-verify", "sec-pw-cli", "sec-pw-cli-a", "sec-pw-cli-common"],
+    "security/login": ["sec-login", "sec-login-failures", "sec-login-session", "sec-login-guest", "sec-login-logout", "sec-login-clear", "sec-pw-verify", "sec-login-lab", "sec-pw-cli-c", "sec-pw-cli-d"],
+    "security/identity": ["sec-pw-register", "sec-id-email", "sec-id-phone", "sec-id-licence", "sec-id-business", "sec-id-delete", "sec-rbac-screens", "sec-rbac-online", "sec-rbac-location", "sec-rbac-respond", "sec-rbac-book", "sec-rbac-checkout", "sec-rbac-kitchen", "sec-pw-cli-b", "sec-pw-cli-d"],
     "security/gateway": ["sec-gw-routes", "sec-gw-proxy", "sec-gw-keys", "sec-gw-equal", "sec-gw-internal", "sec-gw-trips", "sec-gw-dispatch", "sec-gw-lab"],
     "security/sso": ["sec-sso-target", "sec-gw-keys", "sec-sso-lab"],
     "security/kerberos": ["sec-krb-target", "sec-krb-setup", "sec-krb-messages", "sec-krb-ap", "sec-krb-seal"],
