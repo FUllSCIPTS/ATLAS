@@ -42,9 +42,6 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 10) [🐍 Python Programming — standalone beginner-to-intermediate teaching guide, 20 lessons and UML-linked examples](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
-## Interactive Colab security and cryptography laboratories
-
-Run the [Cryptography Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) or [Information Security Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb). Each covers **20 original source experiments** with observed runtime/status graphics, separately labeled illustrative charts, logs and downloadable ZIP files. See the [lab instructions](security_lab/README.md) and [visual runner](security_lab/visual_lab.py).
 
 ## Information security in ATLAS (teaching guide)
 
