@@ -2,7 +2,7 @@
 
 **Format:** 24 lessons, 30 laboratory experiments, 15 teaching weeks (2 h theory + 2 h lab). **Language:** Python 3. **Audience:** complete beginners to intermediate students. Every lesson can be read on its own: it defines its terms, draws the structure, traces an example by hand, gives runnable code and complexity tables, lists the usual mistakes, and ends with a lab and exercises.
 
-[Open the 30 experiments in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](../dsa_lab/README.md) · [All implementations (`dsa_lab/experiments.py`)](../dsa_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+[Live labs in the Architecture Explorer](https://fullscipts.github.io/ATLAS/#dsa) · [Open the 30 experiments in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](../dsa_lab/README.md) · [All implementations (`dsa_lab/experiments.py`)](../dsa_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 **Running the code in this guide.** Every Python block runs as written. Blocks that call `dsa.…` use the lab module; run this once first (in Colab the notebook's setup cell does it for you):
 
@@ -45,7 +45,7 @@ ATLAS Go is the Python/Kivy ride-and-food app in this repository. Several lesson
 | Minimum selection | **Implemented:** `geo.nearest_place` takes the minimum Haversine distance | [geo.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) |
 | Grid indexing | **Implemented:** `geo.world_px`, `geo.tile_range`, `LiveMap.visible_tiles` | [geo.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) · [livemap.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) |
 | State machines | **Related:** `LocalStore.driver_advance`, `advance_ride`, `advance_order` move a ride/order through states; they are not a queue ADT | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [Lifecycle UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#on-device-ride-and-order-lifecycles) |
-| Bounded cache | **Related:** `TileLoader` keeps a bounded in-memory set of map tiles (`memory=160`); the course's `LRUCache` shows the classic linked-list way to build one | [livemap.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) |
+| LRU cache | **Implemented:** `TileLoader.texture` calls `textures.move_to_end(key)` on a hit and `_deliver` evicts with `textures.popitem(last=False)` past `memory=160` tiles — an LRU cache on an `OrderedDict`; the course's `LRUCache` builds the same thing from a dict and a circular doubly linked list | [livemap.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) |
 | Correctness checks | **Implemented:** `LocalStore.validate`, `snapshot`, `commit`; `intelligence.self_test` | [store.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) · [intelligence.py](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) |
 | Linked lists (all four kinds), ring buffer, hash chains, open addressing, BST/AVL, heap, trie, graph algorithms, union-find, DP | **Teaching only** | [`dsa_lab/experiments.py`](../dsa_lab/experiments.py) |
 
@@ -504,7 +504,7 @@ assert dsa.josephus_formula(7, 3) == 4                     # J(n) = (J(n-1)+k) m
 
 ## Lesson 8 — Circular doubly linked lists, sentinels, LRU caches and cycle detection
 
-**ATLAS status:** teaching only ([`CircularDoublyLinkedList`](../dsa_lab/experiments.py), [`LRUCache`](../dsa_lab/experiments.py)). **Related:** ATLAS Go's map [`TileLoader`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) keeps a bounded tile memory — the textbook way to decide what to evict is LRU.
+**ATLAS status:** teaching only ([`CircularDoublyLinkedList`](../dsa_lab/experiments.py), [`LRUCache`](../dsa_lab/experiments.py)). **LRU in the app:** ATLAS Go's map [`TileLoader`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py) is an LRU cache — `texture` calls `textures.move_to_end(key)` on a hit and `_deliver` evicts the oldest tile with `textures.popitem(last=False)` once more than 160 are held. It uses `collections.OrderedDict` (a dict plus a doubly linked list) instead of a hand-built list. [Try it in the explorer](https://fullscipts.github.io/ATLAS/#dsa-queues).
 
 A **circular doubly linked list** joins the two ends of a doubly linked list. Adding a **sentinel** — a dummy node that holds no data and never leaves — removes every special case: the empty list is the sentinel pointing to itself, `first = sentinel.next`, `last = sentinel.prev`.
 
