@@ -11,7 +11,7 @@ flowchart LR
  A["1–6<br/>running code, values,<br/>types, decisions, loops, text"] --> B["7–10<br/>collections,<br/>comprehensions, functions"]
  B --> C["11–13<br/>classes, inheritance,<br/>exceptions"]
  C --> D["14–17<br/>files, generators,<br/>functional style, sorting"]
- D --> E["18–20<br/>complexity, testing,<br/>profiling"]
+ D --> E["18–20<br/>complexity, testing, profiling,<br/>modules, packages, imports"]
  E --> F["Part II<br/>software testing"]
 ~~~
 
@@ -907,24 +907,226 @@ pstats.Stats(profile, stream=report).sort_stats("cumulative").print_stats(3)
 print(report.getvalue()[:400])
 ~~~
 
-**Modules and packages.** A `.py` file is a **module**; a folder of modules with `__init__.py` is a **package**; `import` loads them. Never name your files `json.py`, `random.py`, `time.py` — they would hide the standard library. Guard script code with `if __name__ == "__main__":` so importing a module does not run it.
+Once a program outgrows one file, five habits keep it easy to read, test and change: **(1)** split it into modules and packages, **(2)** import in a fixed order, **(3)** choose the right form of `import`, **(4)** keep each class in its own file, and **(5)** group similar functions together.
+
+**1. Modules and packages.** A **module** is one Python file (`module1.py`). A **package** is a folder of modules with an `__init__.py` file (`physics/`). `import physics` runs `physics/__init__.py` once and gives you whatever that file defines or imports; `import physics.module1` loads one module from the folder. The program you *run* (`main.py`) sits **next to** the package folder, not inside it.
+
+~~~text
+project/
+├── main.py              ← run this:  python main.py   (it does  import physics)
+└── physics/             ← package = folder (its name is what you import)
+    ├── __init__.py      ← runs on  import physics ; chooses what physics.<name> offers
+    ├── module1.py       ← module = file: motion  (speed, distance)
+    ├── module2.py       ← module = file: energy  (kinetic_energy)
+    └── particle.py      ← one class in its own file (habit 4): class Particle
+~~~
+
+The block below writes exactly these files into a temporary folder and runs `main.py` with a fresh Python, so you see real imports — then shows what goes wrong if `main.py` is put *inside* the package.
+
+~~~python
+import subprocess, sys, tempfile, textwrap
+from pathlib import Path
+
+files = {
+    "physics/__init__.py": '''
+        """physics: motion and energy formulas."""
+        from .module1 import distance, speed      # re-export, so main.py can write physics.speed(...)
+        from .module2 import kinetic_energy
+        __all__ = ["distance", "kinetic_energy", "speed"]
+    ''',
+    "physics/module1.py": '''
+        """Motion: functions about distance and time, grouped together."""
+        def speed(distance_m, time_s):
+            return distance_m / time_s
+
+        def distance(speed_ms, time_s):
+            return speed_ms * time_s
+    ''',
+    "physics/module2.py": '''
+        """Energy."""
+        def kinetic_energy(mass_kg, speed_ms):
+            return 0.5 * mass_kg * speed_ms ** 2
+    ''',
+    "physics/particle.py": '''
+        """One class per file: Particle lives in particle.py."""
+        from .module1 import speed
+        from .module2 import kinetic_energy
+
+        class Particle:
+            def __init__(self, mass_kg):
+                self.mass_kg = mass_kg
+
+            def energy_after(self, distance_m, time_s):
+                return kinetic_energy(self.mass_kg, speed(distance_m, time_s))
+    ''',
+    "main.py": '''
+        import physics                          # the folder name; runs physics/__init__.py
+        from physics import module2             # one module of the package
+        from physics.particle import Particle   # one class from one module
+
+        v = physics.speed(100, 9.58)
+        print(f"{v:.2f}", round(module2.kinetic_energy(94, v)), round(Particle(94).energy_after(100, 9.58)))
+    ''',
+}
+
+with tempfile.TemporaryDirectory() as root:
+    for name, body in files.items():
+        path = Path(root, name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(textwrap.dedent(body).lstrip())
+
+    run = subprocess.run([sys.executable, "main.py"], cwd=root, capture_output=True, text=True)
+    print(run.stdout.strip())                         # 10.44 5121 5121
+    assert run.stdout.split() == ["10.44", "5121", "5121"]
+
+    # Mistake: main.py inside the package. Python adds the *script's own folder* (physics/)
+    # to the search path, so it cannot see a folder called physics.
+    Path(root, "physics", "main.py").write_text("import physics\nprint(physics.speed(10, 2))\n")
+    inside = subprocess.run([sys.executable, "physics/main.py"], cwd=root, capture_output=True, text=True)
+    assert "No module named 'physics'" in inside.stderr
+
+    # Fix (if it must live inside): run it as a module from the project folder.
+    as_module = subprocess.run([sys.executable, "-m", "physics.main"], cwd=root, capture_output=True, text=True)
+    assert as_module.stdout.strip() == "5.0"
+~~~
+
+Never name your own files `json.py`, `random.py`, `math.py` or `time.py`: they would hide the standard-library module of the same name. Guard script code with `if __name__ == "__main__":` so that importing a module does not run it.
+
+**2. Import order.** Put all imports at the top of the file, in three groups separated by one blank line (the [PEP 8](https://peps.python.org/pep-0008/#imports) convention):
+
+1. **standard library** — modules that ship with Python (`json`, `math`, `pathlib`);
+2. **third-party libraries** — installed with `pip` (`numpy`, `kivy`, `fastapi`);
+3. **local application** — your own project's modules and packages (`physics`, `.store`).
+
+Inside each group, list plain `import x` lines first, then the specific `from x import name` lines, alphabetically. `from __future__ import …` always comes first of all.
+
+~~~text
+from __future__ import annotations          # 0. always first, if used
+
+import json                                 # 1. standard library
+import math
+from pathlib import Path
+
+import numpy as np                          # 2. third-party (pip install numpy)
+from kivy.clock import Clock                #    specific names from a third-party library
+
+import physics                              # 3. local application
+from physics.particle import Particle       #    specific names from your own package
+~~~
+
+The reader sees at a glance what the file needs from Python, from outside and from your own code. Tools sort imports for you: `ruff check --select I --fix .` or `isort .`. The block below classifies every import in ATLAS Go and checks the order holds in all of its modules:
+
+~~~python
+import re, sys
+from pathlib import Path
+
+def import_groups(path):
+    """Group of each top-level import: 0 __future__, 1 standard library, 2 third-party, 3 local."""
+    groups = []
+    for line in Path(path).read_text().splitlines():
+        match = re.match(r"from ([\w.]+) import |import ([\w.]+)", line)
+        if match:
+            name = match.group(1) or match.group(2)
+            if name == "__future__":
+                groups.append(0)
+            elif name.startswith("."):
+                groups.append(3)
+            elif name.split(".")[0] in sys.stdlib_module_names:
+                groups.append(1)
+            else:
+                groups.append(2)
+    return groups
+
+print(import_groups("android-app/atlas_go/livemap.py"))   # [0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3]
+for module in sorted(Path("android-app/atlas_go").glob("*.py")):
+    groups = import_groups(module)
+    assert groups == sorted(groups), f"{module.name}: imports out of order"
+~~~
+
+**3. How to import.** Suppose `module5.py` contains one function, `def sum(a, b)`. There are two main ways to use it, and two ways to rename on import:
+
+| Form | Then write | Use it when |
+|---|---|---|
+| `import module5` | `module5.sum(2, 3)` | default — the reader sees where `sum` comes from |
+| `from module5 import sum` | `sum(2, 3)` | you use one name often — but see the mistake below |
+| `from module5 import sum as add` | `add(2, 3)` | the name clashes with another one |
+| `import module5 as m5` | `m5.sum(2, 3)` | the module name is long (`import numpy as np`) |
+
+Avoid `from module5 import *`: it pulls in every public name silently and hides where they came from.
+
+~~~python
+import sys, tempfile
+from pathlib import Path
+
+folder = tempfile.mkdtemp()
+Path(folder, "module5.py").write_text('def sum(a, b):\n    """Add two numbers."""\n    return a + b\n')
+sys.path.insert(0, folder)              # let Python find module5.py (a real project does not need this)
+
+import module5                          # form 1: the module, used as module5.sum
+assert module5.sum(2, 3) == 5
+assert sum([1, 2, 3]) == 6              # Python's built-in sum is untouched
+
+from module5 import sum                 # form 2: the name itself
+assert sum(2, 3) == 5                   # 'sum' now means module5.sum ...
+try:
+    sum([1, 2, 3])                      # ... so the built-in sum is hidden ("shadowed")
+except TypeError as error:
+    print("shadowed:", error)
+del sum                                 # remove our name: the built-in is visible again
+assert sum([1, 2, 3]) == 6
+
+from module5 import sum as add          # form 3: rename on import — the safe choice here
+import module5 as m5                    # form 4: shorter module name
+assert add(2, 3) == m5.sum(2, 3) == 5
+~~~
+
+Better still, do not name your own function `sum`, `list`, `id` or `max`: call it `add` or `total` and the clash never happens.
+
+**4. Keep one class in a separate file.** Give each substantial class its own module, named after the class in lower case: `class Particle` → `particle.py`, `class LocalStore` → `store.py`. You can find any class from the file list; a change to one class touches one file; and its tests live in a matching `test_particle.py`. The exception is a few *small* classes that only make sense together, such as the dataclasses of one data model: they may share a file.
+
+**5. Group similar functions together.** Put functions that work on the same kind of data, or serve the same purpose, in the same module, side by side: motion formulas in `module1.py`, energy formulas in `module2.py`. Inside a file, keep related functions next to each other. A catch-all `utils.py` of unrelated helpers is the opposite: nobody knows what is in it.
+
+~~~python
+import inspect, sys
+sys.path.insert(0, "android-app")
+from atlas_go import accounts, geo
+
+def own_functions(module):
+    """Functions defined in this module (not imported into it), in source order."""
+    found = [f for _, f in inspect.getmembers(module, inspect.isfunction) if f.__module__ == module.__name__]
+    return [f.__name__ for f in sorted(found, key=lambda f: f.__code__.co_firstlineno)]
+
+print(own_functions(geo)[:6])      # ['haversine_km', 'eta_minutes', 'leg_seconds', 'lerp', 'nearest_place', 'valid_point']
+assert {"haversine_km", "eta_minutes", "tile_range", "ride_position"} <= set(own_functions(geo))
+assert all(name.startswith(("hash_", "verify_", "clean_", "check_", "parse_", "public_"))
+           for name in own_functions(accounts))       # every accounts function hashes, checks or cleans account data
+~~~
+
+**Common mistakes.** Running a script from inside its own package (`python physics/main.py`) — run `python main.py` from the project folder, or `python -m physics.main`. Forgetting `__init__.py`, or forgetting to import a module in it and then expecting `physics.module1` to exist after `import physics`. `from module import sum` hiding the built-in `sum`. Mixing the three import groups, or importing in the middle of a file. A 2 000-line file holding every class. A `utils.py` that collects unrelated functions. Two modules that import each other (a **circular import**): move the shared part into a third module.
 
 ~~~text
 android-app/                 # not importable by name (hyphen) → add it to sys.path
 └── atlas_go/                # package
-    ├── __init__.py
-    ├── domain.py            # pure rules: easy to test
-    ├── store.py             # persistence + rules
-    ├── geo.py, intelligence.py
+    ├── __init__.py          # package docstring and __version__
+    ├── domain.py            # pure rules: five small food-ordering dataclasses kept together
+    ├── store.py             # one class: LocalStore (persistence + rules)
+    ├── location.py          # one class: DeviceLocation
+    ├── geo.py               # 15 related geography functions, no classes
+    ├── accounts.py          # 12 related account functions: hash, verify, clean, parse
+    ├── intelligence.py      # learned policies
     └── app.py               # Kivy UI (needs a display)
 python_lab/experiments.py    # this course's labs: argparse CLI + importable functions
 ~~~
 
-**ATLAS Go:** [`intelligence.LearningLab`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) trains and evaluates a dispatch policy on the phone and reports results; it is organised as a class with `reset`, `train` and `result` methods. The pure modules (`domain`, `geo`, `intelligence`) import without Kivy, which is why the examples in this guide can use them.
+**ATLAS Go:** [`intelligence.LearningLab`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) trains and evaluates a dispatch policy on the phone and reports results; it is organised as a class with `reset`, `train` and `result` methods. The pure modules (`domain`, `geo`, `intelligence`) import without Kivy, which is why the examples in this guide can use them. The five habits in the real app:
+- **Packages:** `atlas_go/` is the package; [`store.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L7-L15) imports its neighbours with relative imports (`from . import geo`, `from .domain import Cart, …`).
+- **Import order:** [`livemap.py` lines 8–29](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py#L8-L29) is the textbook layout — `__future__`, then eight standard-library imports, a blank line, eight `kivy` imports, a blank line, two local imports.
+- **One class per file:** [`LocalStore`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L30) in `store.py`, [`DeviceLocation`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/location.py#L13) in `location.py`, [`Acceptance`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/acceptance.py#L19) in `acceptance.py`. The allowed exception: [`domain.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L24-L116) keeps the five small dataclasses `Dish`, `Offer`, `Kitchen`, `Catalog` and `Cart` together because they form one model.
+- **Similar functions together:** [`geo.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py) holds only geography — distances and times, then map pixels and tiles, then ride and order positions; [`accounts.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L27-L124) holds only account data — password hashing first, then the field validators.
 
 **Lab P20** times `x in list` and `x in set` with `timeit` for n = 100 … 100 000 (log scale).
 
-**Exercises.** (1) Profile `intelligence.rank` 10 000 times and find the slowest function. (2) Turn your capstone into a package with a CLI entry point.
+**Exercises.** (1) Profile `intelligence.rank` 10 000 times and find the slowest function. (2) Turn your capstone into a package with a CLI entry point. (3) Add `physics/module3.py` with `momentum(mass_kg, speed_ms)`, re-export it from `__init__.py`, and call `physics.momentum(94, 10.44)` from `main.py`. (4) Rename `module5.sum` to `add` and rewrite the four import forms. (5) Shuffle the imports of a copy of `livemap.py`, run `import_groups` to see the order break, then fix it with `ruff check --select I --fix`. (6) `app.py` holds six classes: decide which of them would be easier to find and test in their own files, and sketch the new file list.
 
 ## Capstone (Part I)
 
