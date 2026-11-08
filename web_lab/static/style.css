@@ -1,11 +1,102 @@
-:root {font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1b2b41;background:#f3f6fc}
-*{box-sizing:border-box}body{margin:0}.top{background:#102d53;color:white;display:flex;justify-content:space-between;gap:1rem;padding:1rem 5vw}
-.layout{max-width:1150px;margin:2rem auto;padding:0 1.2rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.3rem}
-.panel{background:white;border:1px solid #dce4ef;border-radius:14px;padding:1.5rem;box-shadow:0 6px 24px #15345112}
-h1,h2{margin-top:0}p{line-height:1.55}form{display:grid;gap:.65rem}label{font-weight:650}input,select,button{font:inherit;padding:.7rem;border:1px solid #a6b6cf;border-radius:8px}
-button{background:#135da6;color:white;border:0;font-weight:650;cursor:pointer}button:hover{background:#0a467f}.secondary{background:#445b79}
-.heading{display:flex;justify-content:space-between;gap:.7rem;align-items:start}
-.ride{border:1px solid #dde5ee;padding:1rem;border-radius:10px;margin-top:.9rem}
-.ride strong{display:block}.ride p{margin:.35rem 0}.actions{display:flex;gap:.5rem;flex-wrap:wrap}.actions button{font-size:.85rem}
-#message{min-height:2rem;font-weight:600}footer{padding:1.5rem;text-align:center;color:#4b5870}
-@media(max-width:800px){.layout{grid-template-columns:1fr}.top{flex-direction:column}}
+/* ATLAS Web Technology lab — plain CSS, no framework.
+   Sections: 1 design tokens  2 base  3 layout (grid)  4 components  5 responsive */
+
+/* 1. Design tokens: change a colour once, everywhere follows */
+:root {
+  --ink: #1b2b41;
+  --muted: #4b5870;
+  --page: #f3f6fc;
+  --panel: #ffffff;
+  --line: #dce4ef;
+  --brand: #135da6;
+  --brand-dark: #0a467f;
+  --danger: #a32222;
+  --radius: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--page);
+}
+
+/* 2. Base */
+*, *::before, *::after { box-sizing: border-box; }   /* width includes padding and border */
+body { margin: 0; line-height: 1.5; }
+h1, h2 { margin-top: 0; line-height: 1.2; }
+a { color: var(--brand); }
+
+/* 3. Layout: a two-column grid that collapses to one column on narrow screens */
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 5vw;
+  background: #102d53;
+  color: white;
+}
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.3rem;
+  max-width: 1150px;
+  margin: 2rem auto;
+  padding: 0 1.2rem;
+}
+
+/* 4. Components */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 6px 24px rgba(21, 52, 81, 0.07);
+}
+form { display: grid; gap: 0.6rem; }
+label { font-weight: 650; }
+input, select, button {
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #a6b6cf;
+  border-radius: 8px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible {
+  outline: 3px solid #f2b705;              /* a visible keyboard focus ring */
+  outline-offset: 2px;
+}
+input:invalid:not(:placeholder-shown) { border-color: var(--danger); }
+button {
+  background: var(--brand);
+  color: white;
+  border: 0;
+  font-weight: 650;
+  cursor: pointer;
+  min-height: 44px;                         /* comfortable touch target */
+}
+button:hover { background: var(--brand-dark); }
+button.secondary { background: #445b79; }
+button.danger { background: var(--danger); }
+.heading { display: flex; justify-content: space-between; align-items: start; gap: 0.7rem; }
+.filters { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 0.92rem; margin: 0.2rem 0; }
+#message { min-height: 2rem; font-weight: 600; }
+.ride {
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--brand);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.9rem;
+}
+.ride[data-status="completed"] { border-left-color: #1f7a3a; }
+.ride[data-status="cancelled"] { border-left-color: #8a8a8a; opacity: 0.85; }
+.ride strong { display: block; }
+.ride p { margin: 0.3rem 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.actions button, .actions select { font-size: 0.85rem; min-height: 36px; padding: 0.4rem 0.6rem; }
+.stats { width: 100%; border-collapse: collapse; }
+.stats caption { text-align: left; color: var(--muted); font-size: 0.9rem; padding-bottom: 0.3rem; }
+.stats th, .stats td { border-bottom: 1px solid var(--line); padding: 0.35rem 0.4rem; text-align: left; }
+footer { padding: 1.5rem; text-align: center; color: var(--muted); }
+
+/* 5. Responsive: one column below 800 px (phones, narrow windows) */
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .top { flex-direction: column; }
+}
