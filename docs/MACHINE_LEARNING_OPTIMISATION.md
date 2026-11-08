@@ -49,13 +49,13 @@ Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 ## Contents
 
 1. [Map of machine learning and optimisation in ATLAS](#1-map-of-machine-learning-and-optimisation-in-atlas)
-2. [The paper's optimisation algorithm: the coupling BIP](#2-the-papers-optimisation-algorithm-the-coupling-bip--paper)
-3. [Hyperparameter tuning](#3-hyperparameter-tuning--paper)
+2. [The paper's optimisation algorithm: the coupling BIP](#2-the-papers-optimisation-algorithm-the-coupling-bip---paper)
+3. [Hyperparameter tuning](#3-hyperparameter-tuning---paper)
 4. [Forecasting demand: LSTM and baselines](#4-forecasting-demand-lstm-and-baselines)
 5. [Anomaly detection: Isolation Forest](#5-anomaly-detection-isolation-forest)
 6. [Predicting acceptance: logistic regression and a Bayesian update](#6-predicting-acceptance-logistic-regression-and-a-bayesian-update)
 7. [Reinforcement learning: dispatch, courier timing and supply](#7-reinforcement-learning-dispatch-courier-timing-and-supply)
-8. [Evaluating fairly: splits, seeds and statistics](#8-evaluating-fairly-splits-seeds-and-statistics--paper)
+8. [Evaluating fairly: splits, seeds and statistics](#8-evaluating-fairly-splits-seeds-and-statistics---paper)
 9. [Known gaps — exercises for students](#9-known-gaps--exercises-for-students)
 10. [Suggested lesson plan](#10-suggested-lesson-plan)
 

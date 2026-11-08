@@ -48,11 +48,11 @@ storage (PBKDF2), identity management, SSO and Kerberos.
 ## Contents
 
 1. [The cryptographic inventory of ATLAS](#1-the-cryptographic-inventory-of-atlas)
-2. [Hash functions and checksums](#2-hash-functions-and-checksums--implemented)
-3. [Public-key infrastructure: keys and certificates](#3-public-key-infrastructure-keys-and-certificates--implemented)
-4. [Digital signatures: signing the ATLAS Go app](#4-digital-signatures-signing-the-atlas-go-app--implemented)
-5. [Message authentication and constant-time comparison](#5-message-authentication-and-constant-time-comparison--implemented)
-6. [Post-quantum cryptography](#6-post-quantum-cryptography--teaching-extension)
+2. [Hash functions and checksums](#2-hash-functions-and-checksums---implemented)
+3. [Public-key infrastructure: keys and certificates](#3-public-key-infrastructure-keys-and-certificates---implemented)
+4. [Digital signatures: signing the ATLAS Go app](#4-digital-signatures-signing-the-atlas-go-app---implemented)
+5. [Message authentication and constant-time comparison](#5-message-authentication-and-constant-time-comparison---implemented)
+6. [Post-quantum cryptography](#6-post-quantum-cryptography---teaching-extension)
 7. [Known gaps — exercises for students](#7-known-gaps--exercises-for-students)
 8. [Suggested lesson plan](#8-suggested-lesson-plan)
 
@@ -467,7 +467,7 @@ Two places compare secrets: password digests in `accounts.py` and bearer keys / 
 `starter/packages/config.py`. Both use `hmac.compare_digest`, which takes the same time wherever the
 inputs differ, so an attacker cannot learn a secret byte by byte from response times. PBKDF2 itself is
 built from HMAC-SHA-256. Details are in the
-[information-security guide](INFORMATION_SECURITY.md#2-how-user-passwords-are-stored--implemented).
+[information-security guide](INFORMATION_SECURITY.md#2-how-user-passwords-are-stored---implemented).
 
 ---
 
