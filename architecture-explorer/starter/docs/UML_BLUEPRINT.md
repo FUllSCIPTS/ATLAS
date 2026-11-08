@@ -1453,7 +1453,13 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-hash-lab-avalanche"></a>Explorer lab: avalanche effect | `crUpdateAvalanche` | [architecture-explorer/dist/crypto.js L105](../../dist/crypto.js#L105) | Explorer / lab |
 | <a name="cr-hash-lab-file"></a>Explorer lab: hash a download, compare with SHA256SUMS | `crHashFile` | [architecture-explorer/dist/crypto.js L98](../../dist/crypto.js#L98) | Explorer / lab |
 | <a name="cr-hash-lab-checksum"></a>Explorer lab: checksum vs SHA-256 | `crChecksum` | [architecture-explorer/dist/crypto.js L118](../../dist/crypto.js#L118) | Explorer / lab |
-| <a name="cr-hash-cli"></a>Command-line lab: checksum collision | `section_checksum` | [security_lab/crypto_lab.py L55](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L55) | Explorer / lab |
+| <a name="cr-hash-cli"></a>Lab A: hashing and integrity (experiments 1-7) | `exp_basics` | [security_lab/crypto_a_hashing.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L45) | Explorer / lab |
+| <a name="cr-hash-cli-checksum"></a>Lab A4: forging the prototype checksum | `exp_checksum` | [security_lab/crypto_a_hashing.py L129](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L129) | Explorer / lab |
+| <a name="cr-hash-cli-crc"></a>Lab A5: forging CRC32 | `crc32_forge` | [security_lab/crypto_a_hashing.py L149](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L149) | Explorer / lab |
+| <a name="cr-hash-cli-release"></a>Lab A6-A7: verify releases and CI pins | `exp_release` | [security_lab/crypto_a_hashing.py L181](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L181) | Explorer / lab |
+| <a name="cr-mac-cli"></a>Lab B: MACs, key derivation, randomness (experiments 8-10) | `exp_length_extension` | [security_lab/crypto_b_mac_kdf_random.py L95](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_b_mac_kdf_random.py#L95) | Explorer / lab |
+| <a name="cr-mac-cli-pbkdf2"></a>Lab B9: PBKDF2 by hand, matching accounts.py | `pbkdf2_sha256` | [security_lab/crypto_b_mac_kdf_random.py L128](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_b_mac_kdf_random.py#L128) | Explorer / lab |
+| <a name="cr-cli-runner"></a>Crypto lab runner: 20 experiments, 5 study paths | `if __name__ == '__main__':` | [security_lab/crypto_lab.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L39) | Explorer / lab |
 
 <a name="uml-crypto-pki"></a>
 
@@ -1473,7 +1479,10 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-pki-lab-pin"></a>Explorer lab: recompute the real pin | `crPin` | [architecture-explorer/dist/crypto.js L158](../../dist/crypto.js#L158) | Explorer / lab |
 | <a name="cr-pki-lab-issue"></a>Explorer lab: issue a certificate | `crIssue` | [architecture-explorer/dist/crypto.js L176](../../dist/crypto.js#L176) | Explorer / lab |
 | <a name="cr-pki-lab-verify"></a>Explorer lab: chain, CA flag, validity, EKU checks | `crVerifyCert` | [architecture-explorer/dist/crypto.js L196](../../dist/crypto.js#L196) | Explorer / lab |
-| <a name="cr-pki-cli"></a>Command-line lab: certificate and pin | `section_certificate` | [security_lab/crypto_lab.py L99](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L99) | Explorer / lab |
+| <a name="cr-pki-cli"></a>Lab C: certificates and PKI (experiments 11-14) | `exp_fingerprint` | [security_lab/crypto_c_pki.py L84](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L84) | Explorer / lab |
+| <a name="cr-pki-cli-der"></a>Lab C12-C13: parse the DER, verify the self-signature | `parse_certificate` | [security_lab/crypto_c_pki.py L53](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L53) | Explorer / lab |
+| <a name="cr-pki-cli-ca"></a>Lab C14: private CA chain validation | `validate` | [security_lab/crypto_c_pki.py L178](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L178) | Explorer / lab |
+| <a name="cr-cli-common"></a>Crypto lab helpers: toy RSA, PKCS#1 v1.5, DER reader | `emsa_pkcs1_v15` | [security_lab/crypto_common.py L143](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_common.py#L143) | Explorer / lab |
 
 <a name="uml-crypto-signatures"></a>
 
@@ -1490,7 +1499,8 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-sig-lab-keys"></a>Explorer lab: generate ECDSA or RSA key pair | `crSigKeys` | [architecture-explorer/dist/crypto.js L270](../../dist/crypto.js#L270) | Explorer / lab |
 | <a name="cr-sig-lab-sign"></a>Explorer lab: hash-then-sign | `crSigSign` | [architecture-explorer/dist/crypto.js L282](../../dist/crypto.js#L282) | Explorer / lab |
 | <a name="cr-sig-lab-verify"></a>Explorer lab: verify, tamper, wrong key | `crSigVerify` | [architecture-explorer/dist/crypto.js L293](../../dist/crypto.js#L293) | Explorer / lab |
-| <a name="cr-sig-cli"></a>Command-line lab: textbook RSA hash-then-sign | `section_rsa` | [security_lab/crypto_lab.py L149](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L149) | Explorer / lab |
+| <a name="cr-sig-cli"></a>Lab D: digital signatures (experiments 15-17) | `exp_textbook` | [security_lab/crypto_d_signatures.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L33) | Explorer / lab |
+| <a name="cr-sig-cli-jar"></a>Lab D17: JAR signing and verification | `jar_verify` | [security_lab/crypto_d_signatures.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L107) | Explorer / lab |
 
 <a name="uml-crypto-pqc"></a>
 
@@ -1507,7 +1517,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-pqc-lab-sign"></a>Lamport sign: reveal one secret per hash bit | `crLamportSign` | [architecture-explorer/dist/crypto.js L338](../../dist/crypto.js#L338) | Explorer / lab |
 | <a name="cr-pqc-lab-verify"></a>Lamport verify | `crLamportVerify` | [architecture-explorer/dist/crypto.js L342](../../dist/crypto.js#L342) | Explorer / lab |
 | <a name="cr-pqc-lab-forge"></a>Forgery after key reuse | `crLamportForge` | [architecture-explorer/dist/crypto.js L355](../../dist/crypto.js#L355) | Explorer / lab |
-| <a name="cr-pqc-cli"></a>Command-line lab: Lamport one-time signature | `section_pqc` | [security_lab/crypto_lab.py L190](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_lab.py#L190) | Explorer / lab |
+| <a name="cr-pqc-cli"></a>Lab E: post-quantum (experiments 18-20) | `exp_lamport` | [security_lab/crypto_e_post_quantum.py L52](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L52) | Explorer / lab |
+| <a name="cr-pqc-cli-forge"></a>Lab E19: forging after Lamport key reuse | `exp_lamport_reuse` | [security_lab/crypto_e_post_quantum.py L78](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L78) | Explorer / lab |
+| <a name="cr-pqc-cli-hybrid"></a>Lab E20: toy LWE KEM in a hybrid with DH | `exp_lwe_hybrid` | [security_lab/crypto_e_post_quantum.py L160](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L160) | Explorer / lab |
 
 <a name="uml-crypto-gaps"></a>
 
