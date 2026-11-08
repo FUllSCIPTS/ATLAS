@@ -40,7 +40,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [📈 Machine learning and Optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [Lab manual — 40 experiments (20 ML + 20 optimisation)](ml_lab/README.md)
 
-4) [📚 Data Structures and Algorithms — 24 illustrated lessons from O/Ω/Θ to graphs, incl. singly, doubly and circular linked lists; 30 Colab experiments with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md)
+4) [📚 Data Structures and Algorithms — 24 illustrated lessons from O/Ω/Θ to graphs, incl. singly, doubly and circular linked lists; 30 Colab experiments with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md) · [Live Data Structures view in the explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
 5) [🐍 Python Programming — 20 illustrated beginner-to-intermediate lessons + 15 software-testing lessons, every example runnable and linked to ATLAS Go code](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
