@@ -82,7 +82,7 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 `openssl` on the `PATH`; it generates its own short-lived test certificates in
 `prototype/certs/` (not committed).
 
-## Repository layout
+## Reproducible Path
 
 | Path | Purpose |
 |---|---|
