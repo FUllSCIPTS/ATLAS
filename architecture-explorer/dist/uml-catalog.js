@@ -84,12 +84,52 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L223"
   },
   "sec-pw-cli": {
-   "concept": "Command-line lab: 20 experiments and 5 study paths on the real accounts.py and store.py",
-   "symbol": "main",
+   "concept": "Command-line lab runner: all 20 experiments and 5 study paths",
+   "symbol": "if __name__ == '__main__':",
    "path": "security_lab/password_storage_demo.py",
-   "line": 592,
+   "line": 37,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L592"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L37"
+  },
+  "sec-pw-cli-common": {
+   "concept": "Lab helpers, experiment registry and command line",
+   "symbol": "main",
+   "path": "security_lab/lab_common.py",
+   "line": 144,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_common.py#L144"
+  },
+  "sec-pw-cli-a": {
+   "concept": "Lab A: what the app stores (experiments 1-8)",
+   "symbol": "exp_record",
+   "path": "security_lab/lab_a_password_storage.py",
+   "line": 38,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_a_password_storage.py#L38"
+  },
+  "sec-pw-cli-b": {
+   "concept": "Lab B: registration and identity (experiments 9-11)",
+   "symbol": "exp_validation",
+   "path": "security_lab/lab_b_registration_identity.py",
+   "line": 28,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_b_registration_identity.py#L28"
+  },
+  "sec-pw-cli-c": {
+   "concept": "Lab C: sign-in defences (experiments 12-15)",
+   "symbol": "exp_lockout",
+   "path": "security_lab/lab_c_signin_defences.py",
+   "line": 28,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_c_signin_defences.py#L28"
+  },
+  "sec-pw-cli-d": {
+   "concept": "Lab D: integrity, sessions and lifecycle (experiments 16-20)",
+   "symbol": "exp_sessions",
+   "path": "security_lab/lab_d_integrity_lifecycle.py",
+   "line": 34,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34"
   },
   "sec-login": {
    "concept": "Sign in, 5 failures → 60 s lockout, generic error",
@@ -1199,7 +1239,9 @@ const umlCatalog = {
    "sec-pw-test",
    "sec-pw-lab",
    "sec-pw-lab-verify",
-   "sec-pw-cli"
+   "sec-pw-cli",
+   "sec-pw-cli-a",
+   "sec-pw-cli-common"
   ],
   "security/login": [
    "sec-login",
@@ -1209,7 +1251,9 @@ const umlCatalog = {
    "sec-login-logout",
    "sec-login-clear",
    "sec-pw-verify",
-   "sec-login-lab"
+   "sec-login-lab",
+   "sec-pw-cli-c",
+   "sec-pw-cli-d"
   ],
   "security/identity": [
    "sec-pw-register",
@@ -1224,7 +1268,9 @@ const umlCatalog = {
    "sec-rbac-respond",
    "sec-rbac-book",
    "sec-rbac-checkout",
-   "sec-rbac-kitchen"
+   "sec-rbac-kitchen",
+   "sec-pw-cli-b",
+   "sec-pw-cli-d"
   ],
   "security/gateway": [
    "sec-gw-routes",
