@@ -237,7 +237,7 @@ function crPki() {
     ["Public key", "RSA, 4096 bits"],
     ["Signature algorithm", "sha384WithRSAEncryption"],
     ["Validity", "5 Nov 2026 → 13 Sep 2059"],
-    ["Version", "X.509 v1 (no extensions)"],
+    ["Version", "X.509 v3, one extension (subjectKeyIdentifier)"],
     ["Pinned SHA-256", `<code>${secShort(CR_UPLOAD_PIN, 28)}</code> in SIGNED_VALIDATION.json`],
   ]) + `<p class="sec-text">A self-signed certificate has no CA vouching for it, so CI trusts it by <strong>pinning</strong>: it hashes the DER bytes and compares with the committed value. Do the same with the real certificate:</p>
     <div class="sec-actions">${crButton("pin", "Recompute the pin from upload-certificate.pem", { primary: true, iconName: "hash" })}</div>
@@ -410,13 +410,13 @@ function crGaps() {
   ])}
   ${secSection("LESSON PLAN", "Six sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
     ["1", "Hash functions", "Hashes tab: avalanche; verify a real APK"],
-    ["2", "Checksums, hashes, MACs", "Swap a payment; crypto_lab.py §2"],
+    ["2", "Checksums, hashes, MACs", "Swap a payment; crypto lab 4, 5, 8, 9"],
     ["3", "Keys and certificates", "PKI tab: build a CA, run every scenario"],
     ["4", "Trust models", "Private CA vs Web PKI vs pinning; recompute the pin"],
-    ["5", "Digital signatures", "Signatures tab: ECDSA vs RSA sizes; tamper"],
-    ["6", "Post-quantum", "Lamport: sign, reuse, forge; plan ATLAS's migration"],
+    ["5", "Digital signatures", "Signatures tab: ECDSA vs RSA sizes; tamper; crypto lab 15-17"],
+    ["6", "Post-quantum", "Lamport: sign, reuse, forge; crypto lab 18-20; plan ATLAS's migration"],
   ]))}
-  <p class="sec-note">Full write-up: <a class="sec-inline-link" href="${SEC_MAIN}docs/CRYPTOGRAPHY.md">docs/CRYPTOGRAPHY.md</a> · lab: <a class="sec-inline-link" href="${SEC_MAIN}security_lab/crypto_lab.py">security_lab/crypto_lab.py</a></p>`;
+  <p class="sec-note">Full write-up: <a class="sec-inline-link" href="${SEC_MAIN}docs/CRYPTOGRAPHY.md">docs/CRYPTOGRAPHY.md</a> · lab: <a class="sec-inline-link" href="${SEC_MAIN}security_lab/README.md">security_lab/ (20 experiments in five files)</a></p>`;
 }
 
 // ------------------------------------------------------------------ inspector
