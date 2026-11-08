@@ -63,7 +63,9 @@ in the ATLAS code).
 **Try it**
 
 ```bash
-python3 security_lab/password_storage_demo.py   # real accounts.py: salts, cost per guess, dictionary attack, lockout
+python3 security_lab/password_storage_demo.py   # 20 experiments on the real accounts.py + store.py
+python3 security_lab/password_storage_demo.py --list            # experiments and study paths
+python3 security_lab/password_storage_demo.py --path attacker   # foundations | attacker | defender | integrity | lifecycle
 ```
 
 Known gaps (lockout kept in memory only, no MFA, `state.json` not encrypted at rest, default demo
@@ -176,7 +178,7 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `figures/` | Figures as they appear in the paper |
 | `run_all.sh` | Runs everything in order |
 | `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment |
-| `security_lab/password_storage_demo.py` | Command-line lab that exercises the app's real password hashing and login lockout |
+| `security_lab/password_storage_demo.py` | Command-line lab: 20 experiments and 5 study paths on the app's real password hashing, validation, lockout, sessions, tamper checks and account deletion |
 | `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
 | `security_lab/crypto_lab.py` | Command-line lab: SHA-256, checksum collision, certificate pin, toy RSA signature, Lamport post-quantum signature |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
