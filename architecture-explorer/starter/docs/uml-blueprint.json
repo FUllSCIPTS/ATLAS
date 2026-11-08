@@ -1161,7 +1161,7 @@
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
     "dist/security.js": "583a868522e163049446af86aeb7f26ca75ca5c33920abc73cf89a257e609007",
     "dist/styles.css": "fb681e0c32be4317ffdced73d7a10c72869a24f1c49aa41e024c2c5f33dfad0b",
-    "dist/uml-catalog.js": "27ac98961f072903bece5e97f3fc33407e26922e207af31126ed0101b5d32d53",
+    "dist/uml-catalog.js": "90602505406c9a2fd43530201857d706ea814b7091c0b322207b8ab3c3eafe3b",
     "server.mjs": "6f256b13ca968fb6757288ba60fc23f2ee8f9615057bb77d8c57305313c62b22",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
