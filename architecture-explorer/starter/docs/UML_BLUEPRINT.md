@@ -28,7 +28,11 @@ The [local SQLite quickstart](../README.md#start-locally-without-docker) runs th
 
 ## System overview: apps, front end, back end and databases
 
-```mermaid
+![Flowchart: System overview: apps, front end, back end and databases](img/uml/uml-system-overview-apps-front-end-back-end-.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
     subgraph Clients["Apps and front end"]
         A["ATLAS Go 1.2.0 Android app<br/>passenger · driver · seller<br/>Python · Kivy · main branch"]
@@ -69,6 +73,8 @@ flowchart TD
     R --> P
     R --> V
 ```
+
+</details>
 
 | Layer | Component | Technology | Stores data in | Status |
 | --- | --- | --- | --- | --- |
@@ -191,7 +197,11 @@ android-app/
 
 ### App layers
 
-```mermaid
+![Flowchart: App layers](img/uml/uml-app-layers.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
     U["AtlasGoApp<br/>passenger · driver · seller screens"] --> L["LocalStore<br/>commands · validation · rollback · tick()"]
     U --> MAP["LiveMap<br/>tiles · markers · routes"]
@@ -210,11 +220,17 @@ flowchart LR
     X["Acceptance<br/>debug builds only"] --> U
 ```
 
+</details>
+
 The UI changes state only through `LocalStore` commands; each validates, mutates, writes the file atomically and restores the previous in-memory state if the write fails. Once a second `AtlasGoApp.live_tick` calls `LocalStore.tick(now)`, which advances simulated journeys whose time-lapse leg has finished and refreshes the map layers. Journeys handled by a registered driver or seller move only when that account acts. `intelligence.py` and `geo.py` are pure Python without I/O.
 
 ### App class diagram
 
-```mermaid
+![Class diagram: App class diagram](img/uml/uml-app-class-diagram.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 classDiagram
     class App
     class BoxLayout
@@ -395,11 +411,17 @@ classDiagram
     Cart --> Catalog
 ```
 
+</details>
+
 Module functions: `accounts` — `hash_password`, `verify_password`, `clean_name`, `clean_email`, `clean_phone`, `check_password`, `clean_plate`, `clean_licence`, `clean_business`, `parse_int`, `parse_price`, `public_view`. `geo` — `haversine_km`, `eta_minutes`, `leg_seconds`, `lerp`, `nearest_place`, `valid_point`, `zone_drift`, `world_px`, `from_world_px`, `tile_range`, `fit_zoom`, `ride_legs`, `ride_position`, `ride_eta_text`, `order_position`. `intelligence` (new in 1.2.0) — `surge_level`, `acceptance`, `registered_candidate`, `self_test`; `rank`/`choose` take `extra` candidates and `exclude` account ids; `courier_plan` takes a `prep` time. The full generated list is in [ARCHITECTURE.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
 
 ### Screen navigation
 
-```mermaid
+![State diagram: Screen navigation](img/uml/uml-screen-navigation.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 stateDiagram-v2
     [*] --> welcome : no session
     [*] --> home : passenger or guest
@@ -443,11 +465,17 @@ stateDiagram-v2
     profile --> privacy
 ```
 
+</details>
+
 Bottom bar by role — passenger/guest: Home · Map · Food · Activity · You; driver: Drive · Map · Trips · You; seller: Kitchen · Menu · Orders · You. `render()` redirects a role away from screens it may not use.
 
 ### On-device ride and order lifecycles
 
-```mermaid
+![State diagram: On-device ride and order lifecycles](img/uml/uml-on-device-ride-and-order-lifecycles.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 stateDiagram-v2
     state "Ride" as R {
         [*] --> pending : book with a registered driver
@@ -473,13 +501,19 @@ stateDiagram-v2
     }
 ```
 
+</details>
+
 `stage` stays 0..2 as in 1.1.0; `pending` marks the waiting states. Legs are straight lines at 25 km/h played 10× faster (`geo.leg_seconds`). *Skip to next stage* still advances simulated journeys by hand. On completion a registered driver's `earnings` and `trips` increase; on delivery a seller kitchen's `orders` and `sales` (food total without the €2.50 delivery fee) increase.
 
 ### On-device data model (`state.json`)
 
 One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atomic replace. `LocalStore.validate` checks every field before a screen reads it; damaged files are kept as `state.invalid.json`. All 1.2.0 fields are optional, so a 1.1.0 file loads unchanged. Map tiles are cached separately under `tiles/{z}/{x}/{y}.png`.
 
-```mermaid
+![Entity-relationship diagram: On-device data model (state.json)](img/uml/uml-on-device-data-model-state-json.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 erDiagram
     STATE ||--o{ ACCOUNT : "accounts"
     STATE ||--o| ACCOUNT : "session"
@@ -608,11 +642,17 @@ erDiagram
     }
 ```
 
+</details>
+
 Account deletion removes the account, replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock).
 
 ### Registration and sign-in
 
-```mermaid
+![Sequence diagram: Registration and sign-in](img/uml/uml-registration-and-sign-in.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     actor User
     participant UI as AtlasGoApp
@@ -635,9 +675,15 @@ sequenceDiagram
     Store->>File: save() session
 ```
 
+</details>
+
 ### Ride with a registered driver on the same phone
 
-```mermaid
+![Sequence diagram: Ride with a registered driver on the same phone](img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     actor Passenger
     actor Driver
@@ -665,11 +711,17 @@ sequenceDiagram
     Store-->>UI: history + driver earnings and trips
 ```
 
+</details>
+
 If the driver declines, `job_decline` asks `choose` again with that driver excluded and passes the result to `driver_respond(False, fallback)`.
 
 ### Food order from a seller kitchen
 
-```mermaid
+![Sequence diagram: Food order from a seller kitchen](img/uml/uml-food-order-from-a-seller-kitchen.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     actor Seller
     actor Passenger
@@ -690,9 +742,15 @@ sequenceDiagram
     Store-->>UI: history + kitchen orders and sales
 ```
 
+</details>
+
 ### Live map and location
 
-```mermaid
+![Sequence diagram: Live map and location](img/uml/uml-live-map-and-location.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     actor User
     participant UI as AtlasGoApp
@@ -716,11 +774,17 @@ sequenceDiagram
     Loc-->>UI: on_location → blue dot · driver position saved
 ```
 
+</details>
+
 ### On-device intelligence (1.2.0)
 
 The models run on the phone in pure Python from constants that simulations produced offline; no numpy or model files are packaged. All training data is synthetic; holiday dates follow Ireland's real public-holiday rules. `training/export_learned.py` reproduced the bundled `learned.py` byte for byte for 1.2.0.
 
-```mermaid
+![Flowchart: On-device intelligence (1.2.0)](img/uml/uml-on-device-intelligence-1-2-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart LR
     subgraph Dev["Development only · android-app/training"]
         RS["rl_sim.py<br/>REINFORCE dispatch · Q-learning courier"]
@@ -746,6 +810,8 @@ flowchart LR
     ST --> UIs
 ```
 
+</details>
+
 | Model | Learned by | Constant / function | Used on |
 | --- | --- | --- | --- |
 | Dispatch policy v1.4 | REINFORCE over four features (closer ETA, likely to accept, keep the last car in a surging area, avoid surging areas); delayed reward | `RIDE_WEIGHTS`, `rank`, `choose`, `explain` | Ride screen; `book_solo` and `redispatch`; driver decline hand-over. Registered online drivers join the simulated pool |
@@ -763,7 +829,11 @@ These roles mirror the back-end ML: the dispatch policy corresponds to the RL ag
 
 Only the gateway is published on the host loopback interface in the starter. The trip, dispatch and model APIs run on the internal network. The same event worker performs outbox relay and event consumption in this demo.
 
-```mermaid
+![Flowchart: Component and deployment boundaries](img/uml/uml-component-and-deployment-boundaries.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
     B["Passenger and driver browsers"] --> G["Gateway · host port 8000"]
     G --> T["Trip API"]
@@ -781,6 +851,8 @@ flowchart TD
     I["Initialize schema and models"] --> P
     I --> A
 ```
+
+</details>
 
 | Owner | Responsibility | Code |
 | --- | --- | --- |
@@ -809,7 +881,11 @@ The diagrams show classes declared by the starter. Inherited library methods are
 
 ### Booking and dispatch types
 
-```mermaid
+![Class diagram: Booking and dispatch types](img/uml/uml-booking-and-dispatch-types.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 classDiagram
     class BaseModel
     class Booking {
@@ -830,9 +906,15 @@ classDiagram
     BaseModel <|-- Telemetry
 ```
 
+</details>
+
 ### Scoring types and LSTM
 
-```mermaid
+![Class diagram: Scoring types and LSTM](img/uml/uml-scoring-types-and-lstm.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 classDiagram
     class BaseModel
     class Candidate {
@@ -857,9 +939,15 @@ classDiagram
     TorchModule <|-- DemandLSTM
 ```
 
+</details>
+
 ### Database adapter
 
-```mermaid
+![Class diagram: Database adapter](img/uml/uml-database-adapter.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 classDiagram
     class DB {
         +connection
@@ -870,13 +958,19 @@ classDiagram
     DB --> DBAPIConnection : wraps
 ```
 
+</details>
+
 `TorchModule` and `DBAPIConnection` represent external dependencies. The connection is either `sqlite3.Connection` or a Psycopg connection. The starter's service modules use functions and route decorators. Their signatures appear in the catalog.
 
 ## Persistence model
 
 Cardinalities and key markers reflect the actual database constraints in [infra/schema.sql](../infra/schema.sql). `trips.driver_id` is a nullable text field. The assignment handler supplies its value.
 
-```mermaid
+![Entity-relationship diagram: Persistence model](img/uml/uml-persistence-model.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 erDiagram
     TRIPS ||--o| OFFERS : has
     DRIVERS ||--o{ OFFERS : receives
@@ -935,6 +1029,8 @@ erDiagram
     }
 ```
 
+</details>
+
 The compound unique key `trips(rider_id, request_key)` makes booking retries idempotent. The inbox primary key prevents duplicate event side effects. One offer and one learning record are stored per trip. The `pending_outbox(sent, seq)` index supports the relay.
 
 ### Databases at a glance
@@ -951,7 +1047,11 @@ The device file and the server database share no schema today. The server is the
 
 ## Trip state machine
 
-```mermaid
+![State diagram: Trip state machine](img/uml/uml-trip-state-machine.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 stateDiagram-v2
     [*] --> requested : Idempotent booking
     requested --> assigned : Assignment confirmation consumed
@@ -959,6 +1059,8 @@ stateDiagram-v2
     picked_up --> completed : Assigned driver submits completion
     completed --> [*]
 ```
+
+</details>
 
 | Transition or action | Durable effect |
 | --- | --- |
@@ -974,7 +1076,11 @@ stateDiagram-v2
 
 ### Passenger booking
 
-```mermaid
+![Sequence diagram: Passenger booking](img/uml/uml-passenger-booking.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     participant Passenger
     participant Gateway
@@ -989,9 +1095,15 @@ sequenceDiagram
     Passenger->>Gateway: Poll trip status
 ```
 
+</details>
+
 ### Event delivery and offer creation
 
-```mermaid
+![Sequence diagram: Event delivery and offer creation](img/uml/uml-event-delivery-and-offer-creation.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     participant Store
     participant Worker
@@ -1009,11 +1121,17 @@ sequenceDiagram
     Worker->>Kafka: Commit consumer offset
 ```
 
+</details>
+
 If a relay crashes after the broker acknowledgement and before marking the event sent, the next attempt can publish the same event again. The inbox deduplication is in the same transaction as the event's database effects. The SQLite profile drives these handlers directly from the outbox.
 
 ### Driver acceptance and completion
 
-```mermaid
+![Sequence diagram: Driver acceptance and completion](img/uml/uml-driver-acceptance-and-completion.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     participant Driver
     participant Gateway
@@ -1030,11 +1148,17 @@ sequenceDiagram
     Trip-->>Worker: Completion event via outbox and Kafka
 ```
 
+</details>
+
 The worker applies assignment in the shared database. The diagram's dashed message to Trip represents that logical ownership boundary. There is no worker-to-Trip HTTP request.
 
 ### Training, serving and approval
 
-```mermaid
+![Flowchart: Training, serving and approval](img/uml/uml-training-serving-and-approval.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 flowchart TD
     S["Seeded training data"] --> T["Train LSTM, acceptance and anomaly models"]
     T --> M["Versioned model files and manifest"]
@@ -1048,6 +1172,8 @@ flowchart TD
     G -->|Reject| B["Keep current policy"]
 ```
 
+</details>
+
 The LSTM reads 12 five-minute counts. Logistic regression and Isolation Forest read distance and speed. The RL state is forecast bucket `0` below 8 or `1` at least 8. Action `0` ranks by distance and action `1` ranks by acceptance probability. The policy watcher creates candidates after at least 80 completed outcomes. Training does not activate candidates. Inference uses an approved strategy only when `ATLAS_POLICY_ENABLED=1`. Rollback restores the nearest-driver baseline.
 
 ## Connecting the Android app to the back end
@@ -1058,7 +1184,11 @@ This section is a design for the next step. None of it is implemented yet: in 1.
 
 Introduce a repository interface in the app. Keep `LocalStore` as the offline demo implementation and add a `RemoteRepository` that calls the gateway over HTTPS. Run network calls off Kivy's main thread and apply results back on it.
 
-```mermaid
+![Class diagram: Repository boundary](img/uml/uml-repository-boundary.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 classDiagram
     class PassengerRepository {
         <<interface>>
@@ -1113,6 +1243,8 @@ classDiagram
     RemoteRepository --> TokenStore
 ```
 
+</details>
+
 ### Command-to-API map
 
 | App action | `LocalStore` today | Back end today | Gap to close |
@@ -1137,7 +1269,11 @@ classDiagram
 
 ### Connected booking sequence
 
-```mermaid
+![Sequence diagram: Connected booking sequence](img/uml/uml-connected-booking-sequence.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 sequenceDiagram
     actor Passenger
     participant App as AtlasGoApp
@@ -1160,13 +1296,19 @@ sequenceDiagram
     end
 ```
 
+</details>
+
 Retries must reuse the same idempotency key, so a lost response never books twice. The phone never connects to Kafka, the database or the model API directly.
 
 ### Proposed back-end extensions for the Android app
 
 These tables and routes are a proposal to support the app's accounts, driver, seller, food and shared-ride features (the fields mirror 1.2.0's `state.json`). They are not in [`infra/schema.sql`](../infra/schema.sql) and no service implements them.
 
-```mermaid
+![Entity-relationship diagram: Proposed back-end extensions for the Android app](img/uml/uml-proposed-back-end-extensions-for-the-and.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
 erDiagram
     ACCOUNTS ||--o| DRIVER_PROFILES : "driver role"
     ACCOUNTS ||--o| RESTAURANTS : "seller owns"
@@ -1250,6 +1392,8 @@ erDiagram
         integer party "1 or 2"
     }
 ```
+
+</details>
 
 Rules carried over from the app: `UNIQUE (rider_id, request_key)` on `food_orders`; one restaurant per order; at most ten of each item; prices copied into `order_items` at checkout; seat reservation as one conditional update (`seats_left = seats_left - party WHERE seats_left >= party`) in the same transaction as its outbox row; cancellation returns seats. Totals and seat counts are decided by the server, never by the phone.
 
