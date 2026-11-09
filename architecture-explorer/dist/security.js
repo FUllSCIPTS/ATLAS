@@ -2,7 +2,8 @@
 // Loaded before explorer.js. Uses explorer.js globals at call time: state, render, announce, icon, $.
 // All cryptography is real and runs in the browser with Web Crypto: PBKDF2, SHA-256, AES-GCM, ECDSA P-256.
 // Status tags: "impl" = in the ATLAS code today, "demo" = implemented with demo-grade choices,
-// "teach" = teaching extension (standard protocol mapped onto ATLAS components; not in the ATLAS code).
+// "teach" = teaching extension (standard protocol mapped onto ATLAS components; not in the ATLAS code),
+// "host" = host deployment (installed on the server itself, e.g. the IDS/IPS on the database server; not in this repository).
 
 const securityIcons = {
   shield: '<path d="M12 3 5 6v5c0 4.6 3 8.4 7 10 4-1.6 7-5.4 7-10V6Z"/><path d="m9 12 2 2 4-4"/>',
@@ -15,6 +16,7 @@ const securityIcons = {
   check: '<path d="m5 12 4 4 10-10"/>',
   cross: '<path d="m6 6 12 12M18 6 6 18"/>',
   clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 6.5-6.5"/><circle cx="12" cy="12" r="1"/>',
 };
 
 const SEC_MAIN = "https://github.com/FUllSCIPTS/ATLAS/blob/main/";
@@ -26,6 +28,7 @@ const secStatus = {
   impl: { label: "Implemented", tone: "impl", text: "In the ATLAS code today" },
   demo: { label: "Demo-grade", tone: "demo", text: "Implemented with deliberately simple choices" },
   teach: { label: "Teaching extension", tone: "teach", text: "Standard protocol mapped onto ATLAS; not in the ATLAS code" },
+  host: { label: "Host deployment", tone: "host", text: "Installed on the server host (e.g. IDS/IPS on the database server); not in this repository" },
 };
 
 const secTopics = [
@@ -37,6 +40,7 @@ const secTopics = [
   { id: "sso", title: "Single sign-on", icon: "key", status: "teach" },
   { id: "kerberos", title: "Kerberos live", icon: "ticket", status: "teach" },
   { id: "transport", title: "mTLS & deployment", icon: "cloud", status: "impl" },
+  { id: "controls", title: "Control measures", icon: "radar", status: null },
   { id: "gaps", title: "Gaps & exercises", icon: "bug", status: null },
 ];
 const secTopicById = Object.fromEntries(secTopics.map((t) => [t.id, t]));
@@ -50,6 +54,7 @@ const sec = {
   gateway: { scenario: "ok", step: -1 },
   sso: { scenario: "normal", steps: [], ctx: null },
   krb: { scenario: "normal", steps: [], ctx: null },
+  ctl: { scenario: "app", mode: "both" },
 };
 
 // ------------------------------------------------------------------ crypto helpers (Web Crypto)
@@ -117,8 +122,8 @@ function secButton(action, label, { primary = false, iconName = "", disabled = f
   return `<button type="button" class="sec-btn${primary ? " primary" : ""}" data-sec-action="${action}" data-keep="sec-${action}"${disabled || sec.busy ? " disabled" : ""}>${iconName ? icon(iconName, 15) : ""}${label}</button>`;
 }
 
-function secSelect(name, options, value) {
-  return `<label class="sec-field compact"><span>Scenario</span><select data-sec-select="${name}" data-keep="sec-sel-${name}">${options.map(([v, l]) => `<option value="${v}"${v === value ? " selected" : ""}>${l}</option>`).join("")}</select></label>`;
+function secSelect(name, options, value, label = "Scenario") {
+  return `<label class="sec-field compact"><span>${label}</span><select data-sec-select="${name}" data-keep="sec-sel-${name}">${options.map(([v, l]) => `<option value="${v}"${v === value ? " selected" : ""}>${l}</option>`).join("")}</select></label>`;
 }
 
 function secTable(head, rows, cls = "") {
@@ -187,10 +192,11 @@ const secMap = [
   ["kerberos", "ticket", "Kerberos", "teach", "KDC tickets for the driver app → Dispatch Service; live AES-GCM with attack scenarios", "Guide §8"],
   ["transport", "cloud", "Mutual TLS", "impl", "Prototype: private CA, serverAuth/clientAuth certificates, CERT_REQUIRED", "prototype/proto_run.py"],
   ["transport", "shield", "Secure deployment", "impl", "Loopback + SSH tunnel, CSP and security headers, systemd sandbox, signed APKs", "server.mjs · releases/"],
+  ["controls", "radar", "IDS & IPS on the database server", "host", "Preventive, detective and protective controls; live IDS/IPS lab for PostgreSQL :5432", "Guide §11"],
 ];
 
 function secOverview() {
-  return `<div class="sec-intro"><p>ATLAS is a full ride-hailing and food-delivery system, so it exercises the core of information security end to end. Each control below links to a live lab. Tags say whether it is <strong>in the ATLAS code</strong>, <strong>demo-grade</strong>, or a <strong>teaching extension</strong> mapped onto ATLAS components.</p>
+  return `<div class="sec-intro"><p>ATLAS is a full ride-hailing and food-delivery system, so it exercises the core of information security end to end. Each control below links to a live lab. Tags say whether it is <strong>in the ATLAS code</strong>, <strong>demo-grade</strong>, a <strong>teaching extension</strong> mapped onto ATLAS components, or a <strong>host deployment</strong> installed on the server itself.</p>
     <div class="sec-legend">${Object.keys(secStatus).map((k) => `<span>${secChip(k)}<small>${secStatus[k].text}</small></span>`).join("")}</div></div>
     <div class="sec-grid">${secMap.map(([topic, ic, title, status, text, where]) => `<button type="button" class="sec-card" data-sec-topic="${topic}" data-keep="sec-card-${title}"><span class="sec-card-top">${icon(ic, 18)}${secChip(status)}</span><strong>${title}</strong><span>${text}</span><code>${where}</code></button>`).join("")}</div>
     ${secSection("CIA TRIAD IN ATLAS", "Where each property comes from", secTable(["Property", "Mechanism in ATLAS", "Where"], [
@@ -644,6 +650,127 @@ function secTransport() {
     ${secSection("SUPPLY CHAIN · ATLAS GO", "Trusting the APK you install", `<p class="sec-text">Releases ship with APK v2/v3 signatures, a published upload certificate, a release manifest and <code>SHA256SUMS</code>. Verify before installing:</p>${secCode("sha256sum -c SHA256SUMS\napksigner verify --print-certs atlas-go-1.2.0.apk")}${secLink("android-app/releases/", "https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app/releases")}`)}`;
 }
 
+// ------------------------------------------------------------------ topic: control measures + IDS/IPS lab (guide §11)
+// The lab is a deterministic model of the sensors around the database server, not a packet engine.
+// Rule ids 9100001–9100003 match the reference rules in docs/INFORMATION_SECURITY.md §11.5.
+const secCtlModes = [["both", "IDS + IPS (as deployed)"], ["ids", "IDS only"], ["ips", "IPS only"], ["none", "No IDS / IPS"]];
+const secCtlScenarios = {
+  app: { label: "Trip Service query (normal traffic)", bad: false,
+    wire: "10.0.1.12:51544 → db:5432  TLS (sslmode=require)\nStartupMessage user=atlas database=atlas\nSELECT * FROM trips WHERE id = $1",
+    fw: [true, "Firewall: source 10.0.1.12 is in $APP_NET", "Only the application subnet may reach :5432"],
+    nids: null, ips: null, hids: null, pg: "Query answered" },
+  external: { label: "Connection to :5432 from the internet", bad: true,
+    wire: "203.0.113.50:40112 → db:5432  TCP SYN\n(firewall rule for :5432 was widened by mistake)",
+    fw: [false, "Firewall: rule for :5432 too broad", "The first preventive layer has failed — this is why the IDS/IPS sit behind it"],
+    nids: ["sid:9100001", "PostgreSQL connection from outside app subnet"], ips: ["sid:9100003", "drop: external PostgreSQL connection"], hids: null, pg: "Attacker reaches the PostgreSQL login prompt" },
+  brute: { label: "Password brute force against PostgreSQL", bad: true,
+    wire: "10.0.1.77 → db:5432  (cleartext, no TLS)\n× 40 attempts in 60 s, user=atlas\n← FATAL: password authentication failed for user \"atlas\"",
+    fw: [true, "Firewall: 10.0.1.77 is inside $APP_NET", "A compromised container is still “trusted” by address"],
+    nids: ["sid:9100002", "5 failed PostgreSQL logins within 60 s (same idea as the app's 5-in-60 s lockout)"], ips: ["rate policy", "block 10.0.1.77 for 10 min after the threshold"], hids: ["postgresql.log", "repeated 'password authentication failed' lines"], pg: "Guessing continues against the demo password atlas-local" },
+  scan: { label: "Port scan of the database host", bad: true,
+    wire: "198.51.100.9 → db:1-1024,5432  TCP SYN × 1 025 in 4 s",
+    fw: [false, "Firewall: scan traffic reaches the sensors", "Closed ports answer RST, which still tells the attacker which ports exist"],
+    nids: ["scan detector", "many SYNs to distinct ports from one source"], ips: ["scan policy", "block 198.51.100.9"], hids: null, pg: "Attacker learns the host runs PostgreSQL on :5432" },
+  sqli: { label: "SQL injection slipping past the app (cleartext)", bad: true,
+    wire: "10.0.1.12 → db:5432  (cleartext)\nSELECT * FROM accounts WHERE email = '' OR '1'='1' --'",
+    fw: [true, "Firewall: source is the Trip Service", "Network policy cannot judge query content"],
+    nids: ["SQLi signature", "tautology ' OR '1'='1' in a Query message"], ips: ["SQLi signature", "drop the Query message and reset the connection"], hids: ["postgresql.log", "query touching accounts from the trips role"], pg: "Every account row returned" },
+  sqliTls: { label: "Same SQL injection over TLS", bad: true,
+    wire: "10.0.1.12 → db:5432  TLS (sslmode=require)\n[encrypted application data — 412 bytes]",
+    fw: [true, "Firewall: source is the Trip Service", "Network policy cannot judge query content"],
+    nids: null, ips: null, nidsBlind: true, hids: ["postgresql.log", "query touching accounts from the trips role"], pg: "Every account row returned" },
+  tamper: { label: "Write to pg_hba.conf (trust all hosts)", bad: true,
+    wire: "pid 4121 (www-data) open(\"/var/lib/postgresql/data/pg_hba.conf\", O_WRONLY)\n+ host all all 0.0.0.0/0 trust",
+    fw: [true, "Firewall: not involved", "This attack is already on the host — only host-based controls see it"],
+    nids: null, ips: null, hostOnly: true, hids: ["file integrity", "pg_hba.conf changed by a non-postgres process"], hips: ["HIPS", "deny write to the PostgreSQL configuration"], pg: "Passwordless logins from anywhere after reload" },
+  backup: { label: "Nightly pg_dump backup (legitimate, large)", bad: false,
+    wire: "10.0.1.30 (backup job) → db:5432  TLS\npg_dump atlas  →  2.4 GB in 3 min",
+    fw: [true, "Firewall: backup host is in $APP_NET", "Allowed by policy"],
+    nids: ["volume anomaly", "result size far above the learned baseline"], ips: ["exfiltration policy", "rate-limit the transfer"], falsePositive: true, hids: null, pg: "Backup completes" },
+};
+
+function secCtlRun(s, mode) {
+  const ids = mode === "both" || mode === "ids";
+  const ips = mode === "both" || mode === "ips";
+  const steps = [];
+  let blocked = false, alerted = false;
+  steps.push(s.fw);
+  const ipsRule = s.hostOnly ? s.hips : s.ips;
+  if (s.hostOnly) {
+    if (ips) { blocked = true; steps.push([true, `HIPS: ${ipsRule[1]}`, "Host-based prevention on the database server"]); }
+    else steps.push([false, "HIPS: not deployed in this mode", "Nothing on the host stops the write"]);
+  } else if (!ips) {
+    steps.push([!s.bad, "IPS (inline): not deployed in this mode", s.bad ? "Traffic is forwarded uninspected" : "Traffic forwarded"]);
+  } else if (ipsRule) {
+    blocked = true;
+    steps.push([!s.falsePositive, `IPS (inline): ${ipsRule[0]} → ${ipsRule[1]}`, s.falsePositive ? "False positive: legitimate traffic blocked — an availability incident" : "Preventive: the attack never reaches PostgreSQL"]);
+  } else {
+    steps.push([!s.bad, s.nidsBlind ? "IPS (inline): payload encrypted, no rule can match" : "IPS (inline): no rule matched → forward", s.nidsBlind ? "TLS protects the data, and also hides it from the sensor" : ""]);
+  }
+  if (!s.hostOnly) {
+    if (!ids) steps.push([!s.bad, "Network IDS (mirrored copy): not deployed in this mode", ""]);
+    else if (s.nids) { alerted = true; steps.push([!s.falsePositive, `Network IDS: ${s.nids[0]} → alert`, s.falsePositive ? `${s.nids[1]} — the analyst must recognise a known job` : s.nids[1]]); }
+    else steps.push([!s.bad, s.nidsBlind ? "Network IDS: sees only TLS records — no alert" : "Network IDS: no signature or anomaly → no alert", s.nidsBlind ? "Detection has to move to the host" : ""]);
+  }
+  const hidsReached = !blocked || s.hostOnly;
+  if (!ids) steps.push([!s.bad, "Host IDS (PostgreSQL log, file integrity): not deployed in this mode", ""]);
+  else if (s.hids && hidsReached) { alerted = true; steps.push([true, `Host IDS: ${s.hids[0]} → alert`, s.hids[1]]); }
+  else if (s.hids && !hidsReached) steps.push([true, "Host IDS: nothing to see", "The IPS stopped the traffic before it reached PostgreSQL"]);
+  else steps.push([true, "Host IDS: nothing unusual on the host", ""]);
+  const reached = !blocked;
+  steps.push([s.bad ? !reached : reached, reached ? `PostgreSQL: ${s.pg}` : "PostgreSQL: never sees the request", ""]);
+  let outcome, tone;
+  if (!s.bad) { outcome = blocked ? "Legit traffic blocked" : alerted ? "Allowed · false alarm" : "Allowed"; tone = blocked ? "fail" : "ok"; }
+  else if (blocked) { outcome = alerted ? "Blocked · alert raised" : "Blocked"; tone = "ok"; }
+  else if (alerted) { outcome = "Succeeded · detected"; tone = "warn"; }
+  else { outcome = "Succeeded · unseen"; tone = "fail"; }
+  return { steps, outcome, tone };
+}
+
+function secControls() {
+  const C = sec.ctl;
+  const s = secCtlScenarios[C.scenario];
+  const r = secCtlRun(s, C.mode);
+  const types = [
+    ["Preventive", "Stop the attack succeeding", "Before the event · lowers likelihood", "Password policy, lockout, RBAC, gateway allow-list, mTLS, firewall, IPS"],
+    ["Detective", "Know that it is happening", "During / after · shortens time-to-discovery", "Failed-login counter, state validation, health checks, release checksums, anomaly scores, IDS"],
+    ["Protective", "Limit what an intruder gets", "Assumes the others failed · lowers impact", "Salted PBKDF2, app-private storage, quarantine, sandboxing, segmentation, backups, IPS cut-off"],
+  ];
+  return `<div class="sec-intro"><p>A <strong>control measure</strong> reduces risk — either the chance that a threat succeeds or the damage when it does. Grouping ATLAS's controls by <strong>what they do to an attack</strong> is how controls are chosen and audited (ISO/IEC 27001 Annex A: preventive · detective · corrective; NIST CSF: Protect · Detect · Respond · Recover). Layering all three around one asset is defence in depth.</p></div>
+    <ol class="sec-flow">${types.map(([t, q, w, e], i) => `<li><span class="sec-flow-n">${i + 1}</span><strong>${t}</strong><code>${q}</code><small>${w}</small><small>${e}</small></li>`).join("")}</ol>
+    ${secSection("LIVE LAB · DATABASE SERVER", `IDS and IPS around PostgreSQL :5432 ${secChip("host")}`, `<p class="sec-text">The server that holds the ATLAS database (<code>postgres:16</code>, database <code>atlas</code>) runs an <strong>IDS</strong> (passive: alerts on a mirrored copy of traffic and on host logs) and an <strong>IPS</strong> (inline: drops traffic before it reaches PostgreSQL). Pick traffic and a sensor set-up and see which layer acts.</p>
+      <div class="sec-row">${secSelect("ctl", Object.entries(secCtlScenarios).map(([k, v]) => [k, v.label]), C.scenario, "Traffic")}${secSelect("ctlMode", secCtlModes, C.mode, "Sensors")}</div>
+      <div class="sec-two"><div><p class="sec-label">What arrives at the database server</p>${secCode(s.wire)}</div><div><p class="sec-label">Outcome</p><p class="sec-status sec-ctl-${r.tone}">${r.outcome}</p></div></div>
+      <ul class="sec-checks">${r.steps.map(([ok, t, d]) => secCheck(ok, t, d)).join("")}</ul>
+      <p class="sec-note"><span>Try: <strong>SQL injection</strong> in cleartext vs over TLS (the network sensors go blind); the <strong>backup</strong> under IDS + IPS (a false positive becomes an outage); any attack with <strong>No IDS / IPS</strong>.</span></p>`)}
+    ${secSection("IDS VS IPS", "Two tools, two control types", secTable(["", "IDS — detection", "IPS — prevention"], [
+      ["Control type", "Detective", "Preventive (and protective: cuts off an attack in progress)"],
+      ["Placement", "Passive: mirror port / tap, or host logs", "Inline: every packet to the database passes through"],
+      ["Action", "Raises an alert; traffic unchanged", "Drops, resets or blocks the source"],
+      ["False positive", "Noise for the analyst", "A real client is blocked — availability incident"],
+      ["If it fails", "Attacks go unseen; service unaffected", "Fail-open: uninspected · fail-closed: database unreachable"],
+      ["Forms", "NIDS on the wire · HIDS on the host (PostgreSQL log, pg_hba.conf, data dir)", "NIPS inline · HIPS on the host"],
+    ]))}
+    ${secSection("REFERENCE RULES (ILLUSTRATIVE)", "What a database-server policy looks like", secCode(`# DETECTIVE (IDS): new PostgreSQL connection from outside the application subnet
+alert tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: PostgreSQL connection from outside app subnet"; flow:to_server; flags:S; sid:9100001; rev:1;)
+
+# DETECTIVE (IDS): 5 failed PostgreSQL logins to the same client within 60 s
+alert tcp $DB_SERVER 5432 -> any any (msg:"ATLAS DB: repeated PostgreSQL authentication failures"; flow:to_client,established; content:"password authentication failed"; nocase; threshold:type both, track by_dst, count 5, seconds 60; sid:9100002; rev:1;)
+
+# PREVENTIVE (IPS, inline): drop connections from outside the application subnet
+drop tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: blocked external PostgreSQL connection"; flow:to_server; flags:S; sid:9100003; rev:1;)`) + `<p class="sec-note">Suricata/Snort syntax, for teaching — not a copy of the rules installed on the host. The starter keeps PostgreSQL off the host network (no <code>ports:</code> in <code>compose.yaml</code>), so these rules are the second layer, not the first.</p>` + secLink("starter/compose.yaml", SEC_STARTER + "compose.yaml"))}
+    ${secSection("CONTROL MATRIX", "One threat, three layers", secTable(["Threat", "Preventive", "Detective", "Protective"], [
+      ["Online password guessing (app)", "Password policy, 5-failure lockout", "Failed-login counter", "PBKDF2 slows any guess that gets through"],
+      ["Stolen state.json", "App-private storage", "File-integrity and release checks", "Salted, iterated hashes; data minimisation"],
+      ["Forged API call", "Route allow-list, bearer key, role check", "401 / 403 at gateway and services", "Services re-check identity (internal_actor)"],
+      ["Direct attack on PostgreSQL", "DB port not published; <strong>IPS</strong> drop", "<strong>IDS</strong> alert; pg_isready health check", "Network segmentation; volume + backups"],
+      ["Tampered saved state", "Schema validation before commit", "validate() on load", "Quarantine to state.invalid.json; atomic replace"],
+      ["Malicious release", "Signed builds from protected keys", "sha256sum -c, apksigner verify", "Android refuses mismatched signatures"],
+      ["Compromised explorer process", "Loopback bind, CSP, method allow-list", "— (exercise: access logging)", "systemd sandbox, NoNewPrivileges"],
+    ]))}
+    <p class="sec-note">Full tables of every preventive, detective and protective control: <a class="sec-inline-link" href="${SEC_GUIDE}#11-control-measures-preventive-detective-and-protective">docs/INFORMATION_SECURITY.md §11</a></p>`;
+}
+
 // ------------------------------------------------------------------ topic: gaps
 function secGaps() {
   return `<div class="sec-intro"><p>Real properties of the current code — ready-made "find it, fix it, test it" assignments.</p></div>
@@ -656,8 +783,11 @@ function secGaps() {
       ["6", "Static shared internal token over plain HTTP", "gateway.py · compose.yaml", "Replace with mTLS (prototype) or signed short-lived tokens"],
       ["7", "Bearer keys never expire", "gateway.py", "Replace with OIDC access tokens (SSO tab)"],
       ["8", "Licence and business numbers are self-declared", "accounts.py", "Discuss identity assurance levels; design verification"],
+      ["9", "IDS/IPS rules live only on the database host", "Database server", "Version the rule set in deploy/ids/; replay a scan and brute-force .pcap and confirm each rule fires"],
+      ["10", "No persistent security audit log", "store.py · gateway.py", "Log logins, lockouts, 401/403s and quarantines; never log secrets"],
+      ["11", "No database backup/restore procedure; demo DB password", "starter/compose.yaml", "Schedule pg_dump backups, test a restore, load the password from a secret"],
     ])}
-    ${secSection("LESSON PLAN", "Eight sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
+    ${secSection("LESSON PLAN", "Nine sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
       ["1", "CIA triad, threat modelling", "Security map + Architecture tab (STRIDE)"],
       ["2", "Password storage", "Password storage tab + security_lab/password_storage_demo.py --path foundations, then --path attacker"],
       ["3", "Authentication & identity", "Login & lockout, Identity & roles + lab --path defender and --path lifecycle"],
@@ -665,14 +795,15 @@ function secGaps() {
       ["5", "SSO & federation", "Single sign-on tab"],
       ["6", "Kerberos", "Kerberos live: run every attack scenario"],
       ["7", "Transport security", "Run the prototype; remove the client cert"],
-      ["8", "Secure engineering", "Fix one gap above with a test"],
+      ["8", "Control measures, IDS & IPS", "Control measures tab: classify every control; run each attack in the IDS/IPS lab"],
+      ["9", "Secure engineering", "Fix one gap above with a test"],
     ]))}
     <p class="sec-note">Full write-up: <a class="sec-inline-link" href="${SEC_GUIDE}">docs/INFORMATION_SECURITY.md</a></p>`;
 }
 
 // ------------------------------------------------------------------ inspector
 const secInspect = {
-  overview: { summary: "Nine controls across the Android app, the server starter, the prototype and the explorer server.", files: [["docs/INFORMATION_SECURITY.md", SEC_GUIDE], ["security_lab/password_storage_demo.py", SEC_MAIN + "security_lab/password_storage_demo.py"]], facts: [["Implemented", "Passwords, login, identity, RBAC, mTLS, deployment"], ["Demo-grade", "Gateway keys and internal token"], ["Teaching extension", "SSO, Kerberos"]], questions: ["Which control protects which letter of CIA?", "Where is the trust boundary between the app and the server?"] },
+  overview: { summary: "Ten controls across the Android app, the server starter, the prototype, the explorer server and the database host.", files: [["docs/INFORMATION_SECURITY.md", SEC_GUIDE], ["security_lab/password_storage_demo.py", SEC_MAIN + "security_lab/password_storage_demo.py"]], facts: [["Implemented", "Passwords, login, identity, RBAC, mTLS, deployment"], ["Demo-grade", "Gateway keys and internal token"], ["Teaching extension", "SSO, Kerberos"], ["Host deployment", "IDS and IPS on the database server"]], questions: ["Which control protects which letter of CIA?", "Where is the trust boundary between the app and the server?"] },
   passwords: { summary: "One-way, salted, deliberately slow. The record carries its own iteration count so the cost can be raised later.", files: [["android-app/atlas_go/accounts.py", SEC_MAIN + "android-app/atlas_go/accounts.py#L27-L42"], ["android-app/tests/test_accounts_geo.py", SEC_MAIN + "android-app/tests/test_accounts_geo.py#L9-L15"], ["android-app/docs/PRIVACY.md", SEC_MAIN + "android-app/docs/PRIVACY.md"]], facts: [["Algorithm", "PBKDF2-HMAC-SHA256"], ["Iterations", "200 000"], ["Salt", "16 random bytes per account"], ["Output", "32 bytes, hex"], ["Compare", "hmac.compare_digest"], ["Policy", "8–128 chars, letter + digit"]], questions: ["Why hash rather than encrypt?", "What does the salt stop, and what does it not stop?", "Why store the iteration count?", "Why is an upper length limit a security control?"] },
   login: { summary: "Online guessing is throttled; failures look identical whether or not the account exists.", files: [["android-app/atlas_go/store.py → login", SEC_MAIN + "android-app/atlas_go/store.py#L304-L319"], ["android-app/atlas_go/accounts.py (limits)", SEC_MAIN + "android-app/atlas_go/accounts.py#L16-L18"]], facts: [["Max failures", "5"], ["Lockout", "60 s"], ["Counter", "In memory, per email"], ["Session", "Account id in state.json, validated on load"]], questions: ["Why not lock permanently?", "What attack does the generic message prevent?", "What happens to the counter if the app restarts?"] },
   identity: { summary: "The lifecycle from registration to deletion, with roles enforced at two layers.", files: [["android-app/atlas_go/store.py", SEC_MAIN + "android-app/atlas_go/store.py#L260-L357"], ["android-app/atlas_go/app.py → render", SEC_MAIN + "android-app/atlas_go/app.py#L428-L435"], ["android-app/docs/ARCHITECTURE.md (Identity roadmap)", SEC_MAIN + "android-app/docs/ARCHITECTURE.md"]], facts: [["Roles", "passenger · driver · seller"], ["Identifier", "U-<nanoseconds>, email unique"], ["Re-auth", "Required to delete"], ["Erasure", "Account removed, history anonymised"]], questions: ["Which identity attributes are verified and which only claimed?", "Why re-ask the password before deletion?", "Why check roles in the store if the UI already hides screens?"] },
@@ -680,7 +811,8 @@ const secInspect = {
   sso: { summary: "One identity provider, many ATLAS front ends. The gateway verifies signatures instead of looking up shared keys.", files: [["docs/INFORMATION_SECURITY.md §7", SEC_GUIDE + "#7-single-sign-on-sso-for-atlas--teaching-extension"]], facts: [["Protocol", "OpenID Connect"], ["Flow", "Authorization code + PKCE (S256)"], ["Token", "JWT, ES256, 10 min"], ["Gateway checks", "signature, iss, aud, exp, role"]], questions: ["What does PKCE add for a mobile app?", "Why can the gateway verify tokens without calling the IdP?", "What is the cost of a single point of authentication?"] },
   kerberos: { summary: "Symmetric-key tickets from a trusted third party. The password is used once to derive K_C and never crosses the network.", files: [["docs/INFORMATION_SECURITY.md §8", SEC_GUIDE + "#8-kerberos-step-by-step-on-atlas-components--teaching-extension"]], facts: [["Realm", SEC_REALM], ["Client", "driver-a"], ["Service", "HTTP/dispatch.atlas"], ["Clock skew", "±300 s"], ["TGT lifetime", "10 h"], ["Cipher (demo)", "AES-256-GCM"], ["String-to-key", "PBKDF2-SHA1, 4096, salt realm+principal"]], questions: ["Why can't the driver app read its own TGT?", "Which field defeats a replay?", "What would a stolen K_TGS allow (golden ticket)?", "Why must clocks be synchronised?"] },
   transport: { summary: "Mutual authentication on the wire, a locked-down host for the explorer, and verifiable releases.", files: [["prototype.zip → proto_run.py, module_server.py", SEC_MAIN + "prototype.zip"], ["architecture-explorer/server.mjs", SEC_EXPLORER + "server.mjs"], ["android-app/releases/", "https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app/releases"]], facts: [["mTLS", "Private CA, CERT_REQUIRED"], ["Cert lifetime", "30 days"], ["Explorer bind", "127.0.0.1"], ["Release integrity", "APK v2/v3 + SHA-256"]], questions: ["What does mutual TLS add over ordinary HTTPS?", "Why is serverAuth vs clientAuth key usage important?", "Why bind to loopback instead of adding a login page?"] },
-  gaps: { summary: "Eight known gaps, each a self-contained assignment.", files: [["docs/INFORMATION_SECURITY.md §11", SEC_GUIDE + "#11-known-gaps--exercises-for-students"]], facts: [["Exercises", "8"], ["Sessions", "8"]], questions: ["Which gap would you fix first, and why?"] },
+  controls: { summary: "Every ATLAS control grouped by what it does to an attack, plus the IDS and IPS that guard the database server.", files: [["docs/INFORMATION_SECURITY.md §11", SEC_GUIDE + "#11-control-measures-preventive-detective-and-protective"], ["starter/compose.yaml (postgres, no published port)", SEC_STARTER + "compose.yaml"], ["ml_lab/…/ml15_anomaly_detection.py", SEC_MAIN + "ml_lab/machine_learning/ml15_anomaly_detection.py"]], facts: [["Control types", "Preventive · detective · protective"], ["Database", "PostgreSQL 16, :5432, atlas"], ["IDS", "Passive — network + host"], ["IPS", "Inline — drops before PostgreSQL"], ["Status", "Host deployment, not in the repo"]], questions: ["Classify the login lockout: preventive, detective or both?", "Why can't a network IDS see SQL injection over TLS, and what can?", "When is an IPS false positive worse than an IDS false positive?", "Should the IPS fail open or fail closed in front of the database?"] },
+  gaps: { summary: "Eleven known gaps, each a self-contained assignment.", files: [["docs/INFORMATION_SECURITY.md §12", SEC_GUIDE + "#12-known-gaps--exercises-for-students"]], facts: [["Exercises", "11"], ["Sessions", "9"]], questions: ["Which gap would you fix first, and why?"] },
 };
 
 function securityInspector() {
@@ -697,16 +829,16 @@ function securityInspector() {
 }
 
 // ------------------------------------------------------------------ view + events
-const secRenderers = { overview: secOverview, passwords: secPasswords, login: secLogin, identity: secIdentity, gateway: secGateway, sso: secSso, kerberos: secKrb, transport: secTransport, gaps: secGaps };
+const secRenderers = { overview: secOverview, passwords: secPasswords, login: secLogin, identity: secIdentity, gateway: secGateway, sso: secSso, kerberos: secKrb, transport: secTransport, controls: secControls, gaps: secGaps };
 
 function securityView() {
   if (!globalThis.crypto?.subtle) {
     return viewHeading("INFORMATION SECURITY", "Security", "Web Crypto is unavailable: open the explorer over HTTPS or on localhost.");
   }
   const t = secTopicById[sec.topic];
-  return viewHeading("INFORMATION SECURITY", "How ATLAS is secured", "Authentication, password storage, identity, access control, SSO and Kerberos — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_GUIDE}">Teaching guide ↗</a>`)
+  return viewHeading("INFORMATION SECURITY", "How ATLAS is secured", "Authentication, password storage, identity, access control, SSO, Kerberos and control measures (IDS/IPS) — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_GUIDE}">Teaching guide ↗</a>`)
     + `<nav class="sec-topics" aria-label="Security topics">${secTopics.map((x) => `<button type="button" data-sec-topic="${x.id}" data-keep="sec-topic-${x.id}" aria-pressed="${x.id === sec.topic}">${icon(x.icon, 15)}${x.title}${x.status ? `<i class="sec-dot ${secStatus[x.status].tone}" aria-label="${secStatus[x.status].label}"></i>` : ""}</button>`).join("")}</nav>
-    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}${umlChip(sec.topic === "overview" ? "uml-security-passwords" : `uml-security-${sec.topic}`, "UML catalogue")}</div>${secRenderers[sec.topic]()}${sec.topic === "overview" ? umlTopicsSection("security", secTopics) : umlSection(`security/${sec.topic}`)}</div>`;
+    <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}${umlChip(sec.topic === "overview" ? "uml-security-passwords" : umlData()?.topics?.[`security/${sec.topic}`] ? `uml-security-${sec.topic}` : umlCatalogueAnchor("security"), "UML catalogue")}</div>${secRenderers[sec.topic]()}${sec.topic === "overview" ? umlTopicsSection("security", secTopics) : umlSection(`security/${sec.topic}`)}</div>`;
 }
 
 function securityOpen(topic) {
@@ -770,5 +902,7 @@ document.addEventListener("change", (event) => {
   if (name === "gateway") { sec.gateway.scenario = event.target.value; sec.gateway.step = 0; }
   if (name === "sso") { sec.sso.scenario = event.target.value; sec.sso.steps = []; sec.sso.ctx = null; }
   if (name === "krb") { sec.krb.scenario = event.target.value; sec.krb.steps = []; sec.krb.ctx = null; }
+  if (name === "ctl") sec.ctl.scenario = event.target.value;
+  if (name === "ctlMode") sec.ctl.mode = event.target.value;
   render();
 });
