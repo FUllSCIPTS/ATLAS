@@ -1,6 +1,6 @@
 # Web Technology — an illustrated, standalone course from HTTP to full stack
 
-**ATLAS option 11.** 23 lessons in five parts, a runnable full-stack application, 20 measured experiments and 28 integration tests. **Audience:** complete beginners to intermediate students; no prior web experience is assumed. **Tools:** a browser, Python 3.10+, a text editor (VS Code or similar). Every lesson stands on its own: it explains the idea, draws it, shows working code, points to the exact line in the teaching app where it is used, names the usual mistakes and ends with exercises.
+**ATLAS option 11.** 23 lessons in five parts, a runnable full-stack application, 20 measured experiments and 28 integration tests. **Audience:** complete beginners to intermediate students; no prior web experience is assumed. **Tools:** a browser, Python 3.10+, a text editor (VS Code or similar). Every lesson stands on its own: it explains the idea, draws it, shows working code, points to the exact line in the teaching app where it is used, names the usual mistakes and ends with exercises. The four core languages — **HTML, CSS, JavaScript and SQL** — get extended deep-dive sections, a one-page quick reference and self-check questions with answers.
 
 [Lab manual](../web_lab/README.md) · [Open the experiments in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [Teaching app source](../web_lab/) · [ATLAS UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -14,7 +14,16 @@
 | II. Front end | [5 HTML](#lesson-5--html-documents-elements-attributes-and-the-tree) · [6 Forms](#lesson-6--html-forms) · [7 CSS basics](#lesson-7--css-rules-selectors-specificity-and-the-cascade) · [8 Layout](#lesson-8--the-box-model-flexbox-and-grid) · [9 Responsive and accessible](#lesson-9--responsive-and-accessible-design) · [10 JavaScript](#lesson-10--javascript-the-language) · [11 DOM and events](#lesson-11--the-dom-events-and-safe-rendering) · [12 Async and fetch](#lesson-12--asynchronous-javascript-the-event-loop-promises-asyncawait-and-fetch) | W03–W06, W20 |
 | III. Back end and data | [13 REST APIs](#lesson-13--apis-and-rest-design) · [14 FastAPI](#lesson-14--building-the-back-end-with-fastapi) · [15 Relational design](#lesson-15--relational-databases-tables-keys-constraints-and-normalisation) · [16 SQL](#lesson-16--sql-queries-joins-aggregation-indexes-and-injection) · [17 Transactions](#lesson-17--transactions-concurrency-and-python-with-sqlite) | W07–W13 |
 | IV. Full stack | [18 Integration](#lesson-18--putting-it-together-one-request-through-every-layer) · [19 Sessions and auth](#lesson-19--state-cookies-sessions-tokens-authentication-and-authorisation) · [20 Security](#lesson-20--web-security-owasp-top-10-in-practice) · [21 Performance](#lesson-21--performance-caching-pagination-and-load) · [22 Testing](#lesson-22--testing-web-applications) · [23 Deployment](#lesson-23--deployment-and-architecture) | W14–W19 |
-| V. Practice | [Run the lab](#part-v--practice) · [Experiments](#the-20-experiments) · [Plan](#12-week-teaching-plan) · [Capstone](#capstone-and-assessment) | all |
+| V. Practice | [Run the lab](#part-v--practice) · [Experiments](#the-20-experiments) · [Plan](#12-week-teaching-plan) · [Capstone](#capstone-and-assessment) · [Quick reference](#fundamentals-quick-reference) · [Self-check](#self-check-questions) | all |
+
+**Fundamentals in depth.** Each core lesson ends with numbered deep-dive sections before its exercises:
+
+| Language | Deep-dive sections |
+|---|---|
+| **HTML** | [5.1 From bytes to pixels](#51-from-bytes-to-pixels-how-the-browser-reads-a-page) · [5.2 Block and inline content](#52-block-and-inline-content) · [5.3 Attributes every element accepts](#53-attributes-every-element-accepts) · [5.4 Links and paths](#54-links-and-paths) · [5.5 Images, figures and media](#55-images-figures-and-media) · [5.6 The `<head>`](#56-the-head-metadata-the-user-does-not-see) · [5.7 Character references, whitespace and comments](#57-character-references-whitespace-and-comments) · [6.1 The rest of the controls](#61-the-rest-of-the-controls) · [6.2 Buttons and what "Enter" does](#62-buttons-and-what-enter-does) · [6.3 How the data is encoded](#63-how-the-data-is-encoded) · [6.4 Validation in the browser](#64-validation-in-the-browser-attributes-css-and-the-constraint-validation-api) · [6.5 Helping people (and password managers) fill forms](#65-helping-people-and-password-managers-fill-forms) |
+| **CSS** | [7.1 Three places CSS can live](#71-three-places-css-can-live) · [7.2 Inheritance and the "global" keywords](#72-inheritance-and-the-global-keywords) · [7.3 More selectors](#73-more-selectors) · [7.4 Cascade layers](#74-cascade-layers-controlling-the-order-on-purpose) · [7.5 Units, colour and typography in detail](#75-units-colour-and-typography-in-detail) · [8.1 Box-model details that surprise everyone](#81-box-model-details-that-surprise-everyone) · [8.2 Positioning and stacking](#82-positioning-and-stacking) · [8.3 Flexbox in depth](#83-flexbox-in-depth) · [8.4 Grid in depth](#84-grid-in-depth) · [9.1 Mobile-first, fluid and container-aware](#91-mobile-first-fluid-and-container-aware) · [9.2 Contrast is arithmetic](#92-contrast-is-arithmetic) · [9.3 ARIA](#93-aria-when-html-is-not-enough) · [9.4 WCAG in one table](#94-wcag-in-one-table-pour) |
+| **JavaScript** | [10.1 Where JavaScript runs and how to start](#101-where-javascript-runs-and-how-to-start) · [10.2 Types, truthiness and the two "nothing" values](#102-types-truthiness-and-the-two-nothing-values) · [10.3 Scope, hoisting and closures](#103-scope-hoisting-and-closures) · [10.4 Functions in depth](#104-functions-in-depth) · [10.5 Objects, classes and JSON](#105-objects-classes-and-json) · [10.6 Strings, arrays, maps and sets](#106-strings-arrays-maps-and-sets) · [10.7 Modules](#107-modules) · [10.8 Errors](#108-errors) · [11.1 Finding and walking the tree](#111-finding-and-walking-the-tree) · [11.2 Attributes versus properties](#112-attributes-versus-properties) · [11.3 Creating, moving and removing nodes efficiently](#113-creating-moving-and-removing-nodes-efficiently) · [11.4 The event object and event delegation in full](#114-the-event-object-and-event-delegation-in-full) · [11.5 Which event to use](#115-which-event-to-use) · [11.6 Remembering things in the browser](#116-remembering-things-in-the-browser) · [12.1 Predict the order](#121-predict-the-order-synchronous-code-microtasks-and-tasks) · [12.2 Promise states and combinators](#122-promise-states-and-combinators) · [12.3 Sequential versus parallel `await`](#123-sequential-versus-parallel-await) · [12.4 A robust `fetch` wrapper](#124-a-robust-fetch-wrapper) |
+| **SQL** | [15.1 Vocabulary and the four sub-languages of SQL](#151-vocabulary-and-the-four-sub-languages-of-sql) · [15.2 Data types](#152-data-types-sqlite-versus-a-server-database) · [15.3 Choosing keys](#153-choosing-keys) · [15.4 What happens when the parent row is deleted?](#154-what-happens-when-the-parent-row-is-deleted) · [15.5 Changing a schema safely](#155-changing-a-schema-safely-migrations) · [15.6 From a description to a schema](#156-from-a-description-to-a-schema) · [16.1 A richer practice database](#161-a-richer-practice-database) · [16.2 The order a SELECT is evaluated in](#162-the-order-a-select-is-evaluated-in) · [16.3 Filtering, expressions and functions](#163-filtering-expressions-and-functions) · [16.4 NULL and three-valued logic](#164-null-and-three-valued-logic) · [16.5 Subqueries and common table expressions](#165-subqueries-and-common-table-expressions) · [16.6 More kinds of join](#166-more-kinds-of-join) · [16.7 Set operations](#167-set-operations) · [16.8 Window functions](#168-window-functions-aggregates-without-collapsing-rows) · [16.9 Writing data](#169-writing-data-multi-row-inserts-upserts-and-returning) · [17.1 What can go wrong without isolation](#171-what-can-go-wrong-without-isolation) · [17.2 Optimistic concurrency with a version number](#172-optimistic-concurrency-with-a-version-number) · [17.3 Savepoints](#173-savepoints-a-transaction-inside-a-transaction) · [17.4 Good habits with database connections in Python](#174-good-habits-with-database-connections-in-python) |
 
 ~~~mermaid
 flowchart LR
@@ -345,7 +354,175 @@ flowchart TD
 
 **Common mistakes.** Missing `<!doctype html>` (old "quirks" rendering); skipping heading levels; `<div onclick>` instead of `<button>`; images without `alt`; tables used for layout.
 
-**Exercises.** (1) Build a page about your favourite Cork place with every element group above. (2) Run it through the W3C validator (validator.w3.org).
+### 5.1 From bytes to pixels: how the browser reads a page
+
+Understanding the browser's pipeline explains most HTML and CSS rules — why scripts go where they go, why image sizes matter and why some CSS changes are slower than others.
+
+~~~mermaid
+flowchart LR
+ H["HTML bytes"] --> TK["tokens<br/>(start tag, text, end tag)"] --> DOM["DOM tree"]
+ C["CSS bytes"] --> CSSOM["CSSOM<br/>(rules + computed styles)"]
+ DOM --> RT["render tree<br/>(visible nodes + their styles)"]
+ CSSOM --> RT
+ RT --> L["layout<br/>(size and position of every box)"] --> P["paint<br/>(pixels per layer)"] --> CO["composite<br/>(layers onto the screen)"]
+ JS["JavaScript"] -. "can change" .-> DOM
+ JS -. "can change" .-> CSSOM
+~~~
+
+1. **Parse HTML → DOM.** The parser reads top to bottom. It is *forgiving*: unclosed tags are closed for you, and a `<p>` that meets a `<div>` is closed automatically (a paragraph may only contain inline content).
+2. **Parse CSS → CSSOM.** CSS is *render-blocking*: nothing is painted until the stylesheets in `<head>` have arrived, otherwise the page would flash unstyled.
+3. **Render tree.** Only visible nodes — `<head>`, and anything with `display: none`, are left out (`visibility: hidden` is kept: it still takes space).
+4. **Layout** (also called *reflow*) computes every box's geometry. Changing `width`, `font-size` or adding nodes forces layout again.
+5. **Paint and composite.** Changing only `color` repaints; changing only `transform` or `opacity` can skip layout *and* paint — which is why smooth animations use those two properties (Lesson 9).
+
+**Where scripts go.** A plain `<script src>` stops the parser until the script has downloaded and run. The `defer` and `async` attributes avoid that:
+
+| `<script …>` | Download | Runs | Keeps document order? | Typical use |
+|---|---|---|---|---|
+| no attribute | blocks parsing | immediately, parser waits | yes | almost never in `<head>` |
+| `async` | in parallel | as soon as it arrives (pauses parsing briefly) | **no** | independent scripts (analytics) |
+| `defer` | in parallel | after the whole document is parsed, before `DOMContentLoaded` | yes | page logic — the teaching app's `app.js` |
+| `type="module"` | in parallel | deferred by default; strict mode; can `import` | yes | modern code split into files |
+
+~~~mermaid
+gantt
+ dateFormat X
+ axisFormat %s
+ section plain script
+ parse HTML      :0, 3
+ download + run  :crit, 3, 6
+ parse rest      :6, 9
+ section defer
+ parse HTML      :0, 7
+ download        :1, 4
+ run             :crit, 7, 8
+ section async
+ parse HTML      :0, 3
+ download        :1, 3
+ run             :crit, 3, 5
+ parse rest      :5, 8
+~~~
+
+### 5.2 Block and inline content
+
+| Kind | Starts on a new line? | Width | Examples | May contain |
+|---|---|---|---|---|
+| **block** (flow) | yes | fills the parent | `div`, `p`, `h1`–`h6`, `ul`, `section`, `form`, `table` | other blocks and inline content (except `p`, which takes inline only) |
+| **inline** (phrasing) | no | fits the content | `span`, `a`, `strong`, `em`, `code`, `img`, `input`, `label` | inline content only (`a` may wrap blocks in HTML5, but never another link or button) |
+
+Whether an element is block or inline *by default* is decided by the browser's built-in stylesheet; CSS `display` can change how it **looks** but not what it is allowed to **contain**. Writing `<p><div>…</div></p>` produces *two* paragraphs and an orphan `</p>` — open DevTools → Elements to see the repaired tree.
+
+### 5.3 Attributes every element accepts
+
+| Global attribute | Purpose | Example |
+|---|---|---|
+| `id` | unique name in the page — for `<label for>`, `#fragment` links, `getElementById` | `id="booking"` |
+| `class` | space-separated style/behaviour hooks; many elements can share one | `class="panel highlight"` |
+| `data-*` | custom data for scripts and CSS | `data-status="requested"` → `el.dataset.status` |
+| `lang` | language of the content (pronunciation, hyphenation, spell-check) | `<html lang="en">`, `<span lang="ga">Dia duit</span>` |
+| `title` | tooltip; **not** a substitute for a label | `title="Opens a map"` |
+| `hidden` | not rendered and not announced | the "Load more" button until needed |
+| `tabindex` | keyboard order: `0` makes a non-focusable element focusable, `-1` makes it focusable only from script | avoid positive values |
+| `style` | inline CSS (highest specificity of normal rules — avoid) | `style="color: red"` |
+| `aria-*`, `role` | extra meaning for assistive technology (Lesson 9.3) | `aria-live="polite"` |
+
+**Boolean attributes** are true when present and false when absent: `<input required>`, `<button disabled>`, `<option selected>`. Writing `disabled="false"` still **disables** the element.
+
+### 5.4 Links and paths
+
+| `href` value | Resolves to (page at `http://127.0.0.1:8000/static/index.html`) | Kind |
+|---|---|---|
+| `style.css` | `http://127.0.0.1:8000/static/style.css` | relative to the current folder |
+| `/docs` | `http://127.0.0.1:8000/docs` | root-relative (same host) |
+| `../api/rides` | `http://127.0.0.1:8000/api/rides` | up one folder |
+| `#top` | same page, element with `id="top"` | fragment |
+| `https://developer.mozilla.org/` | another site | absolute |
+| `mailto:office@example.ie`, `tel:+353211234567` | opens mail / phone app | other schemes |
+
+~~~python
+from urllib.parse import urljoin                # the same resolution rules the browser uses
+page = "http://127.0.0.1:8000/static/index.html"
+assert urljoin(page, "style.css") == "http://127.0.0.1:8000/static/style.css"
+assert urljoin(page, "/docs") == "http://127.0.0.1:8000/docs"
+assert urljoin(page, "../api/rides") == "http://127.0.0.1:8000/api/rides"
+assert urljoin(page, "#top") == "http://127.0.0.1:8000/static/index.html#top"
+assert urljoin(page, "//cdn.example.org/lib.js") == "http://cdn.example.org/lib.js"   # scheme-relative
+~~~
+
+`target="_blank"` opens a new tab; add `rel="noopener noreferrer"` for external sites so the new page cannot control yours through `window.opener` (current browsers imply `noopener`, but older ones do not). Link text should make sense on its own — screen-reader users often jump from link to link, so "API documentation" beats "click here".
+
+### 5.5 Images, figures and media
+
+~~~html
+<figure>
+  <img src="map-800.webp"
+       srcset="map-400.webp 400w, map-800.webp 800w, map-1600.webp 1600w"
+       sizes="(max-width: 800px) 100vw, 50vw"
+       width="800" height="500" loading="lazy" decoding="async"
+       alt="Map of Cork city centre with UCC and Kent Station marked">
+  <figcaption>Pickup points used in the demo.</figcaption>
+</figure>
+
+<video controls width="640" preload="metadata" poster="intro.jpg">
+  <source src="intro.webm" type="video/webm">
+  <source src="intro.mp4" type="video/mp4">
+  <track kind="captions" src="intro.en.vtt" srclang="en" label="English">
+  Your browser cannot play this video. <a href="intro.mp4">Download it</a>.
+</video>
+~~~
+
+| Attribute | Why |
+|---|---|
+| `alt` | read aloud instead of the image; shown if it fails to load. Decorative images get `alt=""` (empty, not missing) so they are skipped |
+| `width`, `height` | the browser reserves the space before the file arrives — no *layout shift* while the page loads |
+| `srcset` + `sizes` | the browser picks the smallest file that is sharp enough for this screen |
+| `loading="lazy"` | images far below the fold are fetched only when the user scrolls near them |
+| `<track kind="captions">` | captions for deaf users and for anyone watching with the sound off |
+
+| Format | Best for | Notes |
+|---|---|---|
+| JPEG | photos | lossy, universal |
+| PNG | screenshots, sharp edges, transparency | lossless, larger |
+| WebP / AVIF | photos and graphics | 25–50 % smaller than JPEG; supported by all current browsers |
+| SVG | logos, icons, diagrams | vector XML text: scales to any size, can be styled with CSS |
+
+### 5.6 The `<head>`: metadata the user does not see
+
+~~~html
+<head>
+  <meta charset="utf-8">                                    <!-- first: how to decode the bytes -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">   <!-- Lesson 9 -->
+  <title>Book a ride — Cork rides</title>                   <!-- tab, bookmarks, search results -->
+  <meta name="description" content="Book a demo ride between Cork landmarks.">   <!-- search snippet -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://rides.example.ie/book">                 <!-- the preferred URL -->
+  <meta property="og:title" content="Cork rides">          <!-- preview card when the link is shared -->
+  <meta property="og:image" content="https://rides.example.ie/card.png">
+  <meta name="robots" content="noindex">                    <!-- keep a demo out of search engines -->
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+~~~
+
+### 5.7 Character references, whitespace and comments
+
+| Write | Shows | Why |
+|---|---|---|
+| `&lt;` `&gt;` | `<` `>` | would otherwise start/end a tag |
+| `&amp;` | `&` | would otherwise start a reference |
+| `&quot;` | `"` | inside a double-quoted attribute |
+| `&nbsp;` | a space that never breaks a line | `4.5&nbsp;km` |
+| `&euro;` `&copy;` `&#8364;` `&#x20AC;` | € © € € | named, decimal and hexadecimal forms |
+
+~~~python
+import html                                       # what a server-side template engine does for you
+assert html.escape('<b>"Tom" & Jerry</b>') == "&lt;b&gt;&quot;Tom&quot; &amp; Jerry&lt;/b&gt;"
+assert html.unescape("&euro;2.50 &copy; UCC &#x20AC;") == "€2.50 © UCC €"
+~~~
+
+**Whitespace collapses:** any run of spaces, tabs and newlines in text is shown as one space, so indenting HTML does not change the page (use CSS `white-space: pre` or `<pre>` to keep it). **Comments** `<!-- like this -->` are not displayed but **are** sent to every visitor — never put passwords, internal URLs or notes about vulnerabilities in them.
+
+**Exercises.** (1) Build a page about your favourite Cork place with every element group above. (2) Run it through the W3C validator (validator.w3.org). (3) Write `<p>Fares<div>from €2.50</div></p>` into a page and sketch the tree DevTools shows; explain the repair. (4) Add a `figure` with a responsive `srcset` image and check in DevTools → Network which file your screen downloads.
 
 ## Lesson 6 — HTML forms
 
@@ -390,7 +567,126 @@ flowchart TD
 
 **ATLAS connection.** The teaching [`index.html`](../web_lab/static/index.html) form uses `novalidate` so that *server* error messages are shown even for empty fields — a deliberate teaching choice; remove it to see the browser's own checks. The starter's [driver page](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/apps/driver/index.html) uses number and checkbox inputs.
 
-**Exercises.** (1) Build a sign-up form with email, phone and a password confirmation. (2) Submit it with `method="get"` and read the URL.
+### 6.1 The rest of the controls
+
+~~~html
+<label for="zone">Zone</label>
+<select id="zone" name="zone">
+  <optgroup label="City">
+    <option value="mardyke">Mardyke</option>
+    <option value="grand-parade" selected>Grand Parade</option>
+  </optgroup>
+  <optgroup label="Suburbs"><option value="douglas">Douglas</option></optgroup>
+</select>
+
+<label for="langs">Languages the driver speaks (Ctrl/Cmd-click for several)</label>
+<select id="langs" name="langs" multiple size="3">
+  <option>English</option><option>Irish</option><option>Polish</option>
+</select>
+
+<label for="notes">Notes for the driver</label>
+<textarea id="notes" name="notes" rows="3" maxlength="300" placeholder="e.g. wheelchair access"></textarea>
+
+<label for="tip">Tip (%)</label>
+<input id="tip" name="tip" type="range" min="0" max="20" step="5" value="10">
+<output for="tip" id="tip-out">10 %</output>
+
+<label for="photo">Profile photo</label>
+<input id="photo" name="photo" type="file" accept="image/png, image/jpeg">
+~~~
+
+| Control | Sends | Remember |
+|---|---|---|
+| `<select>` | the chosen `option`'s `value` (or its text if there is no `value`) | `selected` sets the default; `optgroup` only groups visually |
+| `<select multiple>` | the same name once per chosen option: `langs=English&langs=Irish` | server must expect a list |
+| `<textarea>` | its text; the default value goes **between** the tags, not in `value=` | `maxlength` counts characters |
+| `range` | a number | always show the current value (`<output>`) — a slider alone is not accessible |
+| `file` | the file's bytes — only with `enctype="multipart/form-data"` (6.3) | `accept` is a hint; check the type on the server |
+| `search`, `url`, `color` | text, a URL, `#rrggbb` | mobile keyboards and pickers adapt |
+| `disabled` control | **nothing** — disabled fields are not submitted | use `readonly` to show-but-submit |
+
+### 6.2 Buttons and what "Enter" does
+
+| `<button type=…>` | Inside a form it… |
+|---|---|
+| `submit` (**the default**) | submits the form |
+| `reset` | restores the initial values (rarely wanted; easy to press by accident) |
+| `button` | does nothing on its own — for JavaScript actions |
+
+A `<button>` with no `type` inside a form **submits** it, which is why every action button in the teaching app is written `<button type="button">`. Pressing **Enter** in a text field triggers the form's first submit button — do not fight this with `keydown` handlers; listen for the `submit` event instead and keyboard users get it for free.
+
+### 6.3 How the data is encoded
+
+| `enctype` | Body looks like | Use |
+|---|---|---|
+| `application/x-www-form-urlencoded` (default for POST) | `pickup=UCC+Main+Gate&distance_km=4.5` | simple text fields |
+| `multipart/form-data` | several parts separated by a boundary line, each with its own headers | **required** for file uploads |
+| `application/json` | `{"pickup": "UCC Main Gate", "distance_km": 4.5}` | not available to plain HTML forms — sent by JavaScript (`fetch`), as in the teaching app |
+
+~~~python
+from urllib.parse import urlencode, parse_qs
+# what the browser sends for: pickup, a checked radio, a checked checkbox, two selected options
+body = urlencode([("pickup", "UCC Main Gate"), ("kind", "standard"), ("share", "yes"),
+                  ("langs", "English"), ("langs", "Irish")])
+assert body == "pickup=UCC+Main+Gate&kind=standard&share=yes&langs=English&langs=Irish"
+assert parse_qs(body)["langs"] == ["English", "Irish"]           # repeated names become a list
+assert parse_qs("pickup=UCC")  == {"pickup": ["UCC"]}             # an unchecked box is simply absent
+~~~
+
+Everything arrives as **text**: `distance_km=4.5` is the string `"4.5"`. Converting and range-checking it is the server's job (FastAPI does both from the type hint — Lesson 14).
+
+### 6.4 Validation in the browser: attributes, CSS and the Constraint Validation API
+
+~~~html
+<label for="email">Email</label>
+<input id="email" name="email" type="email" required aria-describedby="email-help email-error">
+<p id="email-help" class="hint">We only use this for receipts.</p>
+<p id="email-error" class="error" aria-live="polite"></p>
+~~~
+
+~~~css
+input:user-invalid { border-color: var(--danger); }      /* only after the user has interacted */
+input:valid        { border-color: #1f7a3a; }
+~~~
+
+~~~javascript
+const email = document.querySelector("#email");
+const error = document.querySelector("#email-error");
+email.addEventListener("input", () => {
+  if (email.value.endsWith("@example.com")) {
+    email.setCustomValidity("Please use your own address, not the example domain.");  // make it invalid
+  } else {
+    email.setCustomValidity("");                                    // empty string = valid again
+  }
+  const v = email.validity;                                         // a ValidityState object
+  error.textContent = v.valueMissing ? "Email is required."
+                    : v.typeMismatch ? "That does not look like an email address."
+                    : email.validationMessage;                      // the custom message, if any
+  email.setAttribute("aria-invalid", String(!email.checkValidity()));
+});
+~~~
+
+| `validity.` flag | Set when |
+|---|---|
+| `valueMissing` | `required` and empty |
+| `typeMismatch` | not a valid `email` / `url` |
+| `patternMismatch` | does not match `pattern` |
+| `tooShort` / `tooLong` | breaks `minlength` / `maxlength` |
+| `rangeUnderflow` / `rangeOverflow` / `stepMismatch` | breaks `min` / `max` / `step` |
+| `customError` | `setCustomValidity("…")` was called with a non-empty message |
+
+`form.checkValidity()` returns `true`/`false`; `form.reportValidity()` also shows the browser's bubbles. Accessible error messages are **text near the field**, linked with `aria-describedby`, and the field is marked `aria-invalid="true"` — colour alone is not enough.
+
+### 6.5 Helping people (and password managers) fill forms
+
+| Attribute | Effect | Example |
+|---|---|---|
+| `autocomplete` | tells the browser which saved value fits | `name`, `email`, `tel`, `street-address`, `postal-code`, `current-password`, `new-password`, `one-time-code`, `off` |
+| `inputmode` | which on-screen keyboard to show without changing validation | `numeric` for a PIN, `decimal` for a distance |
+| `enterkeyhint` | label of the Enter key on phones | `send`, `next`, `search` |
+| `placeholder` | an **example**, shown only while empty | never a replacement for `<label>` — it disappears as soon as you type |
+
+**Exercises.** (1) Build a sign-up form with email, phone and a password confirmation. (2) Submit it with `method="get"` and read the URL. (3) Add a `<select multiple>` and a file input; submit once with the default encoding and once with `enctype="multipart/form-data"` and compare the request bodies in DevTools. (4) Use `setCustomValidity` so the password confirmation must match, with an accessible error message linked by `aria-describedby`.
 
 ## Lesson 7 — CSS: rules, selectors, specificity and the cascade
 
@@ -445,7 +741,127 @@ assert specificity("input:invalid:not(:placeholder-shown)") == (0, 2, 1)   # :no
 
 **Common mistakes.** Fighting specificity with `!important`; styling by `id` (hard to override); forgetting that later rules win ties.
 
-**Exercises.** (1) Give `#message` a colour and then try to override it with `.ride p` — explain the result. (2) Rewrite three rules using custom properties.
+### 7.1 Three places CSS can live
+
+~~~html
+<!-- 1. external file: cached once, shared by every page (preferred) -->
+<link rel="stylesheet" href="/static/style.css">
+
+<!-- 2. internal <style> block: one page only -->
+<style>
+  .notice { background: #fff6d6; }
+</style>
+
+<!-- 3. inline style attribute: one element only; beats every normal rule; hard to maintain -->
+<p style="color: #a32222">Server unavailable</p>
+~~~
+
+The teaching app uses only option 1 — and its Content-Security-Policy (Lesson 20) is strict enough that options 2 and 3 would be **blocked** unless the policy were loosened.
+
+### 7.2 Inheritance and the "global" keywords
+
+Some properties pass from parent to child automatically; most layout properties do not.
+
+| Inherited by default | Not inherited |
+|---|---|
+| `color`, `font-family`, `font-size`, `font-weight`, `line-height`, `text-align`, `letter-spacing`, `visibility`, `cursor`, `list-style` | `margin`, `padding`, `border`, `background`, `width`, `height`, `display`, `position`, `box-shadow`, `opacity` |
+
+That is why the teaching CSS sets `font-family` and `color` once on `:root` and every element follows, while each `.panel` needs its own `padding`.
+
+| Keyword | Means |
+|---|---|
+| `inherit` | take the parent's computed value — e.g. `button { font: inherit; }` (form controls do *not* inherit fonts by default; the teaching CSS fixes that) |
+| `initial` | the property's specification default (`display: initial` is `inline`!) |
+| `unset` | `inherit` if the property normally inherits, otherwise `initial` |
+| `revert` | back to the browser's own stylesheet value |
+
+### 7.3 More selectors
+
+| Selector | Matches | Specificity |
+|---|---|---|
+| `li:first-child`, `li:last-child` | first / last child of its parent | (0,1,1) |
+| `tr:nth-child(2n)` / `(odd)` / `(3n+1)` | every 2nd row / odd rows / rows 1, 4, 7 … — zebra tables | (0,1,1) |
+| `p:first-of-type` | the first `p` among its siblings | (0,1,1) |
+| `h2 + p` | a `p` immediately after an `h2` | (0,0,2) |
+| `h2 ~ p` | every `p` sibling after an `h2` | (0,0,2) |
+| `a[href^="https"]`, `[href$=".pdf"]`, `[class*="btn"]` | starts with / ends with / contains | (0,1,1), (0,1,0), (0,1,0) |
+| `:is(h1, h2, h3) a` | a link in any heading | the **most** specific argument: (0,0,2) |
+| `:where(h1, h2, h3) a` | the same elements | **always 0** for the `:where` part: (0,0,1) — ideal for easily overridden defaults |
+| `.ride:has(button.danger)` | a card that *contains* a delete button — a "parent selector" | (0,2,1) |
+| `input:not([type="checkbox"])` | all inputs except checkboxes | the argument counts: (0,1,1) |
+
+~~~css
+.stats tbody tr:nth-child(odd) { background: #f7f9fd; }          /* zebra striping */
+.ride:has(.danger) { border-left-style: dashed; }                 /* deletable rides look different */
+a[href^="http"]:not([href*="127.0.0.1"])::after { content: " ↗"; }   /* mark external links */
+:where(ul, ol)[role="list"] { list-style: none; padding: 0; }    /* zero-specificity reset */
+~~~
+
+### 7.4 Cascade layers: controlling the order on purpose
+
+Large style sheets often end up in "specificity wars". **`@layer`** lets you declare which group of rules wins *before* specificity is even compared: later layers beat earlier ones, and rules outside any layer beat all layers.
+
+~~~css
+@layer reset, base, components, utilities;          /* order declared once, lowest priority first */
+
+@layer reset      { *, *::before, *::after { box-sizing: border-box; } }
+@layer base       { a { color: var(--brand); } }
+@layer components { .panel a { color: var(--ink); } }        /* (0,1,1) */
+@layer utilities  { .text-danger { color: var(--danger); } }  /* (0,1,0) but a later layer: it wins */
+~~~
+
+With `<a class="text-danger">` inside a `.panel`, the link is red even though `.panel a` is more specific, because `utilities` is a later layer.
+
+### 7.5 Units, colour and typography in detail
+
+| Unit | Relative to | Good for |
+|---|---|---|
+| `px` | a CSS pixel (≈ 1/96 inch at arm's length; not a device pixel) | borders, shadows |
+| `rem` | the **root** (`html`) font size, normally 16 px | font sizes, spacing — respects the user's browser setting |
+| `em` | the **current** element's font size | padding that should grow with the text of a button |
+| `%` | the parent (width, padding) or the font size (`font-size`) | fluid widths |
+| `vw`, `vh` | 1 % of the viewport width / height | hero sections |
+| `dvh` | 1 % of the *dynamic* viewport height (excludes a phone's moving address bar) | full-height mobile layouts |
+| `ch` | width of the "0" character | readable line length: `max-width: 65ch` |
+| `fr` | a share of the free space in a grid | grid tracks |
+
+~~~python
+import re
+def px(value: str, root=16.0, parent_font=16.0, viewport=(1280, 800)):
+    """Convert a CSS length to pixels the way the browser computes it (simplified)."""
+    number, unit = re.fullmatch(r"(-?[\d.]+)([a-z]+)", value).groups()
+    number = float(number)
+    return {"px": number, "rem": number * root, "em": number * parent_font,
+            "vw": number * viewport[0] / 100, "vh": number * viewport[1] / 100}[unit]
+
+assert px("1.5rem") == 24.0                       # 1.5 × 16
+assert px("1.5em", parent_font=20) == 30.0        # em follows the element's own font size
+assert px("50vw") == 640.0 and px("10vh") == 80.0
+assert px("2rem", root=20) == 40.0                # a user who sets a larger default font gets larger spacing
+~~~
+
+**Colour.** `#135da6`, `rgb(19 93 166)`, `rgb(19 93 166 / 50%)` (with transparency), `hsl(210 79% 36%)` (hue, saturation, lightness — easy to make a lighter shade by raising the last number), `oklch(...)` (perceptually even), and keywords like `transparent` and `currentColor` (the element's own text colour — handy for borders and SVG icons).
+
+**Typography.**
+
+~~~css
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;  /* a font *stack*: first available wins */
+  line-height: 1.5;                          /* unitless: scales with each element's own font size */
+}
+h1 { font-size: clamp(1.6rem, 1rem + 2.5vw, 2.6rem); }   /* fluid: grows with the window, within limits */
+p  { max-width: 65ch; }                                   /* 45–75 characters per line reads best */
+
+@font-face {                                 /* a self-hosted web font */
+  font-family: "Atkinson";
+  src: url("/static/atkinson.woff2") format("woff2");
+  font-display: swap;                        /* show fallback text immediately, swap when loaded */
+}
+~~~
+
+**Custom properties in depth.** They inherit like `color`, so they can be *re-scoped*: `.danger-zone { --brand: #a32222; }` turns every `var(--brand)` inside that block red. A fallback goes after a comma: `var(--accent, #135da6)`. Unlike preprocessor variables, they are live — JavaScript can change them at run time with `document.documentElement.style.setProperty("--brand", "#0a467f")`.
+
+**Exercises.** (1) Give `#message` a colour and then try to override it with `.ride p` — explain the result. (2) Rewrite three rules using custom properties. (3) Compute the specificity of `:is(#a, .b) p`, `:where(#a) p` and `.ride:has(button.danger)` and check your answers in DevTools (hover the selector). (4) Put the teaching CSS into four `@layer`s and show that a one-class utility rule now beats `.panel a`.
 
 ## Lesson 8 — The box model, Flexbox and Grid
 
@@ -519,7 +935,109 @@ header { grid-area: header; }
 
 **Rule of thumb:** Flexbox for a row or column of things (toolbars, button groups); Grid for the page layout.
 
-**Exercises.** (1) Calculate the rendered width of a `content-box` element with width 200 px, padding 1 rem (16 px) and a 2 px border. (2) Build a three-card row with Flexbox that wraps on small screens.
+### 8.1 Box-model details that surprise everyone
+
+**Margin collapsing.** Vertical margins between two blocks do not add up: the larger one wins. A `<p>` with `margin-bottom: 24px` followed by one with `margin-top: 16px` are **24 px** apart, not 40. A child's top margin can also "leak" out of a parent that has no padding or border. Margins never collapse inside flex or grid containers — one more reason the teaching CSS uses `gap`.
+
+**Overflow.** When content is larger than its box:
+
+| `overflow:` | Effect |
+|---|---|
+| `visible` (default) | spills out over neighbours |
+| `hidden` | clipped |
+| `auto` | scroll bars only when needed — e.g. a wide table inside `<div style="overflow-x: auto">` on phones |
+| `clip` | clipped, and no scrolling even from script |
+
+**Sizing.** `width: auto` (default for blocks) fills the parent *minus* margins; `width: 100%` plus padding can overflow under `content-box`. Prefer `max-width` (`max-width: 1150px; margin: 2rem auto` centres the teaching layout) and `min-width: 0` on flex/grid children that contain long words or code. `aspect-ratio: 16 / 9` keeps a video box in shape while it loads.
+
+### 8.2 Positioning and stacking
+
+~~~css
+.ride { position: relative; }                 /* becomes the reference box for absolute children */
+.ride .badge {
+  position: absolute; top: 0.5rem; right: 0.5rem;   /* pinned to the card's top-right corner */
+}
+.top { position: sticky; top: 0; z-index: 10; }      /* header stays visible while the page scrolls */
+.toast { position: fixed; bottom: 1rem; right: 1rem; }  /* relative to the viewport */
+~~~
+
+| `position:` | Takes space in the flow? | Offsets (`top`, `left` …) are relative to |
+|---|---|---|
+| `static` | yes | ignored |
+| `relative` | yes (its original spot) | its own normal position |
+| `absolute` | **no** | the nearest ancestor that is not `static` (else the page) |
+| `fixed` | **no** | the viewport |
+| `sticky` | yes | scrolls normally until it reaches the offset, then sticks inside its parent |
+
+**`z-index`** decides which overlapping box is on top, but only *within the same stacking context*. A new context is created by, among others, a positioned element with a `z-index`, `opacity` below 1 and any `transform`. That is why `z-index: 9999` sometimes "does nothing": the element is trapped inside a parent's context that is itself underneath.
+
+### 8.3 Flexbox in depth
+
+`flex: 1` is shorthand for `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`. The algorithm: start each item at its **basis**, then share the **free space** in proportion to `flex-grow` — or, if there is too little space, take it away in proportion to `flex-shrink × basis`.
+
+~~~python
+def flex(container, bases, grow=None, shrink=None, gap=0):
+    """Final main-axis sizes of flex items (no min/max limits) — the core of the flexbox algorithm."""
+    grow = grow or [0] * len(bases)
+    shrink = shrink or [1] * len(bases)
+    free = container - sum(bases) - gap * (len(bases) - 1)
+    if free >= 0:
+        total = sum(grow)
+        return [b + (free * g / total if total else 0) for b, g in zip(bases, grow)]
+    weights = [s * b for s, b in zip(shrink, bases)]
+    return [b + free * w / sum(weights) for b, w in zip(bases, weights)]
+
+assert flex(600, [100, 200], grow=[1, 2]) == [200, 400]       # 300 px free, shared 1 : 2
+assert flex(600, [0, 0, 0], grow=[1, 1, 1]) == [200, 200, 200]  # flex: 1 on all three → equal columns
+assert flex(240, [200, 200]) == [120, 120]                    # 160 px too wide, both shrink equally
+assert flex(600, [100, 100], gap=16) == [100, 100]            # grow 0 (the default): items keep their size
+~~~
+
+| Need | Flex recipe |
+|---|---|
+| centre something both ways | `display: flex; justify-content: center; align-items: center;` |
+| push the last item to the right | `margin-left: auto` on that item |
+| equal columns regardless of content | `flex: 1 1 0` on each item |
+| a sidebar of fixed width, main area takes the rest | sidebar `flex: 0 0 16rem`, main `flex: 1` |
+| one item aligned differently | `align-self: flex-end` on that item |
+| reorder visually | `order: -1` — but screen readers and Tab still follow the HTML order, so keep source order logical |
+
+### 8.4 Grid in depth
+
+~~~css
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));   /* responsive, no media query */
+  gap: 1rem;
+}
+.cards .wide { grid-column: 1 / -1; }          /* span from the first line to the last: a full-width row */
+.cards .tall { grid-row: span 2; }              /* occupy two rows */
+.cards { grid-auto-rows: minmax(8rem, auto); }  /* height of rows created automatically */
+.center-me { display: grid; place-items: center; }   /* the shortest way to centre */
+~~~
+
+**How many columns does `auto-fit` make?** As many tracks of the minimum width as fit, counting the gaps; the `1fr` then stretches them to fill the row.
+
+~~~python
+import math
+def auto_fit(width, minimum=240, gap=16):
+    columns = max(1, math.floor((width + gap) / (minimum + gap)))
+    return columns, (width - gap * (columns - 1)) / columns          # (count, width of each)
+
+assert auto_fit(1100) == (4, 263.0)
+assert auto_fit(1000) == (3, 322.6666666666667)
+assert auto_fit(480) == (1, 480.0) and auto_fit(500) == (2, 242.0)   # the second column appears at 496 px
+~~~
+
+| Grid term | Meaning |
+|---|---|
+| **line** | the numbered edges between tracks (1, 2, 3 … and −1 for the last) |
+| **track** | a column or row |
+| **cell** / **area** | one track crossing / a rectangle of cells, optionally named |
+| `grid-template-columns: 200px 1fr 2fr` | three tracks: fixed, one share, two shares |
+| `auto-fill` vs `auto-fit` | both repeat as often as fits; `auto-fit` collapses empty tracks so items stretch |
+
+**Exercises.** (1) Calculate the rendered width of a `content-box` element with width 200 px, padding 1 rem (16 px) and a 2 px border. (2) Build a three-card row with Flexbox that wraps on small screens. (3) Use the `flex()` function in 8.3 to predict the widths for a 900 px container with bases 200/300/100 and grow 1/0/2, then check in the browser. (4) Replace the teaching layout's media query with `auto-fit` and `minmax` and compare the column breakpoints with `auto_fit()`.
 
 ## Lesson 9 — Responsive and accessible design
 
@@ -553,7 +1071,109 @@ header { grid-area: header; }
 | tables have captions and header scopes | the summary table |
 | no information by colour alone | ride status is written, and also colour-coded |
 
-**Exercises.** (1) Use only the Tab and Enter keys to book, assign and complete a ride. (2) Run Lighthouse (DevTools → Lighthouse → Accessibility) and fix one finding.
+### 9.1 Mobile-first, fluid and container-aware
+
+~~~css
+/* Mobile-first: the narrow layout is the default ... */
+.layout { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 0 1rem; }
+
+/* ... and wider screens add to it */
+@media (min-width: 801px) {
+  .layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Media features beyond width */
+@media (prefers-color-scheme: dark) {             /* the user chose dark mode in their OS */
+  :root { --page: #0f1724; --panel: #172235; --ink: #e7edf7; --line: #2a3a55; }
+}
+@media (prefers-reduced-motion: reduce) {         /* motion can cause nausea for some users */
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+@media (hover: none) { .tooltip-only { display: none; } }    /* touch screens cannot hover */
+@media print { .top, footer, button { display: none; } }     /* a clean printout */
+
+/* Container queries: respond to the *component's* width, not the window's */
+.panel { container-type: inline-size; }
+@container (min-width: 30rem) {
+  .ride { display: grid; grid-template-columns: 1fr auto; }   /* card body left, actions right */
+}
+~~~
+
+A media query asks "how wide is the **window**?"; a container query asks "how wide is the **box I am in**?". The second makes a component reusable: the same ride card can sit in a narrow sidebar or a wide main column and adapt in both.
+
+**Motion.** Animate only `transform` and `opacity` (they skip layout and paint — Lesson 5.1) and always honour `prefers-reduced-motion`:
+
+~~~css
+.ride { transition: transform 150ms ease-out, box-shadow 150ms ease-out; }
+.ride:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgb(0 0 0 / 0.08); }
+
+@keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.ride { animation: fade-in 200ms ease-out; }
+~~~
+
+### 9.2 Contrast is arithmetic
+
+WCAG defines contrast from the **relative luminance** of the two colours. Text needs at least **4.5 : 1** (3 : 1 for large text ≥ 24 px, or ≥ 18.66 px bold), and since WCAG 2.1 non-text parts that you need to see — input borders, focus rings, icons — need **3 : 1** against what is next to them.
+
+~~~python
+def luminance(hex_colour: str) -> float:
+    r, g, b = (int(hex_colour.lstrip("#")[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+def contrast(a: str, b: str) -> float:
+    hi, lo = sorted((luminance(a), luminance(b)), reverse=True)
+    return round((hi + 0.05) / (lo + 0.05), 2)
+
+assert contrast("#1b2b41", "#ffffff") == 14.3     # --ink on a white panel: passes AAA (7 : 1)
+assert contrast("#4b5870", "#f3f6fc") == 6.62     # --muted hint text on the page background: passes AA
+assert contrast("#ffffff", "#135da6") == 6.68     # white button text on --brand: passes AA
+assert contrast("#8a8a8a", "#ffffff") == 3.45     # mid grey on white: fails for normal text
+assert contrast("#f2b705", "#ffffff") == 1.82     # the yellow focus ring on white: below 3 : 1 — see exercise 3
+~~~
+
+The last line is a genuine finding in the teaching CSS: the yellow focus outline is easy to see on the dark header but weak on white panels. Exercise 3 asks you to fix it.
+
+### 9.3 ARIA: when HTML is not enough
+
+**The first rule of ARIA is not to use it** if a native element does the job: a `<button>` is already focusable, announced as "button", and works with Enter and Space; a `<div role="button">` needs all of that rebuilt by hand. ARIA changes only what assistive technology *announces* — never how the element behaves.
+
+| Attribute | Use | In the teaching app |
+|---|---|---|
+| `aria-label="…"` | a name when there is no visible text | the driver `<select>` on each card |
+| `aria-labelledby="id"` | name from another element's text | each `<section>` is named by its heading |
+| `aria-describedby="id"` | extra description (hints, errors) | the stats table → its caption |
+| `aria-live="polite"` / `role="status"` | announce changes without moving focus | `#message`, `#rides` |
+| `aria-expanded="true/false"` | state of a disclosure / menu button | — (exercise 4) |
+| `aria-invalid="true"` | the field has an error | Lesson 6.4 |
+| `aria-hidden="true"` | hide decorative content from screen readers (never on focusable elements) | — |
+
+~~~html
+<a class="skip-link" href="#main">Skip to main content</a>   <!-- first focusable element on the page -->
+
+<button type="button" aria-expanded="false" aria-controls="help">How fares work</button>
+<div id="help" hidden>€2.50 base fare plus €1.50 per kilometre.</div>
+~~~
+
+~~~css
+.visually-hidden {            /* hidden on screen, still read aloud — for labels you cannot show */
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.skip-link { position: absolute; left: -999px; }
+.skip-link:focus { left: 1rem; top: 1rem; }   /* appears only when a keyboard user tabs to it */
+~~~
+
+### 9.4 WCAG in one table: POUR
+
+| Principle | Means | Typical checks |
+|---|---|---|
+| **P**erceivable | content can be seen or heard by everyone | `alt` text, captions, contrast, no colour-only meaning, text resizes to 200 % |
+| **O**perable | everything works with a keyboard, with enough time | logical Tab order, visible focus, no keyboard traps, skip link, 44 px targets |
+| **U**nderstandable | predictable and clear | `lang`, labels, error messages that say how to fix the problem, consistent navigation |
+| **R**obust | works with current and future assistive technology | valid HTML, native elements, correct ARIA names/roles/states |
+
+**Exercises.** (1) Use only the Tab and Enter keys to book, assign and complete a ride. (2) Run Lighthouse (DevTools → Lighthouse → Accessibility) and fix one finding. (3) The focus ring `#f2b705` has 1.82 : 1 contrast against white (9.2). Choose a focus style that reaches 3 : 1 on both the white panels and the dark header, and prove it with `contrast()`. (4) Build the "How fares work" disclosure button from 9.3 so that `aria-expanded` and `hidden` stay in step, and test it with a screen reader (NVDA, VoiceOver or TalkBack).
 
 ## Lesson 10 — JavaScript: the language
 
@@ -609,7 +1229,253 @@ try { JSON.parse("{bad json"); } catch (error) { console.log("caught:", error.na
 
 **Ecosystem (for later).** **npm** installs packages; **TypeScript** adds static types; **React/Vue/Svelte** build component-based interfaces; **Vite** bundles and serves them. Learn plain JavaScript first — the teaching app and the ATLAS starter use no framework.
 
-**Exercises.** (1) Write `formatRide(ride)` returning `"UCC → Kent (4.5 km)"`. (2) Sort drivers by rating descending then distance ascending.
+### 10.1 Where JavaScript runs and how to start
+
+| Environment | Has | Lacks |
+|---|---|---|
+| browser page (`<script>`) | the language + `document`, `window`, `fetch`, `localStorage`, events | files on disk, direct sockets |
+| browser console (F12) | the same, line by line — the quickest playground | — |
+| **Node.js** (`node file.js`) | the language + files, network servers, `process` | `document` (there is no page) |
+
+Every block in 10.2–10.8 uses only the language itself, so it runs both in the console and with `node`. Start files with `"use strict";` (modules are strict automatically): it turns silent mistakes such as assigning to an undeclared variable into errors.
+
+### 10.2 Types, truthiness and the two "nothing" values
+
+JavaScript has seven **primitive** types — `string`, `number`, `bigint`, `boolean`, `undefined`, `null`, `symbol` — and everything else is an **object** (arrays, functions, dates, maps …). Primitives are compared by value; objects by **reference**.
+
+~~~javascript
+"use strict";
+console.log([1, 2] === [1, 2]);                 // false: two different array objects
+const a = [1, 2]; const b = a; b.push(3);
+console.log(a);                                 // [1, 2, 3]: a and b are the same object
+
+// Falsy values — everything else is truthy (including "0", "false", [] and {})
+const falsy = [false, 0, -0, 0n, "", null, undefined, NaN];
+console.log(falsy.every((v) => !v));            // true
+console.log(Boolean("0"), Boolean([]), Boolean({}));   // true true true
+
+// || falls back on ANY falsy value; ?? only on null/undefined
+const tip = 0;
+console.log(tip || 10, tip ?? 10);              // 10 0  — ?? keeps a legitimate 0
+
+// Optional chaining: stop at null/undefined instead of throwing
+const ride = { driver: null };
+console.log(ride.driver?.name, ride.driver?.name ?? "unassigned");   // undefined unassigned
+
+// Numbers
+console.log(0.1 + 0.2, 0.1 + 0.2 === 0.3);      // 0.30000000000000004 false
+console.log(Number("4.5"), Number(""), Number("4,5"), parseFloat("4.5 km"));   // 4.5 0 NaN 4.5
+console.log(Number.isNaN(NaN), NaN === NaN);    // true false: NaN is not equal to itself
+console.log(Number.MAX_SAFE_INTEGER, 2n ** 64n);  // 9007199254740991 18446744073709551616n
+~~~
+
+| Value | `typeof` | Meaning |
+|---|---|---|
+| `undefined` | `"undefined"` | never assigned: missing argument, missing property |
+| `null` | `"object"` (a historic bug) | deliberately "no value" — what JSON uses |
+| `NaN` | `"number"` | the result of a failed numeric operation |
+| `[]` | `"object"` | use `Array.isArray(x)` to test for arrays |
+| `() => 1` | `"function"` | functions are objects you can call |
+
+### 10.3 Scope, hoisting and closures
+
+| | `var` | `let` | `const` |
+|---|---|---|---|
+| scope | the whole **function** | the enclosing `{ block }` | the enclosing `{ block }` |
+| use before declaration | `undefined` (hoisted) | `ReferenceError` (the "temporal dead zone") | `ReferenceError` |
+| reassign | yes | yes | **no** (but an object it holds can still change) |
+| redeclare in the same scope | yes | no | no |
+
+A **closure** is a function that remembers the variables of the scope it was created in, even after that scope has finished. It is how JavaScript keeps private state.
+
+~~~javascript
+"use strict";
+function makeCounter(start = 0) {
+  let count = start;                         // private: nothing outside can touch it directly
+  return {
+    next: () => ++count,
+    reset: () => { count = start; },
+  };
+}
+const bookings = makeCounter();
+bookings.next(); bookings.next();
+console.log(bookings.next());                // 3
+
+// The classic loop puzzle: var shares one variable, let makes a fresh one per iteration
+const withVar = [], withLet = [];
+for (var i = 0; i < 3; i++) withVar.push(() => i);
+for (let j = 0; j < 3; j++) withLet.push(() => j);
+console.log(withVar.map((f) => f()), withLet.map((f) => f()));   // [3, 3, 3] [0, 1, 2]
+
+const settings = { currency: "EUR" };
+settings.currency = "GBP";                   // allowed: const protects the binding, not the object
+Object.freeze(settings);                     // now the object itself is read-only
+~~~
+
+### 10.4 Functions in depth
+
+~~~javascript
+"use strict";
+// default and rest parameters
+function fareCents(km, base = 250, ...surcharges) {
+  return Math.round(base + 150 * km + surcharges.reduce((s, x) => s + x, 0));
+}
+console.log(fareCents(4.5), fareCents(4.5, 300), fareCents(4.5, 250, 100, 50));   // 925 975 1075
+
+// functions are values: pass them in, return them (higher-order functions)
+const withVat = (fn, rate = 0.23) => (...args) => Math.round(fn(...args) * (1 + rate));
+console.log(withVat(fareCents)(4.5));                                              // 1138
+
+// `this` depends on HOW a regular function is called; arrow functions take `this` from where they are written
+const driver = {
+  name: "Ava",
+  greetLater() { return [1].map(function () { return this?.name; }); },   // regular: this is undefined here
+  greetArrow() { return [1].map(() => this.name); },                       // arrow: this is driver
+};
+console.log(driver.greetLater(), driver.greetArrow());                    // [ undefined ] [ 'Ava' ]
+~~~
+
+Use arrow functions for callbacks (`.map`, `addEventListener`, `.then`); use method syntax inside objects and classes.
+
+### 10.5 Objects, classes and JSON
+
+~~~javascript
+"use strict";
+class Ride {
+  static #nextId = 1;                          // private static field
+  #status = "requested";                       // private instance field: not reachable from outside
+
+  constructor(pickup, destination, km) {
+    if (pickup === destination) throw new RangeError("pickup and destination must differ");
+    Object.assign(this, { id: Ride.#nextId++, pickup, destination, km });
+  }
+  get fareCents() { return Math.round(250 + 150 * this.km); }   // a computed property
+  get status() { return this.#status; }
+  assign() {
+    if (this.#status !== "requested") throw new Error(`cannot assign: ride is already ${this.#status}`);
+    this.#status = "assigned";
+    return this;                                // return this → calls can be chained
+  }
+  toJSON() { return { ...this, status: this.#status, fare_cents: this.fareCents }; }
+}
+
+const r = new Ride("UCC", "Kent Station", 4.5).assign();
+console.log(r.status, r.fareCents);            // assigned 925
+console.log(JSON.stringify(r));                // {"id":1,"pickup":"UCC","destination":"Kent Station","km":4.5,"status":"assigned","fare_cents":925}
+try { r.assign(); } catch (e) { console.log(e.message); }   // cannot assign: ride is already assigned
+
+// copies: spread is shallow; structuredClone is deep
+const original = { pickup: "UCC", tags: ["student"] };
+const shallow = { ...original }, deep = structuredClone(original);
+original.tags.push("night");
+console.log(shallow.tags, deep.tags);          // [ 'student', 'night' ] [ 'student' ]
+
+// iterate over an object
+for (const [key, value] of Object.entries({ a: 1, b: 2 })) console.log(key, value);
+~~~
+
+Classes are a tidier syntax over JavaScript's **prototype** mechanism: methods live once on `Ride.prototype` and every instance looks them up there. `JSON.stringify` drops functions, `undefined` and private fields unless you write `toJSON()`.
+
+### 10.6 Strings, arrays, maps and sets
+
+| Strings | Result |
+|---|---|
+| `"Kent Station".toLowerCase()` | `"kent station"` |
+| `"  UCC ".trim()` | `"UCC"` |
+| `"UCC Main Gate".includes("Main")` / `.startsWith("UCC")` | `true` / `true` |
+| `"a,b,c".split(",")` / `["a","b"].join(" · ")` | `["a","b","c"]` / `"a · b"` |
+| `"7".padStart(3, "0")` | `"007"` |
+| `"x".repeat(3)` | `"xxx"` |
+| `` `Total: ${2 + 3}` `` | `"Total: 5"` |
+
+| Array method | Changes the original? | Returns |
+|---|---|---|
+| `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill` | **yes** | various |
+| `map`, `filter`, `slice`, `concat`, `flat`, `toSorted`, `toReversed`, `with` | no | a new array |
+| `find`, `findIndex`, `some`, `every`, `includes`, `indexOf`, `at(-1)` | no | one value |
+| `reduce` | no | anything you build |
+
+~~~javascript
+"use strict";
+const rides = [
+  { id: "r1", driver: "Ava", status: "completed", cents: 925 },
+  { id: "r2", driver: "Ava", status: "assigned",  cents: 1450 },
+  { id: "r3", driver: "Sam", status: "completed", cents: 925 },
+];
+// "GROUP BY driver" in JavaScript — compare with the SQL in Lesson 16
+const byDriver = Object.groupBy(rides, (r) => r.driver);
+const totals = Object.fromEntries(
+  Object.entries(byDriver).map(([name, list]) => [name, list.reduce((s, r) => s + r.cents, 0)]));
+console.log(totals);                                           // { Ava: 2375, Sam: 925 }
+
+const statuses = new Set(rides.map((r) => r.status));          // unique values
+console.log([...statuses], statuses.has("cancelled"));         // [ 'completed', 'assigned' ] false
+
+const index = new Map(rides.map((r) => [r.id, r]));            // fast lookup by key (any key type)
+console.log(index.get("r3").driver, index.size);               // Sam 3
+
+console.log(rides.at(-1).id, rides.toSorted((a, b) => b.cents - a.cents)[0].id);   // r3 r2
+
+const euro = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" });
+console.log(euro.format(2375 / 100));                          // €23.75
+~~~
+
+**Dates.** `new Date(2026, 10, 9)` is **9 November** — months count from 0. Store and send times as ISO-8601 UTC strings (`new Date().toISOString()` → `"2026-11-09T09:18:00.000Z"`, the same format the teaching database uses) and format them for people only at the last moment with `toLocaleString()`.
+
+### 10.7 Modules
+
+~~~javascript
+// fares.js — a module exports what other files may use
+export const BASE_CENTS = 250;
+export function fareCents(km) { return Math.round(BASE_CENTS + 150 * km); }
+export default function euros(cents) { return "€" + (cents / 100).toFixed(2); }
+~~~
+
+~~~javascript
+// main.js
+import euros, { fareCents } from "./fares.js";
+console.log(euros(fareCents(4.5)));
+~~~
+
+~~~html
+<script type="module" src="/static/main.js"></script>
+~~~
+
+Each module has its own scope (no accidental globals), is loaded once however many files import it, and is deferred automatically. Modules only work over `http(s)://` — opening the HTML file directly from disk (`file://`) blocks them, which is one reason this course always serves pages through Uvicorn.
+
+### 10.8 Errors
+
+~~~javascript
+"use strict";
+class ValidationError extends Error {
+  constructor(field, message) { super(message); this.name = "ValidationError"; this.field = field; }
+}
+function parseDistance(text) {
+  const km = Number(text);
+  if (!Number.isFinite(km) || km <= 0 || km > 200) throw new ValidationError("distance_km", "must be 0–200 km");
+  return km;
+}
+for (const input of ["4.5", "abc", "-1"]) {
+  try {
+    console.log("ok", parseDistance(input));
+  } catch (error) {
+    if (error instanceof ValidationError) console.log(`${error.field}: ${error.message}`);
+    else throw error;                    // never swallow errors you did not expect
+  } finally {
+    // runs whether or not an error happened: close things, hide spinners
+  }
+}
+// ok 4.5 · distance_km: must be 0–200 km · distance_km: must be 0–200 km
+~~~
+
+| Built-in error | Typical cause |
+|---|---|
+| `SyntaxError` | invalid code, or `JSON.parse` on invalid JSON |
+| `ReferenceError` | using a variable that does not exist (often a typo) |
+| `TypeError` | calling something that is not a function; reading a property of `undefined` |
+| `RangeError` | a number outside an allowed range (`new Array(-1)`, `toFixed(200)`) |
+
+**Exercises.** (1) Write `formatRide(ride)` returning `"UCC → Kent (4.5 km)"`. (2) Sort drivers by rating descending then distance ascending. (3) Using `makeCounter` as a model, write `makeIdGenerator(prefix)` returning `"R-001"`, `"R-002"` …. (4) Rewrite the 10.6 `totals` computation with a single `reduce` and no `Object.groupBy`. (5) Explain, with the 10.3 table, why the `var` loop prints `[3, 3, 3]`.
 
 ## Lesson 11 — The DOM, events and safe rendering
 
@@ -657,7 +1523,156 @@ The teaching [`app.js`](../web_lab/static/app.js) builds every card with `create
 
 **Experiment W06** types that exact payload into the real form in Chromium: the card shows the text and no script runs. The same string inserted with `innerHTML` runs on a page **without** a Content-Security-Policy, but is **blocked** on the teaching page because its CSP forbids inline handlers — two independent layers of defence (Lesson 20).
 
-**Exercises.** (1) Rewrite the action buttons with event delegation. (2) Explain why `element.innerText = x` is safe but `element.outerHTML = x` is not.
+### 11.1 Finding and walking the tree
+
+| API | Returns | Note |
+|---|---|---|
+| `document.getElementById("rides")` | one element or `null` | fastest; no `#` |
+| `document.querySelector(".ride .actions")` | first match or `null` | any CSS selector |
+| `document.querySelectorAll(".ride")` | a **static** `NodeList` | does not update when the page changes; has `forEach` |
+| `element.children` | a **live** `HTMLCollection` of child elements | updates automatically |
+| `element.parentElement`, `.nextElementSibling`, `.previousElementSibling`, `.firstElementChild` | neighbours | the `…Element…` versions skip text nodes |
+| `element.closest(".ride")` | the nearest ancestor (or itself) that matches | the key to event delegation |
+| `element.matches("[data-status=completed]")` | `true` / `false` | test an element against a selector |
+
+Always handle `null`: `document.querySelector("#typo").textContent = "x"` throws `TypeError: Cannot set properties of null`. Optional chaining (`?.`) or an early `if (!el) return;` keeps scripts robust.
+
+### 11.2 Attributes versus properties
+
+The HTML **attribute** is the *initial* value written in the source; the DOM **property** is the *current* live value.
+
+~~~javascript
+const input = document.querySelector("#pickup");      // <input id="pickup" value="UCC Main Gate">
+// the user now types "Kent Station"
+input.getAttribute("value");   // "UCC Main Gate" — what the HTML said
+input.value;                   // "Kent Station"  — what is in the box now
+input.defaultValue;            // "UCC Main Gate" — the property mirror of the attribute
+
+const card = document.querySelector(".ride");
+card.dataset.status = "assigned";                     // writes data-status="assigned"
+card.classList.toggle("highlight");                   // add if missing, remove if present
+card.classList.replace("old", "new");
+card.hidden = true;                                   // same as the hidden attribute
+card.style.setProperty("--accent", "#1f7a3a");        // set a CSS custom property just for this card
+const button = card.querySelector("button");
+button.disabled = true;                               // boolean property: true/false, not a string
+~~~
+
+Prefer changing **classes** or `data-*` attributes and letting CSS decide the look (`.ride[data-status="completed"]` in `style.css`) over writing `element.style.color = …` in JavaScript: the design then stays in one file.
+
+### 11.3 Creating, moving and removing nodes efficiently
+
+~~~javascript
+function renderRides(container, rides) {
+  const fragment = document.createDocumentFragment();     // an off-screen container
+  for (const ride of rides) {
+    const card = document.createElement("article");
+    card.className = "ride";
+    card.dataset.id = ride.id;
+    const title = document.createElement("strong");
+    title.textContent = `${ride.pickup} → ${ride.destination}`;   // text, never HTML
+    card.append(title);
+    fragment.append(card);
+  }
+  container.replaceChildren(fragment);    // one DOM update: removes old cards, inserts all new ones
+}
+~~~
+
+Each separate insertion into the live page may trigger layout (Lesson 5.1); building in a `DocumentFragment` (or an array passed to `replaceChildren(...nodes)`) and inserting once is faster and avoids flicker. Other tools: `el.remove()`, `parent.insertBefore(newNode, reference)`, `el.before()/after()/prepend()`, `el.cloneNode(true)`.
+
+**`<template>`** holds markup that is parsed but not displayed — a safe way to keep a card's structure in HTML rather than in JavaScript:
+
+~~~html
+<template id="ride-template">
+  <article class="ride"><strong class="route"></strong><p class="meta"></p></article>
+</template>
+~~~
+
+~~~javascript
+const tpl = document.querySelector("#ride-template");
+const card = tpl.content.firstElementChild.cloneNode(true);
+card.querySelector(".route").textContent = "UCC → Kent Station";   // fill with textContent: still XSS-safe
+~~~
+
+### 11.4 The event object and event delegation in full
+
+~~~javascript
+const ridesBox = document.querySelector("#rides");
+
+ridesBox.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-action]");   // the element actually clicked, or an ancestor
+  if (!button || !ridesBox.contains(button)) return;              // a click on empty space: ignore
+  const card = button.closest(".ride");
+  console.log(button.dataset.action, "ride", card.dataset.id);
+  // event.target        → the innermost element clicked (could be text inside the button)
+  // event.currentTarget → ridesBox, the element this listener is attached to
+});
+~~~
+
+One listener now serves every current *and future* card, which also means no listener has to be removed when cards are re-rendered.
+
+| Event object member | Use |
+|---|---|
+| `event.preventDefault()` | stop the browser's default action (submit, follow link, check box) |
+| `event.stopPropagation()` | stop bubbling to ancestors (use sparingly — it breaks delegation above) |
+| `event.key`, `event.code`, `event.shiftKey` | which key: `"Enter"`, `"Escape"`, `"ArrowDown"` |
+| `event.isTrusted` | `true` if caused by the user, `false` if dispatched by a script |
+
+| `addEventListener` option | Effect |
+|---|---|
+| `{ once: true }` | remove automatically after the first call |
+| `{ passive: true }` | promise not to call `preventDefault` — scrolling stays smooth for `touchmove`/`wheel` |
+| `{ capture: true }` | run during the capture phase (on the way down) |
+| `{ signal: controller.signal }` | remove when an `AbortController` is aborted — handy for clean-up |
+
+### 11.5 Which event to use
+
+| Event | Fires when | Use for |
+|---|---|---|
+| `DOMContentLoaded` | HTML parsed (deferred scripts already ran) | start-up code in non-deferred scripts |
+| `load` | everything, including images, has loaded | measuring, rarely needed |
+| `input` | **every** change to a field's value | live previews — the teaching app's fare preview |
+| `change` | the value is committed (blur, or select chosen) | filters — the status dropdown |
+| `submit` | a form is submitted by button **or** Enter key | always handle forms here, not on the button's `click` |
+| `click` | mouse click, tap, **and** Enter/Space on a button | buttons and links |
+| `keydown` | a key is pressed | shortcuts, Escape to close dialogs |
+| `focusin` / `focusout` | focus enters / leaves (these bubble; `focus`/`blur` do not) | showing help next to the active field |
+| `scroll`, `resize` | many times per second | throttle or debounce them |
+
+**Debouncing** waits until the user stops typing before doing expensive work:
+
+~~~javascript
+function debounce(fn, ms = 250) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+document.querySelector("#distance").addEventListener("input", debounce((event) => {
+  const km = Number(event.target.value);
+  document.querySelector("#fare-preview").textContent =
+    km > 0 ? `Estimated fare €${((250 + 150 * km) / 100).toFixed(2)}` : "";
+}, 200));
+~~~
+
+### 11.6 Remembering things in the browser
+
+| Store | Size | Lifetime | Sent to the server? | Suitable for |
+|---|---|---|---|---|
+| cookie | ≈ 4 KB | until expiry | **yes, every request** | session id (with `HttpOnly`) — Lesson 19 |
+| `localStorage` | ≈ 5 MB per origin | until cleared | no | preferences: last filter, theme |
+| `sessionStorage` | ≈ 5 MB | until the tab closes | no | an unfinished form |
+| IndexedDB | large | until cleared | no | offline data, files |
+
+~~~javascript
+const filter = document.querySelector("#statusFilter");
+try { filter.value = localStorage.getItem("ride-filter") ?? ""; } catch { /* storage may be blocked */ }
+filter.addEventListener("change", () => {
+  try { localStorage.setItem("ride-filter", filter.value); } catch { /* ignore */ }
+});
+~~~
+
+Values are always **strings** (use `JSON.stringify`/`JSON.parse` for objects), and any script on the page — including one injected by an XSS bug — can read them. **Never store passwords or tokens in `localStorage`.**
+
+**Exercises.** (1) Rewrite the action buttons with event delegation. (2) Explain why `element.innerText = x` is safe but `element.outerHTML = x` is not. (3) Rebuild `rideCard` with a `<template>` element. (4) Remember the status filter and the passenger name in `localStorage`, and make the page still work when storage is blocked (private window).
 
 ## Lesson 12 — Asynchronous JavaScript: the event loop, promises, async/await and fetch
 
@@ -737,7 +1752,119 @@ assert elapsed < 200
 
 **Common mistakes.** Forgetting `await` (you get a Promise, not data); not checking `response.ok`; `forEach` with `async` callbacks (it does not wait); unhandled rejections.
 
-**Exercises.** (1) Add a loading spinner that appears while a request is in flight. (2) Retry a failed GET up to three times with exponential back-off — and explain why retrying POST needs an idempotency key.
+### 12.1 Predict the order: synchronous code, microtasks and tasks
+
+The event loop has two queues. **Microtasks** (promise callbacks, `await` continuations, `queueMicrotask`) run as soon as the current script finishes — *all* of them — before the browser does anything else. **Tasks** (timers, clicks, network events) run one per loop turn, after the microtasks and usually after a repaint.
+
+~~~javascript
+"use strict";
+const log = [];
+log.push("1 sync start");
+setTimeout(() => log.push("7 timeout (task)"), 0);
+Promise.resolve().then(() => log.push("4 promise.then (microtask)"));
+queueMicrotask(() => log.push("5 queueMicrotask (microtask)"));
+(async () => {
+  log.push("2 inside async function, before await (still sync)");
+  await null;
+  log.push("6 after await (microtask)");
+})();
+log.push("3 sync end");
+setTimeout(() => console.log(log.join("\n")), 10);
+// 1 sync start
+// 2 inside async function, before await (still sync)
+// 3 sync end
+// 4 promise.then (microtask)
+// 5 queueMicrotask (microtask)
+// 6 after await (microtask)
+// 7 timeout (task)
+~~~
+
+Two lessons follow. First, `setTimeout(fn, 0)` means "as soon as possible *after* everything queued", not "now". Second, a long synchronous loop blocks clicks, timers *and* painting — keep work per event short, or move it to a **Web Worker** (a separate thread with no DOM access).
+
+### 12.2 Promise states and combinators
+
+~~~mermaid
+stateDiagram-v2
+ [*] --> pending: new Promise / fetch()
+ pending --> fulfilled: resolve(value)
+ pending --> rejected: reject(error) / throw
+ fulfilled --> [*]: .then(onFulfilled) / await gives the value
+ rejected --> [*]: .catch(onRejected) / await throws
+~~~
+
+| Combinator | Settles when | Result | Use |
+|---|---|---|---|
+| `Promise.all([...])` | all fulfil, **or** the first rejects | array of values | everything is needed — the teaching app's rides + stats |
+| `Promise.allSettled([...])` | all have settled | array of `{status, value \| reason}` | a dashboard where one failed panel should not blank the others |
+| `Promise.race([...])` | the first settles (either way) | that value or error | timeouts |
+| `Promise.any([...])` | the first **fulfils** (or all reject) | that value | try several mirrors, use the fastest that works |
+
+~~~javascript
+"use strict";
+const sleep = (ms, value, fail = false) =>
+  new Promise((resolve, reject) => setTimeout(() => (fail ? reject(new Error(value)) : resolve(value)), ms));
+
+const withTimeout = (promise, ms) =>
+  Promise.race([promise, sleep(ms).then(() => { throw new Error(`timed out after ${ms} ms`); })]);
+
+(async () => {
+  console.log(await Promise.all([sleep(30, "drivers"), sleep(10, "stats")]));          // [ 'drivers', 'stats' ] — input order
+  const settled = await Promise.allSettled([sleep(10, "rides"), sleep(5, "stats down", true)]);
+  console.log(settled.map((s) => s.status));                                           // [ 'fulfilled', 'rejected' ]
+  console.log(await Promise.any([sleep(20, "mirror A"), sleep(5, "mirror B down", true), sleep(10, "mirror C")]));  // mirror C
+  try { await withTimeout(sleep(100, "slow"), 20); } catch (e) { console.log(e.message); }   // timed out after 20 ms
+})();
+~~~
+
+### 12.3 Sequential versus parallel `await`
+
+~~~javascript
+"use strict";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const ids = [1, 2, 3, 4];
+
+(async () => {
+  let t = Date.now();
+  for (const id of ids) await sleep(50);                    // one after another: ≈ 200 ms
+  const sequential = Date.now() - t;
+
+  t = Date.now();
+  await Promise.all(ids.map(() => sleep(50)));              // all at once: ≈ 50 ms
+  const parallel = Date.now() - t;
+
+  console.log({ sequential, parallel }, sequential > 3 * parallel);   // … true
+
+  // ids.forEach(async (id) => { await sleep(50); });  ← does NOT wait: forEach ignores returned promises
+})();
+~~~
+
+Use the sequential form only when each step needs the previous result (create a ride, *then* assign it). Otherwise start the requests together — but not thousands at once: browsers allow only about six simultaneous HTTP/1.1 connections per host, and the server pays for every one.
+
+### 12.4 A robust `fetch` wrapper
+
+~~~javascript
+async function getJSON(url, { retries = 2, timeoutMs = 5000 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs),
+                                          headers: { Accept: "application/json" } });
+      if (response.status >= 500 && attempt < retries) throw new Error(`HTTP ${response.status}`);  // retry server errors
+      if (!response.ok) {
+        const problem = await response.json().catch(() => ({}));       // error body may not be JSON
+        throw Object.assign(new Error(problem.detail ?? `HTTP ${response.status}`), { status: response.status });
+      }
+      return await response.json();
+    } catch (error) {
+      if (error.status || attempt >= retries) throw error;              // 4xx: retrying will not help
+      await new Promise((r) => setTimeout(r, 200 * 2 ** attempt));      // back-off: 200 ms, 400 ms, ...
+    }
+  }
+}
+~~~
+
+It applies every rule of this lesson: a timeout, `response.ok`, retry only safe GETs and only on network or 5xx errors, exponential back-off, and errors that carry the status for the caller to show.
+
+**Exercises.** (1) Add a loading spinner that appears while a request is in flight. (2) Retry a failed GET up to three times with exponential back-off — and explain why retrying POST needs an idempotency key. (3) Before running it, write down the order the 12.1 example will print; then run it. (4) Change `refresh()` in the teaching app to `Promise.allSettled` so that a failing `/api/stats` still lets the ride list appear, with a message for the missing panel.
 
 ---
 
@@ -925,7 +2052,130 @@ Copying `driver_name` into every ride means renaming a driver needs many updates
 
 **ATLAS connection.** The ATLAS starter's [`schema.sql`](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/infra/schema.sql) has trips, drivers, offers, outbox, inbox and experience tables; see its [persistence model](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#persistence-model).
 
-**Exercises.** (1) Add a `passengers` table and change `rides.passenger` to a foreign key. (2) Normalise a spreadsheet of orders with columns `order, customer, customer_phone, dish1, dish2, dish3`.
+### 15.1 Vocabulary and the four sub-languages of SQL
+
+| Relational theory | SQL / everyday | Spreadsheet analogy |
+|---|---|---|
+| relation | table | a sheet |
+| tuple | row, record | a line |
+| attribute | column, field | a column header |
+| domain | data type + constraints | the kind of value a column may hold |
+| schema | the set of table definitions | the sheet layout |
+
+| Sub-language | Statements | Changes |
+|---|---|---|
+| **DDL** — definition | `CREATE`, `ALTER`, `DROP` (tables, indexes, views) | structure |
+| **DML** — manipulation | `INSERT`, `UPDATE`, `DELETE`, (`SELECT`) | rows |
+| **DCL** — control | `GRANT`, `REVOKE` | who may do what (server databases only) |
+| **TCL** — transactions | `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT` | when changes become permanent (Lesson 17) |
+
+### 15.2 Data types: SQLite versus a server database
+
+| Purpose | SQLite | PostgreSQL | Advice |
+|---|---|---|---|
+| whole numbers | `INTEGER` (up to 8 bytes) | `integer`, `bigint` | ids, counts, **money in cents** |
+| decimals | `REAL` (8-byte float) | `double precision`; `numeric(10,2)` exact | never store money as float |
+| text | `TEXT` | `text`, `varchar(n)` | enforce lengths with `CHECK` or the API |
+| true/false | `INTEGER` 0/1 + `CHECK` | `boolean` | the teaching `online` column |
+| dates and times | `TEXT` in ISO-8601 (`2026-11-09T09:18:00Z`) | `timestamptz` | always store UTC |
+| binary | `BLOB` | `bytea` | small files; big files belong in object storage |
+| identifiers | `TEXT` UUID or `INTEGER` | `uuid`, `identity` | see 15.3 |
+| structured | `TEXT` + JSON functions | `jsonb` | only for data you do not query by column |
+
+SQLite uses **type affinity**: a column's declared type is a *preference*, and it converts values when it safely can. Add `STRICT` to a table to get the rigid checking that server databases give.
+
+~~~python
+import sqlite3
+db = sqlite3.connect(":memory:")
+db.execute("CREATE TABLE loose(r REAL, i INTEGER, s TEXT, anything)")
+db.execute("INSERT INTO loose VALUES ('4.5', '7', 42, '3')")          # strings and numbers mixed up
+assert db.execute("SELECT typeof(r), typeof(i), typeof(s), typeof(anything) FROM loose").fetchone() \
+    == ("real", "integer", "text", "text")                            # converted to each column's affinity
+
+db.execute("CREATE TABLE strict_table(i INTEGER) STRICT")
+try:
+    db.execute("INSERT INTO strict_table VALUES ('abc')")
+except sqlite3.IntegrityError as error:
+    print(error)                                       # cannot store TEXT value in INTEGER column strict_table.i
+~~~
+
+### 15.3 Choosing keys
+
+| Kind | Example | For | Against |
+|---|---|---|---|
+| **natural** key | an email address, a vehicle registration | already unique and meaningful | it can change; it may be personal data |
+| **surrogate** integer | `drivers.id INTEGER PRIMARY KEY AUTOINCREMENT` | small, fast to index and join | guessable (`/rides/41`, `/rides/42` …), needs the database to assign it |
+| **surrogate** UUID | `rides.id TEXT` = `uuid4().hex` | can be created by the client or any server; not guessable | larger index; random order |
+| **composite** key | `PRIMARY KEY (ride_id, promotion_id)` | natural for join tables; prevents duplicate pairs | longer foreign keys elsewhere |
+
+Use a surrogate primary key and, if a natural attribute must be unique, **also** add a `UNIQUE` constraint on it — as the teaching schema does with `drivers.name` and `rides.request_key`.
+
+### 15.4 What happens when the parent row is deleted?
+
+`ON DELETE` on a foreign key decides; the same choices exist for `ON UPDATE`.
+
+| Action | Effect when the referenced row is deleted | Example |
+|---|---|---|
+| `RESTRICT` / `NO ACTION` (default) | the delete fails | a driver with rides cannot be deleted (teaching schema) |
+| `CASCADE` | dependent rows are deleted too | deleting a ride removes its promotion links |
+| `SET NULL` | the foreign key becomes NULL | an employee's manager leaves |
+| `SET DEFAULT` | the column gets its default value | rarely used |
+
+~~~python
+import sqlite3
+db = sqlite3.connect(":memory:")
+db.execute("PRAGMA foreign_keys=ON")                 # FIRST, before any transaction (see the note below)
+db.executescript("""
+CREATE TABLE promotions(id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE,
+                        percent INTEGER NOT NULL CHECK(percent BETWEEN 1 AND 50));
+CREATE TABLE rides(id TEXT PRIMARY KEY);
+CREATE TABLE ride_promotions(                        -- a many-to-many join table
+  ride_id      TEXT    NOT NULL REFERENCES rides(id)      ON DELETE CASCADE,
+  promotion_id INTEGER NOT NULL REFERENCES promotions(id) ON DELETE RESTRICT,
+  PRIMARY KEY (ride_id, promotion_id));              -- a composite key: each pair at most once
+INSERT INTO promotions VALUES (1, 'STUDENT10', 10), (2, 'NIGHT20', 20);
+INSERT INTO rides VALUES ('r1'), ('r2');
+INSERT INTO ride_promotions VALUES ('r1', 1), ('r1', 2), ('r2', 1);
+""")
+db.execute("DELETE FROM rides WHERE id = 'r1'")                         # CASCADE removes r1's two links
+assert db.execute("SELECT * FROM ride_promotions").fetchall() == [("r2", 1)]
+try:
+    db.execute("DELETE FROM promotions WHERE id = 1")                   # still used by r2: RESTRICT
+except sqlite3.IntegrityError as error:
+    assert "FOREIGN KEY" in str(error)
+assert db.execute("DELETE FROM promotions WHERE id = 2").rowcount == 1  # no longer used: allowed
+~~~
+
+> **A trap worth remembering.** `PRAGMA foreign_keys=ON` is silently ignored inside an open transaction, and Python's `sqlite3` opens one automatically before the first `INSERT`/`UPDATE`/`DELETE`. Set the pragma immediately after connecting — exactly where the teaching app's `connection()` does.
+
+### 15.5 Changing a schema safely: migrations
+
+~~~sql
+ALTER TABLE drivers ADD COLUMN phone TEXT;                     -- add a column (existing rows get NULL)
+ALTER TABLE drivers RENAME COLUMN zone TO home_zone;           -- rename
+CREATE INDEX idx_rides_created ON rides(created_at);           -- add an index
+DROP INDEX IF EXISTS idx_rides_created;                        -- and remove it
+CREATE VIEW completed_rides AS                                 -- a saved query that behaves like a table
+  SELECT r.id, r.fare_cents, d.name AS driver
+  FROM rides r JOIN drivers d ON d.id = r.driver_id
+  WHERE r.status = 'completed';
+DROP TABLE IF EXISTS old_rides;                                -- irreversible: back up first
+~~~
+
+A **migration** is a numbered script that moves the schema from one version to the next (`0003_add_driver_phone.sql`). Migrations are kept in version control, applied in order by a tool (Alembic for Python, Flyway, Prisma …) and never edited once run in production. Adding a nullable column is safe; renaming or dropping one breaks any code still using the old name, so large systems do it in steps: add new → write both → move readers → drop old.
+
+### 15.6 From a description to a schema
+
+> *"Passengers book rides from a pickup to a destination. A driver, who works in one zone, is assigned to each ride. A ride can use several promotion codes; a code can be used on many rides."*
+
+1. **Nouns become candidate tables:** passenger, ride, driver, zone, promotion.
+2. **Facts about one thing become columns** of that thing's table: a driver's zone → `drivers.zone` (or a `zones` table if zones have facts of their own).
+3. **Relationships set where keys go:** one driver – many rides → `rides.driver_id`; many rides – many promotions → a join table.
+4. **Rules become constraints:** "fare cannot be negative" → `CHECK`; "a name is unique" → `UNIQUE`; "every ride has a passenger" → `NOT NULL` + foreign key.
+5. **Check normal forms** (the table above) and draw the ER diagram.
+6. **List the queries** the application will run and add indexes for their `WHERE`, `JOIN` and `ORDER BY` columns.
+
+**Exercises.** (1) Add a `passengers` table and change `rides.passenger` to a foreign key. (2) Normalise a spreadsheet of orders with columns `order, customer, customer_phone, dish1, dish2, dish3`. (3) Write the migration that adds a nullable `phone` column to `drivers` and a `CHECK` that it starts with `+`. (4) Apply the six steps of 15.6 to: *"Students borrow books from branches; each copy of a book belongs to one branch; a loan records the copy, the student and the due date."*
 
 ## Lesson 16 — SQL: queries, joins, aggregation, indexes and injection
 
@@ -1017,7 +2267,249 @@ assert safe == []                                                          # jus
 
 **Always pass values as parameters** (`?` in sqlite3, `%s` in psycopg) — the driver sends them separately from the SQL text, so they can never change its structure. Experiment **W10** compares four attack strings; the teaching app's integration test stores `x'); DROP TABLE rides; --` as an ordinary pickup name.
 
-**Exercises.** (1) Average fare per pickup place, only places with ≥ 2 rides. (2) Which rides have no driver? Write it with `LEFT JOIN … WHERE d.id IS NULL` and with `WHERE driver_id IS NULL`. (3) Add an index for "a driver's rides, newest first" and confirm it with `EXPLAIN QUERY PLAN`.
+### 16.1 A richer practice database
+
+The remaining sections use eight rides so that every query has something to find. Run this block first; it uses the teaching app's real `SCHEMA`, and the fare is computed by SQL itself.
+
+~~~python
+import sqlite3
+from web_lab.app import SCHEMA
+
+def demo_db():
+    db = sqlite3.connect(":memory:")
+    db.execute("PRAGMA foreign_keys=ON")
+    db.executescript(SCHEMA)
+    db.executemany("INSERT INTO drivers(name, zone, rating, online) VALUES (?, ?, ?, ?)",
+                   [("Ava", "Mardyke", 4.9, 1), ("Sam", "Grand Parade", 4.7, 1), ("Orla", "Douglas", 4.8, 0)])
+    rows = [("r1", "Aoife",   "UCC",          "Kent Station", 4.5,  "completed", 1,    "2026-11-02T08:10:00Z"),
+            ("r2", "Brian",   "UCC",          "Cork Airport", 8.0,  "completed", 1,    "2026-11-02T09:00:00Z"),
+            ("r3", "Ciara",   "Kent Station", "UCC",          4.5,  "completed", 2,    "2026-11-03T17:30:00Z"),
+            ("r4", "Dara",    "Grand Parade", "UCC",          2.0,  "assigned",  2,    "2026-11-04T12:00:00Z"),
+            ("r5", "Eimear",  "UCC",          "Douglas",      5.5,  "cancelled", None, "2026-11-05T07:45:00Z"),
+            ("r6", "Finn",    "Cork Airport", "Grand Parade", 9.0,  "completed", 1,    "2026-11-06T22:15:00Z"),
+            ("r7", "Gráinne", "UCC",          "Kent Station", 4.5,  "requested", None, "2026-11-07T10:05:00Z"),
+            ("r8", "Aoife",   "Kent Station", "Cork Airport", 10.5, "completed", 2,    "2026-11-08T06:30:00Z")]
+    db.executemany("""INSERT INTO rides(id, passenger, pickup, destination, distance_km, fare_cents,
+                                        status, request_key, driver_id, created_at)
+                      VALUES (?1, ?2, ?3, ?4, ?5, CAST(ROUND(250 + 150 * ?5) AS INTEGER), ?6, 'key-' || ?1, ?7, ?8)""",
+                   rows)
+    return db
+
+db = demo_db()
+q = lambda sql, *params: [tuple(row) for row in db.execute(sql, params)]    # run a query, return plain tuples
+assert q("SELECT id, fare_cents FROM rides WHERE id IN ('r4', 'r8')") == [("r4", 550), ("r8", 1825)]
+~~~
+
+### 16.2 The order a SELECT is evaluated in
+
+You **write** a query in one order but the database **evaluates** it in another. Most "why doesn't this work?" questions are answered by this diagram.
+
+~~~mermaid
+flowchart LR
+ F["1 FROM / JOIN<br/>which rows exist"] --> W["2 WHERE<br/>keep rows"] --> G["3 GROUP BY<br/>make groups"] --> H["4 HAVING<br/>keep groups"] --> S["5 SELECT<br/>compute columns, aliases"] --> DI["6 DISTINCT"] --> O["7 ORDER BY<br/>sort"] --> L["8 LIMIT / OFFSET"]
+~~~
+
+Consequences: an alias made in `SELECT` cannot be used in `WHERE` (it does not exist yet) but can be used in `ORDER BY`; an aggregate such as `COUNT(*)` cannot appear in `WHERE` (groups do not exist yet) — that is what `HAVING` is for.
+
+~~~python
+assert q("""SELECT pickup, COUNT(*) AS n, AVG(fare_cents) AS avg_cents
+            FROM rides
+            WHERE status <> 'cancelled'          -- 2: rows
+            GROUP BY pickup                      -- 3: groups
+            HAVING COUNT(*) >= 2                 -- 4: groups
+            ORDER BY avg_cents DESC              -- 7: the alias is visible here""") \
+    == [("Kent Station", 2, 1375.0), ("UCC", 3, 1100.0)]
+~~~
+
+### 16.3 Filtering, expressions and functions
+
+| Operator | Example | Matches |
+|---|---|---|
+| `=`, `<>` (or `!=`), `<`, `<=`, `>`, `>=` | `fare_cents >= 1000` | comparisons |
+| `BETWEEN a AND b` | `distance_km BETWEEN 4 AND 6` | inclusive range |
+| `IN (…)` | `status IN ('assigned', 'requested')` | any listed value |
+| `LIKE` | `pickup LIKE 'Ken%'`, `code LIKE 'R_'` | `%` any characters, `_` exactly one (case-insensitive for ASCII in SQLite) |
+| `IS NULL`, `IS NOT NULL` | `driver_id IS NULL` | missing values — **never** `= NULL` |
+| `AND`, `OR`, `NOT` | `a OR b AND c` means `a OR (b AND c)` | use brackets to be clear |
+
+~~~python
+assert q("SELECT id FROM rides WHERE pickup LIKE 'Ken%' OR destination LIKE '%Airport' ORDER BY id") \
+    == [("r2",), ("r3",), ("r8",)]
+assert q("SELECT DISTINCT pickup FROM rides ORDER BY pickup") \
+    == [("Cork Airport",), ("Grand Parade",), ("Kent Station",), ("UCC",)]
+
+# CASE: if/else inside a query
+assert q("""SELECT id, CASE WHEN distance_km < 3  THEN 'short'
+                            WHEN distance_km <= 6 THEN 'medium'
+                            ELSE 'long' END AS band
+            FROM rides WHERE id IN ('r4', 'r5', 'r6') ORDER BY id""") \
+    == [("r4", "short"), ("r5", "medium"), ("r6", "long")]
+
+# Useful built-in functions
+assert q("""SELECT UPPER(pickup), LENGTH(passenger), ROUND(fare_cents / 100.0, 2),
+                   COALESCE(driver_id, 0), date(created_at), strftime('%H', created_at)
+            FROM rides WHERE id = 'r5'""") \
+    == [("UCC", 6, 10.75, 0, "2026-11-05", "07")]
+
+# Integer division is a classic trap: 7 / 2 is 3 for two integers
+assert q("SELECT 7 / 2, 7 / 2.0, 7 % 2") == [(3, 3.5, 1)]
+~~~
+
+### 16.4 NULL and three-valued logic
+
+`NULL` means "unknown". Any comparison with an unknown is itself unknown, and `WHERE` keeps only rows that are definitely **true**.
+
+| Expression | Result |
+|---|---|
+| `NULL = NULL` | `NULL` (not true!) |
+| `NULL IS NULL` | `1` (true) |
+| `1 + NULL`, `'a' \|\| NULL` | `NULL` |
+| `COUNT(*)` vs `COUNT(col)` | all rows vs rows where `col` is not NULL |
+| `COALESCE(x, y, …)` | the first non-NULL argument |
+
+~~~python
+assert q("SELECT NULL = NULL, NULL IS NULL, 1 + NULL, COALESCE(NULL, 'none')") == [(None, 1, None, "none")]
+assert q("SELECT COUNT(*), COUNT(driver_id), COUNT(DISTINCT passenger) FROM rides") == [(8, 6, 7)]
+
+# The NOT IN trap: one NULL in the list makes every comparison unknown, so NOTHING is returned
+assert q("SELECT name FROM drivers WHERE id NOT IN (SELECT driver_id FROM rides)") == []
+# Fixes: exclude the NULLs, or (better) use NOT EXISTS
+assert q("SELECT name FROM drivers WHERE id NOT IN (SELECT driver_id FROM rides WHERE driver_id IS NOT NULL)") == [("Orla",)]
+assert q("""SELECT d.name FROM drivers d
+            WHERE NOT EXISTS (SELECT 1 FROM rides r WHERE r.driver_id = d.id)""") == [("Orla",)]
+~~~
+
+### 16.5 Subqueries and common table expressions
+
+A **subquery** is a query inside another. A **CTE** (`WITH name AS (…)`) gives a subquery a name, so a long query reads top to bottom like a sequence of steps.
+
+~~~python
+# scalar subquery: compare with a single computed value
+assert q("""SELECT id FROM rides
+            WHERE fare_cents > (SELECT AVG(fare_cents) FROM rides) ORDER BY id""") == [("r2",), ("r6",), ("r8",)]
+
+# CTE: step 1 earnings per driver, step 2 attach names
+assert q("""WITH earnings AS (
+                SELECT driver_id, SUM(fare_cents) AS cents, COUNT(*) AS trips
+                FROM rides WHERE status = 'completed' GROUP BY driver_id)
+            SELECT d.name, e.trips, e.cents
+            FROM earnings e JOIN drivers d ON d.id = e.driver_id
+            ORDER BY e.cents DESC""") == [("Ava", 3, 3975), ("Sam", 2, 2750)]
+
+# correlated subquery: re-evaluated for each outer row
+assert q("""SELECT d.name, (SELECT COUNT(*) FROM rides r WHERE r.driver_id = d.id) AS rides
+            FROM drivers d ORDER BY d.id""") == [("Ava", 3), ("Sam", 3), ("Orla", 0)]
+~~~
+
+### 16.6 More kinds of join
+
+~~~mermaid
+flowchart LR
+ subgraph I["INNER JOIN"]
+  i1["only matching pairs"]
+ end
+ subgraph LJ["LEFT JOIN"]
+  l1["all left rows<br/>+ matches or NULL"]
+ end
+ subgraph FJ["FULL OUTER JOIN"]
+  f1["all rows of both<br/>NULL where unmatched"]
+ end
+ subgraph X["CROSS JOIN"]
+  x1["every left row ×<br/>every right row"]
+ end
+~~~
+
+| Join | Keeps | Typical question |
+|---|---|---|
+| `INNER JOIN … ON` | matching pairs only | rides *with* their driver |
+| `LEFT JOIN` | every left row | every driver, with rides if any |
+| `RIGHT JOIN` | every right row | (write it as a LEFT JOIN with the tables swapped) |
+| `FULL OUTER JOIN` | every row of both | reconcile two lists |
+| `CROSS JOIN` | every combination | a timetable of every zone × every hour |
+| **self join** | a table joined to itself | passengers who booked twice |
+| **anti join** (`NOT EXISTS` / `LEFT JOIN … WHERE right.id IS NULL`) | left rows with **no** match | drivers with no rides |
+
+~~~python
+# self join: pairs of rides by the same passenger (a.id < b.id avoids duplicates and self-pairs)
+assert q("""SELECT a.passenger, a.id, b.id
+            FROM rides a JOIN rides b ON a.passenger = b.passenger AND a.id < b.id""") == [("Aoife", "r1", "r8")]
+
+# CROSS JOIN: every online driver × every status, then count (zero rows appear as 0 thanks to LEFT JOIN)
+grid = q("""SELECT d.name, s.status, COUNT(r.id)
+            FROM drivers d
+            CROSS JOIN (SELECT DISTINCT status FROM rides) s
+            LEFT JOIN rides r ON r.driver_id = d.id AND r.status = s.status
+            WHERE d.online = 1
+            GROUP BY d.name, s.status ORDER BY d.name, s.status""")
+assert len(grid) == 2 * 4 and ("Sam", "assigned", 1) in grid and ("Ava", "assigned", 0) in grid
+~~~
+
+### 16.7 Set operations
+
+| Operator | Result | Duplicates |
+|---|---|---|
+| `UNION` | rows in either query | removed |
+| `UNION ALL` | rows in either query | kept (faster: no de-duplication) |
+| `INTERSECT` | rows in both | removed |
+| `EXCEPT` | rows in the first but not the second | removed |
+
+Both queries must return the same number of columns with compatible types.
+
+~~~python
+assert q("SELECT pickup FROM rides UNION SELECT destination FROM rides ORDER BY 1") \
+    == [("Cork Airport",), ("Douglas",), ("Grand Parade",), ("Kent Station",), ("UCC",)]
+assert q("SELECT COUNT(*) FROM (SELECT pickup FROM rides UNION ALL SELECT destination FROM rides)") == [(16,)]
+assert q("SELECT destination FROM rides EXCEPT SELECT pickup FROM rides") == [("Douglas",)]   # never a pickup
+~~~
+
+### 16.8 Window functions: aggregates without collapsing rows
+
+`GROUP BY` turns many rows into one per group. A **window function** computes over a group (the *window*) but keeps every row — perfect for rankings, running totals and comparisons with the previous row.
+
+~~~python
+assert q("""SELECT d.name, r.id, r.fare_cents,
+                   RANK()          OVER (PARTITION BY d.id ORDER BY r.fare_cents DESC) AS rank_for_driver,
+                   SUM(r.fare_cents) OVER (PARTITION BY d.id ORDER BY r.created_at)    AS running_total
+            FROM rides r JOIN drivers d ON d.id = r.driver_id
+            WHERE r.status = 'completed'
+            ORDER BY d.name, r.created_at""") == [
+    ("Ava", "r1", 925, 3, 925), ("Ava", "r2", 1450, 2, 2375), ("Ava", "r6", 1600, 1, 3975),
+    ("Sam", "r3", 925, 2, 925), ("Sam", "r8", 1825, 1, 2750)]
+
+assert q("""SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) AS n,
+                   fare_cents - LAG(fare_cents) OVER (ORDER BY created_at) AS change
+            FROM rides ORDER BY created_at LIMIT 3""") == [("r1", 1, None), ("r2", 2, 525), ("r3", 3, -525)]
+~~~
+
+| Function | Gives |
+|---|---|
+| `ROW_NUMBER()` | 1, 2, 3 … with no ties |
+| `RANK()` / `DENSE_RANK()` | ties share a rank; `RANK` then skips (1, 1, 3), `DENSE_RANK` does not (1, 1, 2) |
+| `LAG(col)` / `LEAD(col)` | the previous / next row's value |
+| `SUM`, `AVG`, `COUNT` … `OVER (…)` | running or per-group totals alongside each row |
+| `PARTITION BY` | restart the window for each group (like `GROUP BY`, without collapsing) |
+
+### 16.9 Writing data: multi-row inserts, upserts and `RETURNING`
+
+~~~python
+# UPSERT: insert, or update the existing row if the unique key already exists
+db.execute("""INSERT INTO drivers(name, zone, rating, online) VALUES ('Sam', 'Ballincollig', 4.8, 1)
+              ON CONFLICT(name) DO UPDATE SET zone = excluded.zone, rating = excluded.rating""")
+assert q("SELECT zone, rating FROM drivers WHERE name = 'Sam'") == [("Ballincollig", 4.8)]
+
+# RETURNING: get generated values back without a second query
+new_id = db.execute("INSERT INTO drivers(name, zone, rating, online) VALUES ('Niamh', 'Blackrock', 5, 1) RETURNING id").fetchone()[0]
+assert q("SELECT name FROM drivers WHERE id = ?", new_id) == [("Niamh",)]
+# (the id is 5, not 4: the upsert above used up a sequence number — ids can have gaps, never rely on them)
+
+# UPDATE with a condition that protects against races (Lesson 17, exercise 2)
+changed = db.execute("UPDATE rides SET status = 'assigned', driver_id = ? WHERE id = 'r7' AND status = 'requested'",
+                     (new_id,)).rowcount
+assert changed == 1
+assert db.execute("UPDATE rides SET driver_id = 1 WHERE id = 'r7' AND status = 'requested'").rowcount == 0   # too late
+~~~
+
+**Exercises.** (1) Average fare per pickup place, only places with ≥ 2 rides. (2) Which rides have no driver? Write it with `LEFT JOIN … WHERE d.id IS NULL` and with `WHERE driver_id IS NULL`. (3) Add an index for "a driver's rides, newest first" and confirm it with `EXPLAIN QUERY PLAN`. (4) With the 16.1 database: the busiest hour of the day; each passenger's most expensive ride (use a window function); and drivers whose average fare is above the overall average (use a CTE). (5) Rewrite the 16.4 `NOT EXISTS` query as a `LEFT JOIN … IS NULL` anti-join and confirm both give the same answer.
 
 ## Lesson 17 — Transactions, concurrency and Python with SQLite
 
@@ -1079,7 +2571,73 @@ assert dict(db.execute("SELECT * FROM ledger")) == {"pending": 700, "paid": 300}
 
 **SQLite vs a server database.** SQLite is a library writing one file: perfect for learning, phones (ATLAS Go could use it) and small sites; one writer at a time. PostgreSQL/MySQL are separate servers for many concurrent users, with users/permissions, replication and richer types. The ATLAS starter's [`db.py`](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/packages/db.py) supports both behind one interface.
 
-**Exercises.** (1) Make "assign driver" also set the driver offline in the same transaction. (2) What goes wrong if two drivers accept the same ride at the same moment, and how would a `WHERE status = 'requested'` in the UPDATE fix it?
+### 17.1 What can go wrong without isolation
+
+| Anomaly | What happens | Prevented at isolation level |
+|---|---|---|
+| **dirty read** | T1 reads T2's change before T2 commits; T2 then rolls back | Read Committed and above |
+| **non-repeatable read** | T1 reads a row twice and gets different values because T2 committed in between | Repeatable Read and above |
+| **phantom** | T1 runs the same `WHERE` twice and new rows appear | Serializable (and PostgreSQL's Repeatable Read) |
+| **lost update** | T1 and T2 both read 5, both write 5 + 1 = 6 — one increment disappears | Serializable, row locks, or a guarded `UPDATE` |
+
+PostgreSQL defaults to **Read Committed**; SQLite gives **serializable** behaviour by allowing only one writer at a time. Whatever the level, the simplest defence against lost updates is to do the arithmetic **in** the database (`SET seats = seats - 1 WHERE seats > 0`) or to guard the change with the state you expect (`WHERE status = 'requested'`, Lesson 16.9) and check `rowcount`.
+
+### 17.2 Optimistic concurrency with a version number
+
+When two people edit the same record in a web form, neither should silently overwrite the other. Store a version and require it on update — HTTP expresses the same idea with `ETag` and `If-Match` (Lesson 21).
+
+~~~python
+import sqlite3
+db = sqlite3.connect(":memory:")
+db.execute("CREATE TABLE drivers(id INTEGER PRIMARY KEY, zone TEXT, version INTEGER NOT NULL DEFAULT 1)")
+db.execute("INSERT INTO drivers(id, zone) VALUES (1, 'Mardyke')")
+
+def save_zone(driver_id, zone, version_seen):
+    cur = db.execute("UPDATE drivers SET zone = ?, version = version + 1 WHERE id = ? AND version = ?",
+                     (zone, driver_id, version_seen))
+    if cur.rowcount == 0:
+        raise RuntimeError("409 Conflict: someone else changed this driver; reload and try again")
+
+version = db.execute("SELECT version FROM drivers WHERE id = 1").fetchone()[0]   # both editors load version 1
+save_zone(1, "Douglas", version)                                                  # editor A saves first: OK
+try:
+    save_zone(1, "Blackrock", version)                                            # editor B's copy is stale
+except RuntimeError as error:
+    print(error)
+assert db.execute("SELECT zone, version FROM drivers").fetchone() == ("Douglas", 2)
+~~~
+
+### 17.3 Savepoints: a transaction inside a transaction
+
+~~~python
+import sqlite3
+db = sqlite3.connect(":memory:", isolation_level=None)
+db.execute("CREATE TABLE log(line TEXT NOT NULL)")
+db.execute("BEGIN")
+db.execute("INSERT INTO log VALUES ('booking received')")
+db.execute("SAVEPOINT promo")
+try:
+    db.execute("INSERT INTO log VALUES (NULL)")          # applying the promotion fails (NOT NULL)
+except sqlite3.IntegrityError:
+    db.execute("ROLLBACK TO promo")                      # undo only the promotion step
+db.execute("INSERT INTO log VALUES ('booked without promotion')")
+db.execute("COMMIT")
+assert [r[0] for r in db.execute("SELECT line FROM log")] == ["booking received", "booked without promotion"]
+~~~
+
+### 17.4 Good habits with database connections in Python
+
+| Habit | Why |
+|---|---|
+| one connection (or one pooled connection) per request, closed afterwards | errors in one request cannot leave another in a half-finished transaction |
+| `with` blocks / context managers for commit and rollback | no forgotten `commit()`; rollback happens even on an unexpected exception |
+| parameters (`?`) for every value | SQL injection is impossible (Lesson 16) |
+| `PRAGMA foreign_keys=ON` (SQLite) straight after connecting | otherwise foreign keys are not enforced (Lesson 15.4) |
+| `row_factory = sqlite3.Row` | columns by name (`row["fare_cents"]`) and easy `dict(row)` for JSON |
+| keep transactions short; never wait for a user or a network call inside one | locks are held until `COMMIT` |
+| let the database enforce invariants (`UNIQUE`, `CHECK`, `FOREIGN KEY`) and translate `IntegrityError` into 409/422 | application checks alone lose races |
+
+**Exercises.** (1) Make "assign driver" also set the driver offline in the same transaction. (2) What goes wrong if two drivers accept the same ride at the same moment, and how would a `WHERE status = 'requested'` in the UPDATE fix it? (3) Add a `version` column to `rides` and make `PATCH /api/rides/{id}` require `If-Match`, returning 412 Precondition Failed for a stale version. (4) Which isolation anomaly does experiment W09 guard against, and which database feature does the guarding?
 
 ---
 
@@ -1458,6 +3016,154 @@ Each experiment writes `WNN.csv`, `WNN.json` and `WNN.png` (and screenshots for 
 
 **Further reading:** MDN Web Docs (developer.mozilla.org) · web.dev (Google) · FastAPI tutorial (fastapi.tiangolo.com) · SQLite documentation (sqlite.org/lang.html) · OWASP Top 10 and Cheat Sheet Series · WCAG 2.2 quick reference (w3.org/WAI).
 
+## Fundamentals quick reference
+
+A one-page reminder of the four languages, for revision and for open-book lab sessions. Section numbers point to the full explanation.
+
+### HTML
+
+| Task | Write | See |
+|---|---|---|
+| page skeleton | `<!doctype html>` · `<html lang>` · `<meta charset>` · viewport · `<title>` | 5, 5.6 |
+| page regions | `header` · `nav` · `main` (one per page) · `section` · `article` · `aside` · `footer` | 5 |
+| headings | `h1` once, then `h2`, `h3` … in order, no skipped levels | 5 |
+| link | `<a href="/docs">API documentation</a>` | 5.4 |
+| image | `<img src alt width height loading="lazy">` | 5.5 |
+| data table | `table` · `caption` · `thead`/`tbody` · `th scope="col"` | 5 |
+| form field | `<label for="x">` + `<input id="x" name="x" type required>` | 6 |
+| action button | `<button type="button">` (inside forms the default type is `submit`) | 6.2 |
+| live message | `<p role="status" aria-live="polite">` | 9.3 |
+| script | `<script src defer>` or `type="module"` | 5.1, 10.7 |
+| show `<` as text | `&lt;` (or insert with `textContent`) | 5.7, 11 |
+
+### CSS
+
+| Task | Write | See |
+|---|---|---|
+| sane sizing | `*, *::before, *::after { box-sizing: border-box; }` | 8 |
+| design tokens | `:root { --brand: #135da6; }` · `color: var(--brand)` | 7, 7.5 |
+| row of items | `display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;` | 8, 8.3 |
+| page layout | `display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));` | 8, 8.4 |
+| responsive cards | `grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));` | 8.4 |
+| centre anything | `display: grid; place-items: center;` | 8.4 |
+| breakpoint | `@media (min-width: 801px) { … }` | 9, 9.1 |
+| readable text | `line-height: 1.5; max-width: 65ch;` and contrast ≥ 4.5 : 1 | 7.5, 9.2 |
+| visible focus | `:focus-visible { outline: 3px solid …; outline-offset: 2px; }` | 9 |
+| who wins | `!important` › origin › **layer** › specificity (ids, classes, elements) › source order | 7, 7.4 |
+
+### JavaScript
+
+| Task | Write | See |
+|---|---|---|
+| variables | `const` by default, `let` when it must change, never `var` | 10.3 |
+| compare | `===` and `!==` | 10 |
+| default for missing | `value ?? fallback` · safe access `obj?.prop` | 10.2 |
+| transform lists | `filter` → `map` → `reduce`; copy before sorting: `toSorted((a, b) => a - b)` | 10.6 |
+| find an element | `document.querySelector("#id .class")` | 11.1 |
+| change text safely | `el.textContent = userText` — never `innerHTML` with user data | 11 |
+| react to the user | `form.addEventListener("submit", (e) => { e.preventDefault(); … })` | 11.4 |
+| many similar buttons | one listener on the container + `event.target.closest("button")` | 11.4 |
+| call the API | `const r = await fetch(url, {method, headers, body: JSON.stringify(x)}); if (!r.ok) throw …` | 12, 12.4 |
+| parallel requests | `await Promise.all([a(), b()])` | 12.2 |
+
+### SQL
+
+| Task | Write | See |
+|---|---|---|
+| create a table | `CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, …)` | 15 |
+| relate tables | `driver_id INTEGER REFERENCES drivers(id) ON DELETE RESTRICT` | 15, 15.4 |
+| add rows | `INSERT INTO t(a, b) VALUES (?, ?)` — always parameters | 16 |
+| read rows | `SELECT cols FROM t WHERE … ORDER BY … LIMIT …` | 16 |
+| change / remove | `UPDATE t SET a = ? WHERE id = ?` · `DELETE FROM t WHERE id = ?` — never without `WHERE` | 16 |
+| combine tables | `FROM a JOIN b ON b.a_id = a.id` · keep unmatched: `LEFT JOIN` | 16, 16.6 |
+| summarise | `GROUP BY` + `COUNT/SUM/AVG/MIN/MAX`; filter groups with `HAVING` | 16, 16.2 |
+| missing values | `IS NULL`, `COALESCE`; prefer `NOT EXISTS` over `NOT IN` | 16.4 |
+| ranking, running totals | `RANK() OVER (PARTITION BY … ORDER BY …)` | 16.8 |
+| insert or update | `INSERT … ON CONFLICT(key) DO UPDATE SET …` | 16.9 |
+| all or nothing | `BEGIN` … `COMMIT` / `ROLLBACK` | 17 |
+| make it fast | `CREATE INDEX … ON t(col)` + `EXPLAIN QUERY PLAN` | 16 |
+
+## Self-check questions
+
+Answer each in one or two sentences before opening the answer.
+
+<details><summary><b>HTML 1.</b> Why should a page script use <code>defer</code> rather than sit, without it, in the <code>&lt;head&gt;</code>?</summary>
+
+Without `defer` the parser stops at the script until it has downloaded and run, delaying everything below it, and the script cannot yet see the elements it needs. `defer` downloads in parallel and runs after the document is parsed, in order.
+</details>
+
+<details><summary><b>HTML 2.</b> An image is purely decorative. What should its <code>alt</code> be?</summary>
+
+`alt=""` — present but empty, so screen readers skip it. A *missing* `alt` makes many screen readers read the file name instead.
+</details>
+
+<details><summary><b>HTML 3.</b> A form has a "Clear" button that keeps submitting the form. Why?</summary>
+
+A `<button>` inside a form defaults to `type="submit"`. Write `type="button"` (or `type="reset"` if resetting is really intended).
+</details>
+
+<details><summary><b>CSS 1.</b> <code>#message</code> is red; a later rule <code>.panel p { color: blue }</code> does not change it. Why, and what is the clean fix?</summary>
+
+The id selector's specificity (1,0,0) beats (0,1,1) whatever the order. Style with classes instead of ids, or place the rules in cascade layers — not `!important`.
+</details>
+
+<details><summary><b>CSS 2.</b> What is the rendered width of <code>width: 300px; padding: 20px; border: 1px solid</code> under <code>content-box</code> and under <code>border-box</code>?</summary>
+
+342 px under `content-box` (300 + 2×20 + 2×1); 300 px under `border-box`, where the content shrinks to 258 px.
+</details>
+
+<details><summary><b>CSS 3.</b> When would you use Flexbox and when Grid?</summary>
+
+Flexbox for one direction — a toolbar, a row of buttons, centring one item. Grid for two-dimensional layout — the page, a card gallery — where rows and columns must line up.
+</details>
+
+<details><summary><b>JS 1.</b> What do <code>0 || 10</code> and <code>0 ?? 10</code> return, and which suits a tip that may legitimately be 0?</summary>
+
+`10` and `0`. `??` falls back only on `null`/`undefined`, so it keeps a real zero.
+</details>
+
+<details><summary><b>JS 2.</b> <code>fetch</code> returned a 404 but the <code>catch</code> did not run. Why?</summary>
+
+`fetch` rejects only on network failure. Any HTTP response, including 404 and 500, fulfils the promise; you must check `response.ok` or `response.status` yourself.
+</details>
+
+<details><summary><b>JS 3.</b> In what order do these log: <code>console.log("A"); setTimeout(() => console.log("B")); Promise.resolve().then(() => console.log("C")); console.log("D");</code></summary>
+
+A, D, C, B — synchronous code first, then all microtasks (the promise callback), then the next task (the timer).
+</details>
+
+<details><summary><b>JS 4.</b> Why is <code>el.innerHTML = userInput</code> dangerous, and what replaces it?</summary>
+
+The browser parses the input as HTML, so markup such as an `<img onerror=…>` runs script (XSS). Use `textContent`, or build nodes with `createElement`.
+</details>
+
+<details><summary><b>SQL 1.</b> Why does <code>WHERE driver_id = NULL</code> return no rows even when some drivers are missing?</summary>
+
+Any comparison with NULL is unknown, not true, and `WHERE` keeps only true rows. Write `WHERE driver_id IS NULL`.
+</details>
+
+<details><summary><b>SQL 2.</b> What is the difference between <code>WHERE</code> and <code>HAVING</code>?</summary>
+
+`WHERE` filters individual rows before grouping; `HAVING` filters whole groups after `GROUP BY`, so it may use aggregates such as `COUNT(*) > 1`.
+</details>
+
+<details><summary><b>SQL 3.</b> A list of drivers "with no rides" written with <code>NOT IN (SELECT driver_id FROM rides)</code> comes back empty. Why?</summary>
+
+Some rides have `driver_id` NULL. `x NOT IN (…, NULL)` is never true, so no row passes. Use `NOT EXISTS`, or exclude NULLs in the subquery.
+</details>
+
+<details><summary><b>SQL 4.</b> Name the one rule that prevents SQL injection.</summary>
+
+Never build SQL by joining strings with input; pass every value as a parameter (`?` / `%s`), so it can never change the statement's structure.
+</details>
+
+<details><summary><b>Full stack.</b> The browser already checks that distance is between 0 and 200. Why does the API check again, and why does the database have a <code>CHECK</code> too?</summary>
+
+Browser checks are a convenience — anyone can bypass them with DevTools or `curl`. The API is the real gate and gives a clear 422. The database constraint catches bugs and races in any program that writes to it, so the rule holds even if the API is wrong.
+</details>
+
 ## Audit notes
 
 This course was rewritten in November 2026. The previous version's 30 lessons were two to four sentences each with an identical "Practice" paragraph, most concepts had no example, the lab charts W01–W04, W10 and W11 plotted constants, importing the app created a database file as a side effect, PATCH validated states by hand (undocumented in OpenAPI), and there was no coverage of raw HTTP, DNS, TLS, the box model, specificity, the event loop, joins, indexes, transactions, CORS, caching, sessions or browser testing. Every Python block in this guide now runs as part of the course checks, every JavaScript block is syntax-checked, and every diagram is rendered.
+
+The fundamentals were expanded in November 2026 (62 deep-dive sections). Additions: the browser rendering pipeline and script loading, the content model, global attributes, link resolution, responsive images and media, document metadata and character references (HTML); every form control, encodings and the Constraint Validation API; CSS inclusion, inheritance, modern selectors (`:is`, `:where`, `:has`), cascade layers, units, colour, typography; margin collapsing, positioning and stacking, the flexbox sizing algorithm and `auto-fit` grids; mobile-first and container queries, motion, a computed WCAG contrast audit (which found the focus ring below 3 : 1 on white panels), ARIA and POUR; JavaScript types and truthiness, scope and closures, `this`, classes with private fields, collections, modules and errors; DOM traversal, attributes versus properties, fragments and templates, the event object, debouncing and browser storage; microtask/task ordering, promise combinators, sequential versus parallel `await` and a retrying `fetch`; SQL sub-languages, SQLite type affinity and `STRICT`, key choices, referential actions (and the `PRAGMA foreign_keys` transaction trap), migrations and schema design; logical evaluation order, operators and `CASE`, NULL and the `NOT IN` trap, subqueries and CTEs, self, cross and anti joins, set operations, window functions, upserts and `RETURNING`; isolation anomalies, optimistic concurrency and savepoints. Every new Python block runs with assertions against the teaching schema; every new language-only JavaScript block was executed in Node.js and the browser-API blocks were syntax-checked.
