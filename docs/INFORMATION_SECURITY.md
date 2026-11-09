@@ -2,20 +2,25 @@
 
 This guide uses ATLAS as a worked example for teaching information security. It covers
 **authentication, password storage, identity management, access control, single sign-on (SSO),
-Kerberos, transport security and secure deployment**, and points every claim at the line of code
-that implements it.
+Kerberos, transport security, secure deployment and security control measures (preventive,
+detective and protective, including the IDS and IPS on the database server)**, and points every
+claim at the line of code that implements it.
 
 > **Read this first — what is implemented and what is a teaching extension.**
-> Every section is labelled with one of three tags.
+> Every section is labelled with one of four tags.
 >
 > | Tag | Meaning |
 > |---|---|
 > | ✅ **Implemented** | Runs in this repository today; the file and function are named. |
 > | 🧪 **Demo-grade** | Implemented, but with deliberately simple choices (shared demo keys, static tokens) that must change before production. Useful for "find the weakness" exercises. |
 > | 🎓 **Teaching extension** | **Not** in the ATLAS code. Shows how a standard mechanism (SSO, Kerberos) would plug into the ATLAS components. The [Architecture Explorer → Security view](https://fullscipts.github.io/ATLAS/#security) runs it live in the browser. |
+> | 🖥️ **Host deployment** | Installed and configured on the server host itself (operating system / network level), **outside** this repository. The guide explains its role and gives reference configuration; the repository holds no rules or agents for it. |
 >
 > ATLAS does **not** contain Kerberos, SSO or OAuth/OIDC code. Those sections are mappings of the
 > standard protocols onto ATLAS's real components so students can see where each message would go.
+> Likewise, the intrusion detection system (IDS) and intrusion prevention system (IPS) in
+> [§11.5](#115-ids-and-ips-on-the-database-server---host-deployment) run on the server that holds
+> the PostgreSQL database; they are host controls, not application code.
 
 **Interactive companion:** [ATLAS Architecture Explorer → Security](https://fullscipts.github.io/ATLAS/#security) —
 hash a password with the exact ATLAS parameters, trip the login lockout, step through the gateway's
@@ -43,7 +48,7 @@ validation, one identity per email, role separation); **C** sign-in defences (12
 no enumeration by message, timing side channel and the dummy-hash fix, limits of an in-memory per-email
 lockout); **D** integrity and lifecycle (16-20: sessions, tamper quarantine, atomic save and rollback,
 account deletion, upgrading old hashes). Several experiments surface real gaps (timing leak, lockout
-reset on restart, `iterations=0` raising instead of failing closed) for students to fix in session 8.
+reset on restart, `iterations=0` raising instead of failing closed) for students to fix in session 9.
 
 ---
 
@@ -59,8 +64,10 @@ reset on restart, `iterations=0` raising instead of failing closed) for students
 8. [Kerberos, step by step, on ATLAS components](#8-kerberos-step-by-step-on-atlas-components---teaching-extension)
 9. [Transport security: mutual TLS in the prototype](#9-transport-security-mutual-tls-in-the-prototype---implemented)
 10. [Secure deployment and supply chain](#10-secure-deployment-and-supply-chain---implemented)
-11. [Known gaps — exercises for students](#11-known-gaps--exercises-for-students)
-12. [Suggested lesson plan](#12-suggested-lesson-plan)
+11. [Control measures: preventive, detective and protective](#11-control-measures-preventive-detective-and-protective)
+    - [11.5 IDS and IPS on the database server](#115-ids-and-ips-on-the-database-server---host-deployment)
+12. [Known gaps — exercises for students](#12-known-gaps--exercises-for-students)
+13. [Suggested lesson plan](#13-suggested-lesson-plan)
 
 ---
 
@@ -405,7 +412,7 @@ sequenceDiagram
 > **Discussion:** OWASP's current guidance for PBKDF2-HMAC-SHA256 is 600 000 iterations, and it
 > prefers memory-hard Argon2id. ATLAS uses 200 000 because PBKDF2 is in the Python standard library
 > and must run on low-end phones. Ask students to measure the cost on a phone and argue the trade-off
-> (see [§11](#11-known-gaps--exercises-for-students)).
+> (see [§12](#12-known-gaps--exercises-for-students)).
 
 ---
 
@@ -437,7 +444,7 @@ def login(self, email, password, now=None):
 
 **Authentication factors.** ATLAS Go uses one factor: *something you know*. The phone itself is an
 implicit *something you have* (accounts live only on that device). Multi-factor authentication is an
-exercise in §11.
+exercise in §12.
 
 ---
 
@@ -695,7 +702,203 @@ written atomically; a damaged file is quarantined as `state.invalid.json` (integ
 
 ---
 
-## 11. Known gaps — exercises for students
+## 11. Control measures: preventive, detective and protective
+
+Sections 2–10 describe individual mechanisms. This section regroups them by **what each control
+does to an attack**, which is how security controls are selected, audited and reported (ISO/IEC
+27001 Annex A tags each control as preventive, detective or corrective; the NIST Cybersecurity
+Framework uses the functions *Protect*, *Detect*, *Respond* and *Recover*).
+
+### 11.1 What a control measure is
+
+A **control measure** (or *safeguard*) is any technical, administrative or physical measure that
+reduces risk — either the **likelihood** that a threat exploits a vulnerability, or the **impact**
+when it does (§S1). Classified by function:
+
+| Type | Question it answers | Acts on | Typical examples |
+|---|---|---|---|
+| **Preventive** | *Can we stop the attack from succeeding?* | Likelihood — **before** the event | Authentication, access control, input validation, firewalls, **IPS**, patching |
+| **Detective** | *Will we know that an attack is happening or has happened?* | Time-to-discovery — **during / after** the event | Logs and audit trails, integrity checks, failed-login counters, **IDS**, anomaly detection |
+| **Protective** | *If an attacker gets in, how much can they take or damage, and can we recover?* | Impact — **limits the blast radius** | Hashing and encryption at rest, isolation and sandboxing, least privilege, backups, quarantine, data minimisation |
+
+No single type is sufficient. Preventive controls eventually fail; detective controls are useless if
+nobody can act on the alert; protective controls assume the first two have already been bypassed.
+Layering all three around the same asset is **defence in depth**.
+
+```mermaid
+flowchart LR
+  T["Threat / attacker"] --> P["PREVENTIVE<br/>authenticate · authorise · validate<br/>firewall · IPS drops packet"]
+  P -- "bypassed" --> D["DETECTIVE<br/>lockout counter · integrity check<br/>IDS alert · logs · anomaly score"]
+  D -- "attack in progress" --> R["PROTECTIVE<br/>hash · isolate · sandbox<br/>quarantine · minimise · back up"]
+  R --> A[("Asset: accounts,<br/>ride history, database")]
+  D -. "alert → respond" .-> P
+```
+
+### 11.2 Preventive controls in ATLAS
+
+| Control | Where | Status | Threat it prevents |
+|---|---|---|---|
+| Password policy (8–128 chars, letter + digit) | `accounts.py` → `check_password` | ✅ Implemented | Trivial passwords; DoS via huge PBKDF2 inputs |
+| Login lockout (5 failures → 60 s) | `store.py` → `LocalStore.login` | ✅ Implemented | Online password guessing |
+| Generic login error + dummy-hash option | `store.py`; lab experiments 13–14 | ✅ / exercise | Account enumeration by message or timing |
+| Input validation and unique email | `accounts.py`, `store.py` → `validate` | ✅ Implemented | Malformed records, duplicate identities |
+| Two-layer RBAC (UI + business rules) | `app.py` → `render`; `store.py` commands | ✅ Implemented | Privilege escalation (driver ordering food, seller editing other kitchens) |
+| Re-authentication before deletion | `store.py` → `delete_account(password)` | ✅ Implemented | Account destruction from an unlocked phone |
+| Route allow-list and bearer-key authentication | `starter/services/gateway.py` | 🧪 Demo-grade | Unknown endpoints; unauthenticated API calls |
+| Gateway-overwritten identity headers + internal token re-check | `gateway.py`, `internal_actor()` | 🧪 Demo-grade | Clients spoofing `X-Atlas-Actor` |
+| Request body limit (8 KiB → 413) | `gateway.py` | 🧪 Demo-grade | Resource exhaustion |
+| Mutual TLS with private CA | `prototype/proto_run.py`, `module_server.py` | ✅ Implemented | Impersonation and eavesdropping between processes |
+| Loopback binding, method allow-list, static asset map, CSP | `architecture-explorer/server.mjs` | ✅ Implemented | Network exposure, path traversal, XSS, clickjacking |
+| Database not published to the host network | `starter/compose.yaml` (`postgres` has no `ports:`; only the gateway is published, on `127.0.0.1:8000`) | ✅ Implemented | Direct connections to PostgreSQL from outside the container network |
+| **IPS** inline in front of the database server | Database host | 🖥️ Host deployment | Scans, brute force and exploit traffic reaching PostgreSQL — see §11.5 |
+
+### 11.3 Detective controls in ATLAS
+
+| Control | Where | Status | What it detects |
+|---|---|---|---|
+| Failed-login counter | `store.py` → `self.failures` | ✅ Implemented | Repeated wrong passwords against one email (then hands over to the preventive lockout) |
+| Saved-state validation | `store.py` → `validate` | ✅ Implemented | Tampered or corrupt `state.json` (structure and invariants) |
+| Stale or forged session check on load | `store.py` → `validate` | ✅ Implemented | A session id that does not reference a real account |
+| Gateway 401 / 403 / 404 responses | `gateway.py`, `internal_actor()` | 🧪 Demo-grade | Bad keys, role mismatch, unknown routes — each is a signal worth logging |
+| Container health checks (`pg_isready`, Kafka topic list) | `starter/compose.yaml` | ✅ Implemented | Database or broker unavailable (availability, the "A" in CIA) |
+| Release checksums and signatures | `android-app/releases/SHA256SUMS`, `apksigner verify` | ✅ Implemented | Modified or substituted APK downloads |
+| Anomaly detection (Isolation Forest, LOF, Mahalanobis) | [`ml_lab/machine_learning/ml15_anomaly_detection.py`](../ml_lab/machine_learning/ml15_anomaly_detection.py) | ✅ Implemented (lab) | Unusual behaviour without a known signature — the same idea as anomaly-based IDS |
+| **IDS** on the database server | Database host | 🖥️ Host deployment | Intrusion attempts and suspicious database traffic — see §11.5 |
+
+> **Detection needs a record.** ATLAS Go raises errors but keeps no persistent security log, so an
+> attack that does not trip a counter leaves no trace. Adding an audit log is exercise 10 in §12.
+
+### 11.4 Protective controls in ATLAS
+
+| Control | Where | Status | How it limits damage |
+|---|---|---|---|
+| Salted PBKDF2-HMAC-SHA256 (200 000 iterations) | `accounts.py` → `hash_password` | ✅ Implemented | A stolen `state.json` gives verifiers, not passwords; each guess is expensive |
+| `public_view()` strips salt, hash, iterations | `accounts.py` | ✅ Implemented | Secrets never reach screens or logs |
+| App-private storage (per-app Linux UID) | Android sandbox | ✅ Implemented | Other apps cannot read the state file |
+| Atomic write + quarantine to `state.invalid.json` | `store.py` | ✅ Implemented | A crash or tampered file cannot leave half-written or silently trusted state |
+| Data minimisation (location only on tap, overwritten) | `store.py`, `docs/PRIVACY.md` | ✅ Implemented | Less to lose if the device is compromised |
+| History anonymised on account deletion | `store.py` → `delete_account` | ✅ Implemented | Personal data removed while operational records survive |
+| systemd sandbox (`DynamicUser`, `ProtectSystem=strict`, `NoNewPrivileges`, …) | `deploy/atlas-explorer.service` | ✅ Implemented | A compromised Explorer process cannot write to the system or escalate |
+| Network segmentation (services on the compose network only) | `starter/compose.yaml` | ✅ Implemented | A compromise of one exposed port does not expose the database port |
+| Persistent database volume (`pgdata`) | `starter/compose.yaml` | ✅ Implemented | Data survives container restarts (backups are still needed — exercise 11 in §12) |
+| **IPS** blocking and **IDS** alerting on the database host | Database host | 🖥️ Host deployment | Cuts off an attack in progress and starts incident response — see §11.5 |
+
+### 11.5 IDS and IPS on the database server — 🖥️ Host deployment
+
+The server that holds the ATLAS **PostgreSQL** database (`postgres:16`, port `5432`, database
+`atlas`) runs an **intrusion detection system (IDS)** and an **intrusion prevention system (IPS)**.
+They are installed and configured on that host, not in this repository. The database is the
+highest-value asset in the server architecture — accounts, trips and dispatch state all end up
+there — so it receives controls at the network and host layer in addition to the application
+controls above.
+
+#### IDS versus IPS
+
+| | **IDS** — intrusion *detection* | **IPS** — intrusion *prevention* |
+|---|---|---|
+| Control type | **Detective** | **Preventive** (and protective: it cuts off an attack in progress) |
+| Placement | Passive: watches a copy of the traffic (SPAN/mirror port or tap) or host logs | Inline: every packet to the database passes through it |
+| Action | Raises an alert; traffic is **not** changed | **Drops** packets, resets the connection or blocks the source |
+| Effect of a false positive | Noise for the analyst | A legitimate client (e.g. the Trip Service) is blocked — an availability incident |
+| Effect if it fails | Attacks go unseen; service unaffected | **Fail-open**: traffic flows uninspected. **Fail-closed**: the database becomes unreachable |
+| Latency | None on the data path | Adds per-packet inspection delay (compare the prototype's cost-of-mTLS measurement in §9) |
+
+Both come in two forms: **network-based (NIDS / NIPS)**, which inspect packets on the wire, and
+**host-based (HIDS / HIPS)**, which watch the database server's own logs, processes and files —
+for example the PostgreSQL log, `pg_hba.conf`, `postgresql.conf` and the data directory.
+
+#### Where they sit
+
+```mermaid
+flowchart LR
+  subgraph App["Application tier"]
+    GW[API Gateway] --> TS[Trip Service]
+    GW --> DS[Dispatch Service]
+  end
+  OUT["Untrusted network<br/>(scanners, attackers)"] --> FW[Firewall]
+  TS --> IPS
+  DS --> IPS
+  FW --> IPS["IPS (inline)<br/>inspect → allow / drop"]
+  IPS --> DBH
+  subgraph DBH["Database server"]
+    PG[("PostgreSQL :5432<br/>atlas")]
+    HIDS["Host IDS<br/>PostgreSQL log · config files · data dir"]
+    PG -. logs .-> HIDS
+  end
+  IPS -. "mirror copy" .-> NIDS["Network IDS<br/>(passive sensor)"]
+  NIDS --> SIEM["Alerts → log store / SIEM<br/>→ incident response"]
+  HIDS --> SIEM
+  IPS -- "block events" --> SIEM
+```
+
+#### How they decide what is an attack
+
+| Method | How it works | Strength | Weakness |
+|---|---|---|---|
+| **Signature-based** | Matches traffic against rules for known attacks (exploit payloads, scan patterns) | Precise, explainable, few false positives | Misses new (zero-day) attacks |
+| **Anomaly-based** | Learns normal behaviour (who connects, how often, how much data) and flags deviations | Can catch unknown attacks | False positives; needs clean training data — see `ml15_anomaly_detection.py` |
+| **Stateful protocol analysis** | Tracks the PostgreSQL wire protocol and flags messages that violate it | Catches protocol abuse | Requires a protocol decoder; blind to encrypted payloads |
+
+#### What they watch for on the database server
+
+| Threat | IDS (detect) | IPS (prevent) |
+|---|---|---|
+| Port scan of the database host | Alert on many SYNs to different ports | Block the scanning source for a period |
+| Connection to `5432` from outside the application subnet | Alert: only the Trip, Dispatch and initialisation containers should connect | Drop the connection |
+| Password brute force against PostgreSQL | Alert on repeated `password authentication failed` responses (the same 5-in-60-s idea as the app lockout in §3) | Block the source after the threshold |
+| SQL injection that slips past the application | Alert on injection patterns in queries (cleartext connections only) and on unusual queries in the PostgreSQL log (HIDS) | Drop matching packets |
+| Bulk data exfiltration | Alert on unusually large result volumes or new outbound destinations from the database host | Rate-limit or block |
+| Tampering with `pg_hba.conf`, `postgresql.conf` or binaries | HIDS file-integrity alert | HIPS denies the write |
+
+#### Reference rules (illustrative)
+
+The rules below show the shape of a database-server policy in Suricata/Snort syntax. They are a
+teaching reference, **not** a copy of the rules installed on the host; set `$APP_NET` and
+`$DB_SERVER` to the real addresses and adapt them to the product in use.
+
+```text
+# DETECTIVE (IDS): any new PostgreSQL connection from outside the application subnet
+alert tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: PostgreSQL connection from outside app subnet"; \
+  flow:to_server; flags:S; classtype:policy-violation; sid:9100001; rev:1;)
+
+# DETECTIVE (IDS): 5 failed PostgreSQL logins to the same client within 60 s
+alert tcp $DB_SERVER 5432 -> any any (msg:"ATLAS DB: repeated PostgreSQL authentication failures"; \
+  flow:to_client,established; content:"password authentication failed"; nocase; \
+  threshold:type both, track by_dst, count 5, seconds 60; classtype:attempted-user; sid:9100002; rev:1;)
+
+# PREVENTIVE (IPS, inline mode): drop connections to PostgreSQL from outside the application subnet
+drop tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: blocked external PostgreSQL connection"; \
+  flow:to_server; flags:S; classtype:policy-violation; sid:9100003; rev:1;)
+```
+
+#### Limits — what IDS and IPS do not do
+
+- **Encryption hides payloads.** When application-to-database traffic uses TLS (recommended, see
+  §9), a network sensor sees connection metadata only; content rules such as `sid:9100002` stop
+  matching. Host-based monitoring of the PostgreSQL log then carries the detection.
+- **They do not fix the weakness.** The demo compose file uses the password `atlas-local` for the
+  `atlas` database user (🧪 demo-grade). An IDS can report guessing; only a strong, rotated secret,
+  `pg_hba.conf` restrictions and least-privilege database roles remove the risk.
+- **Alerts need an owner.** Detective controls only reduce impact when someone reviews alerts and
+  responds; route them to a log store or SIEM and define who acts.
+- **Rules must be tuned and versioned.** Untuned rules produce alert fatigue (IDS) or block real
+  users (IPS). Keeping the rule set in version control is exercise 9 in §12.
+
+### 11.6 Control matrix — one threat, three layers
+
+| Threat | Preventive | Detective | Protective |
+|---|---|---|---|
+| Online password guessing (app) | Password policy, 5-failure lockout | Failed-login counter | PBKDF2 slows any guesses that get through |
+| Offline attack on a stolen `state.json` | App-private storage | Release and file-integrity checks | Salted, iterated hashes; data minimisation |
+| Forged API call | Route allow-list, bearer key, role check | 401 / 403 at gateway and services | Services re-check identity (`internal_actor`) |
+| Direct attack on PostgreSQL | DB port not published; **IPS** drops external connections | **IDS** alerts; `pg_isready` health check | Network segmentation; persistent volume and backups |
+| Tampered saved state | Schema validation before commit | `validate()` on load | Quarantine to `state.invalid.json`; atomic replace |
+| Malicious release download | Signed builds from protected keys | `sha256sum -c`, `apksigner verify` | Android refuses mismatched signatures on update |
+| Compromised Explorer process | Loopback binding, CSP, method allow-list | — (exercise: add access logging) | systemd sandbox, `NoNewPrivileges`, `DynamicUser` |
+
+---
+
+## 12. Known gaps — exercises for students
 
 These are real properties of the current code, ideal for "find and fix" assignments.
 
@@ -709,10 +912,13 @@ These are real properties of the current code, ideal for "find and fix" assignme
 | 6 | Static shared internal token; plain HTTP between services | `gateway.py`, `compose.yaml` | Replace with mTLS (reuse §9) or signed short-lived tokens |
 | 7 | Bearer keys never expire | `gateway.py` | Replace with OIDC access tokens (§7) |
 | 8 | Self-declared licences and business numbers | `accounts.py` | Discuss identity assurance levels; design a verification step |
+| 9 | IDS/IPS rules live only on the database host | Database server (§11.5) | Version the rule set in `deploy/ids/`; replay a captured scan and brute-force `.pcap` and confirm each rule fires |
+| 10 | No persistent security audit log | `store.py`, `gateway.py` | Log logins, lockouts, 401/403s and quarantines with timestamps; never log secrets |
+| 11 | No database backup or restore procedure; demo database password | `starter/compose.yaml` | Add scheduled `pg_dump` backups, test a restore, and load the password from a secret |
 
 ---
 
-## 12. Suggested lesson plan
+## 13. Suggested lesson plan
 
 | Session | Topic | ATLAS material | Activity |
 |---|---|---|---|
@@ -723,7 +929,8 @@ These are real properties of the current code, ideal for "find and fix" assignme
 | 5 | SSO and federated identity | §7 | Draw the OIDC + PKCE flow for the seller portal |
 | 6 | Kerberos | §8, Explorer *Kerberos* tab | Run the six messages; trigger each attack; explain which field stopped it |
 | 7 | Transport security | §9 | Run the prototype; break mTLS by removing the client certificate |
-| 8 | Secure engineering | §11 | Fix one gap and write a test for it |
+| 8 | Control measures, IDS and IPS | §11 | Classify every ATLAS control as preventive, detective or protective; write and test an IDS rule for the database server |
+| 9 | Secure engineering | §12 | Fix one gap and write a test for it |
 
 ---
 
