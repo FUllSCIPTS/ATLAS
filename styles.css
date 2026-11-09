@@ -286,6 +286,11 @@ h1, h2, h3, p { margin: 0; }
 .sec-dot.demo, .sec-chip.demo { --tone: #ffc983; }
 .sec-dot.teach, .sec-chip.teach { --tone: #c4aeff; }
 .sec-dot { background: var(--tone); }
+.sec-dot.host, .sec-chip.host { --tone: #7fd8d0; }
+.sec-ctl-ok { color: var(--green); border-color: #4a6b34; }
+.sec-ctl-warn { color: #ffc983; border-color: #6b5434; }
+.sec-ctl-fail { color: #ff8f86; border-color: #6b3434; }
+.sec-status.sec-ctl-ok, .sec-status.sec-ctl-warn, .sec-status.sec-ctl-fail { font-size: 15px; line-height: 1.3; }
 .sec-chip { display: inline-flex; align-items: center; padding: 3px 7px; border-radius: 4px; border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent); background: color-mix(in srgb, var(--tone) 12%, transparent); color: var(--tone); font: 600 9.5px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
 .sec-body { padding: 16px 20px 20px; display: grid; gap: 16px; min-width: 0; }
 .sec-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
