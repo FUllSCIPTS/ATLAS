@@ -1,12 +1,14 @@
 # Kivy lab — 11 experiments on the ATLAS Go front end
 
-[Course guide](../docs/WEB_TECHNOLOGY_2.md) · [Lab source](experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+[Course guide](../docs/WEB_TECHNOLOGY_2.md) · [Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) · [Lab source](experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 Each lab runs real Kivy 2.3.1 — and, wherever possible, the **real ATLAS Go code** (`AtlasGoApp.render`, `RouteMap`, `LiveMap`, `livemap.text_texture`) — and charts what it observed. Every lab is about **its lesson's idea**: lifecycle order, layout shares, density, wrapping, closures, canvas growth, texture caching, redraw coalescing, touch panning and thread hand-off. Each lab asserts its own result before it is charted.
 
 ## Getting started
 
-Kivy needs a display, so these labs run locally rather than in Google Colab. From the repository root, with Python 3.10+:
+**Colab:** open [the notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) and choose **Runtime → Run all**. The setup cell installs Kivy 2.3.1 and a virtual display (Xvfb) and clones this repository; each lesson then has a **Try it** cell (the lesson's complete example program — edit it and re-run) and, for 11 lessons, a **Lab** cell that runs the experiment and shows its chart. The last cell runs every lab as a self-test and saves `kivy_11_labs.zip` (download it from the Files panel).
+
+**Locally** (Kivy needs a display), from the repository root with Python 3.10+:
 
 ~~~bash
 python -m pip install kivy==2.3.1 matplotlib
