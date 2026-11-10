@@ -2,7 +2,7 @@
 
 **Level:** beginner to intermediate. **Plan:** 16 lessons in four parts, 6–8 weeks. **Prerequisite:** the Python basics in [Python Programming](PYTHON_PROGRAMMING.md) Lessons 1–12 (functions, classes, inheritance). **Tools:** Python 3.10+, `pip install kivy==2.3.1 matplotlib` (the Kivy version ATLAS Go ships), a text editor. No Android phone is needed until Lesson 15.
 
-[Lab manual](../kivy_lab/README.md) · [Lab source](../kivy_lab/experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go architecture and method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
+[Open the labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) · [Lab manual](../kivy_lab/README.md) · [Lab source](../kivy_lab/experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go architecture and method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
 
 > **Why this course exists.** The ATLAS Go Android app has no HTML, CSS or JavaScript. Every screen, button, chart and the live map is **Python**, drawn by the **Kivy** framework, and packaged for Android by **Buildozer / python-for-android**. The [Web Technology](WEB_TECHNOLOGY.md) course teaches the web front end; this course teaches the front end ATLAS Go actually uses. The Python language itself is taught in [Python Programming](PYTHON_PROGRAMMING.md); here we only teach what Kivy adds.
 
@@ -1257,6 +1257,10 @@ Screen().run()
 # Practice
 
 ## Running the lab
+
+**In Google Colab (nothing to install):** open [Kivy_Colab_Labs.ipynb](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) and choose **Runtime → Run all**. It sets up Kivy 2.3.1 on a virtual display, runs every lesson's example program and all 11 labs with their charts, and saves the results as `kivy_11_labs.zip`.
+
+**On your own computer:**
 
 ~~~bash
 python -m pip install kivy==2.3.1 matplotlib
