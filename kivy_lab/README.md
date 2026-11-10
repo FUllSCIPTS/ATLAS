@@ -1,6 +1,6 @@
 # Kivy lab — 11 experiments on the ATLAS Go front end
 
-[Course guide](../docs/KIVY_FRONTEND.md) · [Lab source](experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+[Course guide](../docs/WEB_TECHNOLOGY_2.md) · [Lab source](experiments.py) · [ATLAS Go source](../android-app/atlas_go/) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 Each lab runs real Kivy 2.3.1 — and, wherever possible, the **real ATLAS Go code** (`AtlasGoApp.render`, `RouteMap`, `LiveMap`, `livemap.text_texture`) — and charts what it observed. Every lab is about **its lesson's idea**: lifecycle order, layout shares, density, wrapping, closures, canvas growth, texture caching, redraw coalescing, touch panning and thread hand-off. Each lab asserts its own result before it is charted.
 
@@ -44,4 +44,4 @@ K02 and K08 are timings and depend on the machine; the reference figures came fr
 
 ## Course checks
 
-Every `python` block in [the course guide](../docs/KIVY_FRONTEND.md) is a complete program that checks itself with `assert` and closes its own window; all 16 were executed with `xvfb-run` against Kivy 2.3.1 when the course was written, together with `python kivy_lab/experiments.py --all`.
+Every `python` block in [the course guide](../docs/WEB_TECHNOLOGY_2.md) is a complete program that checks itself with `assert` and closes its own window; all 16 were executed with `xvfb-run` against Kivy 2.3.1 when the course was written, together with `python kivy_lab/experiments.py --all`.

@@ -1,5 +1,5 @@
 """Kivy front-end laboratory: 11 experiments that each exercise one lesson of
-docs/KIVY_FRONTEND.md, using real Kivy and, where possible, the real ATLAS Go code.
+docs/WEB_TECHNOLOGY_2.md, using real Kivy and, where possible, the real ATLAS Go code.
 
 Every lab returns a table of OBSERVED values produced by running Kivy, plus a
 chart that shows the lesson's idea. Nothing is estimated or invented.
