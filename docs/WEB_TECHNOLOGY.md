@@ -1,6 +1,6 @@
 # Web Technology — an illustrated, standalone course from HTTP to full stack
 
-**ATLAS option 11.** 23 lessons in five parts, a runnable full-stack application, 20 measured experiments and 28 integration tests. **Audience:** complete beginners to intermediate students; no prior web experience is assumed. **Tools:** a browser, Python 3.10+, a text editor (VS Code or similar). Every lesson stands on its own: it explains the idea, draws it, shows working code, points to the exact line in the teaching app where it is used, names the usual mistakes and ends with exercises. The four core languages — **HTML, CSS, JavaScript and SQL** — get extended deep-dive sections, a one-page quick reference and self-check questions with answers.
+**ATLAS option 11.** 23 lessons in five parts plus a bridge to native apps (Part VI), a runnable full-stack application, 20 measured experiments and 28 integration tests. **Audience:** complete beginners to intermediate students; no prior web experience is assumed. **Tools:** a browser, Python 3.10+, a text editor (VS Code or similar). Every lesson stands on its own: it explains the idea, draws it, shows working code, points to the exact line in the teaching app where it is used, names the usual mistakes and ends with exercises. The four core languages — **HTML, CSS, JavaScript and SQL** — get extended deep-dive sections, a one-page quick reference and self-check questions with answers.
 
 [Lab manual](../web_lab/README.md) · [Open the experiments in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [Teaching app source](../web_lab/) · [ATLAS UML blueprint](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md) · [ATLAS Go method catalogue](../android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -15,6 +15,7 @@
 | III. Back end and data | [13 REST APIs](#lesson-13--apis-and-rest-design) · [14 FastAPI](#lesson-14--building-the-back-end-with-fastapi) · [15 Relational design](#lesson-15--relational-databases-tables-keys-constraints-and-normalisation) · [16 SQL](#lesson-16--sql-queries-joins-aggregation-indexes-and-injection) · [17 Transactions](#lesson-17--transactions-concurrency-and-python-with-sqlite) | W07–W13 |
 | IV. Full stack | [18 Integration](#lesson-18--putting-it-together-one-request-through-every-layer) · [19 Sessions and auth](#lesson-19--state-cookies-sessions-tokens-authentication-and-authorisation) · [20 Security](#lesson-20--web-security-owasp-top-10-in-practice) · [21 Performance](#lesson-21--performance-caching-pagination-and-load) · [22 Testing](#lesson-22--testing-web-applications) · [23 Deployment](#lesson-23--deployment-and-architecture) | W14–W19 |
 | V. Practice | [Run the lab](#part-v--practice) · [Experiments](#the-20-experiments) · [Plan](#12-week-teaching-plan) · [Capstone](#capstone-and-assessment) · [Quick reference](#fundamentals-quick-reference) · [Self-check](#self-check-questions) | all |
+| VI. Beyond the browser | [Web → Kivy map](#web-idea--kivy-idea--where-atlas-go-uses-it) · [What is different](#what-is-genuinely-different) · [The same form, twice](#the-same-booking-form-twice) · full course: [Kivy Front End with ATLAS Go](KIVY_FRONTEND.md) | [K01–K11](../kivy_lab/README.md) |
 
 **Fundamentals in depth.** Each core lesson ends with numbered deep-dive sections before its exercises:
 
@@ -3161,6 +3162,139 @@ Never build SQL by joining strings with input; pass every value as a parameter (
 
 Browser checks are a convenience — anyone can bypass them with DevTools or `curl`. The API is the real gate and gives a clear 422. The database constraint catches bugs and races in any program that writes to it, so the rule holds even if the API is wrong.
 </details>
+
+# Part VI — Beyond the browser: the ATLAS Go front end in Kivy
+
+Everything in Part II runs in a **browser**. ATLAS Go, the phone app, has no browser and no HTML, CSS or JavaScript: its screens, map and charts are **Python**, drawn by the **Kivy** framework and packaged for Android with Buildozer. The ideas you learned in Part II still apply — a tree of elements, layout rules, events, drawing, an event loop, never blocking the UI — they just have different names. This part maps each web idea to its Kivy equivalent and to the ATLAS Go code that uses it. The full, standalone treatment is the 16-lesson course [Kivy Front End with ATLAS Go](KIVY_FRONTEND.md) and its [11 experiments](../kivy_lab/README.md).
+
+~~~mermaid
+flowchart LR
+ subgraph WEB["Web front end (this course, Part II)"]
+  direction TB
+  H["HTML: the element tree"] --> C["CSS: layout and look"] --> J["JavaScript: events, DOM, fetch"] --> BR["the browser draws pixels"]
+ end
+ subgraph APP["ATLAS Go front end (Kivy)"]
+  direction TB
+  W["Python: the widget tree"] --> L["layouts, dp/sp, canvas"] --> E["bind, Clock, touch, threads"] --> GL["Kivy draws with OpenGL"]
+ end
+ WEB -. "same ideas, different names" .-> APP
+~~~
+
+## Web idea → Kivy idea → where ATLAS Go uses it
+
+| Web (lesson in this course) | Kivy equivalent | ATLAS Go code | Learn it |
+|---|---|---|---|
+| HTML element tree, the DOM ([5](#lesson-5--html-documents-elements-attributes-and-the-tree), [11.1](#111-finding-and-walking-the-tree)) | widget tree: `add_widget`, `children`, `walk()` | [`AtlasGoApp.render`](../android-app/atlas_go/app.py) rebuilds each screen's tree | [Kivy 2](KIVY_FRONTEND.md#lesson-2--widgets-and-the-widget-tree) |
+| page load, `DOMContentLoaded` ([5.1](#51-from-bytes-to-pixels-how-the-browser-reads-a-page)) | `App.build()` → `on_start()`; `on_pause`/`on_resume`/`on_stop` | [`build`, `on_start`, `on_pause`](../android-app/atlas_go/app.py) | [Kivy 1](KIVY_FRONTEND.md#lesson-1--how-a-kivy-app-starts-app-build-and-the-lifecycle) |
+| Flexbox (`flex-direction`, `flex-grow`, `gap`, `padding`) ([8.3](#83-flexbox-in-depth)) | `BoxLayout(orientation=…)`, `size_hint`, `spacing`, `padding` | [`box`, `row`](../android-app/atlas_go/app.py) | [Kivy 3](KIVY_FRONTEND.md#lesson-3--layouts-boxlayout-size_hint-padding-spacing-and-scrolling) |
+| `overflow: auto` | `ScrollView` + `bind(minimum_height=…)` | the scrolling body in [`render`](../android-app/atlas_go/app.py) | [Kivy 3](KIVY_FRONTEND.md#lesson-3--layouts-boxlayout-size_hint-padding-spacing-and-scrolling) |
+| CSS `px`, `rem`, colours ([7.5](#75-units-colour-and-typography-in-detail)) | `dp()` for sizes, `sp()` for text, `get_color_from_hex` → RGBA 0–1 | the `GREEN`/`INK`/`LIME` palette in [`app.py`](../android-app/atlas_go/app.py) | [Kivy 4](KIVY_FRONTEND.md#lesson-4--units-colour-and-screen-density-dp-sp-and-hex-colours) |
+| text wrapping (`width`, `overflow-wrap`) | `bind(width=…)` → `text_size`; `bind(texture_size=…)` → `height` | [`AtlasGoApp.label`](../android-app/atlas_go/app.py) | [Kivy 5](KIVY_FRONTEND.md#lesson-5--properties-and-bind-widgets-that-react) |
+| `addEventListener('click', …)`, closures in loops ([10.3](#103-scope-hoisting-and-closures), [11.4](#114-the-event-object-and-event-delegation-in-full)) | `button.bind(on_release=…)`, `lambda key=key: …` | the navigation bar in [`render`](../android-app/atlas_go/app.py) | [Kivy 6](KIVY_FRONTEND.md#lesson-6--events-callbacks-and-the-android-back-key) |
+| browser Back button, `history` | Android Back = key 27 on `Window.on_keyboard` | [`on_keyboard`](../android-app/atlas_go/app.py) | [Kivy 6](KIVY_FRONTEND.md#lesson-6--events-callbacks-and-the-android-back-key) |
+| `<input>`, `<select>`, `<dialog>`, form validation ([6](#lesson-6--html-forms), [6.4](#64-validation-in-the-browser-attributes-css-and-the-constraint-validation-api)) | `TextInput`, `Spinner`, `Popup`; `ValueError` → dialog | [`field`, `select`, `message`, `safe`](../android-app/atlas_go/app.py) | [Kivy 7](KIVY_FRONTEND.md#lesson-7--text-input-choices-and-dialogs-textinput-spinner-popup) |
+| `<canvas>` 2D drawing, `background` | `canvas.before` / `canvas` with `Color`, `Rectangle`, `Line`, `Ellipse` | [`Panel`, `RouteMap`, `OutlookChart`](../android-app/atlas_go/app.py) | [Kivy 8](KIVY_FRONTEND.md#lesson-8--drawing-on-the-canvas-instructions-canvasbefore-and-redrawing), [9](KIVY_FRONTEND.md#lesson-9--text-as-textures-and-charts-drawn-by-hand) |
+| `setTimeout`, `setInterval`, `requestAnimationFrame`, the event loop ([12](#lesson-12--asynchronous-javascript-the-event-loop-promises-asyncawait-and-fetch)) | `Clock.schedule_once`, `Clock.schedule_interval`, one main loop | [`live_tick`, `lab_step`](../android-app/atlas_go/app.py), [`LiveMap._schedule`](../android-app/atlas_go/livemap.py) | [Kivy 10](KIVY_FRONTEND.md#lesson-10--the-clock-and-the-main-loop) |
+| `pointerdown/move/up`, `setPointerCapture` | `on_touch_down/move/up`, `touch.grab(self)` | panning in [`LiveMap`](../android-app/atlas_go/livemap.py) | [Kivy 11](KIVY_FRONTEND.md#lesson-11--touch-input-on_touch_down-move-up-grabbing-and-clipping) |
+| `fetch` + `await` never blocks the page ([12.4](#124-a-robust-fetch-wrapper)) | worker threads download; `Clock.schedule_once` hands results to the UI thread | [`TileLoader`](../android-app/atlas_go/livemap.py) | [Kivy 12](KIVY_FRONTEND.md#lesson-12--threads-and-the-ui-thread) |
+| single-page app routing, re-rendering from state | `go(screen)` → `save_ui()` → `render()` | [`go`, `render`, `save_ui`](../android-app/atlas_go/app.py) | [Kivy 13](KIVY_FRONTEND.md#lesson-13--screens-as-state-one-render-instead-of-many-screens) |
+| `navigator.geolocation` + permission prompt | pyjnius → Android `LocationManager`, runtime permission | [`DeviceLocation`](../android-app/atlas_go/location.py) | [Kivy 14](KIVY_FRONTEND.md#lesson-14--talking-to-android-with-pyjnius) |
+| `localStorage` ([11.6](#116-remembering-things-in-the-browser)) | a JSON file in the app's private folder, written atomically | [`LocalStore.save`](../android-app/atlas_go/store.py) | [Python 14](PYTHON_PROGRAMMING.md#lesson-14--files-pathlib-json-csv-and-atomic-writes) |
+| deploying a site ([23](#lesson-23--deployment-and-architecture)) | `buildozer.spec` → `.apk` / `.aab` for Google Play | [`buildozer.spec`](../android-app/buildozer.spec) | [Kivy 15](KIVY_FRONTEND.md#lesson-15--packaging-for-android-with-buildozer) |
+| end-to-end browser tests ([22](#lesson-22--testing-web-applications)) | press named controls with `trigger_action`, `Window.screenshot` | [`acceptance.py`](../android-app/atlas_go/acceptance.py) | [Kivy 16](KIVY_FRONTEND.md#lesson-16--testing-a-kivy-front-end) |
+
+## What is genuinely different
+
+| | Web front end | ATLAS Go (Kivy) |
+|---|---|---|
+| Where layout and look live | separate languages: HTML structure, CSS rules that cascade | one language: each widget's size, colour and position are Python arguments; nothing cascades |
+| Who draws | the browser's rendering engine | Kivy issues OpenGL drawing instructions you write yourself (canvas) |
+| Accessibility | semantic HTML and ARIA give screen readers a tree for free ([9.3](#93-aria-when-html-is-not-enough)) | Kivy draws pixels, so Android's screen reader sees little; contrast and 48 dp touch targets still matter |
+| Where data lives | a server and a database (Part III) | on the phone, in `state.json`; the only network traffic is map tiles |
+| Concurrency | one JavaScript thread plus non-blocking `fetch` | one UI thread plus real background threads, handed back with the Clock |
+| Updating | refresh the page | users install a new signed release from Google Play |
+
+## The same booking form, twice
+
+The web lab's form (Lesson 6, [`static/index.html`](../web_lab/static/index.html)) checks that the distance is between 0.1 and 200 km in the browser (`min`/`max`) and again on the server. In Kivy there is no server: the same rule is a Python function, and one wrapper turns its `ValueError` into a dialog — exactly how ATLAS Go's [`safe`](../android-app/atlas_go/app.py) works. This program runs as written after `pip install kivy==2.3.1`: a window opens, it checks itself and closes (on a server, run it with `xvfb-run -a`).
+
+~~~python
+from kivy.app import App
+from kivy.clock import Clock
+from kivy.metrics import dp
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.spinner import Spinner
+from kivy.uix.textinput import TextInput
+
+def parse_distance(text):                                # the rule: plain, testable Python
+    try:
+        km = float(text)
+    except ValueError:
+        raise ValueError("Distance must be a number of kilometres, for example 4.5.") from None
+    if not 0.1 <= km <= 200:                             # the same range as min="0.1" max="200"
+        raise ValueError("Distance must be between 0.1 and 200 km.")
+    return km
+
+class BookingApp(App):
+    def build(self):                                     # <form> … </form>
+        self.form, self.popup = {}, None
+        root = BoxLayout(orientation="vertical", padding=dp(16), spacing=dp(8))
+        self.distance = TextInput(hint_text="Distance (km)", multiline=False, input_type="number",
+                                  size_hint_y=None, height=dp(48))               # <input type="number">
+        self.distance.bind(text=lambda _w, value: self.form.__setitem__("distance_km", value))
+        self.pickup = Spinner(text="UCC Main Gate", values=("UCC Main Gate", "Kent Station", "Cork Airport"),
+                              size_hint_y=None, height=dp(48))                   # <input list="places">
+        self.pickup.bind(text=lambda _w, value: self.form.__setitem__("pickup", value))
+        book = Button(text="Book demonstration ride", size_hint_y=None, height=dp(48))   # <button type="submit">
+        book.bind(on_release=lambda _w: self.safe(self.book))                    # addEventListener('click')
+        for w in (self.distance, self.pickup, book):
+            root.add_widget(w)
+        return root
+
+    def safe(self, callback):                            # like try/catch around a fetch, shown as a <dialog>
+        try:
+            callback()
+        except ValueError as error:
+            self.message("Check your details", str(error))
+
+    def message(self, title, text):
+        self.popup = Popup(title=title, content=Label(text=text), size_hint=(0.9, None), height=dp(200))
+        self.popup.open()
+
+    def book(self):
+        km = parse_distance(self.form.get("distance_km", ""))
+        self.message("Booked", f"{km} km from {self.form.get('pickup', 'UCC Main Gate')}")
+
+    def on_start(self):
+        Clock.schedule_once(self.check, 0.5)
+
+    def check(self, _dt):
+        self.distance.text = "far"                       # as if typed
+        self.safe(self.book)
+        assert self.popup.title == "Check your details"
+        self.popup.dismiss()
+        self.distance.text = "250"                       # outside min/max
+        self.safe(self.book)
+        assert self.popup.content.text == "Distance must be between 0.1 and 200 km."
+        self.popup.dismiss()
+        self.distance.text, self.pickup.text = "4.5", "Kent Station"
+        self.safe(self.book)
+        assert self.popup.content.text == "4.5 km from Kent Station"
+        print("bad input → friendly dialog; good input →", self.popup.content.text)
+        self.popup.dismiss()
+        self.stop()                                      # auto-close: delete this line to keep the window open
+
+BookingApp().run()
+~~~
+
+**Exercises.** (1) Put the web lab's `index.html` form and this program side by side and match every element to its widget. (2) The web version checks the distance in the browser *and* the API; why does ATLAS Go need only one check, and what would change once an operator back end exists? (3) Build a Flexbox navigation bar of five equal buttons (Lesson 8), then the same bar as a Kivy `BoxLayout`; compare `flex: 1` with `size_hint_x=1`.
+
+**Self-check.** *Why can a slow `fetch` not freeze a web page, but a slow download can freeze a Kivy app?* — `fetch` is non-blocking; a Kivy callback that downloads runs on the only UI thread, so the download must move to a worker thread and hand its result back with `Clock.schedule_once`. *What replaces CSS in ATLAS Go?* — keyword arguments on each widget (`size_hint_y`, `height=dp(48)`, `background_color`, `font_size=sp(14)`) plus canvas instructions for backgrounds and shapes.
+
+---
 
 ## Audit notes
 
