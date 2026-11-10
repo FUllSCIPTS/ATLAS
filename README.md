@@ -32,24 +32,6 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
-## Recent updates
-
-**10 November 2026 — Web Technology 2 (Kivy front end)**
-- New course [Web Technology 2 — Kivy Front End with ATLAS Go](docs/WEB_TECHNOLOGY_2.md): 16 illustrated lessons on the Python/Kivy front end the Android app actually uses (lifecycle, widgets, layouts, dp/sp, binding, events, forms, canvas and charts, Clock, touch, threads, screens as state, pyjnius, Buildozer, UI testing). Every example is a complete, self-checking program.
-- New [Kivy lab](kivy_lab/README.md): 11 experiments (K01–K11), several driving the real ATLAS Go widgets (`AtlasGoApp.render`, `RouteMap`, `LiveMap`).
-- New [Colab notebook](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb): every lesson's Try-it program and all 11 labs, run on a virtual display.
-- [Web Technology](docs/WEB_TECHNOLOGY.md) gains **Part VI — Beyond the browser**, mapping each web front-end idea to its Kivy equivalent and the ATLAS Go code that uses it.
-- Fixed two diagrams in Web Technology 2 that GitHub could not render.
-
-**9 November 2026**
-- [Web Technology](docs/WEB_TECHNOLOGY.md): expanded HTML, CSS, JavaScript and SQL fundamentals.
-- [Information Security](docs/INFORMATION_SECURITY.md): new control-measures section — preventive, detective and protective controls; IDS/IPS on the database server.
-
-**8 November 2026**
-- Course guides audited and rewritten: [Data Structures and Algorithms](docs/DATA_STRUCTURES_ALGORITHMS.md) (30 experiments, incl. circular singly/doubly linked lists; Parts C and D diagrams now render), [Python Programming](docs/PYTHON_PROGRAMMING.md) (20 lesson-specific labs, pytest workshop, new lesson on modules, packages and imports), [Web Technology](docs/WEB_TECHNOLOGY.md) (hardened full-stack lab, 20 real-browser experiments, 28 integration tests).
-- Architecture explorer: teaching views listed here, and a live Data Structures view linked from the DSA course.
-- ATLAS Go 1.2.0: the source code zip added to the downloads; source availability (MIT) stated in this README.
-
 ## Learning path ways
 
 1) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
