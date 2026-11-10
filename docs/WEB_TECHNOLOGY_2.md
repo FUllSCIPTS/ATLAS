@@ -929,7 +929,9 @@ stateDiagram-v2
  login --> seller: food seller
  home --> ride
  home --> food
- food --> menu --> cart --> active_order
+ food --> menu
+ menu --> cart
+ cart --> active_order
  ride --> active_ride
  home --> map
  home --> profile
@@ -1067,13 +1069,13 @@ Two Android rules shape the code: **dangerous permissions** (location) must be *
 sequenceDiagram
  participant App as AtlasGoApp (Kivy)
  participant DL as DeviceLocation
- participant AND as Android
+ participant OS as Android
  App->>DL: start()
- DL->>AND: request_permissions([FINE, COARSE])
- AND-->>DL: answered(grants) (Java thread)
+ DL->>OS: request_permissions([FINE, COARSE])
+ OS-->>DL: answered(grants) (Java thread)
  DL->>DL: Clock.schedule_once(_android_listen)
- DL->>AND: LocationManager.requestLocationUpdates(gps/network, 3 s, 5 m, listener)
- AND-->>DL: listener.onLocationChanged(location) (Java thread)
+ DL->>OS: LocationManager.requestLocationUpdates(gps/network, 3 s, 5 m, listener)
+ OS-->>DL: listener.onLocationChanged(location) (Java thread)
  DL->>App: Clock.schedule_once → on_fix(point, accuracy)
 ~~~
 
