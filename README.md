@@ -47,6 +47,8 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 6) [🌐 Web Technology — 23 illustrated lessons: HTTP, HTML, CSS, JavaScript, FastAPI, SQL, transactions, security, performance, testing and deployment](docs/WEB_TECHNOLOGY.md) · [Runnable full-stack lab](web_lab/README.md) · [20 Colab experiments (incl. real-browser runs)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
+7) [📱 Kivy Front End with ATLAS Go — 16 illustrated lessons on the Python/Kivy front end the Android app actually uses: app lifecycle, widgets and layouts, dp/sp, binding, events, forms, canvas drawing and charts, the Clock, touch, threads, screens as state, pyjnius, Buildozer packaging and UI testing](docs/KIVY_FRONTEND.md) · [11 experiments on the real app code](kivy_lab/README.md)
+
 ## ATLAS Go Android app
 
 **Version 1.2.0** — a Python/Kivy Android app for Cork with **passenger, driver and food-seller registration**, a **live map** (OpenStreetMap tiles, device location, moving drivers and couriers, offline fallback), solo and shared rides, food ordering from built-in and seller kitchens, and **six on-device ML models** wired into the live flows (dispatch policy, per-driver acceptance model, surge outlook, supply agent, courier timing, learning lab). Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated until an operator back end is connected.
@@ -116,6 +118,8 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `security_lab/crypto_a_hashing.py` … `crypto_e_post_quantum.py` | Cryptography lab in five categories (A hashing 1–7, B MACs/KDF/randomness 8–10, C PKI 11–14, D signatures 15–17, E post-quantum 18–20), each runnable on its own |
 | `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
+| `docs/KIVY_FRONTEND.md` | Kivy front-end teaching guide: how ATLAS Go's screens, map and Android integration are built, from `App` and layouts to the canvas, Clock, touch, threads, pyjnius and Buildozer |
+| `kivy_lab/experiments.py` | 11 Kivy experiments (K01–K11) run against the real ATLAS Go widgets; `kivy_lab/README.md` is the lab manual |
 | `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
 | `ml_lab/README.md` | Index of the 40 ML and optimisation experiments, their ATLAS data sources and study paths |
 | `ml_lab/machine_learning/ml01_*.py` … `ml20_*.py` | 20 machine-learning experiments, one file each: regression to reinforcement learning (`run_ml.py` runs them) |
