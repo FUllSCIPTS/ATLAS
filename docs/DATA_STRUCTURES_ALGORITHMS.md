@@ -22,6 +22,7 @@ import experiments as dsa
 
 | Part | Lessons |
 |---|---|
+| Motivation | [Find one student among 1,000,000 records: unsorted list vs sorted array + binary search vs hash table](#motivation--find-one-student-among-1000000-records) |
 | A. Foundations | [1 Problems, algorithms and ADTs](#lesson-1--problems-algorithms-data-structures-and-adts) · [2 Counting and measuring](#lesson-2--counting-operations-and-measuring-honestly) · [3 Asymptotic notation](#lesson-3--asymptotic-notation-cases-amortised-cost-and-recurrences) |
 | B. Linear structures | [4 Arrays and dynamic arrays](#lesson-4--arrays-dynamic-arrays-multi-dimensional-indexing-and-strings) · [5 Singly linked lists](#lesson-5--singly-linked-lists) · [6 Doubly linked lists](#lesson-6--doubly-linked-lists) · [7 Circular singly linked lists](#lesson-7--circular-singly-linked-lists) · [8 Circular doubly linked lists, sentinels, LRU, cycles](#lesson-8--circular-doubly-linked-lists-sentinels-lru-caches-and-cycle-detection) · [9 Stacks](#lesson-9--stacks) · [10 Queues, deques and ring buffers](#lesson-10--queues-deques-and-ring-buffers-circular-arrays) · [11 Hash tables](#lesson-11--hash-tables-chaining-open-addressing-load-factor-and-resizing) |
 | C. Non-linear structures | [12 Trees and traversals](#lesson-12--trees-and-the-four-traversals) · [13 Binary search trees](#lesson-13--binary-search-trees-search-insert-and-the-three-deletion-cases) · [14 AVL trees](#lesson-14--avl-trees-and-the-four-rotations) · [15 Heaps](#lesson-15--binary-heaps-priority-queues-and-heap-sort) · [16 Tries](#lesson-16--tries-prefix-trees) · [17 Graphs, BFS, DFS](#lesson-17--graphs-representations-bfs-and-dfs) · [18 Shortest paths, DAGs, union-find](#lesson-18--shortest-paths-topological-order-union-find-and-spanning-trees) |
@@ -30,6 +31,7 @@ import experiments as dsa
 
 ```mermaid
 flowchart LR
+ M["Motivation<br/>unsorted · binary search · hashing"] --> A
  A["A. Foundations<br/>ADT · counting · O Ω Θ"] --> B["B. Linear<br/>arrays · linked lists · circular lists<br/>stacks · queues · hashing"]
  B --> C["C. Non-linear<br/>trees · BST · AVL · heaps<br/>tries · graphs"]
  C --> D["D. Design<br/>search · sort · D&C<br/>greedy · DP · backtracking"]
@@ -57,6 +59,204 @@ ATLAS Go is the Python/Kivy ride-and-food app in this repository. Several lesson
 | Linked lists (all four kinds), ring buffer, hash chains, open addressing, BST/AVL, heap, trie, graph algorithms, union-find, DP | **Teaching only** | [`dsa_lab/experiments.py`](../dsa_lab/experiments.py) |
 
 The UML blueprint also documents a separate **server starter** on the `architecture-explorer` branch; do not confuse its planned back-end functions with code running inside today's on-device app.
+
+## Motivation — find one student among 1,000,000 records
+
+**Why study data structures at all?** Ask a class: *a university keeps 1,000,000 student records; how many comparisons does it take to find one student by ID?* The answer is not one number. It depends entirely on **how the records are arranged**:
+
+| | Unsorted list | Sorted array + binary search | Hash table |
+|---|---|---|---|
+| **Comparisons, worst case (n = 10⁶)** | **1,000,000** | **20** | **≈ 1** (expected) |
+| How the search works | check records one by one | open the middle, discard half, repeat | compute where the record lives, go straight there |
+| Everyday picture | a pile of books: lift each one until the title appears | sorted shelves | a library catalogue |
+| Taught in | [Lesson 19](#lesson-19--searching) (linear search) | [Lesson 4](#lesson-4--arrays-dynamic-arrays-multi-dimensional-indexing-and-strings) + [Lesson 19](#lesson-19--searching) | [Lesson 11](#lesson-11--hash-tables-chaining-open-addressing-load-factor-and-resizing) |
+
+**Same data. Same question. A different organisation.** No faster computer turns 1,000,000 into 20: the gap comes from the arrangement alone, which is what a data structure *is* — an organisation of data, the operations it supports, and the cost of each operation (Lesson 1). Every part of this course explains a piece of this table.
+
+```mermaid
+flowchart LR
+ Q["Query: find student ID 23"] --> U["Unsorted list<br/>scan left to right<br/>worst: n comparisons"]
+ Q --> S["Sorted array<br/>binary search: halve each step<br/>worst: ⌊log₂ n⌋ + 1"]
+ Q --> H["Hash table<br/>bucket = h(key) mod m<br/>expected: 1 + α/2"]
+ U --> R1["n = 10⁶ → 1,000,000"]
+ S --> R2["n = 10⁶ → 20"]
+ H --> R3["n = 10⁶ → ≈ 1"]
+```
+
+### The three cases for each organisation
+
+Every operation in this course is reported in three cases ([Lesson 3](#lesson-3--asymptotic-notation-cases-amortised-cost-and-recurrences)): **best** = the luckiest input, **average** = the typical input under a stated assumption, **worst** = the adversary's input, the guarantee we normally quote.
+
+| Search for one key | Best | Average | Worst | Precondition | Cost to prepare the data |
+|---|---|---|---|---|---|
+| Unsorted list (linear search) | Θ(1) — key is first | Θ(n) — (n+1)/2 if present and uniformly placed | Θ(n) — key absent or last | none | none |
+| Sorted array (binary search) | Θ(1) — key at the first middle | Θ(log n) — ≈ log₂ n − 1 | Θ(log n) — ⌊log₂ n⌋ + 1 | **sorted**, random access | sort once: Θ(n log n) ([Lesson 20](#lesson-20--sorting-stability-and-the-n-log-n-lower-bound)) |
+| Hash table (chaining) | Θ(1) | Θ(1 + α) expected | Θ(n) — every key collides | hashable keys, good hash function | build: Θ(n) expected |
+
+**Comparisons at different sizes** (worst case for the list and binary search; expected for the hash table at load factor α ≤ 1):
+
+| n | Unsorted list | Binary search | Hash table |
+|---|---|---|---|
+| 10 | 10 | 4 | ≈ 1 |
+| 1,000 | 1,000 | 10 | ≈ 1 |
+| 1,000,000 | 1,000,000 | 20 | ≈ 1 |
+| 1,000,000,000 | 1,000,000,000 | 30 | ≈ 1 |
+
+Multiplying the data by a thousand multiplies the unsorted scan by a thousand, adds only **10** comparisons to binary search, and leaves the hash table unchanged.
+
+### Worked example by hand: ten student IDs, search for 23
+
+**1. Unsorted list.** `[38, 5, 91, 12, 72, 2, 56, 23, 16, 8]`
+
+| Step | i | a[i] | a[i] == 23? |
+|---|---|---|---|
+| 1–7 | 0–6 | 38, 5, 91, 12, 72, 2, 56 | no |
+| 8 | 7 | 23 | **yes → index 7, 8 comparisons** |
+
+Searching for an absent ID (say 40) costs all **10** comparisons: the worst case.
+
+**2. Sorted array + binary search.** `[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]`
+
+| Step | lo | hi | mid | a[mid] | Decision |
+|---|---|---|---|---|---|
+| 1 | 0 | 9 | 4 | 16 | 16 < 23 → go right, lo = 5 |
+| 2 | 5 | 9 | 7 | 56 | 56 > 23 → go left, hi = 6 |
+| 3 | 5 | 6 | 5 | 23 | **found at index 5, 3 comparisons** |
+
+Worst case for n = 10: ⌊log₂ 10⌋ + 1 = **4** comparisons. Invariant: *if 23 is present, its index lies in [lo, hi]*; each step keeps it and halves the range.
+
+**3. Hash table.** m = 13 buckets, h(k) = k mod 13, separate chaining, keys inserted in the order of the unsorted list:
+
+| Bucket | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Chain | 91 | — | 2 | 16 | 56 | 5 | — | 72 | 8 | — | **23** | — | 12 → 38 |
+
+Search 23: compute 23 mod 13 = 10, look in bucket 10 → **1 comparison**. The only collision is 38 and 12 (both ≡ 12 mod 13); with n = 10 keys in m = 13 buckets the load factor is α = 10/13 ≈ 0.77, so an average successful search inspects about 1 + α/2 ≈ 1.4 nodes.
+
+| Search for 23 among the same 10 IDs | Comparisons |
+|---|---|
+| Unsorted list | 8 |
+| Sorted array + binary search | 3 |
+| Hash table | 1 |
+
+```python
+# Self-contained: run anywhere.
+def linear_search(a, key):
+    for steps, value in enumerate(a, start=1):
+        if value == key:
+            return steps - 1, steps
+    return -1, len(a)
+
+def binary_search(a, key):
+    lo, hi, steps = 0, len(a) - 1, 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        steps += 1
+        if a[mid] == key:
+            return mid, steps
+        if a[mid] < key:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1, steps
+
+ids = [38, 5, 91, 12, 72, 2, 56, 23, 16, 8]
+assert linear_search(ids, 23) == (7, 8)
+assert linear_search(ids, 40) == (-1, 10)           # absent: worst case, n comparisons
+assert binary_search(sorted(ids), 23) == (5, 3)
+assert max(binary_search(sorted(ids), k)[1] for k in ids) == 4   # ⌊log₂ 10⌋ + 1
+
+buckets = [[] for _ in range(13)]                   # separate chaining, h(k) = k mod 13
+for k in ids:
+    buckets[k % 13].insert(0, k)                    # insert at the chain head
+assert buckets[23 % 13] == [23] and buckets[12] == [12, 38]
+```
+
+The same example with the lab module (after the setup cell above):
+
+```python
+ids = [38, 5, 91, 12, 72, 2, 56, 23, 16, 8]
+assert dsa.linear_search(ids, 23) == (7, 8)
+assert dsa.binary_search(sorted(ids), 23) == (5, 3)
+table = dsa.ChainHash(13, "singly")
+for k in ids:
+    table.put(k, f"student-{k}")
+assert table.get(23) == ("student-23", 1)           # value, comparisons
+assert table.chain_lengths()[12] == 2               # 38 and 12 collide
+```
+
+### Scaling up: the 1,000,000-record experiment
+
+```python
+import random
+
+n = 1_000_000
+records = list(range(0, 2 * n, 2))                  # one million even student IDs
+unsorted = records[:]
+random.seed(7)
+random.shuffle(unsorted)
+
+def linear_steps(a, key):
+    for steps, value in enumerate(a, start=1):
+        if value == key:
+            return steps
+    return len(a)
+
+def binary_steps(a, key):
+    lo, hi, steps = 0, len(a) - 1, 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        steps += 1
+        if a[mid] == key:
+            return steps
+        if a[mid] < key:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return steps
+
+absent = 1                                          # odd: never stored → worst case
+print("unsorted, worst :", linear_steps(unsorted, absent))     # 1000000
+print("binary,  worst  :", binary_steps(records, absent))      # ≤ 20
+index = {sid: f"student-{sid}" for sid in records}             # Python dict = hash table
+print("hash,    lookup :", index.get(123_456))                 # one expected probe
+assert linear_steps(unsorted, absent) == n
+assert binary_steps(records, absent) <= 20
+```
+
+### Choosing among the three: no free lunch
+
+The table is a **motivation, not a ranking**. Each organisation pays somewhere else:
+
+| Question you also need answered | Unsorted list | Sorted array | Hash table |
+|---|---|---|---|
+| Insert a new record | **Θ(1)** append | Θ(n) — shift to keep order | Θ(1) expected |
+| Delete a record | Θ(n) find + Θ(1) swap-remove | Θ(n) — shift | Θ(1) expected |
+| List all IDs in order | Θ(n log n) — sort first | **Θ(n)** — already sorted | Θ(n log n) — no order kept |
+| Range query: IDs 1000–2000 | Θ(n) | **Θ(log n + k)** | Θ(n) |
+| Minimum / maximum | Θ(n) | **Θ(1)** | Θ(n) |
+| Guaranteed worst case for search | Θ(n) | **Θ(log n)** | Θ(n) (adversarial keys, Lesson 11) |
+| Extra memory | none | none | buckets + chain pointers |
+
+**When does sorting pay for itself?** For k searches over n records: k linear scans cost about k·n; sorting first and then binary searching costs about n log₂ n + k log₂ n. Sorting wins once k exceeds roughly log₂ n — **about 20 searches when n = 10⁶**. If the data changes constantly and is searched rarely, the unsorted list may be the right answer. If records must stay ordered *and* change often, a balanced search tree ([Lessons 13–14](#lesson-13--binary-search-trees-search-insert-and-the-three-deletion-cases)) gives Θ(log n) search, insert and delete together.
+
+**ATLAS link:** ATLAS Go uses all three ideas. [`LocalStore.online_drivers`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) is a linear scan of an unsorted list; [`intelligence.rank`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py) sorts candidates; [`Cart.items`, `Catalog.dishes`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py) and [`LocalStore.failures`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) are dictionaries, i.e. hash tables.
+
+### How each lesson is taught
+
+The course follows the **Big-Picture Concept–Theory–Practice (BCTP)** loop used in the accompanying lecture: every topic is placed in the big picture first, then taken through the same questions before reconnecting to the whole.
+
+| Stage | Question it answers | Where it appears in each lesson |
+|---|---|---|
+| Big picture | Where does it fit? | the Contents map and the ATLAS link at the top of each lesson |
+| Concept | What is it? | definitions and diagrams |
+| Why | Why is it needed? | motivation (as above) and "Why …?" paragraphs |
+| Theory | How does it work? | traces, invariants, complexity tables in best · average · worst form |
+| Practical | Can we build it? | runnable Python and the lab experiments |
+| Challenge | Can we improve it? | common mistakes and exercises |
+| Reconnect | What can we now do? | the lab report and the cross-links between lessons |
+
+**Lab:** E02, E03, E09 (search), E16–E18 (hashing). **Exercises:** (1) With n = 10⁶, how many searches justify sorting the list first? Show the arithmetic. (2) Give an input on which the hash table above needs n comparisons. (3) Add a fourth column to the "no free lunch" table for a balanced BST.
 
 ---
 
@@ -1260,6 +1460,8 @@ assert total == 7 and len(tree) == 3          # V − 1 edges
 | linear search | none | Θ(n) | works on linked lists and unsorted data |
 | binary search | **sorted, random access** | Θ(log n) | halve the interval each step |
 | hash lookup | hashable keys | Θ(1) expected | Lesson 11 |
+
+The [Motivation](#motivation--find-one-student-among-1000000-records) section compares all three on the same ten student IDs and on 1,000,000 records (1,000,000 vs 20 vs ≈ 1 comparisons).
 | BST search | balanced tree | Θ(log n) | Lessons 13–14 |
 
 **Binary search trace** for 12 in `[2, 4, 6, 8, 10, 12, 14]`:
