@@ -1,6 +1,6 @@
 # Python Programming with ATLAS Go — an illustrated, standalone course
 
-**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II) + 12 app-integration labs (Part III), 12–17 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
+**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II) + 12 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
 [Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -14,6 +14,7 @@ flowchart LR
  D --> E["18–20<br/>complexity, testing, profiling,<br/>modules, packages, imports"]
  E --> F["Part II<br/>software testing"]
  F --> G["Part III<br/>real apps: button → API → database"]
+ G --> H["Part IV<br/>graded app-building tickets"]
 ~~~
 
 ## Where the ideas live in ATLAS Go
@@ -1707,3 +1708,42 @@ with App(drivers=1) as app:
 3. Make *Book* retry automatically on 503 — and prove with a test that the `Idempotency-Key` stops duplicates.
 4. Show **stale responses**: make search request 1 slow and request 2 fast, and fix the screen so an old response never overwrites a newer one.
 5. Replace the in-memory database with a file (`Database(path="rides.db")`) and show that data survives a restart (hint: the schema needs `CREATE TABLE IF NOT EXISTS`).
+
+---
+
+# Part IV — Graded app-building tasks
+
+[Tickets](../python_lab/app_tasks/TICKETS.md) · [Starter](../python_lab/app_tasks/starter.py) · [Acceptance tests](../python_lab/app_tasks/tests/) · [Autograder](../python_lab/app_tasks/grade.py)
+
+Part III *observed* integration flows. Part IV asks you to **build** them, the way you would on a team. Ten tickets add real features to the running app from Part III. Each ticket has:
+
+- a user story;
+- an API contract;
+- numbered acceptance criteria (AC);
+- non-functional requirements;
+- a definition of done.
+
+An autograder runs 123 acceptance tests, each named after the criterion it checks, and gives a score out of 100.
+
+| Ticket | Feature | What it really teaches |
+|---|---|---|
+| T01 | delete a cancelled ride | 204, foreign keys, deleting children first in one transaction, updating the UI only after success |
+| T02 | available-drivers dropdown | a read endpoint with one query; UI state that depends on other state |
+| T03 | accounts, login, sessions | PBKDF2 with salt, random tokens stored hashed, expiry, identical 401s (no user enumeration) |
+| T04 | roles | middleware, 401 vs 403, never trusting the client's role or name, re-checking the role on every request |
+| T05 | rate limiting | sliding window, 429 + `Retry-After`, a lock around check-and-record, injected clocks |
+| T06 | CSV export | downloads, RFC 4180, spreadsheet formula injection, JOIN instead of N+1 |
+| T07 | migration + ratings | `PRAGMA user_version`, atomic migrations, `CHECK`, a race-free conditional `UPDATE` |
+| T08 | live search | async UI, discarding out-of-order responses |
+| T09 | sort and filter | whitelisting identifiers, binding values, totals vs pages |
+| T10 | notifications | the transactional outbox, at-least-once delivery, retries, dead letters |
+
+~~~bash
+python python_lab/app_tasks/grade.py --task 1     # one ticket and its failing criteria
+python python_lab/app_tasks/grade.py              # everything -> score / 100
+python python_lab/app_tasks/grade.py --check      # instructors: solution 100, starter 0, 21 bugs caught
+~~~
+
+**How to work a ticket.** Before coding, write the sequence of hops, as in Part III: which button, which request, which route, which SQL, which response, what the screen shows. Then implement the server side and check it with the API acceptance tests, then the screen. Finally read the definition of done as a reviewer would.
+
+**Why the grading can be trusted.** The autograder checks itself. The reference solution must pass every test on repeated runs, the empty starter must fail every ticket, and 21 copies of the solution with one realistic bug each (plaintext passwords, a revealing login error, CSV formula injection, a sort column pasted into SQL, a stale response applied, a migration re-run…) must each be caught. Clocks and network delays are injected, so results never depend on timing.

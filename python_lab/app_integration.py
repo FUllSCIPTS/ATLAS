@@ -199,6 +199,7 @@ class Database:
 # =============================================================================
 class AppError(Exception):
     status = 500
+    headers: dict = {}
 
     def payload(self):
         return {"error": str(self)}
@@ -223,6 +224,49 @@ class Conflict(AppError):
     status = 409
 
 
+class Unauthorized(AppError):
+    """401: no valid credentials. The response carries WWW-Authenticate: Bearer."""
+    status = 401
+    headers = {"WWW-Authenticate": "Bearer"}
+
+
+class Forbidden(AppError):
+    """403: authenticated, but this role may not do this."""
+    status = 403
+
+
+class TooManyRequests(AppError):
+    """429 with a Retry-After header (whole seconds)."""
+    status = 429
+
+    def __init__(self, message: str, retry_after: int):
+        super().__init__(message)
+        self.retry_after = max(1, int(retry_after))
+        self.headers = {"Retry-After": str(self.retry_after)}
+
+    def payload(self):
+        return {"error": str(self), "retry_after": self.retry_after}
+
+
+@dataclass
+class RawBody:
+    """A non-JSON response body (CSV, plain text, a file download)."""
+    data: str | bytes
+    content_type: str = "text/plain; charset=utf-8"
+
+
+@dataclass
+class Request:
+    """What before_request hooks see. `state` is where a hook can leave data (e.g. the user)."""
+    method: str
+    path: str
+    query: dict
+    headers: object
+    body: object
+    client: str
+    state: dict = field(default_factory=dict)
+
+
 def _escape_like(text: str) -> str:
     return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
@@ -242,6 +286,11 @@ class RideService:
         self.crash_assign_ids: set[int] = set()
         self.stats_cache = "none"
         self._cached_stats = None
+        self.write_hooks: list = []     # f(db, event, ride) - runs INSIDE the write's transaction
+
+    def _emit(self, event: str, ride_id: int):
+        for hook in self.write_hooks:
+            hook(self.db, event, self.get_ride(ride_id))
 
     # ---- validation -------------------------------------------------------
     def validate_booking(self, body) -> dict:
@@ -288,6 +337,7 @@ class RideService:
             except sqlite3.IntegrityError as exc:
                 raise Conflict(f"the database rejected the ride ({exc})") from None
             ride = self.db.query("SELECT * FROM rides WHERE id = ?", (cur.lastrowid,))[0]
+            self._emit("ride.created", ride["id"])
         self._invalidate()
         return ride, True
 
@@ -369,6 +419,7 @@ class RideService:
             self.db.execute("UPDATE drivers SET busy = 1 WHERE id = ?", (driver_id,))
             self.db.execute("INSERT INTO audit (ride_id, action) VALUES (?, ?)",
                             (ride_id, f"assigned driver {driver_id}"))
+            self._emit("ride.assigned", ride_id)
 
         if self.atomic_assign:
             with self.db.transaction():
@@ -392,6 +443,7 @@ class RideService:
             if ride["driver_id"]:
                 self.db.execute("UPDATE drivers SET busy = 0 WHERE id = ?", (ride["driver_id"],))
             self.db.execute("INSERT INTO audit (ride_id, action) VALUES (?, ?)", (ride_id, after))
+            self._emit(f"ride.{after}", ride_id)
         self._invalidate()
         return self.get_ride(ride_id)
 
@@ -481,6 +533,8 @@ class ApiServer:
         self.service, self.trace = service, trace
         self.faults: dict[str, deque] = {}
         self.log: list[tuple[str, str, int]] = []
+        self.before_request: list = []          # f(request) -> None, or raise AppError to refuse
+        self._local = threading.local()
         self.routes = [
             ("GET", r"/api/health", lambda m, q, b, h: (200, {"ok": True})),
             ("GET", r"/api/rides", self._list_rides),
@@ -527,6 +581,17 @@ class ApiServer:
         self._thread.start()
         return self
 
+    def add_route(self, method: str, pattern: str, fn):
+        """fn(match, query, body, headers) -> (status, payload[, extra_headers]).
+
+        payload may be a dict/list (JSON), a RawBody, or None (with status 204).
+        Added routes are checked before the built-in ones."""
+        self.routes.insert(0, (method, pattern, fn))
+
+    def current_request(self) -> Request:
+        """The Request being handled on this thread (set before before_request hooks run)."""
+        return self._local.request
+
     def stop(self):
         self.httpd.shutdown()
         self.httpd.server_close()
@@ -552,7 +617,7 @@ class ApiServer:
     # ---- the request pipeline --------------------------------------------
     def _dispatch(self, req: BaseHTTPRequestHandler, method: str):
         parsed = urllib.parse.urlsplit(req.path)
-        path, query = parsed.path, urllib.parse.parse_qs(parsed.query)
+        path, query = parsed.path, urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
         self.trace.hop("HTTP route", f"{method} {path} received")
         extra = {}
         try:
@@ -569,6 +634,10 @@ class ApiServer:
                 body = json.loads(raw) if raw else None
             except json.JSONDecodeError:
                 raise ValidationError("body", "malformed JSON") from None
+            request = Request(method, path, query, req.headers, body, req.client_address[0])
+            self._local.request = request
+            for hook in self.before_request:
+                hook(request)
             matched_path = False
             for route_method, pattern, fn in self.routes:
                 match = re.fullmatch(pattern, path)
@@ -590,19 +659,26 @@ class ApiServer:
                 payload["ref"] = uuid.uuid4().hex[:8]
         except AppError as exc:
             status, payload = exc.status, exc.payload()
+            extra = dict(exc.headers)
         except Exception as exc:                        # a bug: log it, never leak internals
             ref = uuid.uuid4().hex[:8]
             status, payload = 500, {"error": "internal server error", "ref": ref}
             self.log.append(("ERROR", f"{ref}: {exc!r}", 500))
         self.log.append((method, req.path, status))
         self.trace.hop("HTTP route", f"respond {status}")
-        if isinstance(payload, str):
+        if status == 204 or payload is None:
+            data, ctype = b"", None
+        elif isinstance(payload, RawBody):
+            data = payload.data.encode() if isinstance(payload.data, str) else payload.data
+            ctype = payload.content_type
+        elif isinstance(payload, str):
             data, ctype = payload.encode(), "text/html; charset=utf-8"
         else:
             data, ctype = json.dumps(payload).encode(), "application/json"
         try:
             req.send_response(status)
-            req.send_header("Content-Type", ctype)
+            if ctype:
+                req.send_header("Content-Type", ctype)
             req.send_header("Content-Length", str(len(data)))
             req.send_header("X-Content-Type-Options", "nosniff")
             for k, v in extra.items():
@@ -646,6 +722,7 @@ class ApiClient:
     def __init__(self, base_url: str, trace: Trace, timeout: float = 3.0):
         self.base_url, self.trace, self.timeout = base_url, trace, timeout
         self.requests = 0
+        self.default_headers: dict = {}             # e.g. {"Authorization": "Bearer ..."} after login
         self._lock = threading.Lock()
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # localhost: no proxy
 
@@ -655,14 +732,20 @@ class ApiClient:
             self.requests += 1
         data = json.dumps(body).encode() if body is not None else None
         req = urllib.request.Request(self.base_url + path, data=data, method=method,
-                                     headers={"Content-Type": "application/json", **(headers or {})})
+                                     headers={"Content-Type": "application/json", **self.default_headers,
+                                              **(headers or {})})
         try:
             with self._opener.open(req, timeout=timeout or self.timeout) as resp:
                 status, raw, hdrs = resp.status, resp.read(), dict(resp.headers)
         except urllib.error.HTTPError as err:          # 4xx/5xx still carry a JSON body
             status, raw, hdrs = err.code, err.read(), dict(err.headers)
         ctype = hdrs.get("Content-Type", "")
-        payload = json.loads(raw) if raw and ctype.startswith("application/json") else raw.decode()
+        if not raw:
+            payload = None
+        elif ctype.startswith("application/json"):
+            payload = json.loads(raw)
+        else:
+            payload = raw.decode()
         self.trace.hop("HTTP client", f"{status} received")
         return Response(status, payload, hdrs)
 
@@ -744,6 +827,13 @@ def user_message(resp: Response | None, error: Exception | None = None) -> str:
         return "Not found - it may have been deleted."
     if resp.status == 409:
         return f"Not saved: {body.get('error', 'conflict')}"
+    if resp.status == 401:
+        return "Please sign in."
+    if resp.status == 403:
+        return "You are not allowed to do that."
+    if resp.status == 429:
+        wait = resp.headers.get("Retry-After") or body.get("retry_after") or "a few"
+        return f"Too many requests - try again in {wait} s."
     if resp.status >= 500:
         ref = body.get("ref")
         return "Something went wrong on our side." + (f" Reference {ref}." if ref else "") + " Please try later."

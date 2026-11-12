@@ -1,4 +1,4 @@
-# Python lab — 20 experiments, a testing workshop and 12 app-integration labs
+# Python lab — 20 experiments, a testing workshop, 12 app-integration labs and 10 graded app-building tasks
 
 [Course guide](../docs/PYTHON_PROGRAMMING.md) · [Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab source](experiments.py) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -92,6 +92,31 @@ Each lab writes `app_NN.csv`, `app_NN.json` (table, notes and any trace/story li
 | A12 | End-to-end journey | open → book → assign → busy 409 → complete → cancel → refresh | DB row counts and cumulative requests per step |
 
 Everything is deterministic except the millisecond timings printed by A01. Every lab asserts its own outcome before charting (for example A05 that only "no protection" stores two rides, A08 that the transaction leaves zero inconsistent rows, A12 that each row on screen matches its SQLite row after every step). The server binds to 127.0.0.1 only, has no authentication, and holds synthetic data in memory.
+
+## Part IV — Graded app-building tasks (T01–T10, 100 points)
+
+[Tickets](app_tasks/TICKETS.md) · [Task README](app_tasks/README.md) · [Starter](app_tasks/starter.py) · [Autograder](app_tasks/grade.py)
+
+Ten tickets add real features to the Part III app, written as a team would write them (user story, contract, numbered acceptance criteria, definition of done):
+
+- deleting with foreign keys;
+- a dependent dropdown;
+- accounts with PBKDF2 and sessions;
+- role-based access (401 vs 403);
+- rate limiting with `Retry-After`;
+- a CSV export that is safe against formula injection;
+- schema migrations and race-free ratings;
+- discarding out-of-order async responses;
+- injection-proof sorting and filtering;
+- a transactional outbox with retries.
+
+Students implement `starter.py`, and `grade.py` runs 123 acceptance tests and scores them out of 100.
+
+~~~bash
+python python_lab/app_tasks/grade.py --task 1      # one ticket, with failing criteria
+python python_lab/app_tasks/grade.py               # score / 100
+python python_lab/app_tasks/grade.py --check       # instructors: solution 100, starter 0, 21 realistic bugs all caught
+~~~
 
 ## Interpreting results
 
