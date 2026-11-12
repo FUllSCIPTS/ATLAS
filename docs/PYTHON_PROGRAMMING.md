@@ -1,6 +1,6 @@
 # Python Programming with ATLAS Go — an illustrated, standalone course
 
-**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II), 10–15 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
+**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II) + 12 app-integration labs (Part III), 12–17 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
 [Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -13,6 +13,7 @@ flowchart LR
  C --> D["14–17<br/>files, generators,<br/>functional style, sorting"]
  D --> E["18–20<br/>complexity, testing, profiling,<br/>modules, packages, imports"]
  E --> F["Part II<br/>software testing"]
+ F --> G["Part III<br/>real apps: button → API → database"]
 ~~~
 
 ## Where the ideas live in ATLAS Go
@@ -1522,3 +1523,187 @@ jobs:
 **Mini-project:** a fare-and-shared-seat module with five parameterised boundary tests, a `tmp_path` integration test, a mock-interaction test, a Hypothesis property, a killed mutant and a coverage report; plus one defect ticket for a bug you introduced on purpose. Label which tests are unit, integration and system tests.
 
 **Further reading:** [Python tutorial](https://docs.python.org/3/tutorial/) · [unittest](https://docs.python.org/3/library/unittest.html) · [pytest](https://docs.pytest.org/) · [Hypothesis](https://hypothesis.readthedocs.io/) · [Coverage.py](https://coverage.readthedocs.io/) · [OWASP Web Security Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+
+---
+
+# Part III — Building real apps: integration flows
+
+[Lab source](../python_lab/app_integration.py) · [Integration tests](../python_lab/tests/test_app_integration.py) · [Open in Colab (Part III section)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb)
+
+Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it.
+
+~~~mermaid
+sequenceDiagram
+    actor U as User
+    participant S as RideScreen (button + handler)
+    participant C as ApiClient (urllib)
+    participant A as ApiServer (http.server)
+    participant V as RideService (rules)
+    participant D as SQLite
+    U->>S: click "Book"
+    S->>S: read form, client-side checks
+    S->>C: POST /api/rides + Idempotency-Key
+    C->>A: HTTP request (JSON body)
+    A->>V: create_ride(body, key)
+    V->>V: validate, price
+    V->>D: BEGIN, SELECT key, INSERT, COMMIT
+    D-->>V: new row
+    V-->>A: ride dict
+    A-->>C: 201 Created + JSON
+    C-->>S: Response(status, body)
+    S-->>U: new row in the table, form cleared
+~~~
+
+| Layer | Class in `app_integration.py` | Its one job |
+|---|---|---|
+| UI | `Button`, `RideScreen` | turn a click into a request; turn the response into what the user sees |
+| client | `ApiClient` | send HTTP, apply timeouts and the retry policy |
+| route | `ApiServer` | parse URL/JSON, call the service, map exceptions to status codes |
+| service | `RideService` | business rules, transactions, cache |
+| data | `Database` | SQLite with `CHECK`, `FOREIGN KEY`, `UNIQUE` constraints |
+
+**Run it:** `python python_lab/app_integration.py --all` (charts in `python_lab/results_app`), `python -m pytest -q python_lab/tests` (34 tests), and `python python_lab/app_integration.py --serve` to click the same API in a browser at http://127.0.0.1:8010 with DevTools → Network open.
+
+Every example below starts the whole app on a free local port:
+
+~~~python
+import sys
+sys.path.insert(0, "python_lab")
+from app_integration import App
+
+with App(drivers=3, rides=4) as app:
+    resp = app.screen.load_button.click()          # button -> handler -> HTTP -> route -> service -> SQLite
+    print(resp.status, resp.headers["X-Total-Count"])
+    print(app.screen.render())
+~~~
+
+## A01 — Tracing one click
+
+**Idea.** A click is an event; the handler builds a request; the server's route calls the service; the service runs SQL; the result climbs back. `Trace` records each hop from both threads (UI and server).
+
+~~~python
+with App(drivers=2, rides=3) as app:
+    app.trace.clear()
+    app.screen.load_button.click()
+    print("\n".join(app.trace.lines()))
+~~~
+
+**Chart.** Layer reached at each hop: a "V" down to the database and back. The route runs two SELECTs (COUNT for the total, then the page). **Exercise:** click "Stats" instead and compare the depth and number of hops.
+
+## A02 — Form → POST → INSERT → screen
+
+**Idea.** The *Book* handler validates the form, sends JSON, and only touches the table after a 2xx. A 422 shows a field-specific message; the form keeps its values so the user can fix them.
+
+~~~python
+with App(drivers=2) as app:
+    app.screen.form.update(passenger="Aoife", pickup="UCC", destination="Cork Airport", km="5.8")
+    resp = app.screen.book_button.click().result()      # Book is asynchronous, like fetch()
+    print(resp.status, resp.body["fare_cents"], app.db.count("rides"))
+~~~
+
+**Chart.** Rows in the database, rows on screen and requests sent over seven clicks. Two clicks never leave the browser; one reaches the server and is rejected. **Common mistake:** adding the row to the table *before* the server answers ("optimistic UI") without undoing it on failure.
+
+## A03 — Validation in three places
+
+**Idea.** The form gives fast feedback but can be bypassed (curl, scripts, an old app version). The API is the authority. Database constraints are the last line of defence and catch what the code forgot — here a missing driver is only caught by the `FOREIGN KEY`.
+
+~~~python
+with App(drivers=1) as app:
+    bad = {"passenger": "Aoife", "pickup": "UCC", "destination": "UCC", "distance_km": 5}
+    resp = app.client.post("/api/rides", bad)               # skips the form entirely
+    print(resp.status, resp.body)                            # 422 with the offending field
+~~~
+
+**Chart.** A heatmap of input × layer. **Exercise:** add a `CHECK` that rejects unknown places in SQL and watch the last row change.
+
+## A04 — Search-as-you-type and debouncing
+
+**Idea.** Sending a request on every key press multiplies traffic and database work. *Debouncing* waits until typing pauses. User text goes into `LIKE ?` as a parameter, with `%` and `_` escaped.
+
+~~~python
+from app_integration import debounced, keystrokes
+events = keystrokes("airport", pauses={3: 500})
+print(debounced(events, 300))          # ['air', 'airport']
+~~~
+
+**Chart.** HTTP requests, SQL SELECTs and rows transferred per strategy; all strategies end on the same results.
+
+## A05 — Double submit
+
+**Idea.** A second click can arrive while the first request is still in flight. Two independent fixes: disable the button (stops it in the browser) and an `Idempotency-Key` header (the server returns the first ride for a repeat — this also protects automatic retries).
+
+~~~python
+with App(drivers=1, disable_while_sending=False, send_request_key=True) as app:
+    app.screen.form.update(passenger="Aoife", pickup="UCC", destination="Douglas", km="4")
+    app.screen.book_button.click(); app.screen.book_button.click(); app.screen.wait()
+    print(app.client.requests, "requests ->", app.db.count("rides"), "ride")
+~~~
+
+## A06 — "Load more": offset vs keyset pagination
+
+**Idea.** `LIMIT 10 OFFSET 20` counts positions, so a row inserted between clicks shifts every page and a row is shown twice. Keyset pagination (`WHERE id < last_seen_id`) cannot repeat or skip.
+
+**Chart.** Rows shown and duplicate rows after each click, with a new ride inserted after click 2. **Exercise:** delete a row between clicks instead — which mode now *skips* a row?
+
+## A07 — Concurrent edits and optimistic locking
+
+**Idea.** Two people open the same record and both save. Without a check the second save silently erases the first (a *lost update*). With a `version` column, `UPDATE ... WHERE id = ? AND version = ?` changes no rows for the stale copy, the API returns **409 Conflict**, and the screen reloads.
+
+~~~python
+with App(drivers=1, rides=1) as app:
+    from app_integration import RideScreen
+    bob = RideScreen(app.client, app.trace)
+    app.screen.open_button.click(1); bob.open_button.click(1)
+    app.screen.editing["passenger"] = "Alice"; print(app.screen.save_button.click().status)   # 200
+    bob.editing["passenger"] = "Bob";          print(bob.save_button.click().status)          # 409
+    bob.close()
+~~~
+
+## A08 — Transactions across three tables
+
+**Idea.** *Assign* must update the ride, mark the driver busy and write an audit row. If the process crashes after the first write, only a transaction (`BEGIN … COMMIT`, `ROLLBACK` on error) keeps the three tables consistent.
+
+**Chart.** 12 clicks with 4 injected crashes: without a transaction 4 rides are "assigned" to drivers who are still free and have no audit entry; with one there are none. The user sees a 500 message with a reference number either way — never a traceback.
+
+## A09 — The N+1 query problem
+
+**Idea.** Looping over rides and looking up each driver runs 1 + N queries; one `LEFT JOIN` runs 1. `sqlite3`'s `set_trace_callback` counts every statement.
+
+~~~python
+with App(drivers=3, rides=10, assigned=True) as app:
+    mark = len(app.db.statements)
+    app.client.get("/api/rides-with-drivers?strategy=n_plus_1")
+    print(app.db.selects_since(mark), "SELECTs")             # 11
+~~~
+
+## A10 — Caching and invalidation
+
+**Idea.** A cache saves work but can show stale data. Invalidate it whenever a write changes what it summarises.
+
+**Chart.** Aggregate queries and stale screens for no cache, a cache that is never cleared, and clear-on-write.
+
+## A11 — Errors, timeouts and retries
+
+**Idea.** Retry only failures that may succeed next time (503, timeouts, refused connections), with exponential back-off. Never retry 4xx (the request is wrong) or 500 (a bug). Map every failure to a plain sentence (`user_message`).
+
+~~~python
+from collections import deque
+with App(drivers=1) as app:
+    app.server.faults["/api/stats"] = deque([503, 503])     # fail twice, then recover
+    resp = app.screen.refresh_button.click()
+    print(resp.status, "after", resp.attempts, "attempts")
+~~~
+
+## A12 — An end-to-end journey
+
+**Idea.** An end-to-end test follows a user story (open, book, assign, complete, cancel, refresh) and after **every** step checks that the screen and the database agree. Rejected actions (409) must change nothing.
+
+**Chart.** Database row counts and cumulative requests after each step.
+
+## Part III exercises
+
+1. Add a **Delete** button for cancelled rides (`DELETE /api/rides/{id}` → 204) with a test that a requested ride cannot be deleted (409).
+2. Add a **drivers dropdown** that only lists online, free drivers; make *Assign* use it and test that an offline driver is rejected.
+3. Make *Book* retry automatically on 503 — and prove with a test that the `Idempotency-Key` stops duplicates.
+4. Show **stale responses**: make search request 1 slow and request 2 fast, and fix the screen so an old response never overwrites a newer one.
+5. Replace the in-memory database with a file (`Database(path="rides.db")`) and show that data survives a restart (hint: the schema needs `CREATE TABLE IF NOT EXISTS`).

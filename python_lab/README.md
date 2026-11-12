@@ -1,4 +1,4 @@
-# Python lab — 20 experiments and a testing workshop
+# Python lab — 20 experiments, a testing workshop and 12 app-integration labs
 
 [Course guide](../docs/PYTHON_PROGRAMMING.md) · [Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab source](experiments.py) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -44,6 +44,54 @@ Each lab writes `lab_NN.csv` (the observed table), `lab_NN.json` (table + title,
 | P18 | Searching | linear vs binary search for an absent key | comparisons (log) |
 | P19 | Testing | 6 mutants of `fare_cents` vs a 1-test and a 5-test suite | mutants killed / survived |
 | P20 | Profiling | `timeit` of `x in list` vs `x in set` | µs per test (log) — the only timing lab |
+
+## Part III — Building real apps: integration flows (A01–A12)
+
+[Guide (Part III)](../docs/PYTHON_PROGRAMMING.md#part-iii--building-real-apps-integration-flows) · [Lab source](app_integration.py) · [Integration tests](tests/test_app_integration.py)
+
+`app_integration.py` is a small but complete ride-booking app built with the **standard library only**, so every hop of a button click can be observed:
+
+~~~text
+Button.click() -> event handler -> ApiClient (urllib) -> ApiServer (http.server) -> RideService -> SQLite
+     screen  <-  render / error banner  <-  JSON + status code  <-  rows  <-----------------------+
+~~~
+
+| Class | Role |
+|---|---|
+| `RideScreen`, `Button` | headless front end: form fields, buttons, a table, an error banner. *Book* is asynchronous like `fetch()` |
+| `ApiClient` | HTTP requests with timeouts and a retry policy (503 / timeout / refused connection only) |
+| `ApiServer` | JSON REST API on a random local port; maps exceptions to 404 / 405 / 409 / 422 / 500; fault injection for labs |
+| `RideService` | validation, pricing, idempotency keys, optimistic locking, transactions, a stats cache |
+| `Database` | SQLite with `CHECK`, `FOREIGN KEY` and `UNIQUE` constraints; counts every SQL statement it runs |
+| `App` | wires all of the above together: `with App(drivers=3, rides=5) as app: app.screen.load_button.click()` |
+
+~~~bash
+python python_lab/app_integration.py                  # runs every lab's assertions, then usage
+python python_lab/app_integration.py --list
+python python_lab/app_integration.py --all            # A01-A12 -> python_lab/results_app (about 2 s)
+python python_lab/app_integration.py --experiment 8
+python -m pytest -q python_lab/tests                  # 34 integration tests
+python python_lab/app_integration.py --serve          # the same API + a clickable page at http://127.0.0.1:8010
+~~~
+
+Each lab writes `app_NN.csv`, `app_NN.json` (table, notes and any trace/story lines) and `app_NN.png`.
+
+| Lab | Integration flow | What runs | What the chart shows |
+|---|---|---|---|
+| A01 | Tracing one click | *Load rides* with a `Trace` shared by the UI and server threads | layer reached at each hop — down to SQLite and back |
+| A02 | Form → POST → INSERT → screen | 7 *Book* clicks: valid, form-invalid, server-invalid | rows in DB, rows on screen, requests sent |
+| A03 | Validation in three layers | 9 inputs through the form, the API (bypassing the form) and a raw `INSERT` | heatmap: which layer rejects each input |
+| A04 | Search-as-you-type | typing "airport" with every-key, debounced and button strategies | HTTP requests, SQL SELECTs, rows sent |
+| A05 | Double submit | two *Book* clicks while the first request is in flight | requests, rides stored, rows shown per protection |
+| A06 | *Load more* pagination | offset vs keyset paging with an insert between clicks | rows shown and duplicate rows per click |
+| A07 | Concurrent edits | two screens save the same ride | saves accepted, 409s shown, lost updates |
+| A08 | Transactions | 12 *Assign* clicks, 4 crash after the first write | assigned / busy / audit / inconsistent rows |
+| A09 | N+1 queries | *Rides + drivers* for 5–80 rides, loop vs `LEFT JOIN` | SELECT statements per click |
+| A10 | Caching | 10 *Stats* clicks with 2 bookings between | aggregate queries and stale screens per strategy |
+| A11 | Errors and retries | 404, 422, 500, 503×2, timeout, server down | attempts made and whether data was shown |
+| A12 | End-to-end journey | open → book → assign → busy 409 → complete → cancel → refresh | DB row counts and cumulative requests per step |
+
+Everything is deterministic except the millisecond timings printed by A01. Every lab asserts its own outcome before charting (for example A05 that only "no protection" stores two rides, A08 that the transaction leaves zero inconsistent rows, A12 that each row on screen matches its SQLite row after every step). The server binds to 127.0.0.1 only, has no authentication, and holds synthetic data in memory.
 
 ## Interpreting results
 
