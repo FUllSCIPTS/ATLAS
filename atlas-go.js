@@ -1,15 +1,15 @@
-// ATLAS Go 1.1.0 — the Android app (Python/Kivy) and its on-device intelligence.
+// ATLAS Go 1.2.0 — the Android app (Python/Kivy): passenger, driver and seller accounts, live map, on-device intelligence.
 // Same 900 × 500 coordinate system as atlas.js. Nodes are 188 × 56 unless they set h.
 const goSystem = {
   id: "go",
-  label: "ATLAS Go 1.1.0 app",
-  tagline: "ANDROID APP 1.1.0 / ON-DEVICE INTELLIGENCE",
-  intro: "ATLAS Go 1.1.0 runs entirely on the phone. Trace how the app picks a driver, times a courier, forecasts holiday surges in Cork and retrains a policy in its learning lab, all from constants learned offline in two simulated years of demand.",
-  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md">App architecture</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint</a><a class="guide-link" href="https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV">Request the app</a>',
+  label: "ATLAS Go 1.2.0 app",
+  tagline: "ANDROID APP 1.2.0 / ACCOUNTS · LIVE MAP · ON-DEVICE INTELLIGENCE",
+  intro: "ATLAS Go 1.2.0 runs on the phone with passenger, driver and food-seller accounts and a live map. Trace how a registered driver competes in the learned dispatch policy, how a seller's kitchen sets the courier timing, how journeys move on the live map, and how surges are forecast from two simulated years of Cork.",
+  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md">App architecture</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">Download 1.2.0</a>',
   root: "android-app/",
   source: "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/",
   foldersDetail: "Browse the folders and files of the ATLAS Go Android app. Open a file to read its source on GitHub.",
-  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. CI runs 68 Python tests and an emulator click-through with 14 screenshots. Installable builds are shared on request through the ATLAS Go downloads folder."],
+  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 117 Python tests, 247 UI assertions in two screen sizes and an Android 16 emulator click-through with 22 screenshots. The 1.2.0 APK, unsigned AAB and SHA256SUMS are in android-app/releases/1.2.0."],
   defaultSelected: "dispatch",
   defaultFolder: "intelligence",
   openFolders: ["atlas_go", "training"],
@@ -48,6 +48,27 @@ const goSystem = {
       inputs: "Train, step and reset buttons",
       outputs: "LearningCurve and a three-way comparison",
       notes: "A sandbox. Candidates trained here never dispatch rides; bookings always use the approved policy v1.4.",
+    },
+    acctui: {
+      title: "Accounts & roles", tech: "Passenger · driver · seller", group: "screen", icon: "user", y: 350, file: "accounts",
+      summary: "Register as a passenger, driver or food seller, sign in, switch accounts, delete an account or continue as a guest. Drivers go online and accept trips; sellers run a kitchen and menu.",
+      inputs: "Name, email, mobile, password; vehicle, plate, SPSV licence; kitchen, cuisine, food business number, prep time",
+      outputs: "Role-specific home: Drive, Kitchen or passenger Home",
+      notes: "Passwords stored only as PBKDF2-HMAC-SHA256 hashes; five wrong passwords lock sign-in for 60 s. Licence and business numbers are format-checked only.",
+    },
+    mapui: {
+      title: "Live map", tech: "OSM tiles · GPS · time-lapse", group: "screen", icon: "map", y: 425, file: "livemap",
+      summary: "A slippy map of Cork: pickup places, drivers moving nearby, registered drivers online, kitchens, the active car and courier, and the user's own location.",
+      inputs: "Drag, zoom, Me (location permission), active ride and order",
+      outputs: "Markers, routes and ETAs refreshed every second",
+      notes: "Tiles are cached on the phone; when offline a schematic Cork map is drawn. Routes are straight lines at 25 km/h shown 10x faster.",
+    },
+    accept: {
+      title: "Acceptance model", tech: "Beta-Bernoulli per driver", group: "device", icon: "activity", y: 345, file: "intelligence",
+      summary: "Estimates how likely a registered driver is to accept a request from their own accept/decline history on the phone.",
+      inputs: "offered and accepted counts",
+      outputs: "accept feature for the dispatch policy",
+      notes: "Beta(9, 1) prior: a new driver starts at 90%. Combined with the current-hour surge level from the outlook.",
     },
     app: {
       title: "AtlasGoApp", tech: "Kivy App · navigation", group: "app", icon: "gateway", y: 50, h: 280, file: "app",
@@ -147,6 +168,12 @@ const goSystem = {
     { id: "call-courier", from: "app", to: "courier", kind: "sync", label: "courier_plan(restaurant)", path: "M430 153H465" },
     { id: "call-outlook", from: "app", to: "outlook", kind: "sync", label: "day_summary(day) and upcoming()", path: "M430 228H465" },
     { id: "call-lab", from: "app", to: "lab", kind: "sync", label: "LearningLab.train() and result()", path: "M430 303H465" },
+    { id: "acct-cmd", from: "acctui", to: "store", kind: "event", label: "register(), login(), set_online(), add_dish()", path: "M207 369H242" },
+    { id: "acct-home", from: "store", to: "acctui", kind: "event", label: "Signed-in account and role", path: "M242 387H207" },
+    { id: "map-pos", from: "domain", to: "mapui", kind: "sync", label: "geo.ride_position() and order_position()", path: "M242 462H207" },
+    { id: "map-tick", from: "mapui", to: "domain", kind: "sync", label: "tick(now) every second", path: "M207 444H242" },
+    { id: "call-accept", from: "app", to: "accept", kind: "sync", label: "registered_candidate(account, position)", path: "M430 322H448V373H465" },
+    { id: "accept-dispatch", from: "accept", to: "dispatch", kind: "sync", label: "Registered drivers join the candidates", path: "M653 380H690V70H653" },
     { id: "save", from: "app", to: "store", kind: "event", label: "book(), checkout() and UI state", path: "M310 330V350" },
     { id: "restore", from: "store", to: "app", kind: "event", label: "Validated state.json on start", path: "M370 350V330" },
     { id: "rules", from: "store", to: "domain", kind: "sync", label: "Fares, seats and basket rules", path: "M336 406V425" },
@@ -161,6 +188,26 @@ const goSystem = {
     { id: "t-write", from: "export", to: "learned", kind: "learn", label: "Generates atlas_go/learned.py", path: "M782 476V485H559V476" },
   ],
   scenarios: {
+    roles: {
+      title: "Three roles, one phone", icon: "user",
+      steps: [
+        ["acct-cmd", "A driver registers, chooses UCC Campus and goes online; a seller registers a kitchen and adds a dish."],
+        ["acct-home", "Each account opens its own home: Drive or Kitchen. Signing out keeps the driver online for dispatch."],
+        ["ride-cmd", "A passenger signs up and books a ride from UCC Campus."],
+        ["call-accept", "AtlasGoApp scores the registered driver: 1 minute away, 90% likely to accept, current surge from the outlook."],
+        ["accept-dispatch", "The registered driver joins the simulated fleet in the dispatch policy and wins as the nearest, likely to accept."],
+        ["save", "The ride is saved as waiting for that driver; the driver signs in, accepts, and drives the trip to completion."],
+      ],
+    },
+    livemap: {
+      title: "Live map", icon: "map",
+      steps: [
+        ["ride-cmd", "The passenger books a ride with a simulated driver."],
+        ["map-tick", "Every second LocalStore.tick() checks whether the car has finished its time-lapse leg."],
+        ["map-pos", "geo.ride_position() places the car on the line to the pickup, then along the route."],
+        ["show-ride", "The ride screen's live map shows the car moving, the dashed approach and the ETA; stages advance on their own."],
+      ],
+    },
     smartride: {
       title: "Smart dispatch", icon: "car",
       steps: [
@@ -220,9 +267,12 @@ const goSystem = {
       name: "atlas_go",
       children: [
         { id: "app", name: "app.py", detail: "Kivy screens, charts, navigation and the intelligence and learning lab screens.", example: ["app.py"], component: "app" },
-        { id: "store", name: "store.py", detail: "Atomic local JSON persistence and booking state.", example: ["store.py"] },
+        { id: "store", name: "store.py", detail: "Atomic JSON persistence: accounts, rides, orders, kitchens and live progress.", example: ["store.py"] },
+        { id: "accounts", name: "accounts.py", detail: "Roles, field validation and PBKDF2 password hashing.", example: ["accounts.py"], component: "acctui" },
+        { id: "livemap", name: "livemap.py", detail: "LiveMap widget and TileLoader: OSM tiles, disk cache, offline layer. location.py adds the device position.", example: ["livemap.py", "location.py"], component: "mapui" },
+        { id: "geo", name: "geo.py", detail: "Cork coordinates, Web-Mercator tiles and live journey positions.", example: ["geo.py"], component: "mapui" },
         { id: "domain", name: "domain.py", detail: "Places, fares, offers, menu and basket.", example: ["domain.py"] },
-        { id: "intelligence", name: "intelligence.py", detail: "Holiday calendar, surge outlook, dispatch policy, courier timing and the learning lab.", example: ["intelligence.py"], component: "dispatch" },
+        { id: "intelligence", name: "intelligence.py", detail: "Holiday calendar, surge outlook, dispatch policy, acceptance model, courier timing, the learning lab and the model self-test.", example: ["intelligence.py"], component: "dispatch" },
         { id: "learned", name: "learned.py", detail: "Learned constants exported from the simulations (generated).", example: ["learned.py", "__init__.py"] },
         { id: "acceptance", name: "acceptance.py", detail: "Debug-only click-through of every screen with screenshots.", example: ["acceptance.py"], component: "app" },
       ],
@@ -238,7 +288,7 @@ const goSystem = {
     {
       name: "tests",
       children: [
-        { id: "tests", name: "Unit tests", detail: "Calendar, outlook, policy, courier timing, learning lab, domain and store regression tests.", example: ["test_intelligence.py", "test_domain.py"], component: "outlook" },
+        { id: "tests", name: "Unit tests", detail: "117 tests: calendar, outlook, policy, courier timing, lab, accounts, maps, roles, domain and store.", example: ["test_intelligence.py", "test_domain.py", "test_roles.py", "test_accounts_geo.py"], component: "outlook" },
       ],
     },
     {

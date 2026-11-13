@@ -573,3 +573,26 @@ h1, h2, h3, p { margin: 0; }
   .dsa-hbar { grid-template-columns: minmax(110px, 130px) minmax(0, 1fr) 64px; font-size: 11px; }
 }
 .sec-note > .dsa-t { flex: 1 1 0; min-width: 0; }
+
+/* Foundations topics (foundations.js): standalone units with what / why / how and live labs */
+.fd-units { display: grid; gap: 10px; margin: 4px 0 14px; }
+.fd-group > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.fd-group .sec-label { margin: 0 0 5px; }
+.fd-units button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: #131e2b; color: #c4d0de; font-size: 12px; text-align: left; }
+.fd-units button b { font: 600 10.5px var(--mono); color: var(--muted); }
+.fd-units button:hover { border-color: #6a7c8d; background: #162231; }
+.fd-units button[aria-pressed="true"] { border-color: #779e51; background: #202d20; color: var(--ink); }
+.fd-units button[aria-pressed="true"] b { color: var(--green); }
+.fd-live { color: var(--green); font-style: normal; font-size: 8px; }
+.fd-unit-card { padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: #111a26; margin-bottom: 14px; }
+.fd-unit-card h3 { color: var(--ink); font-size: 17px; margin: 0 0 10px; }
+.fd-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.fd-steps, .fd-pitfalls { margin: 4px 0 10px 20px; color: #c4d0de; font-size: 13px; line-height: 1.6; max-width: 860px; }
+.fd-steps li { margin-bottom: 4px; padding-left: 3px; }
+.fd-pitfalls li::marker { color: #ff9f8f; }
+.fd-mult { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px; margin: 8px 0 12px; }
+.fd-mult span { display: flex; justify-content: space-between; gap: 6px; padding: 4px 7px; border: 1px solid var(--line-soft, #1f2a38); border-radius: 4px; font: 11px var(--mono); color: #d7e3ee; background: #0d141e; }
+.fd-mult b { color: var(--green); font-weight: 600; }
+.fd-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
+.sec-check-toggle { display: flex; align-items: center; gap: 7px; margin: 4px 0 10px; color: #c4d0de; font-size: 12.5px; }
+.fd-unit-card > .sec-label { margin-top: 12px; }

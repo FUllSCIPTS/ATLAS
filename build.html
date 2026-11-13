@@ -69,22 +69,23 @@ Then implement any requested production extensions in tested increments. Preserv
     </section>
     <section class="panel guide-card">
       <p class="section-kicker">05 / ANDROID APP</p>
-      <h2>ATLAS Go 1.1.0 on the phone</h2>
-      <p>The Android app is separate from this starter. It runs offline and ships what the agents learned as plain Python constants.</p>
+      <h2>ATLAS Go 1.2.0 on the phone</h2>
+      <p>The Android app is separate from this starter. It has passenger, driver and food-seller accounts and a live map, stores everything on the phone, and ships what the agents learned as plain Python constants.</p>
       <dl class="guide-models">
-        <dt>Dispatch policy v1.4</dt><dd>REINFORCE softmax over ETA, acceptance and surge features; each solo booking stores a plain-language reason.</dd>
+        <dt>Dispatch policy v1.4</dt><dd>REINFORCE softmax over ETA, acceptance and surge features; registered drivers online on the phone compete with the simulated fleet, and each booking stores a plain-language reason.</dd>
+        <dt>Acceptance model</dt><dd>A Beta-Bernoulli estimate per registered driver, learned from their own accept/decline history, feeds the dispatch policy.</dd>
         <dt>Courier timing</dt><dd>A Q-learning table decides how long to wait before sending a courier, so food and courier arrive together.</dd>
         <dt>Surge outlook</dt><dd>Hourly demand ratios learned from two simulated years of Cork over Ireland's public holidays, with the hours the supply agent adds drivers.</dd>
         <dt>Learning lab</dt><dd>Retrains a policy from zero on the device and compares it with the nearest-driver rule. It never dispatches.</dd>
       </dl>
       <pre><code>cd android-app
-python -m pytest tests      # 68 tests
+python -m pytest tests      # 117 tests
 python training/export_learned.py   # regenerate atlas_go/learned.py (needs numpy)
 buildozer android debug</code></pre>
-      <p><a href="./#go">Explore the app architecture</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source ↗</a> · <a href="https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV">Request the app</a></p>
+      <p><a href="./#go">Explore the app architecture</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source ↗</a> · <a href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">Download 1.2.0</a></p>
     </section>
   </div>
-  <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Implementation Guide</span><span>Ride-hailing starter · ATLAS Go 1.1.0</span></footer>
+  <footer class="footer"><span><strong>ATLAS</strong> &nbsp;/&nbsp; Implementation Guide</span><span>Ride-hailing starter · ATLAS Go 1.2.0</span></footer>
 </main>
 </body>
 </html>

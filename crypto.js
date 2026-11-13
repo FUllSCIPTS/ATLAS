@@ -68,6 +68,7 @@ function crSelect(name, label, options, value) {
 
 // ------------------------------------------------------------------ overview
 const crMap = [
+  ["learn", "layers", "Foundations: 19 standalone units", null, "RSA, Diffie–Hellman, ECDSA, AES-GCM, ML-KEM, ML-DSA, SLH-DSA — what, why and how, with live labs", "docs/CRYPTOGRAPHY.md"],
   ["hashes", "hash", "SHA-256 release checksums", "impl", "Every release ships SHA256SUMS; users run sha256sum -c", "android-app/releases/*/SHA256SUMS"],
   ["hashes", "hash", "Pinned build tool", "impl", "CI refuses bundletool.jar unless its SHA-256 matches the committed value", ".github/workflows/atlas-android.yml"],
   ["hashes", "layers", "Checksum vs hash", "impl", "Prototype recovery compares (count, total, len): catches lost updates, not tampering", "prototype/module_server.py"],
@@ -394,7 +395,11 @@ function crPqc() {
     ["FIPS 203", "ML-KEM", "Key encapsulation", "Module lattices", "TLS for tiles, gateway and service mTLS (hybrid with X25519)"],
     ["FIPS 204", "ML-DSA", "Signature", "Module lattices", "mTLS certificates; future app signing"],
     ["FIPS 205", "SLH-DSA", "Signature", "Hash functions only", "Long-lived roots of trust, e.g. a release-signing root"],
-  ]) + `<p class="sec-note">${icon("atom", 14)} Hybrid KEM: combine a classical and a post-quantum shared secret with a KDF, so a session stays secure if either one holds.</p>`)}`;
+    ["Draft FIPS 206", "FN-DSA (Falcon)", "Signature", "NTRU lattices", "Compact certificate chains, once final"],
+    ["Selected March 2025", "HQC", "Key encapsulation", "Error-correcting codes", "Backup KEM if lattices were ever broken"],
+  ]) + `<p class="sec-note">${icon("atom", 14)} Hybrid KEM: combine a classical and a post-quantum shared secret with a KDF, so a session stays secure if either one holds. Browsers already negotiate <strong>X25519MLKEM768</strong> in TLS 1.3.</p>
+    <p class="sec-note">${icon("clock", 14)} <strong>Deadlines.</strong> NIST IR 8547 (final, October 2026) deprecates RSA, finite-field and elliptic-curve Diffie–Hellman, ECDSA and EdDSA after 2030 and disallows them after 2035, at every key size.</p>
+    <p class="sec-note">${icon("layers", 14)} How ML-KEM, ML-DSA and SLH-DSA work, with live toy versions: <button type="button" class="sec-inline-link fd-link" data-cr-topic="learn">Foundations → C10.1–C10.5</button></p>`)}`;
 }
 
 // ------------------------------------------------------------------ gaps
@@ -415,6 +420,7 @@ function crGaps() {
     ["4", "Trust models", "Private CA vs Web PKI vs pinning; recompute the pin"],
     ["5", "Digital signatures", "Signatures tab: ECDSA vs RSA sizes; tamper; crypto lab 15-17"],
     ["6", "Post-quantum", "Lamport: sign, reuse, forge; crypto lab 18-20; plan ATLAS's migration"],
+    ["Any", "Foundations", "Pre-read the matching standalone unit (C1–C10.5) and run its live lab"],
   ]))}
   <p class="sec-note">Full write-up: <a class="sec-inline-link" href="${SEC_MAIN}docs/CRYPTOGRAPHY.md">docs/CRYPTOGRAPHY.md</a> · lab: <a class="sec-inline-link" href="${SEC_MAIN}security_lab/README.md">security_lab/ (20 experiments in five files)</a></p>`;
 }
