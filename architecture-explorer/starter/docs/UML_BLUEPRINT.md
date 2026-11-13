@@ -107,6 +107,7 @@ architecture-explorer/
 │   ├── crypto.js
 │   ├── dsa.js
 │   ├── explorer.js
+│   ├── foundations.js
 │   ├── index.html
 │   ├── ml.js
 │   ├── ride-event.schema.json
@@ -123,6 +124,32 @@ architecture-explorer/
 │   │       ├── client.js
 │   │       └── demo.css
 │   ├── docs/
+│   │   ├── img/
+│   │   │   └── uml/
+│   │   │       ├── uml-app-class-diagram.svg
+│   │   │       ├── uml-app-layers.svg
+│   │   │       ├── uml-booking-and-dispatch-types.svg
+│   │   │       ├── uml-component-and-deployment-boundaries.svg
+│   │   │       ├── uml-connected-booking-sequence.svg
+│   │   │       ├── uml-database-adapter.svg
+│   │   │       ├── uml-driver-acceptance-and-completion.svg
+│   │   │       ├── uml-event-delivery-and-offer-creation.svg
+│   │   │       ├── uml-food-order-from-a-seller-kitchen.svg
+│   │   │       ├── uml-live-map-and-location.svg
+│   │   │       ├── uml-on-device-data-model-state-json.svg
+│   │   │       ├── uml-on-device-intelligence-1-2-0.svg
+│   │   │       ├── uml-on-device-ride-and-order-lifecycles.svg
+│   │   │       ├── uml-passenger-booking.svg
+│   │   │       ├── uml-persistence-model.svg
+│   │   │       ├── uml-proposed-back-end-extensions-for-the-and.svg
+│   │   │       ├── uml-registration-and-sign-in.svg
+│   │   │       ├── uml-repository-boundary.svg
+│   │   │       ├── uml-ride-with-a-registered-driver-on-the-sam.svg
+│   │   │       ├── uml-scoring-types-and-lstm.svg
+│   │   │       ├── uml-screen-navigation.svg
+│   │   │       ├── uml-system-overview-apps-front-end-back-end-.svg
+│   │   │       ├── uml-training-serving-and-approval.svg
+│   │   │       └── uml-trip-state-machine.svg
 │   │   ├── FINAL_HANDOVER.md
 │   │   ├── UML_BLUEPRINT.md
 │   │   └── uml-blueprint.json
@@ -1455,8 +1482,8 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-public"></a>Strip salt and hash before display | `public_view` | [android-app/atlas_go/accounts.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L124) | Implemented |
 | <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L260](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L260) | Implemented |
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
-| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L204](../../dist/security.js#L204) | Explorer / lab |
-| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L223](../../dist/security.js#L223) | Explorer / lab |
+| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L212](../../dist/security.js#L212) | Explorer / lab |
+| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L231](../../dist/security.js#L231) | Explorer / lab |
 | <a name="sec-pw-cli"></a>Command-line lab runner: all 20 experiments and 5 study paths | `if __name__ == '__main__':` | [security_lab/password_storage_demo.py L37](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L37) | Explorer / lab |
 | <a name="sec-pw-cli-a"></a>Lab A: what the app stores (experiments 1-8) | `exp_record` | [security_lab/lab_a_password_storage.py L38](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_a_password_storage.py#L38) | Explorer / lab |
 | <a name="sec-pw-cli-common"></a>Lab helpers, experiment registry and command line | `main` | [security_lab/lab_common.py L144](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_common.py#L144) | Explorer / lab |
@@ -1476,7 +1503,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L326](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L326) | Implemented |
 | <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L613](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L613) | Implemented |
 | Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
-| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L267](../../dist/security.js#L267) | Explorer / lab |
+| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L275](../../dist/security.js#L275) | Explorer / lab |
 | <a name="sec-pw-cli-c"></a>Lab C: sign-in defences (experiments 12-15) | `exp_lockout` | [security_lab/lab_c_signin_defences.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_c_signin_defences.py#L28) | Explorer / lab |
 | <a name="sec-pw-cli-d"></a>Lab D: integrity, sessions and lifecycle (experiments 16-20) | `exp_sessions` | [security_lab/lab_d_integrity_lifecycle.py L34](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34) | Explorer / lab |
 
@@ -1519,7 +1546,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-gw-internal"></a>Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | <a name="sec-gw-trips"></a>Trip Service accepts only gateway-asserted riders | `book` | [architecture-explorer/starter/services/trips.py L32](../services/trips.py#L32) | Demo-grade |
 | <a name="sec-gw-dispatch"></a>Dispatch Service accepts only gateway-asserted drivers | `offers` | [architecture-explorer/starter/services/dispatch.py L35](../services/dispatch.py#L35) | Demo-grade |
-| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L367](../../dist/security.js#L367) | Explorer / lab |
+| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L375](../../dist/security.js#L375) | Explorer / lab |
 
 <a name="uml-security-sso"></a>
 
@@ -1531,7 +1558,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | --- | --- | --- | --- |
 | <a name="sec-sso-target"></a>Where JWT validation would replace bearer keys | `proxy` | [architecture-explorer/starter/services/gateway.py L47](../services/gateway.py#L47) | Teaching extension |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
-| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L420](../../dist/security.js#L420) | Explorer / lab |
+| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L428](../../dist/security.js#L428) | Explorer / lab |
 
 <a name="uml-security-kerberos"></a>
 
@@ -1542,10 +1569,10 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | <a name="sec-krb-target"></a>What a Kerberos AP-REQ would replace in Dispatch | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Teaching extension |
-| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L500](../../dist/security.js#L500) | Explorer / lab |
-| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L510](../../dist/security.js#L510) | Explorer / lab |
-| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L583](../../dist/security.js#L583) | Explorer / lab |
-| <a name="sec-krb-seal"></a>AES-256-GCM seal used for tickets | `secSeal` | [architecture-explorer/dist/security.js L82](../../dist/security.js#L82) | Explorer / lab |
+| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L508](../../dist/security.js#L508) | Explorer / lab |
+| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L518](../../dist/security.js#L518) | Explorer / lab |
+| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L591](../../dist/security.js#L591) | Explorer / lab |
+| <a name="sec-krb-seal"></a>AES-256-GCM seal used for tickets | `secSeal` | [architecture-explorer/dist/security.js L87](../../dist/security.js#L87) | Explorer / lab |
 
 <a name="uml-security-transport"></a>
 
@@ -1558,11 +1585,30 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-tls-ca"></a>Private CA, serverAuth and clientAuth certificates | `make_certs` | [prototype.zip → prototype/proto_run.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-client"></a>Client presents its certificate, verifies the server | `client_ctx` | [prototype.zip → prototype/proto_run.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="sec-tls-server"></a>Server requires a client certificate (CERT_REQUIRED) | `ctx.load_verify_locations(f"{certdir}/ca.crt"); ctx.verify_mode = ssl...` | [prototype.zip → prototype/module_server.py L84](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
-| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L34](../../server.mjs#L34) | Implemented |
-| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L42](../../server.mjs#L42) | Implemented |
-| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L68](../../server.mjs#L68) | Implemented |
+| <a name="sec-dep-headers"></a>Security headers and CSP | `securityHeaders` | [architecture-explorer/server.mjs L35](../../server.mjs#L35) | Implemented |
+| <a name="sec-dep-reply"></a>Every response carries the headers | `reply` | [architecture-explorer/server.mjs L43](../../server.mjs#L43) | Implemented |
+| <a name="sec-dep-loopback"></a>Listen on 127.0.0.1 only | `}).listen(port, host, () => console.log('ATLAS listening on http://${...` | [architecture-explorer/server.mjs L69](../../server.mjs#L69) | Implemented |
 | <a name="sec-dep-systemd"></a>systemd sandbox (DynamicUser, ProtectSystem) | `DynamicUser=yes` | [architecture-explorer/deploy/atlas-explorer.service L10](../../deploy/atlas-explorer.service#L10) | Implemented |
 | <a name="cr-sig-sign"></a>Sign the bundle: jarsigner SHA256withRSA, then verify | `main` | [android-app/scripts/sign-release.py L8](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/sign-release.py#L8) | Implemented |
+
+<a name="uml-security-learn"></a>
+
+### Security → Foundations
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#security-learn)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="sec-fd-guide"></a>Guide: 19 standalone information-security units (what, why, how) | `## Standalone illustrated foundations — Information Security` | [docs/INFORMATION_SECURITY.md L75](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L75) | Teaching extension |
+| <a name="sec-fd-units"></a>Explorer: unit data (what, why, how, pitfalls) | `fdSecUnits` | [architecture-explorer/dist/foundations.js L112](../../dist/foundations.js#L112) | Explorer / lab |
+| <a name="sec-fd-lab-access"></a>Explorer lab: role, ownership and state checks | `fdAccessLab` | [architecture-explorer/dist/foundations.js L586](../../dist/foundations.js#L586) | Explorer / lab |
+| <a name="sec-fd-lab-entropy"></a>Explorer lab: password guessability | `fdEntropyLab` | [architecture-explorer/dist/foundations.js L526](../../dist/foundations.js#L526) | Explorer / lab |
+| <a name="sec-fd-lab-totp"></a>Explorer lab: TOTP (RFC 6238) with Web Crypto | `fdTotp` | [architecture-explorer/dist/foundations.js L538](../../dist/foundations.js#L538) | Explorer / lab |
+| <a name="sec-fd-lab-pkce"></a>Explorer lab: PKCE S256 (RFC 7636) | `fdPkceRun` | [architecture-explorer/dist/foundations.js L558](../../dist/foundations.js#L558) | Explorer / lab |
+| <a name="sec-fd-lab-inject"></a>Explorer lab: SQL injection and XSS encoding | `fdInjectLab` | [architecture-explorer/dist/foundations.js L571](../../dist/foundations.js#L571) | Explorer / lab |
+| Hash a password (salt + PBKDF2-HMAC-SHA256) | `hash_password` | [android-app/atlas_go/accounts.py L27](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L27) | Implemented |
+| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L422) | Implemented |
+| OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L428](../../dist/security.js#L428) | Explorer / lab |
 
 <a name="uml-security-gaps"></a>
 
@@ -1595,9 +1641,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-hash-inventory"></a>SHA-256 of every source file in the blueprint | `inventory` | [architecture-explorer/starter/scripts/generate_blueprint.py L204](../scripts/generate_blueprint.py#L204) | Implemented |
 | <a name="cr-hash-checksum"></a>Non-cryptographic state checksum | `PaymentModule.checksum` | [prototype.zip → prototype/module_server.py L36](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | <a name="cr-hash-c3"></a>Recovery class C3: checksum mismatch → restore | `elif cls == "C3":     # checksum mismatch -> Tier-2 (p=.8) or Tier-3 ...` | [run_recovery_mc.py L31](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_recovery_mc.py#L31) | Implemented |
-| <a name="cr-hash-lab-avalanche"></a>Explorer lab: avalanche effect | `crUpdateAvalanche` | [architecture-explorer/dist/crypto.js L105](../../dist/crypto.js#L105) | Explorer / lab |
-| <a name="cr-hash-lab-file"></a>Explorer lab: hash a download, compare with SHA256SUMS | `crHashFile` | [architecture-explorer/dist/crypto.js L98](../../dist/crypto.js#L98) | Explorer / lab |
-| <a name="cr-hash-lab-checksum"></a>Explorer lab: checksum vs SHA-256 | `crChecksum` | [architecture-explorer/dist/crypto.js L118](../../dist/crypto.js#L118) | Explorer / lab |
+| <a name="cr-hash-lab-avalanche"></a>Explorer lab: avalanche effect | `crUpdateAvalanche` | [architecture-explorer/dist/crypto.js L106](../../dist/crypto.js#L106) | Explorer / lab |
+| <a name="cr-hash-lab-file"></a>Explorer lab: hash a download, compare with SHA256SUMS | `crHashFile` | [architecture-explorer/dist/crypto.js L99](../../dist/crypto.js#L99) | Explorer / lab |
+| <a name="cr-hash-lab-checksum"></a>Explorer lab: checksum vs SHA-256 | `crChecksum` | [architecture-explorer/dist/crypto.js L119](../../dist/crypto.js#L119) | Explorer / lab |
 | <a name="cr-hash-cli"></a>Lab A: hashing and integrity (experiments 1-7) | `exp_basics` | [security_lab/crypto_a_hashing.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L45) | Explorer / lab |
 | <a name="cr-hash-cli-checksum"></a>Lab A4: forging the prototype checksum | `exp_checksum` | [security_lab/crypto_a_hashing.py L129](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L129) | Explorer / lab |
 | <a name="cr-hash-cli-crc"></a>Lab A5: forging CRC32 | `crc32_forge` | [security_lab/crypto_a_hashing.py L149](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_a_hashing.py#L149) | Explorer / lab |
@@ -1621,9 +1667,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-pki-cert"></a>Upload certificate (RSA-4096, self-signed) | — | [android-app/releases/upload-certificate.pem L1](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/upload-certificate.pem#L1) | Implemented |
 | <a name="cr-pki-pin"></a>Certificate pinning: SHA-256 of the DER certificate | `certificate_sha256` | [android-app/scripts/ci-sign-bundle.py L29](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/ci-sign-bundle.py#L29) | Implemented |
 | <a name="cr-pki-pin-ci"></a>Publish workflow re-checks the pin | `assert fingerprint == record['upload_certificate_sha256'], 'Upload ce...` | [.github/workflows/publish-signed-android.yml L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/.github/workflows/publish-signed-android.yml#L60) | Implemented |
-| <a name="cr-pki-lab-pin"></a>Explorer lab: recompute the real pin | `crPin` | [architecture-explorer/dist/crypto.js L158](../../dist/crypto.js#L158) | Explorer / lab |
-| <a name="cr-pki-lab-issue"></a>Explorer lab: issue a certificate | `crIssue` | [architecture-explorer/dist/crypto.js L176](../../dist/crypto.js#L176) | Explorer / lab |
-| <a name="cr-pki-lab-verify"></a>Explorer lab: chain, CA flag, validity, EKU checks | `crVerifyCert` | [architecture-explorer/dist/crypto.js L196](../../dist/crypto.js#L196) | Explorer / lab |
+| <a name="cr-pki-lab-pin"></a>Explorer lab: recompute the real pin | `crPin` | [architecture-explorer/dist/crypto.js L159](../../dist/crypto.js#L159) | Explorer / lab |
+| <a name="cr-pki-lab-issue"></a>Explorer lab: issue a certificate | `crIssue` | [architecture-explorer/dist/crypto.js L177](../../dist/crypto.js#L177) | Explorer / lab |
+| <a name="cr-pki-lab-verify"></a>Explorer lab: chain, CA flag, validity, EKU checks | `crVerifyCert` | [architecture-explorer/dist/crypto.js L197](../../dist/crypto.js#L197) | Explorer / lab |
 | <a name="cr-pki-cli"></a>Lab C: certificates and PKI (experiments 11-14) | `exp_fingerprint` | [security_lab/crypto_c_pki.py L84](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L84) | Explorer / lab |
 | <a name="cr-pki-cli-der"></a>Lab C12-C13: parse the DER, verify the self-signature | `parse_certificate` | [security_lab/crypto_c_pki.py L53](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L53) | Explorer / lab |
 | <a name="cr-pki-cli-ca"></a>Lab C14: private CA chain validation | `validate` | [security_lab/crypto_c_pki.py L178](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_c_pki.py#L178) | Explorer / lab |
@@ -1641,9 +1687,9 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="cr-sig-ci"></a>CI signing with the upload key from encrypted secrets | `main` | [android-app/scripts/ci-sign-bundle.py L37](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/ci-sign-bundle.py#L37) | Implemented |
 | Certificate pinning: SHA-256 of the DER certificate | `certificate_sha256` | [android-app/scripts/ci-sign-bundle.py L29](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/ci-sign-bundle.py#L29) | Implemented |
 | <a name="cr-sig-apk"></a>APK Signature Scheme v2/v3; verify with apksigner | `apksigner verify --print-certs atlas-go-1.2.0.apk` | [android-app/releases/1.2.0/README.md L21](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md?plain=1#L21) | Implemented |
-| <a name="cr-sig-lab-keys"></a>Explorer lab: generate ECDSA or RSA key pair | `crSigKeys` | [architecture-explorer/dist/crypto.js L270](../../dist/crypto.js#L270) | Explorer / lab |
-| <a name="cr-sig-lab-sign"></a>Explorer lab: hash-then-sign | `crSigSign` | [architecture-explorer/dist/crypto.js L282](../../dist/crypto.js#L282) | Explorer / lab |
-| <a name="cr-sig-lab-verify"></a>Explorer lab: verify, tamper, wrong key | `crSigVerify` | [architecture-explorer/dist/crypto.js L293](../../dist/crypto.js#L293) | Explorer / lab |
+| <a name="cr-sig-lab-keys"></a>Explorer lab: generate ECDSA or RSA key pair | `crSigKeys` | [architecture-explorer/dist/crypto.js L271](../../dist/crypto.js#L271) | Explorer / lab |
+| <a name="cr-sig-lab-sign"></a>Explorer lab: hash-then-sign | `crSigSign` | [architecture-explorer/dist/crypto.js L283](../../dist/crypto.js#L283) | Explorer / lab |
+| <a name="cr-sig-lab-verify"></a>Explorer lab: verify, tamper, wrong key | `crSigVerify` | [architecture-explorer/dist/crypto.js L294](../../dist/crypto.js#L294) | Explorer / lab |
 | <a name="cr-sig-cli"></a>Lab D: digital signatures (experiments 15-17) | `exp_textbook` | [security_lab/crypto_d_signatures.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L33) | Explorer / lab |
 | <a name="cr-sig-cli-jar"></a>Lab D17: JAR signing and verification | `jar_verify` | [security_lab/crypto_d_signatures.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L107) | Explorer / lab |
 
@@ -1658,13 +1704,42 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Web PKI: HTTPS tile download verified with certifi | `TileLoader._fetch` | [android-app/atlas_go/livemap.py L80](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py#L80) | Implemented |
 | Private CA for mutual TLS | `make_certs` | [prototype.zip → prototype/proto_run.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/prototype.zip) | Implemented |
 | Sign the bundle: jarsigner SHA256withRSA, then verify | `main` | [android-app/scripts/sign-release.py L8](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/sign-release.py#L8) | Implemented |
-| <a name="cr-pqc-lab-keys"></a>Lamport keys from SHA-256 only | `crLamportKeys` | [architecture-explorer/dist/crypto.js L328](../../dist/crypto.js#L328) | Explorer / lab |
-| <a name="cr-pqc-lab-sign"></a>Lamport sign: reveal one secret per hash bit | `crLamportSign` | [architecture-explorer/dist/crypto.js L338](../../dist/crypto.js#L338) | Explorer / lab |
-| <a name="cr-pqc-lab-verify"></a>Lamport verify | `crLamportVerify` | [architecture-explorer/dist/crypto.js L342](../../dist/crypto.js#L342) | Explorer / lab |
-| <a name="cr-pqc-lab-forge"></a>Forgery after key reuse | `crLamportForge` | [architecture-explorer/dist/crypto.js L355](../../dist/crypto.js#L355) | Explorer / lab |
+| <a name="cr-pqc-lab-keys"></a>Lamport keys from SHA-256 only | `crLamportKeys` | [architecture-explorer/dist/crypto.js L329](../../dist/crypto.js#L329) | Explorer / lab |
+| <a name="cr-pqc-lab-sign"></a>Lamport sign: reveal one secret per hash bit | `crLamportSign` | [architecture-explorer/dist/crypto.js L339](../../dist/crypto.js#L339) | Explorer / lab |
+| <a name="cr-pqc-lab-verify"></a>Lamport verify | `crLamportVerify` | [architecture-explorer/dist/crypto.js L343](../../dist/crypto.js#L343) | Explorer / lab |
+| <a name="cr-pqc-lab-forge"></a>Forgery after key reuse | `crLamportForge` | [architecture-explorer/dist/crypto.js L356](../../dist/crypto.js#L356) | Explorer / lab |
 | <a name="cr-pqc-cli"></a>Lab E: post-quantum (experiments 18-20) | `exp_lamport` | [security_lab/crypto_e_post_quantum.py L52](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L52) | Explorer / lab |
 | <a name="cr-pqc-cli-forge"></a>Lab E19: forging after Lamport key reuse | `exp_lamport_reuse` | [security_lab/crypto_e_post_quantum.py L78](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L78) | Explorer / lab |
 | <a name="cr-pqc-cli-hybrid"></a>Lab E20: toy LWE KEM in a hybrid with DH | `exp_lwe_hybrid` | [security_lab/crypto_e_post_quantum.py L160](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L160) | Explorer / lab |
+
+<a name="uml-crypto-learn"></a>
+
+### Cryptography → Foundations
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#crypto-learn)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="cr-fd-guide"></a>Guide: 19 standalone cryptography units (what, why, how) | `## Standalone illustrated foundations — Cryptography` | [docs/CRYPTOGRAPHY.md L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L62) | Teaching extension |
+| <a name="cr-fd-rsa-unit"></a>Guide unit C7.1: RSA | `### C7.1 — RSA: what it is, why it is used and how it works` | [docs/CRYPTOGRAPHY.md L733](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L733) | Teaching extension |
+| <a name="cr-fd-dh-unit"></a>Guide unit C7.2: Diffie–Hellman, ECDH, X25519 | `### C7.2 — Diffie–Hellman key agreement (finite-field, ECDH and X25519)` | [docs/CRYPTOGRAPHY.md L846](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L846) | Teaching extension |
+| <a name="cr-fd-ecdsa-unit"></a>Guide unit C7.3: elliptic curves and ECDSA | `### C7.3 — Elliptic-curve cryptography and ECDSA (plus EdDSA)` | [docs/CRYPTOGRAPHY.md L935](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L935) | Teaching extension |
+| <a name="cr-fd-mlkem-unit"></a>Guide unit C10.1: ML-KEM (FIPS 203) | `### C10.1 — ML-KEM (FIPS 203): post-quantum key encapsulation` | [docs/CRYPTOGRAPHY.md L1304](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1304) | Teaching extension |
+| <a name="cr-fd-mldsa-unit"></a>Guide unit C10.2: ML-DSA (FIPS 204) and FN-DSA | `### C10.2 — ML-DSA (FIPS 204) and FN-DSA: post-quantum lattice signat...` | [docs/CRYPTOGRAPHY.md L1437](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1437) | Teaching extension |
+| <a name="cr-fd-slh-unit"></a>Guide unit C10.3: hash-based signatures and SLH-DSA (FIPS 205) | `### C10.3 — Hash-based signatures: Lamport, Winternitz, Merkle trees,...` | [docs/CRYPTOGRAPHY.md L1517](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1517) | Teaching extension |
+| <a name="cr-fd-units"></a>Explorer: unit data (what, why, how, pitfalls) | `fdCryptoUnits` | [architecture-explorer/dist/foundations.js L14](../../dist/foundations.js#L14) | Explorer / lab |
+| <a name="cr-fd-lab-rsa"></a>Explorer lab: textbook RSA, CRT and malleability | `fdRsaLab` | [architecture-explorer/dist/foundations.js L245](../../dist/foundations.js#L245) | Explorer / lab |
+| <a name="cr-fd-lab-oaep"></a>Explorer lab: real RSA-OAEP 2048 | `fdRsaOaep` | [architecture-explorer/dist/foundations.js L275](../../dist/foundations.js#L275) | Explorer / lab |
+| <a name="cr-fd-lab-dh"></a>Explorer lab: Diffie–Hellman and a man in the middle | `fdDhLab` | [architecture-explorer/dist/foundations.js L286](../../dist/foundations.js#L286) | Explorer / lab |
+| <a name="cr-fd-lab-ecdh"></a>Explorer lab: real ECDH P-256 and X25519 | `fdEcdh` | [architecture-explorer/dist/foundations.js L305](../../dist/foundations.js#L305) | Explorer / lab |
+| <a name="cr-fd-lab-ecdsa"></a>Explorer lab: toy ECDSA and nonce-reuse key recovery | `fdEcdsaRun` | [architecture-explorer/dist/foundations.js L336](../../dist/foundations.js#L336) | Explorer / lab |
+| <a name="cr-fd-lab-aead"></a>Explorer lab: AES-GCM tampering and nonce reuse | `fdAeadRun` | [architecture-explorer/dist/foundations.js L368](../../dist/foundations.js#L368) | Explorer / lab |
+| <a name="cr-fd-lab-lwe"></a>Explorer lab: one-bit LWE encryption | `fdLweRun` | [architecture-explorer/dist/foundations.js L393](../../dist/foundations.js#L393) | Explorer / lab |
+| <a name="cr-fd-lab-kem"></a>Explorer lab: toy ML-KEM-shaped KEM with implicit rejection | `fdKemRun` | [architecture-explorer/dist/foundations.js L444](../../dist/foundations.js#L444) | Explorer / lab |
+| <a name="cr-fd-lab-mldsa"></a>Explorer lab: ML-DSA rejection sampling | `fdMldsaRun` | [architecture-explorer/dist/foundations.js L469](../../dist/foundations.js#L469) | Explorer / lab |
+| <a name="cr-fd-lab-wots"></a>Explorer lab: Winternitz one-time signature and Merkle root | `fdWotsRun` | [architecture-explorer/dist/foundations.js L494](../../dist/foundations.js#L494) | Explorer / lab |
+| <a name="cr-fd-cli-rsa"></a>Lab D15: textbook RSA and malleability | `exp_textbook` | [security_lab/crypto_d_signatures.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L33) | Explorer / lab |
+| <a name="cr-fd-cli-lwe"></a>Lab E20: toy LWE KEM in a hybrid with DH | `exp_lwe_hybrid` | [security_lab/crypto_e_post_quantum.py L160](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L160) | Explorer / lab |
 
 <a name="uml-crypto-gaps"></a>
 
@@ -2181,14 +2256,14 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `read(location, main)` | — | [L407](../scripts/security_catalog.py#L407) |
-| Function | `python_symbols(text)` | — | [L417](../scripts/security_catalog.py#L417) |
-| Function | `locate(text, path, symbol)` | — | [L429](../scripts/security_catalog.py#L429) |
-| Function | `resolve(main)` | — | [L450](../scripts/security_catalog.py#L450) |
-| Function | `markdown(rows, views, intro)` | — | [L483](../scripts/security_catalog.py#L483) |
-| Function | `script(rows)` | — | [L504](../scripts/security_catalog.py#L504) |
-| Function | `replace_block(document, content, name)` | — | [L512](../scripts/security_catalog.py#L512) |
-| Function | `main()` | — | [L521](../scripts/security_catalog.py#L521) |
+| Function | `read(location, main)` | — | [L437](../scripts/security_catalog.py#L437) |
+| Function | `python_symbols(text)` | — | [L447](../scripts/security_catalog.py#L447) |
+| Function | `locate(text, path, symbol)` | — | [L459](../scripts/security_catalog.py#L459) |
+| Function | `resolve(main)` | — | [L480](../scripts/security_catalog.py#L480) |
+| Function | `markdown(rows, views, intro)` | — | [L513](../scripts/security_catalog.py#L513) |
+| Function | `script(rows)` | — | [L534](../scripts/security_catalog.py#L534) |
+| Function | `replace_block(document, content, name)` | — | [L542](../scripts/security_catalog.py#L542) |
+| Function | `main()` | — | [L551](../scripts/security_catalog.py#L551) |
 
 ### `services/dispatch.py`
 
@@ -2345,94 +2420,94 @@ This file declares no functions.
 | Function | `crField(name, label, hint = "")` | — | [L61](../../dist/crypto.js#L61) |
 | Function | `crSelect(name, label, options, value)` | — | [L65](../../dist/crypto.js#L65) |
 | Function | `crSelect.<callback: options.map>([v, l])` | — | [L66](../../dist/crypto.js#L66) |
-| Function | `crOverview()` | — | [L82](../../dist/crypto.js#L82) |
-| Function | `crOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L84](../../dist/crypto.js#L84) |
-| Function | `crOverview.<callback: crMap.map>([topic, ic, title, status, text, where])` | — | [L85](../../dist/crypto.js#L85) |
-| Function | `async crHashFile(file)` | — | [L98](../../dist/crypto.js#L98) |
-| Function | `crHashFile.<callback: CR_PUBLISHED.find>([h])` | — | [L101](../../dist/crypto.js#L101) |
-| Function | `async crUpdateAvalanche()` | — | [L105](../../dist/crypto.js#L105) |
-| Function | `crUpdateAvalanche.<callback: ba.filter>(bit, i)` | — | [L110](../../dist/crypto.js#L110) |
-| Function | `crUpdateAvalanche.<callback: ba.map>(bit, i)` | — | [L113](../../dist/crypto.js#L113) |
-| Function | `async crChecksum()` | — | [L118](../../dist/crypto.js#L118) |
-| Function | `crChecksum.c(s)` | — | [L121](../../dist/crypto.js#L121) |
-| Function | `async crChecksum.h(s)` | — | [L122](../../dist/crypto.js#L122) |
-| Function | `crHashes()` | — | [L126](../../dist/crypto.js#L126) |
-| Function | `crHashes.<callback: CR_PUBLISHED.map>([h, n, v])` | — | [L134](../../dist/crypto.js#L134) |
-| Function | `async crHashesAfterRender()` | — | [L146](../../dist/crypto.js#L146) |
-| Function | `async crPin()` | — | [L158](../../dist/crypto.js#L158) |
-| Function | `async crIssue(issuer, tbs)` | — | [L176](../../dist/crypto.js#L176) |
-| Function | `async crPkiSetup()` | — | [L185](../../dist/crypto.js#L185) |
-| Function | `async crVerifyCert(cert, issuerCert, trusted, wantEku)` | — | [L196](../../dist/crypto.js#L196) |
-| Function | `crB64Hex(hex)` | — | [L209](../../dist/crypto.js#L209) |
-| Function | `crB64Hex.<callback: Uint8Array.from>(h)` | — | [L209](../../dist/crypto.js#L209) |
-| Function | `async crPkiRun()` | — | [L211](../../dist/crypto.js#L211) |
-| Function | `crPki()` | — | [L231](../../dist/crypto.js#L231) |
-| Function | `async crSigKeys()` | — | [L270](../../dist/crypto.js#L270) |
-| Function | `async crSigSign()` | — | [L282](../../dist/crypto.js#L282) |
-| Function | `async crSigVerify(kind)` | — | [L293](../../dist/crypto.js#L293) |
-| Function | `crSignatures()` | — | [L305](../../dist/crypto.js#L305) |
-| Function | `crSignatures.<callback: Object.entries(CR_SIG_ALGS).map>([k, v])` | — | [L308](../../dist/crypto.js#L308) |
-| Function | `crSignatures.<callback: S.results.map>([ok, t, d])` | — | [L313](../../dist/crypto.js#L313) |
+| Function | `crOverview()` | — | [L83](../../dist/crypto.js#L83) |
+| Function | `crOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L85](../../dist/crypto.js#L85) |
+| Function | `crOverview.<callback: crMap.map>([topic, ic, title, status, text, where])` | — | [L86](../../dist/crypto.js#L86) |
+| Function | `async crHashFile(file)` | — | [L99](../../dist/crypto.js#L99) |
+| Function | `crHashFile.<callback: CR_PUBLISHED.find>([h])` | — | [L102](../../dist/crypto.js#L102) |
+| Function | `async crUpdateAvalanche()` | — | [L106](../../dist/crypto.js#L106) |
+| Function | `crUpdateAvalanche.<callback: ba.filter>(bit, i)` | — | [L111](../../dist/crypto.js#L111) |
+| Function | `crUpdateAvalanche.<callback: ba.map>(bit, i)` | — | [L114](../../dist/crypto.js#L114) |
+| Function | `async crChecksum()` | — | [L119](../../dist/crypto.js#L119) |
+| Function | `crChecksum.c(s)` | — | [L122](../../dist/crypto.js#L122) |
+| Function | `async crChecksum.h(s)` | — | [L123](../../dist/crypto.js#L123) |
+| Function | `crHashes()` | — | [L127](../../dist/crypto.js#L127) |
+| Function | `crHashes.<callback: CR_PUBLISHED.map>([h, n, v])` | — | [L135](../../dist/crypto.js#L135) |
+| Function | `async crHashesAfterRender()` | — | [L147](../../dist/crypto.js#L147) |
+| Function | `async crPin()` | — | [L159](../../dist/crypto.js#L159) |
+| Function | `async crIssue(issuer, tbs)` | — | [L177](../../dist/crypto.js#L177) |
+| Function | `async crPkiSetup()` | — | [L186](../../dist/crypto.js#L186) |
+| Function | `async crVerifyCert(cert, issuerCert, trusted, wantEku)` | — | [L197](../../dist/crypto.js#L197) |
+| Function | `crB64Hex(hex)` | — | [L210](../../dist/crypto.js#L210) |
+| Function | `crB64Hex.<callback: Uint8Array.from>(h)` | — | [L210](../../dist/crypto.js#L210) |
+| Function | `async crPkiRun()` | — | [L212](../../dist/crypto.js#L212) |
+| Function | `crPki()` | — | [L232](../../dist/crypto.js#L232) |
+| Function | `async crSigKeys()` | — | [L271](../../dist/crypto.js#L271) |
+| Function | `async crSigSign()` | — | [L283](../../dist/crypto.js#L283) |
+| Function | `async crSigVerify(kind)` | — | [L294](../../dist/crypto.js#L294) |
+| Function | `crSignatures()` | — | [L306](../../dist/crypto.js#L306) |
+| Function | `crSignatures.<callback: Object.entries(CR_SIG_ALGS).map>([k, v])` | — | [L309](../../dist/crypto.js#L309) |
+| Function | `crSignatures.<callback: S.results.map>([ok, t, d])` | — | [L314](../../dist/crypto.js#L314) |
 | Function | `crSignatures.<callback: [
     ["Build and test", "atlas-android.yml", "Unsigned AAB; SHA-256 recorded"],
     ["Sign", "jarsigner -sigalg SHA256withRSA -digestalg SHA-256", "RSA-4096 upload key from a PKCS#12 keystore; passwords passed by env name"],
     ["Verify", "jarsigner -verify", "Run immediately after signing"],
     ["Pin check", "SHA-256(certificate) == pinned", "Any other key fails the job"],
     ["Distribute", "APK v2 + v3, SHA256SUMS", "User runs apksigner verify --print-certs"],
-  ].map>([t, c, d], i)` | — | [L320](../../dist/crypto.js#L320) |
-| Function | `async crLamportKeys()` | — | [L328](../../dist/crypto.js#L328) |
-| Function | `crLamportKeys.<callback: pk.flatMap>([a, b])` | — | [L335](../../dist/crypto.js#L335) |
-| Function | `async crMsgBits(text)` | — | [L337](../../dist/crypto.js#L337) |
-| Function | `async crLamportSign(text)` | — | [L338](../../dist/crypto.js#L338) |
-| Function | `crLamportSign.<callback: bits.map>(b, i)` | — | [L340](../../dist/crypto.js#L340) |
-| Function | `async crLamportVerify(text, sig)` | — | [L342](../../dist/crypto.js#L342) |
-| Function | `crLamportKnown()` | — | [L350](../../dist/crypto.js#L350) |
-| Function | `crLamportKnown.<callback: Array.from>()` | — | [L351](../../dist/crypto.js#L351) |
-| Function | `crLamportKnown.<callback: s.bits.forEach>(b, i)` | — | [L352](../../dist/crypto.js#L352) |
-| Function | `async crLamportForge()` | — | [L355](../../dist/crypto.js#L355) |
-| Function | `crLamportForge.<callback: bits.every>(b, i)` | — | [L361](../../dist/crypto.js#L361) |
-| Function | `crLamportForge.<callback: bits.map>(b, i)` | — | [L362](../../dist/crypto.js#L362) |
-| Function | `crLamportForge.<callback: bits.map>.<callback: cr.lamport.signs.find>(s)` | — | [L362](../../dist/crypto.js#L362) |
-| Function | `crPqc()` | — | [L370](../../dist/crypto.js#L370) |
-| Function | `crPqc.<callback: known.filter>([a, b])` | — | [L373](../../dist/crypto.js#L373) |
+  ].map>([t, c, d], i)` | — | [L321](../../dist/crypto.js#L321) |
+| Function | `async crLamportKeys()` | — | [L329](../../dist/crypto.js#L329) |
+| Function | `crLamportKeys.<callback: pk.flatMap>([a, b])` | — | [L336](../../dist/crypto.js#L336) |
+| Function | `async crMsgBits(text)` | — | [L338](../../dist/crypto.js#L338) |
+| Function | `async crLamportSign(text)` | — | [L339](../../dist/crypto.js#L339) |
+| Function | `crLamportSign.<callback: bits.map>(b, i)` | — | [L341](../../dist/crypto.js#L341) |
+| Function | `async crLamportVerify(text, sig)` | — | [L343](../../dist/crypto.js#L343) |
+| Function | `crLamportKnown()` | — | [L351](../../dist/crypto.js#L351) |
+| Function | `crLamportKnown.<callback: Array.from>()` | — | [L352](../../dist/crypto.js#L352) |
+| Function | `crLamportKnown.<callback: s.bits.forEach>(b, i)` | — | [L353](../../dist/crypto.js#L353) |
+| Function | `async crLamportForge()` | — | [L356](../../dist/crypto.js#L356) |
+| Function | `crLamportForge.<callback: bits.every>(b, i)` | — | [L362](../../dist/crypto.js#L362) |
+| Function | `crLamportForge.<callback: bits.map>(b, i)` | — | [L363](../../dist/crypto.js#L363) |
+| Function | `crLamportForge.<callback: bits.map>.<callback: cr.lamport.signs.find>(s)` | — | [L363](../../dist/crypto.js#L363) |
+| Function | `crPqc()` | — | [L371](../../dist/crypto.js#L371) |
 | Function | `crPqc.<callback: known.filter>([a, b])` | — | [L374](../../dist/crypto.js#L374) |
-| Function | `crPqc.<callback: sizes.map>([n, pk, sg, tone])` | — | [L385](../../dist/crypto.js#L385) |
-| Function | `crPqc.<callback: known.map>([a, b])` | — | [L391](../../dist/crypto.js#L391) |
-| Function | `crGaps()` | — | [L401](../../dist/crypto.js#L401) |
-| Function | `cryptoInspector()` | — | [L433](../../dist/crypto.js#L433) |
-| Function | `cryptoInspector.<callback: info.facts.map>([k, v])` | — | [L439](../../dist/crypto.js#L439) |
-| Function | `cryptoInspector.<callback: info.files.map>([l, u])` | — | [L440](../../dist/crypto.js#L440) |
-| Function | `cryptoInspector.<callback: info.questions.map>(q)` | — | [L442](../../dist/crypto.js#L442) |
-| Function | `cryptoView()` | — | [L449](../../dist/crypto.js#L449) |
-| Function | `cryptoView.<callback: crTopics.map>(x)` | — | [L454](../../dist/crypto.js#L454) |
-| Function | `cryptoOpen(topic)` | — | [L458](../../dist/crypto.js#L458) |
-| Function | `crSetHash()` | — | [L463](../../dist/crypto.js#L463) |
-| Function | `async crRun(busy, task)` | — | [L467](../../dist/crypto.js#L467) |
-| Function | `cryptoClick(button)` | — | [L475](../../dist/crypto.js#L475) |
-| Function | `cryptoClick.swap()` | — | [L487](../../dist/crypto.js#L487) |
-| Function | `cryptoClick.pin()` | — | [L488](../../dist/crypto.js#L488) |
-| Function | `cryptoClick."pki-run"()` | — | [L489](../../dist/crypto.js#L489) |
-| Function | `cryptoClick."pki-reset"()` | — | [L490](../../dist/crypto.js#L490) |
-| Function | `async cryptoClick."pki-reset".<callback: crRun, "pki">()` | — | [L490](../../dist/crypto.js#L490) |
-| Function | `cryptoClick."sig-keys"()` | — | [L491](../../dist/crypto.js#L491) |
-| Function | `cryptoClick."sig-sign"()` | — | [L492](../../dist/crypto.js#L492) |
-| Function | `cryptoClick."sig-v-ok"()` | — | [L493](../../dist/crypto.js#L493) |
-| Function | `cryptoClick."sig-v-ok".<callback: crRun, "sig">()` | — | [L493](../../dist/crypto.js#L493) |
-| Function | `cryptoClick."sig-v-edited"()` | — | [L494](../../dist/crypto.js#L494) |
-| Function | `cryptoClick."sig-v-edited".<callback: crRun, "sig">()` | — | [L494](../../dist/crypto.js#L494) |
-| Function | `cryptoClick."sig-v-wrongkey"()` | — | [L495](../../dist/crypto.js#L495) |
-| Function | `cryptoClick."sig-v-wrongkey".<callback: crRun, "sig">()` | — | [L495](../../dist/crypto.js#L495) |
-| Function | `cryptoClick."sig-v-flip"()` | — | [L496](../../dist/crypto.js#L496) |
-| Function | `cryptoClick."sig-v-flip".<callback: crRun, "sig">()` | — | [L496](../../dist/crypto.js#L496) |
-| Function | `cryptoClick."lam-keys"()` | — | [L497](../../dist/crypto.js#L497) |
-| Function | `cryptoClick."lam-sign"()` | — | [L498](../../dist/crypto.js#L498) |
-| Function | `async cryptoClick."lam-sign".<callback: crRun, "lam">()` | — | [L498](../../dist/crypto.js#L498) |
-| Function | `cryptoClick."lam-verify"()` | — | [L499](../../dist/crypto.js#L499) |
-| Function | `async cryptoClick."lam-verify".<callback: crRun, "lam">()` | — | [L499](../../dist/crypto.js#L499) |
-| Function | `cryptoClick."lam-forge"()` | — | [L500](../../dist/crypto.js#L500) |
-| Function | `<callback: document.addEventListener, "input">(event)` | — | [L506](../../dist/crypto.js#L506) |
-| Function | `<callback: document.addEventListener, "change">(event)` | — | [L513](../../dist/crypto.js#L513) |
-| Function | `<callback: document.addEventListener, "change">.<callback: crRun, "file">()` | — | [L515](../../dist/crypto.js#L515) |
+| Function | `crPqc.<callback: known.filter>([a, b])` | — | [L375](../../dist/crypto.js#L375) |
+| Function | `crPqc.<callback: sizes.map>([n, pk, sg, tone])` | — | [L386](../../dist/crypto.js#L386) |
+| Function | `crPqc.<callback: known.map>([a, b])` | — | [L392](../../dist/crypto.js#L392) |
+| Function | `crGaps()` | — | [L406](../../dist/crypto.js#L406) |
+| Function | `cryptoInspector()` | — | [L439](../../dist/crypto.js#L439) |
+| Function | `cryptoInspector.<callback: info.facts.map>([k, v])` | — | [L445](../../dist/crypto.js#L445) |
+| Function | `cryptoInspector.<callback: info.files.map>([l, u])` | — | [L446](../../dist/crypto.js#L446) |
+| Function | `cryptoInspector.<callback: info.questions.map>(q)` | — | [L448](../../dist/crypto.js#L448) |
+| Function | `cryptoView()` | — | [L455](../../dist/crypto.js#L455) |
+| Function | `cryptoView.<callback: crTopics.map>(x)` | — | [L460](../../dist/crypto.js#L460) |
+| Function | `cryptoOpen(topic)` | — | [L464](../../dist/crypto.js#L464) |
+| Function | `crSetHash()` | — | [L469](../../dist/crypto.js#L469) |
+| Function | `async crRun(busy, task)` | — | [L473](../../dist/crypto.js#L473) |
+| Function | `cryptoClick(button)` | — | [L481](../../dist/crypto.js#L481) |
+| Function | `cryptoClick.swap()` | — | [L493](../../dist/crypto.js#L493) |
+| Function | `cryptoClick.pin()` | — | [L494](../../dist/crypto.js#L494) |
+| Function | `cryptoClick."pki-run"()` | — | [L495](../../dist/crypto.js#L495) |
+| Function | `cryptoClick."pki-reset"()` | — | [L496](../../dist/crypto.js#L496) |
+| Function | `async cryptoClick."pki-reset".<callback: crRun, "pki">()` | — | [L496](../../dist/crypto.js#L496) |
+| Function | `cryptoClick."sig-keys"()` | — | [L497](../../dist/crypto.js#L497) |
+| Function | `cryptoClick."sig-sign"()` | — | [L498](../../dist/crypto.js#L498) |
+| Function | `cryptoClick."sig-v-ok"()` | — | [L499](../../dist/crypto.js#L499) |
+| Function | `cryptoClick."sig-v-ok".<callback: crRun, "sig">()` | — | [L499](../../dist/crypto.js#L499) |
+| Function | `cryptoClick."sig-v-edited"()` | — | [L500](../../dist/crypto.js#L500) |
+| Function | `cryptoClick."sig-v-edited".<callback: crRun, "sig">()` | — | [L500](../../dist/crypto.js#L500) |
+| Function | `cryptoClick."sig-v-wrongkey"()` | — | [L501](../../dist/crypto.js#L501) |
+| Function | `cryptoClick."sig-v-wrongkey".<callback: crRun, "sig">()` | — | [L501](../../dist/crypto.js#L501) |
+| Function | `cryptoClick."sig-v-flip"()` | — | [L502](../../dist/crypto.js#L502) |
+| Function | `cryptoClick."sig-v-flip".<callback: crRun, "sig">()` | — | [L502](../../dist/crypto.js#L502) |
+| Function | `cryptoClick."lam-keys"()` | — | [L503](../../dist/crypto.js#L503) |
+| Function | `cryptoClick."lam-sign"()` | — | [L504](../../dist/crypto.js#L504) |
+| Function | `async cryptoClick."lam-sign".<callback: crRun, "lam">()` | — | [L504](../../dist/crypto.js#L504) |
+| Function | `cryptoClick."lam-verify"()` | — | [L505](../../dist/crypto.js#L505) |
+| Function | `async cryptoClick."lam-verify".<callback: crRun, "lam">()` | — | [L505](../../dist/crypto.js#L505) |
+| Function | `cryptoClick."lam-forge"()` | — | [L506](../../dist/crypto.js#L506) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L512](../../dist/crypto.js#L512) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L519](../../dist/crypto.js#L519) |
+| Function | `<callback: document.addEventListener, "change">.<callback: crRun, "file">()` | — | [L521](../../dist/crypto.js#L521) |
 
 ### `dist/dsa.js`
 
@@ -2863,6 +2938,156 @@ This file declares no functions.
 | Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L341](../../dist/explorer.js#L341) |
 | Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L348](../../dist/explorer.js#L348) |
 
+### `dist/foundations.js`
+
+[Open source](../../dist/foundations.js)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `fdUnitList(view)` | — | [L231](../../dist/foundations.js#L231) |
+| Function | `fdUnitById(view, id)` | — | [L232](../../dist/foundations.js#L232) |
+| Function | `fdUnitById.<callback: fdUnitList(view).find>(u)` | — | [L232](../../dist/foundations.js#L232) |
+| Function | `fdInput(name, label, value, attrs = "")` | — | [L233](../../dist/foundations.js#L233) |
+| Function | `fdBtn(action, label, primary = false, ic = "")` | — | [L234](../../dist/foundations.js#L234) |
+| Function | `fdMod(a, n)` | — | [L237](../../dist/foundations.js#L237) |
+| Function | `fdPow(b, e, n)` | — | [L238](../../dist/foundations.js#L238) |
+| Function | `fdInv(a, n)` | — | [L239](../../dist/foundations.js#L239) |
+| Function | `fdGcd(a, b)` | — | [L240](../../dist/foundations.js#L240) |
+| Function | `fdIsPrime(n)` | — | [L241](../../dist/foundations.js#L241) |
+| Function | `fdBig(s)` | — | [L242](../../dist/foundations.js#L242) |
+| Function | `fdRsaLab()` | — | [L245](../../dist/foundations.js#L245) |
+| Function | `async fdRsaOaep()` | — | [L275](../../dist/foundations.js#L275) |
+| Function | `fdDhLab()` | — | [L286](../../dist/foundations.js#L286) |
+| Function | `fdDhLab.<callback: E.checks.map>([ok, t])` | — | [L301](../../dist/foundations.js#L301) |
+| Function | `async fdEcdh()` | — | [L305](../../dist/foundations.js#L305) |
+| Function | `fdEcdh.<anonymous>(k)` | — | [L310](../../dist/foundations.js#L310) |
+| Function | `fdEcdh.<anonymous>(k)` | — | [L310](../../dist/foundations.js#L310) |
+| Function | `fdEcAdd(P, Q)` | — | [L323](../../dist/foundations.js#L323) |
+| Function | `fdEcMul(k, P)` | — | [L332](../../dist/foundations.js#L332) |
+| Function | `fdPt(P)` | — | [L333](../../dist/foundations.js#L333) |
+| Function | `async fdEcHash(msg)` | — | [L334](../../dist/foundations.js#L334) |
+| Function | `async fdEcdsaRun()` | — | [L336](../../dist/foundations.js#L336) |
+| Function | `fdEcdsaRun.sign(z)` | — | [L339](../../dist/foundations.js#L339) |
+| Function | `fdEcdsaRun.verify(z, [r, s])` | — | [L340](../../dist/foundations.js#L340) |
+| Function | `fdEcdsaLab()` | — | [L352](../../dist/foundations.js#L352) |
+| Function | `fdEcdsaLab.<callback: mult.map>([i, P])` | — | [L356](../../dist/foundations.js#L356) |
+| Function | `async fdAeadRun()` | — | [L368](../../dist/foundations.js#L368) |
+| Function | `fdAeadLab()` | — | [L385](../../dist/foundations.js#L385) |
+| Function | `fdLweRun()` | — | [L393](../../dist/foundations.js#L393) |
+| Function | `fdLweRun.rnd(k)` | — | [L394](../../dist/foundations.js#L394) |
+| Function | `fdLweRun.<callback: Array.from>()` | — | [L395](../../dist/foundations.js#L395) |
+| Function | `fdLweRun.<callback: Array.from>()` | — | [L396](../../dist/foundations.js#L396) |
+| Function | `fdLweRun.<callback: Array.from>.<callback: Array.from>()` | — | [L396](../../dist/foundations.js#L396) |
+| Function | `fdLweRun.<callback: Array.from>()` | — | [L397](../../dist/foundations.js#L397) |
+| Function | `fdLweRun.<callback: A.map>(row, i)` | — | [L398](../../dist/foundations.js#L398) |
+| Function | `fdLweRun.<callback: A.map>.<callback: row.reduce>(t, a, j)` | — | [L398](../../dist/foundations.js#L398) |
+| Function | `fdLweRun.<callback: A.map>(_, i)` | — | [L402](../../dist/foundations.js#L402) |
+| Function | `fdLweRun.<callback: A.map((_, i) => i).filter>()` | — | [L402](../../dist/foundations.js#L402) |
+| Function | `fdLweRun.<callback: Array.from>(_, j)` | — | [L403](../../dist/foundations.js#L403) |
+| Function | `fdLweRun.<callback: Array.from>.<callback: rows.reduce>(t2, i)` | — | [L403](../../dist/foundations.js#L403) |
+| Function | `fdLweRun.<callback: rows.reduce>(t2, i)` | — | [L404](../../dist/foundations.js#L404) |
+| Function | `fdLweRun.<callback: u.reduce>(t2, x, j)` | — | [L405](../../dist/foundations.js#L405) |
+| Function | `fdLweLab()` | — | [L413](../../dist/foundations.js#L413) |
+| Function | `fdPrng(seedBytes)` | — | [L422](../../dist/foundations.js#L422) |
+| Function | `fdPrng.<anonymous>()` | — | [L425](../../dist/foundations.js#L425) |
+| Function | `fdPoly(rng, small)` | — | [L427](../../dist/foundations.js#L427) |
+| Function | `fdPoly.<callback: Array.from>()` | — | [L427](../../dist/foundations.js#L427) |
+| Function | `fdPmul(a, b)` | — | [L428](../../dist/foundations.js#L428) |
+| Function | `fdPmul.<callback: o.map>(x)` | — | [L428](../../dist/foundations.js#L428) |
+| Function | `fdPadd(a, b)` | — | [L429](../../dist/foundations.js#L429) |
+| Function | `fdPadd.<callback: a.map>(x, i)` | — | [L429](../../dist/foundations.js#L429) |
+| Function | `fdDot(u, v)` | — | [L430](../../dist/foundations.js#L430) |
+| Function | `fdDot.<callback: u.map>(a, i)` | — | [L430](../../dist/foundations.js#L430) |
+| Function | `fdExpand(rho)` | — | [L431](../../dist/foundations.js#L431) |
+| Function | `fdExpand.<callback: Array.from>()` | — | [L431](../../dist/foundations.js#L431) |
+| Function | `fdExpand.<callback: Array.from>.<callback: Array.from>()` | — | [L431](../../dist/foundations.js#L431) |
+| Function | `fdMatVec(A, v, tr)` | — | [L432](../../dist/foundations.js#L432) |
+| Function | `fdMatVec.<callback: Array.from>(_, i)` | — | [L432](../../dist/foundations.js#L432) |
+| Function | `fdMatVec.<callback: Array.from>.<callback: Array.from>(_, j)` | — | [L432](../../dist/foundations.js#L432) |
+| Function | `fdPkeEnc(ek, bits, coins)` | — | [L433](../../dist/foundations.js#L433) |
+| Function | `fdPkeEnc.<callback: Array.from>()` | — | [L435](../../dist/foundations.js#L435) |
+| Function | `fdPkeEnc.<callback: Array.from>()` | — | [L435](../../dist/foundations.js#L435) |
+| Function | `fdPkeEnc.<callback: fdMatVec(A, r, true).map>(x, i)` | — | [L436](../../dist/foundations.js#L436) |
+| Function | `fdPkeEnc.<callback: bits.map>(b)` | — | [L437](../../dist/foundations.js#L437) |
+| Function | `fdPkeDec(s, ct)` | — | [L440](../../dist/foundations.js#L440) |
+| Function | `fdPkeDec.<callback: fdDot(s, ct.u).map>(x)` | — | [L440](../../dist/foundations.js#L440) |
+| Function | `fdPkeDec.<callback: w.map>(c)` | — | [L440](../../dist/foundations.js#L440) |
+| Function | `async fdG(m, ek)` | — | [L441](../../dist/foundations.js#L441) |
+| Function | `fdBits(m)` | — | [L442](../../dist/foundations.js#L442) |
+| Function | `fdBits.<callback: Array.from>(_, i)` | — | [L442](../../dist/foundations.js#L442) |
+| Function | `fdFromBits(bits)` | — | [L443](../../dist/foundations.js#L443) |
+| Function | `fdFromBits.<callback: Uint8Array.from>(_, i)` | — | [L443](../../dist/foundations.js#L443) |
+| Function | `fdFromBits.<callback: Uint8Array.from>.<callback: bits.slice(8 * i, 8 * i + 8).reduce>(t, b, j)` | — | [L443](../../dist/foundations.js#L443) |
+| Function | `async fdKemRun()` | — | [L444](../../dist/foundations.js#L444) |
+| Function | `fdKemRun.<callback: Array.from>()` | — | [L447](../../dist/foundations.js#L447) |
+| Function | `fdKemRun.<callback: Array.from>()` | — | [L447](../../dist/foundations.js#L447) |
+| Function | `fdKemRun.<callback: fdMatVec(A, s).map>(x, i)` | — | [L448](../../dist/foundations.js#L448) |
+| Function | `async fdKemRun.decaps(ct)` | — | [L450](../../dist/foundations.js#L450) |
+| Function | `fdKemRun.<callback: good.w.map>(c, i)` | — | [L455](../../dist/foundations.js#L455) |
+| Function | `fdKemLab()` | — | [L459](../../dist/foundations.js#L459) |
+| Function | `fdMldsaRun()` | — | [L469](../../dist/foundations.js#L469) |
+| Function | `fdMldsaRun.rnd(k)` | — | [L470](../../dist/foundations.js#L470) |
+| Function | `fdMldsaRun.<callback: [-20, 20].map>(secret)` | — | [L471](../../dist/foundations.js#L471) |
+| Function | `fdMldsaRun.<callback: [-20, 20].map>.<callback: zs.reduce>(a, b)` | — | [L474](../../dist/foundations.js#L474) |
+| Function | `fdMldsaLab()` | — | [L481](../../dist/foundations.js#L481) |
+| Function | `fdMldsaLab.<callback: R.map>(r)` | — | [L484](../../dist/foundations.js#L484) |
+| Function | `async fdChain(x, times)` | — | [L488](../../dist/foundations.js#L488) |
+| Function | `async fdDigits(msg)` | — | [L489](../../dist/foundations.js#L489) |
+| Function | `fdDigits.<callback: [...d].flatMap>(b)` | — | [L491](../../dist/foundations.js#L491) |
+| Function | `fdDigits.<callback: ds.reduce>(t, x)` | — | [L491](../../dist/foundations.js#L491) |
+| Function | `async fdWotsRun()` | — | [L494](../../dist/foundations.js#L494) |
+| Function | `fdWotsRun.<callback: Array.from>()` | — | [L495](../../dist/foundations.js#L495) |
+| Function | `fdWotsRun.<callback: sk.map>(x)` | — | [L496](../../dist/foundations.js#L496) |
+| Function | `fdWotsRun.<callback: sk.map>(x, i)` | — | [L498](../../dist/foundations.js#L498) |
+| Function | `async fdWotsRun.verify(m)` | — | [L499](../../dist/foundations.js#L499) |
+| Function | `fdWotsRun.verify.<callback: sig.map>(s, i)` | — | [L499](../../dist/foundations.js#L499) |
+| Function | `fdWotsRun.verify.<callback: ends.every>(e, i)` | — | [L499](../../dist/foundations.js#L499) |
+| Function | `async fdWotsRun.<callback: Array.from>(_, i)` | — | [L501](../../dist/foundations.js#L501) |
+| Function | `fdWotsLab()` | — | [L506](../../dist/foundations.js#L506) |
+| Function | `fdWotsLab.<callback: R.digits.slice(0, 32).map>(d)` | — | [L509](../../dist/foundations.js#L509) |
+| Function | `fdStrideLab()` | — | [L514](../../dist/foundations.js#L514) |
+| Function | `fdEntropyLab()` | — | [L526](../../dist/foundations.js#L526) |
+| Function | `fdEntropyLab.<callback: sets.reduce>(t, [re, n])` | — | [L528](../../dist/foundations.js#L528) |
+| Function | `fdEntropyLab.fmt(s)` | — | [L531](../../dist/foundations.js#L531) |
+| Function | `async fdTotp(secret, time, digits = 6)` | — | [L538](../../dist/foundations.js#L538) |
+| Function | `async fdTotpRun()` | — | [L545](../../dist/foundations.js#L545) |
+| Function | `fdTotpRun.<callback: [-30, 0, 30].map>(d)` | — | [L548](../../dist/foundations.js#L548) |
+| Function | `fdTotpLab()` | — | [L551](../../dist/foundations.js#L551) |
+| Function | `fdB64u(bytes)` | — | [L557](../../dist/foundations.js#L557) |
+| Function | `async fdPkceRun()` | — | [L558](../../dist/foundations.js#L558) |
+| Function | `async fdPkceRun.s256(v)` | — | [L559](../../dist/foundations.js#L559) |
+| Function | `fdPkceLab()` | — | [L564](../../dist/foundations.js#L564) |
+| Function | `fdInjectLab()` | — | [L571](../../dist/foundations.js#L571) |
+| Function | `fdAccessLab()` | — | [L586](../../dist/foundations.js#L586) |
+| Function | `fdAccessLab.sel(name, opts, v)` | — | [L590](../../dist/foundations.js#L590) |
+| Function | `fdAccessLab.sel.<callback: opts.map>(o)` | — | [L590](../../dist/foundations.js#L590) |
+| Function | `fdView(view)` | — | [L614](../../dist/foundations.js#L614) |
+| Function | `fdView.<callback: units.map>(u)` | — | [L617](../../dist/foundations.js#L617) |
+| Function | `fdView.<callback: groups.map>(g)` | — | [L621](../../dist/foundations.js#L621) |
+| Function | `fdView.<callback: groups.map>.<callback: units.filter>(u)` | — | [L621](../../dist/foundations.js#L621) |
+| Function | `fdView.<callback: groups.map>.<callback: units.filter((u) => u[2] === g).map>(u)` | — | [L621](../../dist/foundations.js#L621) |
+| Function | `fdView.<callback: how.map>(s)` | — | [L628](../../dist/foundations.js#L628) |
+| Function | `fdView.<callback: pitfalls.map>(s)` | — | [L629](../../dist/foundations.js#L629) |
+| Function | `crRenderers.learn()` | — | [L638](../../dist/foundations.js#L638) |
+| Function | `secRenderers.learn()` | — | [L647](../../dist/foundations.js#L647) |
+| Function | `async fdRun(busy, task)` | — | [L655](../../dist/foundations.js#L655) |
+| Function | `"rsa-oaep"()` | — | [L662](../../dist/foundations.js#L662) |
+| Function | `"dh-ecdh"()` | — | [L663](../../dist/foundations.js#L663) |
+| Function | `"ecdsa-run"()` | — | [L664](../../dist/foundations.js#L664) |
+| Function | `"aead-run"()` | — | [L665](../../dist/foundations.js#L665) |
+| Function | `"lwe-run"()` | — | [L666](../../dist/foundations.js#L666) |
+| Function | `async "lwe-run".<callback: fdRun, "lwe">()` | — | [L666](../../dist/foundations.js#L666) |
+| Function | `"kem-run"()` | — | [L667](../../dist/foundations.js#L667) |
+| Function | `"mldsa-run"()` | — | [L668](../../dist/foundations.js#L668) |
+| Function | `async "mldsa-run".<callback: fdRun, "mldsa">()` | — | [L668](../../dist/foundations.js#L668) |
+| Function | `"wots-run"()` | — | [L669](../../dist/foundations.js#L669) |
+| Function | `"totp-run"()` | — | [L670](../../dist/foundations.js#L670) |
+| Function | `"pkce-run"()` | — | [L671](../../dist/foundations.js#L671) |
+| Function | `<callback: document.addEventListener, "click">(event)` | — | [L674](../../dist/foundations.js#L674) |
+| Function | `fdSet(path, value)` | — | [L687](../../dist/foundations.js#L687) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L688](../../dist/foundations.js#L688) |
+| Function | `<callback: document.addEventListener, "keydown">(event)` | — | [L694](../../dist/foundations.js#L694) |
+
 ### `dist/ml.js`
 
 [Open source](../../dist/ml.js)
@@ -3127,136 +3352,141 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `<callback: secTopics.map>(t)` | — | [L42](../../dist/security.js#L42) |
-| Function | `secHex(buf)` | — | [L58](../../dist/security.js#L58) |
-| Function | `secHex.<callback: [...new Uint8Array(buf)].map>(b)` | — | [L58](../../dist/security.js#L58) |
-| Function | `secRand(n)` | — | [L59](../../dist/security.js#L59) |
-| Function | `secShort(h, n = 24)` | — | [L60](../../dist/security.js#L60) |
-| Function | `secB64u(bytes)` | — | [L61](../../dist/security.js#L61) |
-| Function | `secFromB64u(text)` | — | [L62](../../dist/security.js#L62) |
-| Function | `secFromB64u.<callback: Uint8Array.from>(c)` | — | [L62](../../dist/security.js#L62) |
-| Function | `secEsc(text)` | — | [L63](../../dist/security.js#L63) |
-| Function | `secEsc.<callback: String(text).replace, /[&<>"']/g>(c)` | — | [L63](../../dist/security.js#L63) |
-| Function | `secClock(ms)` | — | [L64](../../dist/security.js#L64) |
-| Function | `async secPbkdf2(password, salt, iterations, hash = "SHA-256", bits = 256)` | — | [L66](../../dist/security.js#L66) |
-| Function | `async secSha256(bytes)` | — | [L71](../../dist/security.js#L71) |
-| Function | `secEqual(a, b)` | — | [L75](../../dist/security.js#L75) |
-| Function | `async secSeal(keyBytes, object)` | — | [L82](../../dist/security.js#L82) |
-| Function | `async secOpen(keyBytes, sealed)` | — | [L91](../../dist/security.js#L91) |
-| Function | `async secFingerprint(bytes)` | — | [L97](../../dist/security.js#L97) |
-| Function | `secChip(status)` | — | [L100](../../dist/security.js#L100) |
-| Function | `secCode(text)` | — | [L106](../../dist/security.js#L106) |
-| Function | `secCheck(ok, text, detail = "")` | — | [L108](../../dist/security.js#L108) |
-| Function | `secField(name, label, type = "text", hint = "")` | — | [L112](../../dist/security.js#L112) |
-| Function | `secButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L116](../../dist/security.js#L116) |
-| Function | `secSelect(name, options, value)` | — | [L120](../../dist/security.js#L120) |
-| Function | `secSelect.<callback: options.map>([v, l])` | — | [L121](../../dist/security.js#L121) |
-| Function | `secTable(head, rows, cls = "")` | — | [L124](../../dist/security.js#L124) |
-| Function | `secTable.<callback: head.map>(h)` | — | [L125](../../dist/security.js#L125) |
-| Function | `secTable.<callback: rows.map>(r)` | — | [L125](../../dist/security.js#L125) |
-| Function | `secTable.<callback: rows.map>.<callback: r.map>(c, i)` | — | [L125](../../dist/security.js#L125) |
-| Function | `secLink(label, url)` | — | [L128](../../dist/security.js#L128) |
-| Function | `secSection(kicker, title, body)` | — | [L130](../../dist/security.js#L130) |
-| Function | `umlData()` | — | [L136](../../dist/security.js#L136) |
-| Function | `umlHref(anchor)` | — | [L137](../../dist/security.js#L137) |
-| Function | `umlChip(anchor, label = "UML catalogue")` | — | [L139](../../dist/security.js#L139) |
-| Function | `umlSection(topicKey)` | — | [L144](../../dist/security.js#L144) |
-| Function | `umlSection.<callback: ids.map>(id)` | — | [L149](../../dist/security.js#L149) |
-| Function | `umlCatalogueName(view)` | — | [L157](../../dist/security.js#L157) |
-| Function | `umlCatalogueAnchor(view)` | — | [L158](../../dist/security.js#L158) |
-| Function | `umlTopicsSection(view, topics)` | — | [L161](../../dist/security.js#L161) |
-| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L164](../../dist/security.js#L164) |
-| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L164](../../dist/security.js#L164) |
-| Function | `umlInspector(topicKey, view, topics)` | — | [L169](../../dist/security.js#L169) |
-| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L173](../../dist/security.js#L173) |
-| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L173](../../dist/security.js#L173) |
-| Function | `umlInspector.<callback: ids.map>(id)` | — | [L176](../../dist/security.js#L176) |
-| Function | `secOverview()` | — | [L192](../../dist/security.js#L192) |
-| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L194](../../dist/security.js#L194) |
-| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L195](../../dist/security.js#L195) |
-| Function | `async secPwHash(again = false)` | — | [L204](../../dist/security.js#L204) |
-| Function | `async secPwVerify()` | — | [L223](../../dist/security.js#L223) |
-| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L226](../../dist/security.js#L226) |
-| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L229](../../dist/security.js#L229) |
-| Function | `secPasswords()` | — | [L233](../../dist/security.js#L233) |
-| Function | `async secLoginInit()` | — | [L259](../../dist/security.js#L259) |
-| Function | `async secLoginAttempt(email, password)` | — | [L267](../../dist/security.js#L267) |
-| Function | `secLogin()` | — | [L296](../../dist/security.js#L296) |
-| Function | `secLogin.<callback: L.log.map>(e)` | — | [L305](../../dist/security.js#L305) |
-| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L305](../../dist/security.js#L305) |
-| Function | `secIdentity()` | — | [L319](../../dist/security.js#L319) |
-| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L330](../../dist/security.js#L330) |
-| Function | `secGatewayRun(s)` | — | [L367](../../dist/security.js#L367) |
-| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L377](../../dist/security.js#L377) |
-| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L380](../../dist/security.js#L380) |
-| Function | `secGateway()` | — | [L396](../../dist/security.js#L396) |
-| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L400](../../dist/security.js#L400) |
-| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L402](../../dist/security.js#L402) |
-| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L404](../../dist/security.js#L404) |
-| Function | `async secSsoNext()` | — | [L420](../../dist/security.js#L420) |
-| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L425](../../dist/security.js#L425) |
-| Function | `secMessages(steps)` | — | [L476](../../dist/security.js#L476) |
-| Function | `secMessages.<callback: steps.map>(m)` | — | [L477](../../dist/security.js#L477) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L477](../../dist/security.js#L477) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L477](../../dist/security.js#L477) |
-| Function | `secSso()` | — | [L480](../../dist/security.js#L480) |
-| Function | `async secKrbSetup()` | — | [L500](../../dist/security.js#L500) |
-| Function | `async secKrbNext()` | — | [L510](../../dist/security.js#L510) |
-| Function | `secKrbNext.kdcNow()` | — | [L515](../../dist/security.js#L515) |
-| Function | `secKrbNext.appNow()` | — | [L516](../../dist/security.js#L516) |
-| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L517](../../dist/security.js#L517) |
-| Function | `secKrbNext.skewOk(t)` | — | [L518](../../dist/security.js#L518) |
-| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L519](../../dist/security.js#L519) |
-| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L547](../../dist/security.js#L547) |
-| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L583](../../dist/security.js#L583) |
-| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L594](../../dist/security.js#L594) |
-| Function | `secKrb()` | — | [L604](../../dist/security.js#L604) |
-| Function | `secKrb.has(who, k)` | — | [L609](../../dist/security.js#L609) |
-| Function | `secKrb.cell(ok)` | — | [L611](../../dist/security.js#L611) |
-| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L616](../../dist/security.js#L616) |
-| Function | `secTransport()` | — | [L627](../../dist/security.js#L627) |
+| Function | `<callback: secTopics.map>(t)` | — | [L46](../../dist/security.js#L46) |
+| Function | `secHex(buf)` | — | [L63](../../dist/security.js#L63) |
+| Function | `secHex.<callback: [...new Uint8Array(buf)].map>(b)` | — | [L63](../../dist/security.js#L63) |
+| Function | `secRand(n)` | — | [L64](../../dist/security.js#L64) |
+| Function | `secShort(h, n = 24)` | — | [L65](../../dist/security.js#L65) |
+| Function | `secB64u(bytes)` | — | [L66](../../dist/security.js#L66) |
+| Function | `secFromB64u(text)` | — | [L67](../../dist/security.js#L67) |
+| Function | `secFromB64u.<callback: Uint8Array.from>(c)` | — | [L67](../../dist/security.js#L67) |
+| Function | `secEsc(text)` | — | [L68](../../dist/security.js#L68) |
+| Function | `secEsc.<callback: String(text).replace, /[&<>"']/g>(c)` | — | [L68](../../dist/security.js#L68) |
+| Function | `secClock(ms)` | — | [L69](../../dist/security.js#L69) |
+| Function | `async secPbkdf2(password, salt, iterations, hash = "SHA-256", bits = 256)` | — | [L71](../../dist/security.js#L71) |
+| Function | `async secSha256(bytes)` | — | [L76](../../dist/security.js#L76) |
+| Function | `secEqual(a, b)` | — | [L80](../../dist/security.js#L80) |
+| Function | `async secSeal(keyBytes, object)` | — | [L87](../../dist/security.js#L87) |
+| Function | `async secOpen(keyBytes, sealed)` | — | [L96](../../dist/security.js#L96) |
+| Function | `async secFingerprint(bytes)` | — | [L102](../../dist/security.js#L102) |
+| Function | `secChip(status)` | — | [L105](../../dist/security.js#L105) |
+| Function | `secCode(text)` | — | [L111](../../dist/security.js#L111) |
+| Function | `secCheck(ok, text, detail = "")` | — | [L113](../../dist/security.js#L113) |
+| Function | `secField(name, label, type = "text", hint = "")` | — | [L117](../../dist/security.js#L117) |
+| Function | `secButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L121](../../dist/security.js#L121) |
+| Function | `secSelect(name, options, value, label = "Scenario")` | — | [L125](../../dist/security.js#L125) |
+| Function | `secSelect.<callback: options.map>([v, l])` | — | [L126](../../dist/security.js#L126) |
+| Function | `secTable(head, rows, cls = "")` | — | [L129](../../dist/security.js#L129) |
+| Function | `secTable.<callback: head.map>(h)` | — | [L130](../../dist/security.js#L130) |
+| Function | `secTable.<callback: rows.map>(r)` | — | [L130](../../dist/security.js#L130) |
+| Function | `secTable.<callback: rows.map>.<callback: r.map>(c, i)` | — | [L130](../../dist/security.js#L130) |
+| Function | `secLink(label, url)` | — | [L133](../../dist/security.js#L133) |
+| Function | `secSection(kicker, title, body)` | — | [L135](../../dist/security.js#L135) |
+| Function | `umlData()` | — | [L141](../../dist/security.js#L141) |
+| Function | `umlHref(anchor)` | — | [L142](../../dist/security.js#L142) |
+| Function | `umlChip(anchor, label = "UML catalogue")` | — | [L144](../../dist/security.js#L144) |
+| Function | `umlSection(topicKey)` | — | [L149](../../dist/security.js#L149) |
+| Function | `umlSection.<callback: ids.map>(id)` | — | [L154](../../dist/security.js#L154) |
+| Function | `umlCatalogueName(view)` | — | [L162](../../dist/security.js#L162) |
+| Function | `umlCatalogueAnchor(view)` | — | [L163](../../dist/security.js#L163) |
+| Function | `umlTopicsSection(view, topics)` | — | [L166](../../dist/security.js#L166) |
+| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L169](../../dist/security.js#L169) |
+| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L169](../../dist/security.js#L169) |
+| Function | `umlInspector(topicKey, view, topics)` | — | [L174](../../dist/security.js#L174) |
+| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L178](../../dist/security.js#L178) |
+| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L178](../../dist/security.js#L178) |
+| Function | `umlInspector.<callback: ids.map>(id)` | — | [L182](../../dist/security.js#L182) |
+| Function | `secOverview()` | — | [L200](../../dist/security.js#L200) |
+| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L202](../../dist/security.js#L202) |
+| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L203](../../dist/security.js#L203) |
+| Function | `async secPwHash(again = false)` | — | [L212](../../dist/security.js#L212) |
+| Function | `async secPwVerify()` | — | [L231](../../dist/security.js#L231) |
+| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L234](../../dist/security.js#L234) |
+| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L237](../../dist/security.js#L237) |
+| Function | `secPasswords()` | — | [L241](../../dist/security.js#L241) |
+| Function | `async secLoginInit()` | — | [L267](../../dist/security.js#L267) |
+| Function | `async secLoginAttempt(email, password)` | — | [L275](../../dist/security.js#L275) |
+| Function | `secLogin()` | — | [L304](../../dist/security.js#L304) |
+| Function | `secLogin.<callback: L.log.map>(e)` | — | [L313](../../dist/security.js#L313) |
+| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L313](../../dist/security.js#L313) |
+| Function | `secIdentity()` | — | [L327](../../dist/security.js#L327) |
+| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L338](../../dist/security.js#L338) |
+| Function | `secGatewayRun(s)` | — | [L375](../../dist/security.js#L375) |
+| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L385](../../dist/security.js#L385) |
+| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L388](../../dist/security.js#L388) |
+| Function | `secGateway()` | — | [L404](../../dist/security.js#L404) |
+| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L408](../../dist/security.js#L408) |
+| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L410](../../dist/security.js#L410) |
+| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L412](../../dist/security.js#L412) |
+| Function | `async secSsoNext()` | — | [L428](../../dist/security.js#L428) |
+| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L433](../../dist/security.js#L433) |
+| Function | `secMessages(steps)` | — | [L484](../../dist/security.js#L484) |
+| Function | `secMessages.<callback: steps.map>(m)` | — | [L485](../../dist/security.js#L485) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L485](../../dist/security.js#L485) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L485](../../dist/security.js#L485) |
+| Function | `secSso()` | — | [L488](../../dist/security.js#L488) |
+| Function | `async secKrbSetup()` | — | [L508](../../dist/security.js#L508) |
+| Function | `async secKrbNext()` | — | [L518](../../dist/security.js#L518) |
+| Function | `secKrbNext.kdcNow()` | — | [L523](../../dist/security.js#L523) |
+| Function | `secKrbNext.appNow()` | — | [L524](../../dist/security.js#L524) |
+| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L525](../../dist/security.js#L525) |
+| Function | `secKrbNext.skewOk(t)` | — | [L526](../../dist/security.js#L526) |
+| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L527](../../dist/security.js#L527) |
+| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L555](../../dist/security.js#L555) |
+| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L591](../../dist/security.js#L591) |
+| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L602](../../dist/security.js#L602) |
+| Function | `secKrb()` | — | [L612](../../dist/security.js#L612) |
+| Function | `secKrb.has(who, k)` | — | [L617](../../dist/security.js#L617) |
+| Function | `secKrb.cell(ok)` | — | [L619](../../dist/security.js#L619) |
+| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L624](../../dist/security.js#L624) |
+| Function | `secTransport()` | — | [L635](../../dist/security.js#L635) |
 | Function | `secTransport.<callback: [
       ["Private CA", "openssl req -x509 … /CN=atlas-ca", "basicConstraints CA:TRUE, keyUsage keyCertSign, 30 days"],
       ["Server certificate", "extendedKeyUsage=serverAuth", "subjectAltName=IP:127.0.0.1 binds it to the address"],
       ["Client certificate", "extendedKeyUsage=clientAuth", "Cannot be reused as a server certificate"],
       ["Server requires a client cert", "verify_mode = ssl.CERT_REQUIRED", "No certificate from atlas-ca → handshake fails"],
       ["Client verifies the server", "create_default_context(cafile=ca.crt)", "Plus load_cert_chain to present its own identity"],
-    ].map>([t, c, d], i)` | — | [L635](../../dist/security.js#L635) |
-| Function | `secGaps()` | — | [L648](../../dist/security.js#L648) |
-| Function | `securityInspector()` | — | [L686](../../dist/security.js#L686) |
-| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L692](../../dist/security.js#L692) |
-| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L693](../../dist/security.js#L693) |
-| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L695](../../dist/security.js#L695) |
-| Function | `securityView()` | — | [L702](../../dist/security.js#L702) |
-| Function | `securityView.<callback: secTopics.map>(x)` | — | [L708](../../dist/security.js#L708) |
-| Function | `securityOpen(topic)` | — | [L712](../../dist/security.js#L712) |
-| Function | `secSetHash()` | — | [L717](../../dist/security.js#L717) |
-| Function | `async secRun(busy, task)` | — | [L721](../../dist/security.js#L721) |
-| Function | `securityClick(button)` | — | [L729](../../dist/security.js#L729) |
-| Function | `securityClick."pw-hash"()` | — | [L741](../../dist/security.js#L741) |
-| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L741](../../dist/security.js#L741) |
-| Function | `securityClick."pw-again"()` | — | [L742](../../dist/security.js#L742) |
-| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L742](../../dist/security.js#L742) |
-| Function | `securityClick."pw-verify"()` | — | [L743](../../dist/security.js#L743) |
-| Function | `securityClick."login-init"()` | — | [L744](../../dist/security.js#L744) |
-| Function | `securityClick."login-wrong"()` | — | [L745](../../dist/security.js#L745) |
-| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L745](../../dist/security.js#L745) |
-| Function | `securityClick."login-unknown"()` | — | [L746](../../dist/security.js#L746) |
-| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L746](../../dist/security.js#L746) |
-| Function | `securityClick."login-right"()` | — | [L747](../../dist/security.js#L747) |
-| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L747](../../dist/security.js#L747) |
-| Function | `securityClick."login-tick"()` | — | [L748](../../dist/security.js#L748) |
-| Function | `securityClick."login-reset"()` | — | [L749](../../dist/security.js#L749) |
-| Function | `securityClick."gw-step"()` | — | [L750](../../dist/security.js#L750) |
-| Function | `securityClick."gw-all"()` | — | [L751](../../dist/security.js#L751) |
-| Function | `securityClick."sso-next"()` | — | [L752](../../dist/security.js#L752) |
-| Function | `securityClick."sso-reset"()` | — | [L753](../../dist/security.js#L753) |
-| Function | `securityClick."krb-next"()` | — | [L754](../../dist/security.js#L754) |
-| Function | `securityClick."krb-all"()` | — | [L755](../../dist/security.js#L755) |
-| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L755](../../dist/security.js#L755) |
-| Function | `securityClick."krb-reset"()` | — | [L756](../../dist/security.js#L756) |
-| Function | `<callback: document.addEventListener, "input">(event)` | — | [L762](../../dist/security.js#L762) |
-| Function | `<callback: document.addEventListener, "change">(event)` | — | [L767](../../dist/security.js#L767) |
+    ].map>([t, c, d], i)` | — | [L643](../../dist/security.js#L643) |
+| Function | `secCtlRun(s, mode)` | — | [L694](../../dist/security.js#L694) |
+| Function | `secControls()` | — | [L732](../../dist/security.js#L732) |
+| Function | `secControls.<callback: types.map>([t, q, w, e], i)` | — | [L742](../../dist/security.js#L742) |
+| Function | `secControls.<callback: Object.entries(secCtlScenarios).map>([k, v])` | — | [L744](../../dist/security.js#L744) |
+| Function | `secControls.<callback: r.steps.map>([ok, t, d])` | — | [L746](../../dist/security.js#L746) |
+| Function | `secGaps()` | — | [L777](../../dist/security.js#L777) |
+| Function | `securityInspector()` | — | [L820](../../dist/security.js#L820) |
+| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L826](../../dist/security.js#L826) |
+| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L827](../../dist/security.js#L827) |
+| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L829](../../dist/security.js#L829) |
+| Function | `securityView()` | — | [L836](../../dist/security.js#L836) |
+| Function | `securityView.<callback: secTopics.map>(x)` | — | [L842](../../dist/security.js#L842) |
+| Function | `securityOpen(topic)` | — | [L846](../../dist/security.js#L846) |
+| Function | `secSetHash()` | — | [L851](../../dist/security.js#L851) |
+| Function | `async secRun(busy, task)` | — | [L855](../../dist/security.js#L855) |
+| Function | `securityClick(button)` | — | [L863](../../dist/security.js#L863) |
+| Function | `securityClick."pw-hash"()` | — | [L875](../../dist/security.js#L875) |
+| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L875](../../dist/security.js#L875) |
+| Function | `securityClick."pw-again"()` | — | [L876](../../dist/security.js#L876) |
+| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L876](../../dist/security.js#L876) |
+| Function | `securityClick."pw-verify"()` | — | [L877](../../dist/security.js#L877) |
+| Function | `securityClick."login-init"()` | — | [L878](../../dist/security.js#L878) |
+| Function | `securityClick."login-wrong"()` | — | [L879](../../dist/security.js#L879) |
+| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L879](../../dist/security.js#L879) |
+| Function | `securityClick."login-unknown"()` | — | [L880](../../dist/security.js#L880) |
+| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L880](../../dist/security.js#L880) |
+| Function | `securityClick."login-right"()` | — | [L881](../../dist/security.js#L881) |
+| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L881](../../dist/security.js#L881) |
+| Function | `securityClick."login-tick"()` | — | [L882](../../dist/security.js#L882) |
+| Function | `securityClick."login-reset"()` | — | [L883](../../dist/security.js#L883) |
+| Function | `securityClick."gw-step"()` | — | [L884](../../dist/security.js#L884) |
+| Function | `securityClick."gw-all"()` | — | [L885](../../dist/security.js#L885) |
+| Function | `securityClick."sso-next"()` | — | [L886](../../dist/security.js#L886) |
+| Function | `securityClick."sso-reset"()` | — | [L887](../../dist/security.js#L887) |
+| Function | `securityClick."krb-next"()` | — | [L888](../../dist/security.js#L888) |
+| Function | `securityClick."krb-all"()` | — | [L889](../../dist/security.js#L889) |
+| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L889](../../dist/security.js#L889) |
+| Function | `securityClick."krb-reset"()` | — | [L890](../../dist/security.js#L890) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L896](../../dist/security.js#L896) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L901](../../dist/security.js#L901) |
 
 ### `dist/uml-catalog.js`
 
@@ -3270,9 +3500,9 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L28](../../server.mjs#L28) |
-| Function | `reply(request, response, status, type, body, headers = {})` | — | [L42](../../server.mjs#L42) |
-| Function | `<callback: createServer>(request, response)` | — | [L52](../../server.mjs#L52) |
+| Function | `async <callback: Object.entries(contentTypes).map>([file, type])` | — | [L29](../../server.mjs#L29) |
+| Function | `reply(request, response, status, type, body, headers = {})` | — | [L43](../../server.mjs#L43) |
+| Function | `<callback: createServer>(request, response)` | — | [L53](../../server.mjs#L53) |
 | Function | `<callback: createServer((request, response) => {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return reply(request, response, 405, textType, "Method not allowed\n", { Allow: "GET, HEAD" });
@@ -3289,7 +3519,7 @@ This file declares no functions.
   }
 
   reply(request, response, 200, asset.type, asset.body);
-}).listen>()` | — | [L68](../../server.mjs#L68) |
+}).listen>()` | — | [L69](../../server.mjs#L69) |
 
 ### `starter/scripts/generate_blueprint.py`
 

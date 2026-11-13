@@ -178,11 +178,13 @@ function umlInspector(topicKey, view, topics) {
     return `<div class="connection-group"><h3>In the UML catalogue</h3>${topics.filter((t) => data.topics[`${view}/${t.id}`]).map((t) => `<a class="uml-row" href="${umlHref(`uml-${view}-${t.id}`)}"><span>${t.title}</span><code>${data.topics[`${view}/${t.id}`].length} entries</code>${icon("diagonal", 12)}</a>`).join("")}</div>`;
   }
   const ids = data.topics[topicKey] || [];
+  if (!ids.length) return "";
   return `<div class="connection-group"><h3>In the UML catalogue</h3>${ids.map((id) => { const r = data.rows[id]; return `<a class="uml-row" href="${umlHref(id)}"><span>${r.concept}</span><code>${secEsc(r.symbol || r.path.split("/").pop())}</code>${icon("diagonal", 12)}</a>`; }).join("")}</div>`;
 }
 
 // ------------------------------------------------------------------ topic: overview
 const secMap = [
+  ["learn", "layers", "Foundations: 19 standalone units", null, "CIA and STRIDE to OAuth, TLS 1.3, OWASP, GDPR and incident response — what, why and how, with live TOTP, PKCE and injection labs", "docs/INFORMATION_SECURITY.md"],
   ["passwords", "lock", "Password storage", "impl", "Salted PBKDF2-HMAC-SHA256, 200 000 iterations; constant-time verify; secrets never shown", "android-app/atlas_go/accounts.py"],
   ["login", "door", "Authentication", "impl", "Email + password; 5 failures → 60 s lockout; one error message for every failure", "android-app/atlas_go/store.py"],
   ["identity", "idcard", "Identity lifecycle", "impl", "Register → sign in → sign out → delete with re-authentication and anonymisation", "store.py · PRIVACY.md"],

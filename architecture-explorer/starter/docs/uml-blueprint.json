@@ -13,6 +13,30 @@
     "compose.yaml",
     "docs/FINAL_HANDOVER.md",
     "docs/UML_BLUEPRINT.md",
+    "docs/img/uml/uml-app-class-diagram.svg",
+    "docs/img/uml/uml-app-layers.svg",
+    "docs/img/uml/uml-booking-and-dispatch-types.svg",
+    "docs/img/uml/uml-component-and-deployment-boundaries.svg",
+    "docs/img/uml/uml-connected-booking-sequence.svg",
+    "docs/img/uml/uml-database-adapter.svg",
+    "docs/img/uml/uml-driver-acceptance-and-completion.svg",
+    "docs/img/uml/uml-event-delivery-and-offer-creation.svg",
+    "docs/img/uml/uml-food-order-from-a-seller-kitchen.svg",
+    "docs/img/uml/uml-live-map-and-location.svg",
+    "docs/img/uml/uml-on-device-data-model-state-json.svg",
+    "docs/img/uml/uml-on-device-intelligence-1-2-0.svg",
+    "docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg",
+    "docs/img/uml/uml-passenger-booking.svg",
+    "docs/img/uml/uml-persistence-model.svg",
+    "docs/img/uml/uml-proposed-back-end-extensions-for-the-and.svg",
+    "docs/img/uml/uml-registration-and-sign-in.svg",
+    "docs/img/uml/uml-repository-boundary.svg",
+    "docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg",
+    "docs/img/uml/uml-scoring-types-and-lstm.svg",
+    "docs/img/uml/uml-screen-navigation.svg",
+    "docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg",
+    "docs/img/uml/uml-training-serving-and-approval.svg",
+    "docs/img/uml/uml-trip-state-machine.svg",
     "docs/uml-blueprint.json",
     "infra/schema.sql",
     "ml/discrete.py",
@@ -46,6 +70,30 @@
     "apps/shared/client.js": "9740ac6e043d5b5c2d0515b50dd69fba0c66f6b0a807a7fffff85be1a152c2e0",
     "apps/shared/demo.css": "170e4a4545847490cd666493f311cf58d0f943b5e22b9a4399fcebf7728407c5",
     "compose.yaml": "6d1d051ef6534736974d582608cf75f784c8035a63192ad353c1d6c3d923c2d7",
+    "docs/img/uml/uml-app-class-diagram.svg": "131b265568fc55dafa7a6242de770989eb0aec8929cb4196a91a3673905531b3",
+    "docs/img/uml/uml-app-layers.svg": "7b5e1b84436f8d3d3a62e0285a1b0bad6a3a53fbb6f5b72c98accc6853e2fafe",
+    "docs/img/uml/uml-booking-and-dispatch-types.svg": "e46b5d080808ecb0b700bde9fbd7adfe2a0622fab702b740bf30ce45c799476b",
+    "docs/img/uml/uml-component-and-deployment-boundaries.svg": "1b3c8866699979f7a7fb8fd3fa4db4910a21fc49ed9de832e40abfba7898ca66",
+    "docs/img/uml/uml-connected-booking-sequence.svg": "fbe46cbc00f882a322037cd6fd6d63e055b840f30b8ff397b9f9d5cec8168d6d",
+    "docs/img/uml/uml-database-adapter.svg": "4580fced497318be407164b3246fc0c0f672cfe90eeddb5436d2a5eeb1b53462",
+    "docs/img/uml/uml-driver-acceptance-and-completion.svg": "650ef5df979a20a0c2a19e79561a0223a49859ac4810419fc2383a5f3b6bba24",
+    "docs/img/uml/uml-event-delivery-and-offer-creation.svg": "efa533ab34fdc2af9b8478a748de61b9eaa54113d0d5e15dca1c994f17908686",
+    "docs/img/uml/uml-food-order-from-a-seller-kitchen.svg": "dcdfcd91289adc5a658e4bf7b84cd2723aedaf79ad03c9551c11c49a1d0c8941",
+    "docs/img/uml/uml-live-map-and-location.svg": "9a8abb35abd9af039bc187bf77d312395896f6be824540346c59e3780c670167",
+    "docs/img/uml/uml-on-device-data-model-state-json.svg": "f090b1455a555960ff8e6304668145d32f4cde7338b5f6e006ed75fbcca3d802",
+    "docs/img/uml/uml-on-device-intelligence-1-2-0.svg": "042622b279d9fdc34552b473414d39d5c7e5c2bdd466546a0a25d25fd72b4b0e",
+    "docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg": "f5ce27b53955fd47aa546c8ca6061e971865b162b3e40aed47d0831cd4069497",
+    "docs/img/uml/uml-passenger-booking.svg": "8055769703924b889a3a5de5c291706a65339f7518e29203494d0da85d2c9569",
+    "docs/img/uml/uml-persistence-model.svg": "109d4b96657a22dff55930384ef455dfd76157b20c57779eee926521fe7df3f5",
+    "docs/img/uml/uml-proposed-back-end-extensions-for-the-and.svg": "5553c5a271a37c1febdbb3d65ed66906dcb6dbed91ae49cded8abb5552fb54eb",
+    "docs/img/uml/uml-registration-and-sign-in.svg": "11bb2f66cabc333e5d8f0ec35d512e45b86e022a3a2979882715a1ec5c138307",
+    "docs/img/uml/uml-repository-boundary.svg": "cd072f2ca64758dcd59a4ea7a81638e240645d159b84c7dccb7d1a503ba7eba2",
+    "docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg": "763d6d989e7a85bfc7d9c117d13bef27303b0a5a9b854f7d20814ea670581960",
+    "docs/img/uml/uml-scoring-types-and-lstm.svg": "e13d3fcb6a63177d9f5008632316731f3272e46cf2b8307c9a2799a6c99ec04a",
+    "docs/img/uml/uml-screen-navigation.svg": "f2a994928f0966c9c760d43e15d95fa76487cc2bfeed447812cdf97428e0558f",
+    "docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg": "8a02d7fbe398539c5feadc4c4bb899788891837607748c7c91a3e19875a6e6d4",
+    "docs/img/uml/uml-training-serving-and-approval.svg": "c8ee3b25326056ad71c72e80a5435a96fa586abc7e970eadcd12cec477125d02",
+    "docs/img/uml/uml-trip-state-machine.svg": "86aa4e5e5b5d6e11abf596b87d8b5b8d67a2226c63b5274f693c3f9ed11264bb",
     "infra/schema.sql": "398183c0013c2a08b1fd134b9cc6420b2aaa89e0c762bd869cd34db3d34d21b4",
     "ml/discrete.py": "2c54e59af6324d20869131d617ab74ea8673ba491c47db7a14cb8311ece21610",
     "ml/forecast.py": "bcada40c3e17fe47fd294055887e910c84e073e2c68a1b7e152e0a09b85c597e",
@@ -59,7 +107,7 @@
     "requirements.txt": "c389f3b4d23c04757137fdfe15446b1789d3316825a1dc924dd23beab32bbed5",
     "scripts/initialize.sh": "9802c580a934b1979dc700a631f9da9b6f4dae776a952c040e09ad6e0a8f47c8",
     "scripts/local.sh": "12aad3b6b28e44e0cee4fc065322f048ad0bf3131cc069845a4c5d2ee374497b",
-    "scripts/security_catalog.py": "7926d12cb8df19d5a5fcfe69c822fb185f7142a01db578012c787025aac21152",
+    "scripts/security_catalog.py": "f6e98b31c1aa8f871148f7ff70e1bc1e564013a0fa748f3bc1a4c34524a8a91d",
     "services/dispatch.py": "60bee8fb80be4d407798d0c1b466ca635c6955bdbec49a9bce274bf420c7eefa",
     "services/gateway.py": "88353781d315b133644b2d3ce33cc0bb0c1f5c76df915f4c728f776f631712d1",
     "services/trips.py": "59eaf936bf892b261334f1587252218d6c2a1b804ce27e618936bf57abdc7389",
@@ -564,56 +612,56 @@
         {
           "name": "read",
           "signature": "read(location, main)",
-          "line": 407,
+          "line": 437,
           "async": false,
           "decorators": []
         },
         {
           "name": "python_symbols",
           "signature": "python_symbols(text)",
-          "line": 417,
+          "line": 447,
           "async": false,
           "decorators": []
         },
         {
           "name": "locate",
           "signature": "locate(text, path, symbol)",
-          "line": 429,
+          "line": 459,
           "async": false,
           "decorators": []
         },
         {
           "name": "resolve",
           "signature": "resolve(main)",
-          "line": 450,
+          "line": 480,
           "async": false,
           "decorators": []
         },
         {
           "name": "markdown",
           "signature": "markdown(rows, views, intro)",
-          "line": 483,
+          "line": 513,
           "async": false,
           "decorators": []
         },
         {
           "name": "script",
           "signature": "script(rows)",
-          "line": 504,
+          "line": 534,
           "async": false,
           "decorators": []
         },
         {
           "name": "replace_block",
           "signature": "replace_block(document, content, name)",
-          "line": 512,
+          "line": 542,
           "async": false,
           "decorators": []
         },
         {
           "name": "main",
           "signature": "main()",
-          "line": 521,
+          "line": 551,
           "async": false,
           "decorators": []
         }
@@ -1103,6 +1151,7 @@
     "dist/crypto.js",
     "dist/dsa.js",
     "dist/explorer.js",
+    "dist/foundations.js",
     "dist/index.html",
     "dist/ml.js",
     "dist/ride-event.schema.json",
@@ -1121,6 +1170,30 @@
     "starter/compose.yaml",
     "starter/docs/FINAL_HANDOVER.md",
     "starter/docs/UML_BLUEPRINT.md",
+    "starter/docs/img/uml/uml-app-class-diagram.svg",
+    "starter/docs/img/uml/uml-app-layers.svg",
+    "starter/docs/img/uml/uml-booking-and-dispatch-types.svg",
+    "starter/docs/img/uml/uml-component-and-deployment-boundaries.svg",
+    "starter/docs/img/uml/uml-connected-booking-sequence.svg",
+    "starter/docs/img/uml/uml-database-adapter.svg",
+    "starter/docs/img/uml/uml-driver-acceptance-and-completion.svg",
+    "starter/docs/img/uml/uml-event-delivery-and-offer-creation.svg",
+    "starter/docs/img/uml/uml-food-order-from-a-seller-kitchen.svg",
+    "starter/docs/img/uml/uml-live-map-and-location.svg",
+    "starter/docs/img/uml/uml-on-device-data-model-state-json.svg",
+    "starter/docs/img/uml/uml-on-device-intelligence-1-2-0.svg",
+    "starter/docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg",
+    "starter/docs/img/uml/uml-passenger-booking.svg",
+    "starter/docs/img/uml/uml-persistence-model.svg",
+    "starter/docs/img/uml/uml-proposed-back-end-extensions-for-the-and.svg",
+    "starter/docs/img/uml/uml-registration-and-sign-in.svg",
+    "starter/docs/img/uml/uml-repository-boundary.svg",
+    "starter/docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg",
+    "starter/docs/img/uml/uml-scoring-types-and-lstm.svg",
+    "starter/docs/img/uml/uml-screen-navigation.svg",
+    "starter/docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg",
+    "starter/docs/img/uml/uml-training-serving-and-approval.svg",
+    "starter/docs/img/uml/uml-trip-state-machine.svg",
     "starter/docs/uml-blueprint.json",
     "starter/infra/schema.sql",
     "starter/ml/discrete.py",
@@ -1153,16 +1226,17 @@
     "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
     "dist/build.html": "2eb5b8d86cb3eb2f42dd4b6378a0af4e878e44e2a24fc4315acfe20159778232",
     "dist/build.js": "d5a857be99c9d627cafb780017ceb463d90c7ad50e011d2e0c56cff3b71cdec1",
-    "dist/crypto.js": "1488d15c7543ea9ea58b92d0db92e2418ff9d8311024b7e602dcbbdcfbef4db0",
+    "dist/crypto.js": "363e5557af86a1058112411edadd5761e73d219060af5cf262c97dee9401db30",
     "dist/dsa.js": "f14b7e3ac092546383e18bc59faf162ba0205f33b31f6124da37d0959f746527",
     "dist/explorer.js": "4c7fb5d0ae04c3713af8f8f4c3404f941c6823c07ea3ede7d40f36260d703d27",
-    "dist/index.html": "18c5f97fa3e4fc2f16944ece773146b48aebc6a34bf0333d6176f34f60d6d204",
+    "dist/foundations.js": "25299caebd3ca5183f8e29ab36339bfd979183a49859ae53a2d56dc477aa9efa",
+    "dist/index.html": "8219dea41184baca7ad32be37f520ae59e3eb260df14476cd96a4abf22c59693",
     "dist/ml.js": "3f4184d496cd7e9e2970bd554c6cc1e45202ef93ee4f1991c408e29e741bcf3d",
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
-    "dist/security.js": "583a868522e163049446af86aeb7f26ca75ca5c33920abc73cf89a257e609007",
-    "dist/styles.css": "fb681e0c32be4317ffdced73d7a10c72869a24f1c49aa41e024c2c5f33dfad0b",
-    "dist/uml-catalog.js": "90602505406c9a2fd43530201857d706ea814b7091c0b322207b8ab3c3eafe3b",
-    "server.mjs": "6f256b13ca968fb6757288ba60fc23f2ee8f9615057bb77d8c57305313c62b22",
+    "dist/security.js": "0300c2b34e8fd37b1cbe88d281f9e20624f9b8bed94c1827ec6e77661620edf7",
+    "dist/styles.css": "57f163db5e4e7ee4779be816b1b6f18527869245bd6ae0ab94f1ef9a733ed040",
+    "dist/uml-catalog.js": "5f2f8e720410044c04a74161134b20962d2f67a126c8b4b2474ba4504bb89567",
+    "server.mjs": "84d4e5ce4883585ac1c911e58541d30f58d7bced1219b46370d9949073a31737",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
   "supporting_modules": {
@@ -1270,308 +1344,301 @@
         {
           "name": "crOverview",
           "signature": "crOverview()",
-          "line": 82,
+          "line": 83,
           "async": false,
           "decorators": []
         },
         {
           "name": "crOverview.<callback: Object.keys(secStatus).map>",
           "signature": "crOverview.<callback: Object.keys(secStatus).map>(k)",
-          "line": 84,
+          "line": 85,
           "async": false,
           "decorators": []
         },
         {
           "name": "crOverview.<callback: crMap.map>",
           "signature": "crOverview.<callback: crMap.map>([topic, ic, title, status, text, where])",
-          "line": 85,
+          "line": 86,
           "async": false,
           "decorators": []
         },
         {
           "name": "crHashFile",
           "signature": "crHashFile(file)",
-          "line": 98,
+          "line": 99,
           "async": true,
           "decorators": []
         },
         {
           "name": "crHashFile.<callback: CR_PUBLISHED.find>",
           "signature": "crHashFile.<callback: CR_PUBLISHED.find>([h])",
-          "line": 101,
+          "line": 102,
           "async": false,
           "decorators": []
         },
         {
           "name": "crUpdateAvalanche",
           "signature": "crUpdateAvalanche()",
-          "line": 105,
+          "line": 106,
           "async": true,
           "decorators": []
         },
         {
           "name": "crUpdateAvalanche.<callback: ba.filter>",
           "signature": "crUpdateAvalanche.<callback: ba.filter>(bit, i)",
-          "line": 110,
+          "line": 111,
           "async": false,
           "decorators": []
         },
         {
           "name": "crUpdateAvalanche.<callback: ba.map>",
           "signature": "crUpdateAvalanche.<callback: ba.map>(bit, i)",
-          "line": 113,
+          "line": 114,
           "async": false,
           "decorators": []
         },
         {
           "name": "crChecksum",
           "signature": "crChecksum()",
-          "line": 118,
+          "line": 119,
           "async": true,
           "decorators": []
         },
         {
           "name": "crChecksum.c",
           "signature": "crChecksum.c(s)",
-          "line": 121,
+          "line": 122,
           "async": false,
           "decorators": []
         },
         {
           "name": "crChecksum.h",
           "signature": "crChecksum.h(s)",
-          "line": 122,
+          "line": 123,
           "async": true,
           "decorators": []
         },
         {
           "name": "crHashes",
           "signature": "crHashes()",
-          "line": 126,
+          "line": 127,
           "async": false,
           "decorators": []
         },
         {
           "name": "crHashes.<callback: CR_PUBLISHED.map>",
           "signature": "crHashes.<callback: CR_PUBLISHED.map>([h, n, v])",
-          "line": 134,
+          "line": 135,
           "async": false,
           "decorators": []
         },
         {
           "name": "crHashesAfterRender",
           "signature": "crHashesAfterRender()",
-          "line": 146,
+          "line": 147,
           "async": true,
           "decorators": []
         },
         {
           "name": "crPin",
           "signature": "crPin()",
-          "line": 158,
+          "line": 159,
           "async": true,
           "decorators": []
         },
         {
           "name": "crIssue",
           "signature": "crIssue(issuer, tbs)",
-          "line": 176,
+          "line": 177,
           "async": true,
           "decorators": []
         },
         {
           "name": "crPkiSetup",
           "signature": "crPkiSetup()",
-          "line": 185,
+          "line": 186,
           "async": true,
           "decorators": []
         },
         {
           "name": "crVerifyCert",
           "signature": "crVerifyCert(cert, issuerCert, trusted, wantEku)",
-          "line": 196,
+          "line": 197,
           "async": true,
           "decorators": []
         },
         {
           "name": "crB64Hex",
           "signature": "crB64Hex(hex)",
-          "line": 209,
+          "line": 210,
           "async": false,
           "decorators": []
         },
         {
           "name": "crB64Hex.<callback: Uint8Array.from>",
           "signature": "crB64Hex.<callback: Uint8Array.from>(h)",
-          "line": 209,
+          "line": 210,
           "async": false,
           "decorators": []
         },
         {
           "name": "crPkiRun",
           "signature": "crPkiRun()",
-          "line": 211,
+          "line": 212,
           "async": true,
           "decorators": []
         },
         {
           "name": "crPki",
           "signature": "crPki()",
-          "line": 231,
+          "line": 232,
           "async": false,
           "decorators": []
         },
         {
           "name": "crSigKeys",
           "signature": "crSigKeys()",
-          "line": 270,
+          "line": 271,
           "async": true,
           "decorators": []
         },
         {
           "name": "crSigSign",
           "signature": "crSigSign()",
-          "line": 282,
+          "line": 283,
           "async": true,
           "decorators": []
         },
         {
           "name": "crSigVerify",
           "signature": "crSigVerify(kind)",
-          "line": 293,
+          "line": 294,
           "async": true,
           "decorators": []
         },
         {
           "name": "crSignatures",
           "signature": "crSignatures()",
-          "line": 305,
+          "line": 306,
           "async": false,
           "decorators": []
         },
         {
           "name": "crSignatures.<callback: Object.entries(CR_SIG_ALGS).map>",
           "signature": "crSignatures.<callback: Object.entries(CR_SIG_ALGS).map>([k, v])",
-          "line": 308,
+          "line": 309,
           "async": false,
           "decorators": []
         },
         {
           "name": "crSignatures.<callback: S.results.map>",
           "signature": "crSignatures.<callback: S.results.map>([ok, t, d])",
-          "line": 313,
+          "line": 314,
           "async": false,
           "decorators": []
         },
         {
           "name": "crSignatures.<callback: [\n    [\"Build and test\", \"atlas-android.yml\", \"Unsigned AAB; SHA-256 recorded\"],\n    [\"Sign\", \"jarsigner -sigalg SHA256withRSA -digestalg SHA-256\", \"RSA-4096 upload key from a PKCS#12 keystore; passwords passed by env name\"],\n    [\"Verify\", \"jarsigner -verify\", \"Run immediately after signing\"],\n    [\"Pin check\", \"SHA-256(certificate) == pinned\", \"Any other key fails the job\"],\n    [\"Distribute\", \"APK v2 + v3, SHA256SUMS\", \"User runs apksigner verify --print-certs\"],\n  ].map>",
           "signature": "crSignatures.<callback: [\n    [\"Build and test\", \"atlas-android.yml\", \"Unsigned AAB; SHA-256 recorded\"],\n    [\"Sign\", \"jarsigner -sigalg SHA256withRSA -digestalg SHA-256\", \"RSA-4096 upload key from a PKCS#12 keystore; passwords passed by env name\"],\n    [\"Verify\", \"jarsigner -verify\", \"Run immediately after signing\"],\n    [\"Pin check\", \"SHA-256(certificate) == pinned\", \"Any other key fails the job\"],\n    [\"Distribute\", \"APK v2 + v3, SHA256SUMS\", \"User runs apksigner verify --print-certs\"],\n  ].map>([t, c, d], i)",
-          "line": 320,
+          "line": 321,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportKeys",
           "signature": "crLamportKeys()",
-          "line": 328,
+          "line": 329,
           "async": true,
           "decorators": []
         },
         {
           "name": "crLamportKeys.<callback: pk.flatMap>",
           "signature": "crLamportKeys.<callback: pk.flatMap>([a, b])",
-          "line": 335,
+          "line": 336,
           "async": false,
           "decorators": []
         },
         {
           "name": "crMsgBits",
           "signature": "crMsgBits(text)",
-          "line": 337,
+          "line": 338,
           "async": true,
           "decorators": []
         },
         {
           "name": "crLamportSign",
           "signature": "crLamportSign(text)",
-          "line": 338,
+          "line": 339,
           "async": true,
           "decorators": []
         },
         {
           "name": "crLamportSign.<callback: bits.map>",
           "signature": "crLamportSign.<callback: bits.map>(b, i)",
-          "line": 340,
+          "line": 341,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportVerify",
           "signature": "crLamportVerify(text, sig)",
-          "line": 342,
+          "line": 343,
           "async": true,
           "decorators": []
         },
         {
           "name": "crLamportKnown",
           "signature": "crLamportKnown()",
-          "line": 350,
+          "line": 351,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportKnown.<callback: Array.from>",
           "signature": "crLamportKnown.<callback: Array.from>()",
-          "line": 351,
+          "line": 352,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportKnown.<callback: s.bits.forEach>",
           "signature": "crLamportKnown.<callback: s.bits.forEach>(b, i)",
-          "line": 352,
+          "line": 353,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportForge",
           "signature": "crLamportForge()",
-          "line": 355,
+          "line": 356,
           "async": true,
           "decorators": []
         },
         {
           "name": "crLamportForge.<callback: bits.every>",
           "signature": "crLamportForge.<callback: bits.every>(b, i)",
-          "line": 361,
+          "line": 362,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportForge.<callback: bits.map>",
           "signature": "crLamportForge.<callback: bits.map>(b, i)",
-          "line": 362,
+          "line": 363,
           "async": false,
           "decorators": []
         },
         {
           "name": "crLamportForge.<callback: bits.map>.<callback: cr.lamport.signs.find>",
           "signature": "crLamportForge.<callback: bits.map>.<callback: cr.lamport.signs.find>(s)",
-          "line": 362,
+          "line": 363,
           "async": false,
           "decorators": []
         },
         {
           "name": "crPqc",
           "signature": "crPqc()",
-          "line": 370,
-          "async": false,
-          "decorators": []
-        },
-        {
-          "name": "crPqc.<callback: known.filter>",
-          "signature": "crPqc.<callback: known.filter>([a, b])",
-          "line": 373,
+          "line": 371,
           "async": false,
           "decorators": []
         },
@@ -1583,261 +1650,268 @@
           "decorators": []
         },
         {
+          "name": "crPqc.<callback: known.filter>",
+          "signature": "crPqc.<callback: known.filter>([a, b])",
+          "line": 375,
+          "async": false,
+          "decorators": []
+        },
+        {
           "name": "crPqc.<callback: sizes.map>",
           "signature": "crPqc.<callback: sizes.map>([n, pk, sg, tone])",
-          "line": 385,
+          "line": 386,
           "async": false,
           "decorators": []
         },
         {
           "name": "crPqc.<callback: known.map>",
           "signature": "crPqc.<callback: known.map>([a, b])",
-          "line": 391,
+          "line": 392,
           "async": false,
           "decorators": []
         },
         {
           "name": "crGaps",
           "signature": "crGaps()",
-          "line": 401,
+          "line": 406,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoInspector",
           "signature": "cryptoInspector()",
-          "line": 433,
+          "line": 439,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoInspector.<callback: info.facts.map>",
           "signature": "cryptoInspector.<callback: info.facts.map>([k, v])",
-          "line": 439,
+          "line": 445,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoInspector.<callback: info.files.map>",
           "signature": "cryptoInspector.<callback: info.files.map>([l, u])",
-          "line": 440,
+          "line": 446,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoInspector.<callback: info.questions.map>",
           "signature": "cryptoInspector.<callback: info.questions.map>(q)",
-          "line": 442,
+          "line": 448,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoView",
           "signature": "cryptoView()",
-          "line": 449,
+          "line": 455,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoView.<callback: crTopics.map>",
           "signature": "cryptoView.<callback: crTopics.map>(x)",
-          "line": 454,
+          "line": 460,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoOpen",
           "signature": "cryptoOpen(topic)",
-          "line": 458,
+          "line": 464,
           "async": false,
           "decorators": []
         },
         {
           "name": "crSetHash",
           "signature": "crSetHash()",
-          "line": 463,
+          "line": 469,
           "async": false,
           "decorators": []
         },
         {
           "name": "crRun",
           "signature": "crRun(busy, task)",
-          "line": 467,
+          "line": 473,
           "async": true,
           "decorators": []
         },
         {
           "name": "cryptoClick",
           "signature": "cryptoClick(button)",
-          "line": 475,
+          "line": 481,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.swap",
           "signature": "cryptoClick.swap()",
-          "line": 487,
+          "line": 493,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.pin",
           "signature": "cryptoClick.pin()",
-          "line": 488,
+          "line": 494,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"pki-run\"",
           "signature": "cryptoClick.\"pki-run\"()",
-          "line": 489,
+          "line": 495,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"pki-reset\"",
           "signature": "cryptoClick.\"pki-reset\"()",
-          "line": 490,
+          "line": 496,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"pki-reset\".<callback: crRun, \"pki\">",
           "signature": "cryptoClick.\"pki-reset\".<callback: crRun, \"pki\">()",
-          "line": 490,
+          "line": 496,
           "async": true,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-keys\"",
           "signature": "cryptoClick.\"sig-keys\"()",
-          "line": 491,
+          "line": 497,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-sign\"",
           "signature": "cryptoClick.\"sig-sign\"()",
-          "line": 492,
+          "line": 498,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-ok\"",
           "signature": "cryptoClick.\"sig-v-ok\"()",
-          "line": 493,
+          "line": 499,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-ok\".<callback: crRun, \"sig\">",
           "signature": "cryptoClick.\"sig-v-ok\".<callback: crRun, \"sig\">()",
-          "line": 493,
+          "line": 499,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-edited\"",
           "signature": "cryptoClick.\"sig-v-edited\"()",
-          "line": 494,
+          "line": 500,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-edited\".<callback: crRun, \"sig\">",
           "signature": "cryptoClick.\"sig-v-edited\".<callback: crRun, \"sig\">()",
-          "line": 494,
+          "line": 500,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-wrongkey\"",
           "signature": "cryptoClick.\"sig-v-wrongkey\"()",
-          "line": 495,
+          "line": 501,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-wrongkey\".<callback: crRun, \"sig\">",
           "signature": "cryptoClick.\"sig-v-wrongkey\".<callback: crRun, \"sig\">()",
-          "line": 495,
+          "line": 501,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-flip\"",
           "signature": "cryptoClick.\"sig-v-flip\"()",
-          "line": 496,
+          "line": 502,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"sig-v-flip\".<callback: crRun, \"sig\">",
           "signature": "cryptoClick.\"sig-v-flip\".<callback: crRun, \"sig\">()",
-          "line": 496,
+          "line": 502,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-keys\"",
           "signature": "cryptoClick.\"lam-keys\"()",
-          "line": 497,
+          "line": 503,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-sign\"",
           "signature": "cryptoClick.\"lam-sign\"()",
-          "line": 498,
+          "line": 504,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-sign\".<callback: crRun, \"lam\">",
           "signature": "cryptoClick.\"lam-sign\".<callback: crRun, \"lam\">()",
-          "line": 498,
+          "line": 504,
           "async": true,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-verify\"",
           "signature": "cryptoClick.\"lam-verify\"()",
-          "line": 499,
+          "line": 505,
           "async": false,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-verify\".<callback: crRun, \"lam\">",
           "signature": "cryptoClick.\"lam-verify\".<callback: crRun, \"lam\">()",
-          "line": 499,
+          "line": 505,
           "async": true,
           "decorators": []
         },
         {
           "name": "cryptoClick.\"lam-forge\"",
           "signature": "cryptoClick.\"lam-forge\"()",
-          "line": 500,
+          "line": 506,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"input\">",
           "signature": "<callback: document.addEventListener, \"input\">(event)",
-          "line": 506,
+          "line": 512,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"change\">",
           "signature": "<callback: document.addEventListener, \"change\">(event)",
-          "line": 513,
+          "line": 519,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"change\">.<callback: crRun, \"file\">",
           "signature": "<callback: document.addEventListener, \"change\">.<callback: crRun, \"file\">()",
-          "line": 515,
+          "line": 521,
           "async": false,
           "decorators": []
         }
@@ -4383,6 +4457,1014 @@
         }
       ]
     },
+    "dist/foundations.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": [
+        {
+          "name": "fdUnitList",
+          "signature": "fdUnitList(view)",
+          "line": 231,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdUnitById",
+          "signature": "fdUnitById(view, id)",
+          "line": 232,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdUnitById.<callback: fdUnitList(view).find>",
+          "signature": "fdUnitById.<callback: fdUnitList(view).find>(u)",
+          "line": 232,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdInput",
+          "signature": "fdInput(name, label, value, attrs = \"\")",
+          "line": 233,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdBtn",
+          "signature": "fdBtn(action, label, primary = false, ic = \"\")",
+          "line": 234,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMod",
+          "signature": "fdMod(a, n)",
+          "line": 237,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPow",
+          "signature": "fdPow(b, e, n)",
+          "line": 238,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdInv",
+          "signature": "fdInv(a, n)",
+          "line": 239,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdGcd",
+          "signature": "fdGcd(a, b)",
+          "line": 240,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdIsPrime",
+          "signature": "fdIsPrime(n)",
+          "line": 241,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdBig",
+          "signature": "fdBig(s)",
+          "line": 242,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdRsaLab",
+          "signature": "fdRsaLab()",
+          "line": 245,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdRsaOaep",
+          "signature": "fdRsaOaep()",
+          "line": 275,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdDhLab",
+          "signature": "fdDhLab()",
+          "line": 286,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdDhLab.<callback: E.checks.map>",
+          "signature": "fdDhLab.<callback: E.checks.map>([ok, t])",
+          "line": 301,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdh",
+          "signature": "fdEcdh()",
+          "line": 305,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdh.<anonymous>",
+          "signature": "fdEcdh.<anonymous>(k)",
+          "line": 310,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdh.<anonymous>",
+          "signature": "fdEcdh.<anonymous>(k)",
+          "line": 310,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcAdd",
+          "signature": "fdEcAdd(P, Q)",
+          "line": 323,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcMul",
+          "signature": "fdEcMul(k, P)",
+          "line": 332,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPt",
+          "signature": "fdPt(P)",
+          "line": 333,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcHash",
+          "signature": "fdEcHash(msg)",
+          "line": 334,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdsaRun",
+          "signature": "fdEcdsaRun()",
+          "line": 336,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdsaRun.sign",
+          "signature": "fdEcdsaRun.sign(z)",
+          "line": 339,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdsaRun.verify",
+          "signature": "fdEcdsaRun.verify(z, [r, s])",
+          "line": 340,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdsaLab",
+          "signature": "fdEcdsaLab()",
+          "line": 352,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEcdsaLab.<callback: mult.map>",
+          "signature": "fdEcdsaLab.<callback: mult.map>([i, P])",
+          "line": 356,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdAeadRun",
+          "signature": "fdAeadRun()",
+          "line": 368,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdAeadLab",
+          "signature": "fdAeadLab()",
+          "line": 385,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun",
+          "signature": "fdLweRun()",
+          "line": 393,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.rnd",
+          "signature": "fdLweRun.rnd(k)",
+          "line": 394,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>",
+          "signature": "fdLweRun.<callback: Array.from>()",
+          "line": 395,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>",
+          "signature": "fdLweRun.<callback: Array.from>()",
+          "line": 396,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>.<callback: Array.from>",
+          "signature": "fdLweRun.<callback: Array.from>.<callback: Array.from>()",
+          "line": 396,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>",
+          "signature": "fdLweRun.<callback: Array.from>()",
+          "line": 397,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: A.map>",
+          "signature": "fdLweRun.<callback: A.map>(row, i)",
+          "line": 398,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: A.map>.<callback: row.reduce>",
+          "signature": "fdLweRun.<callback: A.map>.<callback: row.reduce>(t, a, j)",
+          "line": 398,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: A.map>",
+          "signature": "fdLweRun.<callback: A.map>(_, i)",
+          "line": 402,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: A.map((_, i) => i).filter>",
+          "signature": "fdLweRun.<callback: A.map((_, i) => i).filter>()",
+          "line": 402,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>",
+          "signature": "fdLweRun.<callback: Array.from>(_, j)",
+          "line": 403,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: Array.from>.<callback: rows.reduce>",
+          "signature": "fdLweRun.<callback: Array.from>.<callback: rows.reduce>(t2, i)",
+          "line": 403,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: rows.reduce>",
+          "signature": "fdLweRun.<callback: rows.reduce>(t2, i)",
+          "line": 404,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweRun.<callback: u.reduce>",
+          "signature": "fdLweRun.<callback: u.reduce>(t2, x, j)",
+          "line": 405,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdLweLab",
+          "signature": "fdLweLab()",
+          "line": 413,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPrng",
+          "signature": "fdPrng(seedBytes)",
+          "line": 422,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPrng.<anonymous>",
+          "signature": "fdPrng.<anonymous>()",
+          "line": 425,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPoly",
+          "signature": "fdPoly(rng, small)",
+          "line": 427,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPoly.<callback: Array.from>",
+          "signature": "fdPoly.<callback: Array.from>()",
+          "line": 427,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPmul",
+          "signature": "fdPmul(a, b)",
+          "line": 428,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPmul.<callback: o.map>",
+          "signature": "fdPmul.<callback: o.map>(x)",
+          "line": 428,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPadd",
+          "signature": "fdPadd(a, b)",
+          "line": 429,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPadd.<callback: a.map>",
+          "signature": "fdPadd.<callback: a.map>(x, i)",
+          "line": 429,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdDot",
+          "signature": "fdDot(u, v)",
+          "line": 430,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdDot.<callback: u.map>",
+          "signature": "fdDot.<callback: u.map>(a, i)",
+          "line": 430,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdExpand",
+          "signature": "fdExpand(rho)",
+          "line": 431,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdExpand.<callback: Array.from>",
+          "signature": "fdExpand.<callback: Array.from>()",
+          "line": 431,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdExpand.<callback: Array.from>.<callback: Array.from>",
+          "signature": "fdExpand.<callback: Array.from>.<callback: Array.from>()",
+          "line": 431,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMatVec",
+          "signature": "fdMatVec(A, v, tr)",
+          "line": 432,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMatVec.<callback: Array.from>",
+          "signature": "fdMatVec.<callback: Array.from>(_, i)",
+          "line": 432,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMatVec.<callback: Array.from>.<callback: Array.from>",
+          "signature": "fdMatVec.<callback: Array.from>.<callback: Array.from>(_, j)",
+          "line": 432,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeEnc",
+          "signature": "fdPkeEnc(ek, bits, coins)",
+          "line": 433,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeEnc.<callback: Array.from>",
+          "signature": "fdPkeEnc.<callback: Array.from>()",
+          "line": 435,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeEnc.<callback: Array.from>",
+          "signature": "fdPkeEnc.<callback: Array.from>()",
+          "line": 435,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeEnc.<callback: fdMatVec(A, r, true).map>",
+          "signature": "fdPkeEnc.<callback: fdMatVec(A, r, true).map>(x, i)",
+          "line": 436,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeEnc.<callback: bits.map>",
+          "signature": "fdPkeEnc.<callback: bits.map>(b)",
+          "line": 437,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeDec",
+          "signature": "fdPkeDec(s, ct)",
+          "line": 440,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeDec.<callback: fdDot(s, ct.u).map>",
+          "signature": "fdPkeDec.<callback: fdDot(s, ct.u).map>(x)",
+          "line": 440,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkeDec.<callback: w.map>",
+          "signature": "fdPkeDec.<callback: w.map>(c)",
+          "line": 440,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdG",
+          "signature": "fdG(m, ek)",
+          "line": 441,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdBits",
+          "signature": "fdBits(m)",
+          "line": 442,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdBits.<callback: Array.from>",
+          "signature": "fdBits.<callback: Array.from>(_, i)",
+          "line": 442,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdFromBits",
+          "signature": "fdFromBits(bits)",
+          "line": 443,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdFromBits.<callback: Uint8Array.from>",
+          "signature": "fdFromBits.<callback: Uint8Array.from>(_, i)",
+          "line": 443,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdFromBits.<callback: Uint8Array.from>.<callback: bits.slice(8 * i, 8 * i + 8).reduce>",
+          "signature": "fdFromBits.<callback: Uint8Array.from>.<callback: bits.slice(8 * i, 8 * i + 8).reduce>(t, b, j)",
+          "line": 443,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun",
+          "signature": "fdKemRun()",
+          "line": 444,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun.<callback: Array.from>",
+          "signature": "fdKemRun.<callback: Array.from>()",
+          "line": 447,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun.<callback: Array.from>",
+          "signature": "fdKemRun.<callback: Array.from>()",
+          "line": 447,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun.<callback: fdMatVec(A, s).map>",
+          "signature": "fdKemRun.<callback: fdMatVec(A, s).map>(x, i)",
+          "line": 448,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun.decaps",
+          "signature": "fdKemRun.decaps(ct)",
+          "line": 450,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdKemRun.<callback: good.w.map>",
+          "signature": "fdKemRun.<callback: good.w.map>(c, i)",
+          "line": 455,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdKemLab",
+          "signature": "fdKemLab()",
+          "line": 459,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaRun",
+          "signature": "fdMldsaRun()",
+          "line": 469,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaRun.rnd",
+          "signature": "fdMldsaRun.rnd(k)",
+          "line": 470,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaRun.<callback: [-20, 20].map>",
+          "signature": "fdMldsaRun.<callback: [-20, 20].map>(secret)",
+          "line": 471,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaRun.<callback: [-20, 20].map>.<callback: zs.reduce>",
+          "signature": "fdMldsaRun.<callback: [-20, 20].map>.<callback: zs.reduce>(a, b)",
+          "line": 474,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaLab",
+          "signature": "fdMldsaLab()",
+          "line": 481,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdMldsaLab.<callback: R.map>",
+          "signature": "fdMldsaLab.<callback: R.map>(r)",
+          "line": 484,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdChain",
+          "signature": "fdChain(x, times)",
+          "line": 488,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdDigits",
+          "signature": "fdDigits(msg)",
+          "line": 489,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdDigits.<callback: [...d].flatMap>",
+          "signature": "fdDigits.<callback: [...d].flatMap>(b)",
+          "line": 491,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdDigits.<callback: ds.reduce>",
+          "signature": "fdDigits.<callback: ds.reduce>(t, x)",
+          "line": 491,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun",
+          "signature": "fdWotsRun()",
+          "line": 494,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.<callback: Array.from>",
+          "signature": "fdWotsRun.<callback: Array.from>()",
+          "line": 495,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.<callback: sk.map>",
+          "signature": "fdWotsRun.<callback: sk.map>(x)",
+          "line": 496,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.<callback: sk.map>",
+          "signature": "fdWotsRun.<callback: sk.map>(x, i)",
+          "line": 498,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.verify",
+          "signature": "fdWotsRun.verify(m)",
+          "line": 499,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.verify.<callback: sig.map>",
+          "signature": "fdWotsRun.verify.<callback: sig.map>(s, i)",
+          "line": 499,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.verify.<callback: ends.every>",
+          "signature": "fdWotsRun.verify.<callback: ends.every>(e, i)",
+          "line": 499,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsRun.<callback: Array.from>",
+          "signature": "fdWotsRun.<callback: Array.from>(_, i)",
+          "line": 501,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsLab",
+          "signature": "fdWotsLab()",
+          "line": 506,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdWotsLab.<callback: R.digits.slice(0, 32).map>",
+          "signature": "fdWotsLab.<callback: R.digits.slice(0, 32).map>(d)",
+          "line": 509,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdStrideLab",
+          "signature": "fdStrideLab()",
+          "line": 514,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEntropyLab",
+          "signature": "fdEntropyLab()",
+          "line": 526,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEntropyLab.<callback: sets.reduce>",
+          "signature": "fdEntropyLab.<callback: sets.reduce>(t, [re, n])",
+          "line": 528,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdEntropyLab.fmt",
+          "signature": "fdEntropyLab.fmt(s)",
+          "line": 531,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdTotp",
+          "signature": "fdTotp(secret, time, digits = 6)",
+          "line": 538,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdTotpRun",
+          "signature": "fdTotpRun()",
+          "line": 545,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdTotpRun.<callback: [-30, 0, 30].map>",
+          "signature": "fdTotpRun.<callback: [-30, 0, 30].map>(d)",
+          "line": 548,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdTotpLab",
+          "signature": "fdTotpLab()",
+          "line": 551,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdB64u",
+          "signature": "fdB64u(bytes)",
+          "line": 557,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdPkceRun",
+          "signature": "fdPkceRun()",
+          "line": 558,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdPkceRun.s256",
+          "signature": "fdPkceRun.s256(v)",
+          "line": 559,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "fdPkceLab",
+          "signature": "fdPkceLab()",
+          "line": 564,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdInjectLab",
+          "signature": "fdInjectLab()",
+          "line": 571,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdAccessLab",
+          "signature": "fdAccessLab()",
+          "line": 586,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdAccessLab.sel",
+          "signature": "fdAccessLab.sel(name, opts, v)",
+          "line": 590,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdAccessLab.sel.<callback: opts.map>",
+          "signature": "fdAccessLab.sel.<callback: opts.map>(o)",
+          "line": 590,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView",
+          "signature": "fdView(view)",
+          "line": 614,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: units.map>",
+          "signature": "fdView.<callback: units.map>(u)",
+          "line": 617,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: groups.map>",
+          "signature": "fdView.<callback: groups.map>(g)",
+          "line": 621,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: groups.map>.<callback: units.filter>",
+          "signature": "fdView.<callback: groups.map>.<callback: units.filter>(u)",
+          "line": 621,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: groups.map>.<callback: units.filter((u) => u[2] === g).map>",
+          "signature": "fdView.<callback: groups.map>.<callback: units.filter((u) => u[2] === g).map>(u)",
+          "line": 621,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: how.map>",
+          "signature": "fdView.<callback: how.map>(s)",
+          "line": 628,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdView.<callback: pitfalls.map>",
+          "signature": "fdView.<callback: pitfalls.map>(s)",
+          "line": 629,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "crRenderers.learn",
+          "signature": "crRenderers.learn()",
+          "line": 638,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secRenderers.learn",
+          "signature": "secRenderers.learn()",
+          "line": 647,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdRun",
+          "signature": "fdRun(busy, task)",
+          "line": 655,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "\"rsa-oaep\"",
+          "signature": "\"rsa-oaep\"()",
+          "line": 662,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"dh-ecdh\"",
+          "signature": "\"dh-ecdh\"()",
+          "line": 663,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"ecdsa-run\"",
+          "signature": "\"ecdsa-run\"()",
+          "line": 664,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"aead-run\"",
+          "signature": "\"aead-run\"()",
+          "line": 665,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"lwe-run\"",
+          "signature": "\"lwe-run\"()",
+          "line": 666,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"lwe-run\".<callback: fdRun, \"lwe\">",
+          "signature": "\"lwe-run\".<callback: fdRun, \"lwe\">()",
+          "line": 666,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "\"kem-run\"",
+          "signature": "\"kem-run\"()",
+          "line": 667,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"mldsa-run\"",
+          "signature": "\"mldsa-run\"()",
+          "line": 668,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"mldsa-run\".<callback: fdRun, \"mldsa\">",
+          "signature": "\"mldsa-run\".<callback: fdRun, \"mldsa\">()",
+          "line": 668,
+          "async": true,
+          "decorators": []
+        },
+        {
+          "name": "\"wots-run\"",
+          "signature": "\"wots-run\"()",
+          "line": 669,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"totp-run\"",
+          "signature": "\"totp-run\"()",
+          "line": 670,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "\"pkce-run\"",
+          "signature": "\"pkce-run\"()",
+          "line": 671,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"click\">",
+          "signature": "<callback: document.addEventListener, \"click\">(event)",
+          "line": 674,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "fdSet",
+          "signature": "fdSet(path, value)",
+          "line": 687,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"change\">",
+          "signature": "<callback: document.addEventListener, \"change\">(event)",
+          "line": 688,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "<callback: document.addEventListener, \"keydown\">",
+          "signature": "<callback: document.addEventListener, \"keydown\">(event)",
+          "line": 694,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
     "dist/ml.js": {
       "language": "JavaScript",
       "imports": [],
@@ -5770,868 +6852,903 @@
         {
           "name": "<callback: secTopics.map>",
           "signature": "<callback: secTopics.map>(t)",
-          "line": 42,
+          "line": 46,
           "async": false,
           "decorators": []
         },
         {
           "name": "secHex",
           "signature": "secHex(buf)",
-          "line": 58,
+          "line": 63,
           "async": false,
           "decorators": []
         },
         {
           "name": "secHex.<callback: [...new Uint8Array(buf)].map>",
           "signature": "secHex.<callback: [...new Uint8Array(buf)].map>(b)",
-          "line": 58,
+          "line": 63,
           "async": false,
           "decorators": []
         },
         {
           "name": "secRand",
           "signature": "secRand(n)",
-          "line": 59,
+          "line": 64,
           "async": false,
           "decorators": []
         },
         {
           "name": "secShort",
           "signature": "secShort(h, n = 24)",
-          "line": 60,
+          "line": 65,
           "async": false,
           "decorators": []
         },
         {
           "name": "secB64u",
           "signature": "secB64u(bytes)",
-          "line": 61,
+          "line": 66,
           "async": false,
           "decorators": []
         },
         {
           "name": "secFromB64u",
           "signature": "secFromB64u(text)",
-          "line": 62,
+          "line": 67,
           "async": false,
           "decorators": []
         },
         {
           "name": "secFromB64u.<callback: Uint8Array.from>",
           "signature": "secFromB64u.<callback: Uint8Array.from>(c)",
-          "line": 62,
+          "line": 67,
           "async": false,
           "decorators": []
         },
         {
           "name": "secEsc",
           "signature": "secEsc(text)",
-          "line": 63,
+          "line": 68,
           "async": false,
           "decorators": []
         },
         {
           "name": "secEsc.<callback: String(text).replace, /[&<>\"']/g>",
           "signature": "secEsc.<callback: String(text).replace, /[&<>\"']/g>(c)",
-          "line": 63,
+          "line": 68,
           "async": false,
           "decorators": []
         },
         {
           "name": "secClock",
           "signature": "secClock(ms)",
-          "line": 64,
+          "line": 69,
           "async": false,
           "decorators": []
         },
         {
           "name": "secPbkdf2",
           "signature": "secPbkdf2(password, salt, iterations, hash = \"SHA-256\", bits = 256)",
-          "line": 66,
+          "line": 71,
           "async": true,
           "decorators": []
         },
         {
           "name": "secSha256",
           "signature": "secSha256(bytes)",
-          "line": 71,
+          "line": 76,
           "async": true,
           "decorators": []
         },
         {
           "name": "secEqual",
           "signature": "secEqual(a, b)",
-          "line": 75,
+          "line": 80,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSeal",
           "signature": "secSeal(keyBytes, object)",
-          "line": 82,
+          "line": 87,
           "async": true,
           "decorators": []
         },
         {
           "name": "secOpen",
           "signature": "secOpen(keyBytes, sealed)",
-          "line": 91,
+          "line": 96,
           "async": true,
           "decorators": []
         },
         {
           "name": "secFingerprint",
           "signature": "secFingerprint(bytes)",
-          "line": 97,
+          "line": 102,
           "async": true,
           "decorators": []
         },
         {
           "name": "secChip",
           "signature": "secChip(status)",
-          "line": 100,
+          "line": 105,
           "async": false,
           "decorators": []
         },
         {
           "name": "secCode",
           "signature": "secCode(text)",
-          "line": 106,
+          "line": 111,
           "async": false,
           "decorators": []
         },
         {
           "name": "secCheck",
           "signature": "secCheck(ok, text, detail = \"\")",
-          "line": 108,
+          "line": 113,
           "async": false,
           "decorators": []
         },
         {
           "name": "secField",
           "signature": "secField(name, label, type = \"text\", hint = \"\")",
-          "line": 112,
+          "line": 117,
           "async": false,
           "decorators": []
         },
         {
           "name": "secButton",
           "signature": "secButton(action, label, { primary = false, iconName = \"\", disabled = false } = {})",
-          "line": 116,
+          "line": 121,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSelect",
-          "signature": "secSelect(name, options, value)",
-          "line": 120,
+          "signature": "secSelect(name, options, value, label = \"Scenario\")",
+          "line": 125,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSelect.<callback: options.map>",
           "signature": "secSelect.<callback: options.map>([v, l])",
-          "line": 121,
+          "line": 126,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTable",
           "signature": "secTable(head, rows, cls = \"\")",
-          "line": 124,
+          "line": 129,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTable.<callback: head.map>",
           "signature": "secTable.<callback: head.map>(h)",
-          "line": 125,
+          "line": 130,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTable.<callback: rows.map>",
           "signature": "secTable.<callback: rows.map>(r)",
-          "line": 125,
+          "line": 130,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTable.<callback: rows.map>.<callback: r.map>",
           "signature": "secTable.<callback: rows.map>.<callback: r.map>(c, i)",
-          "line": 125,
+          "line": 130,
           "async": false,
           "decorators": []
         },
         {
           "name": "secLink",
           "signature": "secLink(label, url)",
-          "line": 128,
+          "line": 133,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSection",
           "signature": "secSection(kicker, title, body)",
-          "line": 130,
+          "line": 135,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlData",
           "signature": "umlData()",
-          "line": 136,
+          "line": 141,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlHref",
           "signature": "umlHref(anchor)",
-          "line": 137,
+          "line": 142,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlChip",
           "signature": "umlChip(anchor, label = \"UML catalogue\")",
-          "line": 139,
+          "line": 144,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlSection",
           "signature": "umlSection(topicKey)",
-          "line": 144,
+          "line": 149,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlSection.<callback: ids.map>",
           "signature": "umlSection.<callback: ids.map>(id)",
-          "line": 149,
+          "line": 154,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlCatalogueName",
           "signature": "umlCatalogueName(view)",
-          "line": 157,
+          "line": 162,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlCatalogueAnchor",
           "signature": "umlCatalogueAnchor(view)",
-          "line": 158,
+          "line": 163,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlTopicsSection",
           "signature": "umlTopicsSection(view, topics)",
-          "line": 161,
+          "line": 166,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlTopicsSection.<callback: topics.filter>",
           "signature": "umlTopicsSection.<callback: topics.filter>(t)",
-          "line": 164,
+          "line": 169,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>",
           "signature": "umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)",
-          "line": 164,
+          "line": 169,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlInspector",
           "signature": "umlInspector(topicKey, view, topics)",
-          "line": 169,
+          "line": 174,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlInspector.<callback: topics.filter>",
           "signature": "umlInspector.<callback: topics.filter>(t)",
-          "line": 173,
+          "line": 178,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>",
           "signature": "umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)",
-          "line": 173,
+          "line": 178,
           "async": false,
           "decorators": []
         },
         {
           "name": "umlInspector.<callback: ids.map>",
           "signature": "umlInspector.<callback: ids.map>(id)",
-          "line": 176,
+          "line": 182,
           "async": false,
           "decorators": []
         },
         {
           "name": "secOverview",
           "signature": "secOverview()",
-          "line": 192,
+          "line": 200,
           "async": false,
           "decorators": []
         },
         {
           "name": "secOverview.<callback: Object.keys(secStatus).map>",
           "signature": "secOverview.<callback: Object.keys(secStatus).map>(k)",
-          "line": 194,
+          "line": 202,
           "async": false,
           "decorators": []
         },
         {
           "name": "secOverview.<callback: secMap.map>",
           "signature": "secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])",
-          "line": 195,
+          "line": 203,
           "async": false,
           "decorators": []
         },
         {
           "name": "secPwHash",
           "signature": "secPwHash(again = false)",
-          "line": 204,
+          "line": 212,
           "async": true,
           "decorators": []
         },
         {
           "name": "secPwVerify",
           "signature": "secPwVerify()",
-          "line": 223,
+          "line": 231,
           "async": true,
           "decorators": []
         },
         {
           "name": "secPwVerify.<callback: Uint8Array.from>",
           "signature": "secPwVerify.<callback: Uint8Array.from>(h)",
-          "line": 226,
+          "line": 234,
           "async": false,
           "decorators": []
         },
         {
           "name": "secPwVerify.<callback: Uint8Array.from>",
           "signature": "secPwVerify.<callback: Uint8Array.from>(h)",
-          "line": 229,
+          "line": 237,
           "async": false,
           "decorators": []
         },
         {
           "name": "secPasswords",
           "signature": "secPasswords()",
-          "line": 233,
+          "line": 241,
           "async": false,
           "decorators": []
         },
         {
           "name": "secLoginInit",
           "signature": "secLoginInit()",
-          "line": 259,
+          "line": 267,
           "async": true,
           "decorators": []
         },
         {
           "name": "secLoginAttempt",
           "signature": "secLoginAttempt(email, password)",
-          "line": 267,
+          "line": 275,
           "async": true,
           "decorators": []
         },
         {
           "name": "secLogin",
           "signature": "secLogin()",
-          "line": 296,
+          "line": 304,
           "async": false,
           "decorators": []
         },
         {
           "name": "secLogin.<callback: L.log.map>",
           "signature": "secLogin.<callback: L.log.map>(e)",
-          "line": 305,
+          "line": 313,
           "async": false,
           "decorators": []
         },
         {
           "name": "secLogin.<callback: L.log.map>.<callback: e.steps.map>",
           "signature": "secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])",
-          "line": 305,
+          "line": 313,
           "async": false,
           "decorators": []
         },
         {
           "name": "secIdentity",
           "signature": "secIdentity()",
-          "line": 319,
+          "line": 327,
           "async": false,
           "decorators": []
         },
         {
           "name": "secIdentity.<callback: stages.map>",
           "signature": "secIdentity.<callback: stages.map>([t, c, d], i)",
-          "line": 330,
+          "line": 338,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGatewayRun",
           "signature": "secGatewayRun(s)",
-          "line": 367,
+          "line": 375,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGatewayRun.<callback: secRoutes.find>",
           "signature": "secGatewayRun.<callback: secRoutes.find>([m, r, re])",
-          "line": 377,
+          "line": 385,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGatewayRun.<callback: Object.keys(secKeys).find>",
           "signature": "secGatewayRun.<callback: Object.keys(secKeys).find>(k)",
-          "line": 380,
+          "line": 388,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGateway",
           "signature": "secGateway()",
-          "line": 396,
+          "line": 404,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGateway.<callback: Object.entries(s.headers).map>",
           "signature": "secGateway.<callback: Object.entries(s.headers).map>([k, v])",
-          "line": 400,
+          "line": 408,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGateway.<callback: Object.entries(secGatewayScenarios).map>",
           "signature": "secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])",
-          "line": 402,
+          "line": 410,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGateway.<callback: result.steps.slice(0, shown).map>",
           "signature": "secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])",
-          "line": 404,
+          "line": 412,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSsoNext",
           "signature": "secSsoNext()",
-          "line": 420,
+          "line": 428,
           "async": true,
           "decorators": []
         },
         {
           "name": "secSsoNext.push",
           "signature": "secSsoNext.push(title, from, to, wire, checks, done = false)",
-          "line": 425,
+          "line": 433,
           "async": false,
           "decorators": []
         },
         {
           "name": "secMessages",
           "signature": "secMessages(steps)",
-          "line": 476,
+          "line": 484,
           "async": false,
           "decorators": []
         },
         {
           "name": "secMessages.<callback: steps.map>",
           "signature": "secMessages.<callback: steps.map>(m)",
-          "line": 477,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "secMessages.<callback: steps.map>.<callback: m.checks.every>",
           "signature": "secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])",
-          "line": 477,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "secMessages.<callback: steps.map>.<callback: m.checks.map>",
           "signature": "secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])",
-          "line": 477,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSso",
           "signature": "secSso()",
-          "line": 480,
+          "line": 488,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbSetup",
           "signature": "secKrbSetup()",
-          "line": 500,
+          "line": 508,
           "async": true,
           "decorators": []
         },
         {
           "name": "secKrbNext",
           "signature": "secKrbNext()",
-          "line": 510,
+          "line": 518,
           "async": true,
           "decorators": []
         },
         {
           "name": "secKrbNext.kdcNow",
           "signature": "secKrbNext.kdcNow()",
-          "line": 515,
+          "line": 523,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbNext.appNow",
           "signature": "secKrbNext.appNow()",
-          "line": 516,
+          "line": 524,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbNext.push",
           "signature": "secKrbNext.push(title, from, to, wire, checks, done = false)",
-          "line": 517,
+          "line": 525,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbNext.skewOk",
           "signature": "secKrbNext.skewOk(t)",
-          "line": 518,
+          "line": 526,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbNext.fail",
           "signature": "secKrbNext.fail(title, from, to, wire, checks)",
-          "line": 519,
+          "line": 527,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbNext.<callback: Uint8Array.from>",
           "signature": "secKrbNext.<callback: Uint8Array.from>(h)",
-          "line": 547,
+          "line": 555,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrbVerifyAp",
           "signature": "secKrbVerifyAp(c, ticketBytes, authBytes)",
-          "line": 583,
+          "line": 591,
           "async": true,
           "decorators": []
         },
         {
           "name": "secKrbVerifyAp.<callback: Uint8Array.from>",
           "signature": "secKrbVerifyAp.<callback: Uint8Array.from>(h)",
-          "line": 594,
+          "line": 602,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrb",
           "signature": "secKrb()",
-          "line": 604,
+          "line": 612,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrb.has",
           "signature": "secKrb.has(who, k)",
-          "line": 609,
+          "line": 617,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrb.cell",
           "signature": "secKrb.cell(ok)",
-          "line": 611,
+          "line": 619,
           "async": false,
           "decorators": []
         },
         {
           "name": "secKrb.<callback: keyRows.map>",
           "signature": "secKrb.<callback: keyRows.map>([k, d])",
-          "line": 616,
+          "line": 624,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTransport",
           "signature": "secTransport()",
-          "line": 627,
+          "line": 635,
           "async": false,
           "decorators": []
         },
         {
           "name": "secTransport.<callback: [\n      [\"Private CA\", \"openssl req -x509 … /CN=atlas-ca\", \"basicConstraints CA:TRUE, keyUsage keyCertSign, 30 days\"],\n      [\"Server certificate\", \"extendedKeyUsage=serverAuth\", \"subjectAltName=IP:127.0.0.1 binds it to the address\"],\n      [\"Client certificate\", \"extendedKeyUsage=clientAuth\", \"Cannot be reused as a server certificate\"],\n      [\"Server requires a client cert\", \"verify_mode = ssl.CERT_REQUIRED\", \"No certificate from atlas-ca → handshake fails\"],\n      [\"Client verifies the server\", \"create_default_context(cafile=ca.crt)\", \"Plus load_cert_chain to present its own identity\"],\n    ].map>",
           "signature": "secTransport.<callback: [\n      [\"Private CA\", \"openssl req -x509 … /CN=atlas-ca\", \"basicConstraints CA:TRUE, keyUsage keyCertSign, 30 days\"],\n      [\"Server certificate\", \"extendedKeyUsage=serverAuth\", \"subjectAltName=IP:127.0.0.1 binds it to the address\"],\n      [\"Client certificate\", \"extendedKeyUsage=clientAuth\", \"Cannot be reused as a server certificate\"],\n      [\"Server requires a client cert\", \"verify_mode = ssl.CERT_REQUIRED\", \"No certificate from atlas-ca → handshake fails\"],\n      [\"Client verifies the server\", \"create_default_context(cafile=ca.crt)\", \"Plus load_cert_chain to present its own identity\"],\n    ].map>([t, c, d], i)",
-          "line": 635,
+          "line": 643,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secCtlRun",
+          "signature": "secCtlRun(s, mode)",
+          "line": 694,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secControls",
+          "signature": "secControls()",
+          "line": 732,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secControls.<callback: types.map>",
+          "signature": "secControls.<callback: types.map>([t, q, w, e], i)",
+          "line": 742,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secControls.<callback: Object.entries(secCtlScenarios).map>",
+          "signature": "secControls.<callback: Object.entries(secCtlScenarios).map>([k, v])",
+          "line": 744,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "secControls.<callback: r.steps.map>",
+          "signature": "secControls.<callback: r.steps.map>([ok, t, d])",
+          "line": 746,
           "async": false,
           "decorators": []
         },
         {
           "name": "secGaps",
           "signature": "secGaps()",
-          "line": 648,
+          "line": 777,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityInspector",
           "signature": "securityInspector()",
-          "line": 686,
+          "line": 820,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityInspector.<callback: info.facts.map>",
           "signature": "securityInspector.<callback: info.facts.map>([k, v])",
-          "line": 692,
+          "line": 826,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityInspector.<callback: info.files.map>",
           "signature": "securityInspector.<callback: info.files.map>([l, u])",
-          "line": 693,
+          "line": 827,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityInspector.<callback: info.questions.map>",
           "signature": "securityInspector.<callback: info.questions.map>(q)",
-          "line": 695,
+          "line": 829,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityView",
           "signature": "securityView()",
-          "line": 702,
+          "line": 836,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityView.<callback: secTopics.map>",
           "signature": "securityView.<callback: secTopics.map>(x)",
-          "line": 708,
+          "line": 842,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityOpen",
           "signature": "securityOpen(topic)",
-          "line": 712,
+          "line": 846,
           "async": false,
           "decorators": []
         },
         {
           "name": "secSetHash",
           "signature": "secSetHash()",
-          "line": 717,
+          "line": 851,
           "async": false,
           "decorators": []
         },
         {
           "name": "secRun",
           "signature": "secRun(busy, task)",
-          "line": 721,
+          "line": 855,
           "async": true,
           "decorators": []
         },
         {
           "name": "securityClick",
           "signature": "securityClick(button)",
-          "line": 729,
+          "line": 863,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"pw-hash\"",
           "signature": "securityClick.\"pw-hash\"()",
-          "line": 741,
+          "line": 875,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"pw-hash\".<callback: secRun, \"pw\">",
           "signature": "securityClick.\"pw-hash\".<callback: secRun, \"pw\">()",
-          "line": 741,
+          "line": 875,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"pw-again\"",
           "signature": "securityClick.\"pw-again\"()",
-          "line": 742,
+          "line": 876,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"pw-again\".<callback: secRun, \"pw\">",
           "signature": "securityClick.\"pw-again\".<callback: secRun, \"pw\">()",
-          "line": 742,
+          "line": 876,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"pw-verify\"",
           "signature": "securityClick.\"pw-verify\"()",
-          "line": 743,
+          "line": 877,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-init\"",
           "signature": "securityClick.\"login-init\"()",
-          "line": 744,
+          "line": 878,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-wrong\"",
           "signature": "securityClick.\"login-wrong\"()",
-          "line": 745,
+          "line": 879,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-wrong\".<callback: secRun, \"login\">",
           "signature": "securityClick.\"login-wrong\".<callback: secRun, \"login\">()",
-          "line": 745,
+          "line": 879,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-unknown\"",
           "signature": "securityClick.\"login-unknown\"()",
-          "line": 746,
+          "line": 880,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-unknown\".<callback: secRun, \"login\">",
           "signature": "securityClick.\"login-unknown\".<callback: secRun, \"login\">()",
-          "line": 746,
+          "line": 880,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-right\"",
           "signature": "securityClick.\"login-right\"()",
-          "line": 747,
+          "line": 881,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-right\".<callback: secRun, \"login\">",
           "signature": "securityClick.\"login-right\".<callback: secRun, \"login\">()",
-          "line": 747,
+          "line": 881,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-tick\"",
           "signature": "securityClick.\"login-tick\"()",
-          "line": 748,
+          "line": 882,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"login-reset\"",
           "signature": "securityClick.\"login-reset\"()",
-          "line": 749,
+          "line": 883,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"gw-step\"",
           "signature": "securityClick.\"gw-step\"()",
-          "line": 750,
+          "line": 884,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"gw-all\"",
           "signature": "securityClick.\"gw-all\"()",
-          "line": 751,
+          "line": 885,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"sso-next\"",
           "signature": "securityClick.\"sso-next\"()",
-          "line": 752,
+          "line": 886,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"sso-reset\"",
           "signature": "securityClick.\"sso-reset\"()",
-          "line": 753,
+          "line": 887,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"krb-next\"",
           "signature": "securityClick.\"krb-next\"()",
-          "line": 754,
+          "line": 888,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"krb-all\"",
           "signature": "securityClick.\"krb-all\"()",
-          "line": 755,
+          "line": 889,
           "async": false,
           "decorators": []
         },
         {
           "name": "securityClick.\"krb-all\".<callback: secRun, \"krb\">",
           "signature": "securityClick.\"krb-all\".<callback: secRun, \"krb\">()",
-          "line": 755,
+          "line": 889,
           "async": true,
           "decorators": []
         },
         {
           "name": "securityClick.\"krb-reset\"",
           "signature": "securityClick.\"krb-reset\"()",
-          "line": 756,
+          "line": 890,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"input\">",
           "signature": "<callback: document.addEventListener, \"input\">(event)",
-          "line": 762,
+          "line": 896,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"change\">",
           "signature": "<callback: document.addEventListener, \"change\">(event)",
-          "line": 767,
+          "line": 901,
           "async": false,
           "decorators": []
         }
@@ -6654,28 +7771,28 @@
         {
           "name": "<callback: Object.entries(contentTypes).map>",
           "signature": "<callback: Object.entries(contentTypes).map>([file, type])",
-          "line": 28,
+          "line": 29,
           "async": true,
           "decorators": []
         },
         {
           "name": "reply",
           "signature": "reply(request, response, status, type, body, headers = {})",
-          "line": 42,
+          "line": 43,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer>",
           "signature": "<callback: createServer>(request, response)",
-          "line": 52,
+          "line": 53,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>",
           "signature": "<callback: createServer((request, response) => {\n  if (request.method !== \"GET\" && request.method !== \"HEAD\") {\n    return reply(request, response, 405, textType, \"Method not allowed\\n\", { Allow: \"GET, HEAD\" });\n  }\n\n  const path = request.url.split(\"?\", 1)[0];\n  if (path === \"/healthz\") {\n    return reply(request, response, 200, textType, \"ok\\n\");\n  }\n\n  const asset = assets.get(path === \"/\" ? \"/index.html\" : path);\n  if (!asset) {\n    return reply(request, response, 404, textType, \"Not found\\n\");\n  }\n\n  reply(request, response, 200, asset.type, asset.body);\n}).listen>()",
-          "line": 68,
+          "line": 69,
           "async": false,
           "decorators": []
         }
