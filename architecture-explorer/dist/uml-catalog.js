@@ -72,17 +72,17 @@ const umlCatalog = {
    "concept": "Explorer lab: PBKDF2 with the app's parameters",
    "symbol": "secPwHash",
    "path": "architecture-explorer/dist/security.js",
-   "line": 204,
+   "line": 212,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L204"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L212"
   },
   "sec-pw-lab-verify": {
    "concept": "Explorer lab: verify_password replica",
    "symbol": "secPwVerify",
    "path": "architecture-explorer/dist/security.js",
-   "line": 223,
+   "line": 231,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L223"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L231"
   },
   "sec-pw-cli": {
    "concept": "Command-line lab runner: all 20 experiments and 5 study paths",
@@ -184,9 +184,9 @@ const umlCatalog = {
    "concept": "Explorer lab: LocalStore.login replica",
    "symbol": "secLoginAttempt",
    "path": "architecture-explorer/dist/security.js",
-   "line": 267,
+   "line": 275,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L267"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L275"
   },
   "sec-id-email": {
    "concept": "Identity proofing: email format",
@@ -344,17 +344,17 @@ const umlCatalog = {
    "concept": "Explorer lab: gateway checks step by step",
    "symbol": "secGatewayRun",
    "path": "architecture-explorer/dist/security.js",
-   "line": 367,
+   "line": 375,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L367"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L375"
   },
   "sec-sso-lab": {
    "concept": "OIDC + PKCE flow with ES256 tokens",
    "symbol": "secSsoNext",
    "path": "architecture-explorer/dist/security.js",
-   "line": 420,
+   "line": 428,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L420"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L428"
   },
   "sec-sso-target": {
    "concept": "Where JWT validation would replace bearer keys",
@@ -368,33 +368,33 @@ const umlCatalog = {
    "concept": "KDC database and string-to-key (PBKDF2)",
    "symbol": "secKrbSetup",
    "path": "architecture-explorer/dist/security.js",
-   "line": 500,
+   "line": 508,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L500"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L508"
   },
   "sec-krb-messages": {
    "concept": "The six messages AS-REQ … AP-REP",
    "symbol": "secKrbNext",
    "path": "architecture-explorer/dist/security.js",
-   "line": 510,
+   "line": 518,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L510"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L518"
   },
   "sec-krb-ap": {
    "concept": "Service checks: integrity, expiry, skew, replay cache",
    "symbol": "secKrbVerifyAp",
    "path": "architecture-explorer/dist/security.js",
-   "line": 583,
+   "line": 591,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L583"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L591"
   },
   "sec-krb-seal": {
    "concept": "AES-256-GCM seal used for tickets",
    "symbol": "secSeal",
    "path": "architecture-explorer/dist/security.js",
-   "line": 82,
+   "line": 87,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L82"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L87"
   },
   "sec-krb-target": {
    "concept": "What a Kerberos AP-REQ would replace in Dispatch",
@@ -432,25 +432,25 @@ const umlCatalog = {
    "concept": "Security headers and CSP",
    "symbol": "securityHeaders",
    "path": "architecture-explorer/server.mjs",
-   "line": 34,
+   "line": 35,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L34"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L35"
   },
   "sec-dep-reply": {
    "concept": "Every response carries the headers",
    "symbol": "reply",
    "path": "architecture-explorer/server.mjs",
-   "line": 42,
+   "line": 43,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L42"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L43"
   },
   "sec-dep-loopback": {
    "concept": "Listen on 127.0.0.1 only",
    "symbol": "}).listen(port, host, () => console.log('ATLAS listening on http://${...",
    "path": "architecture-explorer/server.mjs",
-   "line": 68,
+   "line": 69,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L68"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs#L69"
   },
   "sec-dep-systemd": {
    "concept": "systemd sandbox (DynamicUser, ProtectSystem)",
@@ -528,25 +528,25 @@ const umlCatalog = {
    "concept": "Explorer lab: hash a download, compare with SHA256SUMS",
    "symbol": "crHashFile",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 98,
+   "line": 99,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L98"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L99"
   },
   "cr-hash-lab-avalanche": {
    "concept": "Explorer lab: avalanche effect",
    "symbol": "crUpdateAvalanche",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 105,
+   "line": 106,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L105"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L106"
   },
   "cr-hash-lab-checksum": {
    "concept": "Explorer lab: checksum vs SHA-256",
    "symbol": "crChecksum",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 118,
+   "line": 119,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L118"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L119"
   },
   "cr-hash-cli": {
    "concept": "Lab A: hashing and integrity (experiments 1-7)",
@@ -672,25 +672,25 @@ const umlCatalog = {
    "concept": "Explorer lab: recompute the real pin",
    "symbol": "crPin",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 158,
+   "line": 159,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L158"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L159"
   },
   "cr-pki-lab-issue": {
    "concept": "Explorer lab: issue a certificate",
    "symbol": "crIssue",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 176,
+   "line": 177,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L176"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L177"
   },
   "cr-pki-lab-verify": {
    "concept": "Explorer lab: chain, CA flag, validity, EKU checks",
    "symbol": "crVerifyCert",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 196,
+   "line": 197,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L196"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L197"
   },
   "cr-pki-cli": {
    "concept": "Lab C: certificates and PKI (experiments 11-14)",
@@ -744,25 +744,25 @@ const umlCatalog = {
    "concept": "Explorer lab: generate ECDSA or RSA key pair",
    "symbol": "crSigKeys",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 270,
+   "line": 271,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L270"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L271"
   },
   "cr-sig-lab-sign": {
    "concept": "Explorer lab: hash-then-sign",
    "symbol": "crSigSign",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 282,
+   "line": 283,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L282"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L283"
   },
   "cr-sig-lab-verify": {
    "concept": "Explorer lab: verify, tamper, wrong key",
    "symbol": "crSigVerify",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 293,
+   "line": 294,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L293"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L294"
   },
   "cr-sig-cli": {
    "concept": "Lab D: digital signatures (experiments 15-17)",
@@ -784,33 +784,33 @@ const umlCatalog = {
    "concept": "Lamport keys from SHA-256 only",
    "symbol": "crLamportKeys",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 328,
+   "line": 329,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L328"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L329"
   },
   "cr-pqc-lab-sign": {
    "concept": "Lamport sign: reveal one secret per hash bit",
    "symbol": "crLamportSign",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 338,
+   "line": 339,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L338"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L339"
   },
   "cr-pqc-lab-verify": {
    "concept": "Lamport verify",
    "symbol": "crLamportVerify",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 342,
+   "line": 343,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L342"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L343"
   },
   "cr-pqc-lab-forge": {
    "concept": "Forgery after key reuse",
    "symbol": "crLamportForge",
    "path": "architecture-explorer/dist/crypto.js",
-   "line": 355,
+   "line": 356,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L355"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/crypto.js#L356"
   },
   "cr-pqc-cli": {
    "concept": "Lab E: post-quantum (experiments 18-20)",
@@ -2131,6 +2131,222 @@ const umlCatalog = {
    "line": 950,
    "status": "lab",
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/dsa.js#L950"
+  },
+  "cr-fd-guide": {
+   "concept": "Guide: 19 standalone cryptography units (what, why, how)",
+   "symbol": "## Standalone illustrated foundations — Cryptography",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 62,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L62"
+  },
+  "cr-fd-rsa-unit": {
+   "concept": "Guide unit C7.1: RSA",
+   "symbol": "### C7.1 — RSA: what it is, why it is used and how it works",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 733,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L733"
+  },
+  "cr-fd-dh-unit": {
+   "concept": "Guide unit C7.2: Diffie–Hellman, ECDH, X25519",
+   "symbol": "### C7.2 — Diffie–Hellman key agreement (finite-field, ECDH and X25519)",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 846,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L846"
+  },
+  "cr-fd-ecdsa-unit": {
+   "concept": "Guide unit C7.3: elliptic curves and ECDSA",
+   "symbol": "### C7.3 — Elliptic-curve cryptography and ECDSA (plus EdDSA)",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 935,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L935"
+  },
+  "cr-fd-mlkem-unit": {
+   "concept": "Guide unit C10.1: ML-KEM (FIPS 203)",
+   "symbol": "### C10.1 — ML-KEM (FIPS 203): post-quantum key encapsulation",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 1304,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1304"
+  },
+  "cr-fd-mldsa-unit": {
+   "concept": "Guide unit C10.2: ML-DSA (FIPS 204) and FN-DSA",
+   "symbol": "### C10.2 — ML-DSA (FIPS 204) and FN-DSA: post-quantum lattice signat...",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 1437,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1437"
+  },
+  "cr-fd-slh-unit": {
+   "concept": "Guide unit C10.3: hash-based signatures and SLH-DSA (FIPS 205)",
+   "symbol": "### C10.3 — Hash-based signatures: Lamport, Winternitz, Merkle trees,...",
+   "path": "docs/CRYPTOGRAPHY.md",
+   "line": 1517,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/CRYPTOGRAPHY.md?plain=1#L1517"
+  },
+  "cr-fd-units": {
+   "concept": "Explorer: unit data (what, why, how, pitfalls)",
+   "symbol": "fdCryptoUnits",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 14,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L14"
+  },
+  "cr-fd-lab-rsa": {
+   "concept": "Explorer lab: textbook RSA, CRT and malleability",
+   "symbol": "fdRsaLab",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 245,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L245"
+  },
+  "cr-fd-lab-oaep": {
+   "concept": "Explorer lab: real RSA-OAEP 2048",
+   "symbol": "fdRsaOaep",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 275,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L275"
+  },
+  "cr-fd-lab-dh": {
+   "concept": "Explorer lab: Diffie–Hellman and a man in the middle",
+   "symbol": "fdDhLab",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 286,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L286"
+  },
+  "cr-fd-lab-ecdh": {
+   "concept": "Explorer lab: real ECDH P-256 and X25519",
+   "symbol": "fdEcdh",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 305,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L305"
+  },
+  "cr-fd-lab-ecdsa": {
+   "concept": "Explorer lab: toy ECDSA and nonce-reuse key recovery",
+   "symbol": "fdEcdsaRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 336,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L336"
+  },
+  "cr-fd-lab-aead": {
+   "concept": "Explorer lab: AES-GCM tampering and nonce reuse",
+   "symbol": "fdAeadRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 368,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L368"
+  },
+  "cr-fd-lab-lwe": {
+   "concept": "Explorer lab: one-bit LWE encryption",
+   "symbol": "fdLweRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 393,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L393"
+  },
+  "cr-fd-lab-kem": {
+   "concept": "Explorer lab: toy ML-KEM-shaped KEM with implicit rejection",
+   "symbol": "fdKemRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 444,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L444"
+  },
+  "cr-fd-lab-mldsa": {
+   "concept": "Explorer lab: ML-DSA rejection sampling",
+   "symbol": "fdMldsaRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 469,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L469"
+  },
+  "cr-fd-lab-wots": {
+   "concept": "Explorer lab: Winternitz one-time signature and Merkle root",
+   "symbol": "fdWotsRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 494,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L494"
+  },
+  "cr-fd-cli-rsa": {
+   "concept": "Lab D15: textbook RSA and malleability",
+   "symbol": "exp_textbook",
+   "path": "security_lab/crypto_d_signatures.py",
+   "line": 33,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_d_signatures.py#L33"
+  },
+  "cr-fd-cli-lwe": {
+   "concept": "Lab E20: toy LWE KEM in a hybrid with DH",
+   "symbol": "exp_lwe_hybrid",
+   "path": "security_lab/crypto_e_post_quantum.py",
+   "line": 160,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/crypto_e_post_quantum.py#L160"
+  },
+  "sec-fd-guide": {
+   "concept": "Guide: 19 standalone information-security units (what, why, how)",
+   "symbol": "## Standalone illustrated foundations — Information Security",
+   "path": "docs/INFORMATION_SECURITY.md",
+   "line": 75,
+   "status": "teach",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L75"
+  },
+  "sec-fd-units": {
+   "concept": "Explorer: unit data (what, why, how, pitfalls)",
+   "symbol": "fdSecUnits",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 112,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L112"
+  },
+  "sec-fd-lab-access": {
+   "concept": "Explorer lab: role, ownership and state checks",
+   "symbol": "fdAccessLab",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 586,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L586"
+  },
+  "sec-fd-lab-entropy": {
+   "concept": "Explorer lab: password guessability",
+   "symbol": "fdEntropyLab",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 526,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L526"
+  },
+  "sec-fd-lab-totp": {
+   "concept": "Explorer lab: TOTP (RFC 6238) with Web Crypto",
+   "symbol": "fdTotp",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 538,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L538"
+  },
+  "sec-fd-lab-pkce": {
+   "concept": "Explorer lab: PKCE S256 (RFC 7636)",
+   "symbol": "fdPkceRun",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 558,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L558"
+  },
+  "sec-fd-lab-inject": {
+   "concept": "Explorer lab: SQL injection and XSS encoding",
+   "symbol": "fdInjectLab",
+   "path": "architecture-explorer/dist/foundations.js",
+   "line": 571,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/foundations.js#L571"
   }
  },
  "topics": {
@@ -2209,6 +2425,18 @@ const umlCatalog = {
    "sec-dep-systemd",
    "cr-sig-sign"
   ],
+  "security/learn": [
+   "sec-fd-guide",
+   "sec-fd-units",
+   "sec-fd-lab-access",
+   "sec-fd-lab-entropy",
+   "sec-fd-lab-totp",
+   "sec-fd-lab-pkce",
+   "sec-fd-lab-inject",
+   "sec-pw-hash",
+   "sec-rbac-screens",
+   "sec-sso-lab"
+  ],
   "security/gaps": [
    "sec-pw-params",
    "sec-login-failures",
@@ -2275,6 +2503,28 @@ const umlCatalog = {
    "cr-pqc-cli",
    "cr-pqc-cli-forge",
    "cr-pqc-cli-hybrid"
+  ],
+  "crypto/learn": [
+   "cr-fd-guide",
+   "cr-fd-rsa-unit",
+   "cr-fd-dh-unit",
+   "cr-fd-ecdsa-unit",
+   "cr-fd-mlkem-unit",
+   "cr-fd-mldsa-unit",
+   "cr-fd-slh-unit",
+   "cr-fd-units",
+   "cr-fd-lab-rsa",
+   "cr-fd-lab-oaep",
+   "cr-fd-lab-dh",
+   "cr-fd-lab-ecdh",
+   "cr-fd-lab-ecdsa",
+   "cr-fd-lab-aead",
+   "cr-fd-lab-lwe",
+   "cr-fd-lab-kem",
+   "cr-fd-lab-mldsa",
+   "cr-fd-lab-wots",
+   "cr-fd-cli-rsa",
+   "cr-fd-cli-lwe"
   ],
   "crypto/gaps": [
    "cr-hash-checksum",

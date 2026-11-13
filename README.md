@@ -36,9 +36,9 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 1) [🎓 Teaching Method — Big-Picture Concept–Theory–Practice (BCTP): how every course here is taught: big picture → concept → what, why, how → proof → practice → create → reconnect](docs/teaching/TEACHING_METHOD.md) · [BCTP method (PDF)](docs/teaching/BCTP_Method.pdf) · [Lecture deck: Introduction to Data Structures taught with BCTP (PPT, 61 slides)](docs/teaching/Intro_Data_Structures_BCTP.pptx)
 
-2) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
+2) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Foundations: 19 standalone units with live labs](https://fullscipts.github.io/ATLAS/#security-learn) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
-3) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
+3) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Foundations: RSA, Diffie–Hellman, ECDSA, ML-KEM, ML-DSA, SLH-DSA with live labs](https://fullscipts.github.io/ATLAS/#crypto-learn) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
 4) [📈 Machine learning and Optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [Lab manual — 40 experiments (20 ML + 20 optimisation)](ml_lab/README.md)
 
@@ -112,11 +112,11 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `results/` | Raw result files (JSON/NPZ) and trained model weights used in the paper |
 | `figures/` | Figures as they appear in the paper |
 | `run_all.sh` | Runs everything in order |
-| `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment |
+| `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment; 19 standalone units (S1–S13.6: what, why, how) adding STRIDE, MFA/TOTP/passkeys, access-control models, sessions/CSRF, API security, TLS 1.3, network security, OWASP Top 10, incident response, GDPR, governance and social engineering |
 | `security_lab/README.md` | Index of the labs: categories, experiments, study paths and the gaps they expose |
 | `security_lab/lab_a_password_storage.py` … `lab_d_integrity_lifecycle.py` | Information-security lab in four categories (A stored passwords 1–8, B registration and identity 9–11, C sign-in defences 12–15, D integrity and lifecycle 16–20), each runnable on its own |
 | `security_lab/password_storage_demo.py` | Runner for all 20 experiments and the 5 study paths (shared code in `lab_common.py`) |
-| `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography |
+| `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography; 19 standalone units (C1–C10.5: what, why, how) including AES/ChaCha20, RSA, Diffie–Hellman/X25519, ECDSA/Ed25519, ML-KEM, ML-DSA/FN-DSA, SLH-DSA/LMS/XMSS, HQC and post-quantum migration |
 | `security_lab/crypto_a_hashing.py` … `crypto_e_post_quantum.py` | Cryptography lab in five categories (A hashing 1–7, B MACs/KDF/randomness 8–10, C PKI 11–14, D signatures 15–17, E post-quantum 18–20), each runnable on its own |
 | `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
 | `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |

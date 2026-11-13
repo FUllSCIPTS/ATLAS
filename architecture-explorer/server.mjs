@@ -19,6 +19,7 @@ const contentTypes = {
   "uml-catalog.js": "text/javascript; charset=utf-8",
   "security.js": "text/javascript; charset=utf-8",
   "crypto.js": "text/javascript; charset=utf-8",
+  "foundations.js": "text/javascript; charset=utf-8",
   "ml.js": "text/javascript; charset=utf-8",
   "dsa.js": "text/javascript; charset=utf-8",
   "explorer.js": "text/javascript; charset=utf-8",
