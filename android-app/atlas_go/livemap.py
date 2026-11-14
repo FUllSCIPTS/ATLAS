@@ -34,7 +34,7 @@ ATTRIBUTION = '© OpenStreetMap contributors'
 
 KIND_COLORS = {
     'place': '#075E4A', 'driver': '#5B6D64', 'registered': '#6E56CF', 'ride': '#075E4A',
-    'me': '#1A73E8', 'kitchen': '#D9822B', 'courier': '#D9822B', 'home': '#075E4A',
+    'me': '#1A73E8', 'kitchen': '#D9822B', 'courier': '#D9822B', 'home': '#075E4A', 'rider': '#6E56CF',
 }
 
 
@@ -374,7 +374,7 @@ class LiveMap(StencilView):
             Ellipse(pos=(x - r / 3, y - r / 3), size=(2 * r / 3, 2 * r / 3))
         label = marker.get('label')
         if label:
-            tex = text_texture(label, 10, '#182D26', kind in ('ride', 'place', 'home', 'kitchen'))
+            tex = text_texture(label, 10, '#182D26', kind in ('ride', 'place', 'home', 'kitchen', 'rider'))
             Color(1, 1, 1, .88)
             RoundedRectangle(pos=(x + r + dp(2), y - tex.size[1] / 2 - dp(1)),
                              size=(tex.size[0] + dp(8), tex.size[1] + dp(2)), radius=[dp(4)])

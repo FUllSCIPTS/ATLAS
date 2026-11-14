@@ -27,6 +27,7 @@ from . import geo
 from . import intelligence as ai
 from . import livemap
 from . import learned
+from . import twin as layer2
 from . import __version__
 
 GREEN = color('#075E4A')
@@ -39,6 +40,11 @@ PALE = color('#E8F1E1')
 VIOLET = color('#6E56CF')
 LILAC = color('#EEEAFB')
 SURGE = color('#D9822B')
+CYAN = color('#0E7A8C')
+ICE = color('#DFF3F6')
+AMBER = color('#FFF4DC')
+ROSE = color('#FDECEF')
+RED = color('#C8324E')
 
 
 class Panel(BoxLayout):
@@ -295,9 +301,19 @@ class AtlasGoApp(App):
                                                              'restaurant','address','outlook_day','reg_role')}
         self.store.save()
 
+    def now_dt(self):
+        """City clock. Acceptance runs pin it (clock_override) so prices and forecasts are repeatable;
+        ATLAS_CLOCK=2027-03-17T13:00 does the same for a desktop preview."""
+        if getattr(self, 'clock_override', None) is not None:
+            return self.clock_override
+        override = os.environ.get('ATLAS_CLOCK')
+        return dt.datetime.fromisoformat(override) if override else dt.datetime.now()
+
     def today(self):
         override = os.environ.get('ATLAS_TODAY')
-        return dt.date.fromisoformat(override) if override else dt.date.today()
+        if override and getattr(self, 'clock_override', None) is None:
+            return dt.date.fromisoformat(override)
+        return self.now_dt().date()
 
     def on_pause(self):
         self.gps.stop()
@@ -414,21 +430,22 @@ class AtlasGoApp(App):
         if not self.store.signed_in:
             return ()
         if role == 'driver':
-            return (('driver','Drive'),('map','Map'),('activity','Trips'),('profile','You'))
+            return (('driver','Drive'),('map','Map'),('activity','Trips'),('twin','Twin'),('profile','You'))
         if role == 'seller':
-            return (('seller','Kitchen'),('seller_menu','Menu'),('activity','Orders'),('profile','You'))
-        return (('home','Home'),('map','Map'),('food','Food'),('activity','Activity'),('profile','You'))
+            return (('seller','Kitchen'),('seller_menu','Menu'),('activity','Orders'),('twin','Twin'),('profile','You'))
+        return (('home','Home'),('map','Map'),('food','Food'),('activity','Activity'),('twin','Twin'),('profile','You'))
 
     def render(self):
         self.controls = {}
+        self.shown = {}
         if self.live_map is not None:
             self.live_map.detach()
         self.live_map, self.live_label = None, None
         self.container.clear_widgets()
         if not self.store.signed_in and self.screen not in ('welcome','login','register','privacy'):
             self.screen = 'welcome'
-        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account'),
-                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account')}
+        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin'),
+                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin')}
         if self.store.user and self.store.role in allowed and self.screen not in allowed[self.store.role]:
             self.screen = self.home_screen()
         if self.store.user and self.store.role == 'passenger' and self.screen in ('driver','seller','seller_menu'):
@@ -450,7 +467,7 @@ class AtlasGoApp(App):
                    'food':self.food,'menu':self.menu,'cart':self.cart,'active_ride':self.active_ride,
                    'active_order':self.active_order,'activity':self.activity,'profile':self.profile,'privacy':self.privacy,
                    'intelligence':self.intelligence,'map':self.map_screen,'driver':self.driver,
-                   'seller':self.seller,'seller_menu':self.seller_menu,'account':self.profile}
+                   'seller':self.seller,'seller_menu':self.seller_menu,'account':self.profile,'twin':self.twin_screen}
         screens.get(self.screen,self.home)()
         items = self.nav_items()
         if items:
@@ -458,7 +475,7 @@ class AtlasGoApp(App):
             for key, name in items:
                 button = self.button(nav,name,'nav_'+key,lambda key=key:self.go(key),False)
                 button.size_hint_y = 1
-                button.font_size = sp(11)
+                button.font_size = sp(11 if len(items) < 6 else 10)
                 button.padding = (0,0)
                 button.bind(width=lambda widget,value:setattr(widget,'text_size',(value-dp(4),None)))
                 button.background_color = LIME if self.screen == key else WHITE
@@ -472,7 +489,7 @@ class AtlasGoApp(App):
             changed = self.store.tick()
         except OSError:
             return
-        if changed and self.screen in ('active_ride','active_order','driver','seller','map','home','activity'):
+        if changed and self.screen in ('active_ride','active_order','driver','seller','map','home','activity','twin'):
             self.render()
             return
         self.refresh_live()
@@ -497,7 +514,7 @@ class AtlasGoApp(App):
             if order['stage'] == 0:
                 return f'Kitchen is cooking · {round(progress*100)}% of the preparation time'
             return 'Courier is riding to you' if order['stage'] == 1 else 'Courier is at your door'
-        if self.screen == 'map':
+        if self.screen in ('map','twin'):
             parts = []
             if self.tiles.offline:
                 parts.append('Map tiles offline · showing the schematic map')
@@ -513,7 +530,7 @@ class AtlasGoApp(App):
         now = time.time()
         markers, routes = [], []
         ride, order = self.store.ride, self.store.order
-        if screen == 'map':
+        if screen in ('map','twin'):
             for i, name in enumerate(PLACES):
                 markers.append(dict(kind='place', point=geo.PLACE_COORDS[i], label=name))
             seen = set()
@@ -530,21 +547,28 @@ class AtlasGoApp(App):
                 point = geo.KITCHEN_COORDS[kitchen.id] if kitchen.id < 3 else \
                     (geo.PLACE_COORDS[kitchen.place][0]+0.0012, geo.PLACE_COORDS[kitchen.place][1]-0.0016)
                 markers.append(dict(kind='kitchen', point=point, label=kitchen.name))
-        if ride and screen in ('map','active_ride','driver'):
+        if ride and screen in ('map','active_ride','driver','twin'):
             car, _ = geo.ride_position(ride, now)
             start, pickup, dest = geo.ride_legs(ride)
-            if screen != 'map':
+            if screen not in ('map','twin'):
                 markers += [dict(kind='home', point=pickup, label='Pickup · '+PLACES[ride['pickup']]),
                             dict(kind='place', point=dest, label=PLACES[ride['destination']])]
-            routes.append(([pickup, dest], '#075E4A', False))
+            if geo.has_co_rider(ride):
+                drop = geo.co_drop_point(ride)
+                co = ride['co']
+                markers.append(dict(kind='rider', point=drop,
+                                    label=co['name']+(' dropped' if co['dropped'] else ' gets out')+' · '+co['drop']))
+                routes.append(([pickup, drop, dest], '#075E4A', False))
+            else:
+                routes.append(([pickup, dest], '#075E4A', False))
             if ride['stage'] == 0:
                 routes.append(([car, pickup], '#6E56CF', True))
             markers.append(dict(kind='ride', point=car, label=ride['driver'].split(' · ')[0]))
-        if order and screen in ('map','active_order'):
+        if order and screen in ('map','active_order','twin'):
             pos, _ = geo.order_position(order, now, self.store.kitchen_prep(order['restaurant']))
             kitchen = tuple(order['live']['kitchen'])
             home = geo.PLACE_COORDS[order['address']]
-            if screen != 'map':
+            if screen not in ('map','twin'):
                 markers += [dict(kind='kitchen', point=kitchen, label=self.store.catalog.name(order['restaurant'])),
                             dict(kind='home', point=home, label='You · '+PLACES[order['address']])]
             routes.append(([kitchen, home], '#D9822B', True))
@@ -711,6 +735,12 @@ class AtlasGoApp(App):
         self.label(smart,today['title'],19,INK,True)
         self.label(smart,today['text'],13,MUTED)
         self.button(smart,'How ATLAS learns >','home_learn',lambda:self.go('intelligence'),False)
+        twin_box = self.box(self.body,ICE)
+        self.label(twin_box,'NEW IN 1.3 · CITY TWIN',10,CYAN,True)
+        self.label(twin_box,'Every ride is rehearsed before it is sent.',17,INK,True)
+        self.label(twin_box,'A digital twin of Cork plays the next 30 minutes; three agents work on top of '
+                            'the learned models and a Guardian checks every decision.',13,MUTED)
+        self.button(twin_box,'Open the Twin tab >','home_twin',lambda:self.go('twin'),False)
         self.label(self.body,'Made for your everyday',20,INK,True)
         share = self.box(self.body,color('#E9F1DA'))
         self.label(share,'SHARED RIDES · FROM €4.90 / SEAT',10,GREEN,True)
@@ -783,19 +813,30 @@ class AtlasGoApp(App):
         if not shared:
             preview = self.box(self.body)
             self.label(preview,'ATLAS Comfort' if self.comfort else 'ATLAS Go',21,INK,True)
-            chosen, _why, _start = self.pick_driver(self.pickup)
+            decision = self.decide(self.pickup)
+            chosen = decision['choice']
+            base = fare(self.pickup,self.destination,self.comfort)
+            price = self.store_price(base, decision['multiplier'])
             self.label(preview,f'Pickup in about {chosen.eta} min · {distance(self.pickup,self.destination)} km route',12,MUTED)
-            self.label(preview,money(fare(self.pickup,self.destination,self.comfort)),31,GREEN,True)
-            surge = ai.surge_level(self.today(), dt.datetime.now().hour)
+            self.label(preview,money(price),31,GREEN,True)
+            surge = ai.surge_level(self.today(), self.now_dt().hour)
             self.label(preview,'Estimated total · simulated payment' + (f' · busy period ({round(surge*100)}% surge forecast)' if surge >= .2 else ''),12,MUTED)
             self.button(preview,'Book ride','book_ride',self.book_solo)
+            self.price_card(decision, base)
+            self.twin_card(decision)
             self.dispatch_card()
         else:
             found = [o for o in self.store.offers if o.matches(self.pickup,self.destination,self.party)]
             for offer in found:
                 card = self.box(self.body)
                 self.label(card,offer.driver,17,INK,True)
-                self.label(card,f'Leaves in 8 min · {offer.seats} seats available',12,MUTED)
+                self.label(card,f'On the road now · {offer.seats} seats free',12,MUTED)
+                if offer.co_rider:
+                    order = self.box(card,LILAC,12)
+                    self.label(order,'WHO GETS OUT FIRST',10,VIOLET,True)
+                    self.label(order,f'{offer.co_rider} is already in the car (picked up at {offer.co_from}). '
+                                     f'The driver picks you up next, drops {offer.co_rider} at {offer.co_drop}, '
+                                     f'then takes you to {PLACES[offer.destination]}.',12,INK)
                 self.label(card,f'{money(offer.price)} per seat',23,GREEN,True)
                 self.label(card,f'Total for {self.party}: {money(offer.price*self.party)}',13,MUTED)
                 self.button(card,'Join shared ride','join_'+offer.id,lambda o=offer:self.book_shared(o.id))
@@ -816,20 +857,59 @@ class AtlasGoApp(App):
         self.message('Pickup set', f'Nearest pickup point: {PLACES[place]} ({km:.1f} km from you).')
 
     def registered_candidates(self, pickup):
-        hour = dt.datetime.now().hour
+        hour = self.now_dt().hour
         surge = ai.surge_level(self.today(), hour)
         online = self.store.online_drivers()
         point = geo.PLACE_COORDS[pickup]
         return [ai.registered_candidate(a, self.store.driver_position(a), point, surge, len(online) == 1 and surge >= .5)
                 for a in online]
 
-    def pick_driver(self, pickup, exclude=()):
-        chosen, why = ai.choose(pickup, extra=self.registered_candidates(pickup), exclude=exclude)
+    def layer2_on(self):
+        return self.store.twin['enabled']
+
+    def decide(self, pickup, exclude=()):
+        """Layer 1 ranks drivers (unchanged since 1.2.0); Layer 2, when on, rehearses Layer 1's top three
+        and the price in the twin, and the Guardian checks both. Falls back to Layer 1 otherwise."""
+        return layer2.decide_ride(self.store, pickup, self.now_dt(), extra=self.registered_candidates(pickup),
+                                  exclude=exclude, enabled=self.layer2_on())
+
+    @staticmethod
+    def store_price(base, multiplier):
+        from .store import _priced
+        return _priced(base, multiplier)
+
+    def start_of(self, chosen):
         if chosen.account:
-            start = self.store.driver_position(self.store.account(chosen.account))
+            return self.store.driver_position(self.store.account(chosen.account))
+        return geo.zone_drift(chosen.zone, time.time())
+
+    def pick_driver(self, pickup, exclude=()):
+        decision = self.decide(pickup, exclude)
+        return decision['choice'], decision['why'], self.start_of(decision['choice'])
+
+    def price_card(self, decision, base):
+        card = self.box(self.body,ICE)
+        m = decision['multiplier']
+        self.label(card,'PRICE CHECK · LAYER 2' if decision['layer'] == 2 else 'PRICE · LAYER 1',10,CYAN,True)
+        if decision['layer'] == 2:
+            self.label(card,f'×{m:.1f} here · checked by the Guardian',16,INK,True)
+            plan = (decision['twin'] or {}).get('plan','')
+            self.label(card,(f'Agent 2 rehearsed three price plans in the twin and chose: {plan.lower()}. ' if plan else '')
+                       + f'Surges are capped at ×{layer2.PRICE_CAP:.1f}. Base fare {money(base)}.',12,MUTED)
         else:
-            start = geo.zone_drift(chosen.zone, time.time())
-        return chosen, why, start
+            self.label(card,'Base fare · Layer 2 is switched off',16,INK,True)
+            self.label(card,'Turn the twin layer on in the Twin tab to rehearse prices and drivers.',12,MUTED)
+
+    def twin_card(self, decision):
+        info = decision.get('twin') or {}
+        if not info.get('rollouts'):
+            return
+        card = self.box(self.body,ICE)
+        self.label(card,'AGENT 1 · REHEARSED IN THE CITY TWIN',10,CYAN,True)
+        for name, wait in info['rollouts']:
+            mark = '>' if name == decision['choice'].name else ' '
+            self.label(card,f'{mark} {name} · {wait:.1f} min total wait, next {layer2.HORIZON_MIN} min',13,INK,name == decision['choice'].name)
+        self.label(card,f"Layer 1 picked {info['layer1']}; Agent 1 sends {decision['choice'].name}.",12,MUTED)
 
     def dispatch_card(self):
         extra = self.registered_candidates(self.pickup)
@@ -846,10 +926,13 @@ class AtlasGoApp(App):
                         'on this phone compete with the simulated fleet.',11,MUTED)
 
     def book_solo(self):
-        chosen, why, start = self.pick_driver(self.pickup)
+        decision = self.decide(self.pickup)
+        chosen = decision['choice']
         label = f'{chosen.name} · ' + ('registered driver' if chosen.account else 'ATLAS demo driver')
-        self.store.book(self.pickup,self.destination,self.comfort,driver=label,why=why,
-                        driver_id=chosen.account or None,start=start)
+        twin = dict(decision['twin'], layer=2) if decision['twin'] else None
+        self.store.book(self.pickup,self.destination,self.comfort,driver=label,why=decision['why'],
+                        driver_id=chosen.account or None,start=self.start_of(chosen),
+                        multiplier=decision['multiplier'],twin=twin,log=decision['log'])
         self.go('active_ride')
 
     def book_shared(self, offer_id):
@@ -868,16 +951,33 @@ class AtlasGoApp(App):
         self.add_map(self.body, 230, fit=[start, pickup, dest])
         self.live_label = self.label(self.body,self.live_text(),14,VIOLET,True)
         card = self.box(self.body)
-        stage = ('Waiting for driver',) if ride.get('pending') else ('Driver on the way','Driver at pickup','On your way')
-        self.label(card,stage[0] if ride.get('pending') else stage[ride['stage']],23,GREEN,True)
+        co = ride.get('co') if geo.has_co_rider(ride) else None
+        if ride.get('pending'):
+            title = 'Waiting for driver'
+        elif co:
+            title = (f"Please wait · {co['name']} is in the car",'Driver at your pickup',
+                     f"Dropping {co['name']} first",'On your way')[ride['stage']]
+        else:
+            title = ('Driver on the way','Driver at pickup','On your way')[ride['stage']]
+        self.label(card,title,23,GREEN,True)
         self.label(card,ride['driver'],17,INK,True)
         self.label(card,f"{PLACES[ride['pickup']]} > {PLACES[ride['destination']]}",14,MUTED)
         self.label(card,f"{money(ride['fare'])} · {ride['party']} seat(s)",25,INK,True)
+        if ride.get('surge'):
+            self.label(card,f"Includes ×{ride['surge']:.1f} busy-time price · checked by the Guardian",12,CYAN)
         self.label(card,'Reference '+ride['id'],10,MUTED)
+        if co:
+            self.shared_stops(ride, co)
         if ride.get('why'):
+            twin = ride.get('twin') or {}
             why = self.box(self.body,LILAC)
-            self.label(why,'WHY THIS DRIVER',10,VIOLET,True)
+            head = self.row(why,22)
+            self.label(head,'WHY THIS DRIVER',10,VIOLET,True)
+            if twin.get('rollouts'):
+                self.label(head,'TWIN-TESTED',10,CYAN,True).halign = 'right'
             self.label(why,ride['why'],13,INK)
+            if twin.get('reason'):
+                self.label(why,twin['reason'],12,CYAN)
         if ride.get('driver_id'):
             if ride.get('pending'):
                 self.label(self.body,'This driver is registered on this phone. Sign in as the driver to accept, '
@@ -888,18 +988,42 @@ class AtlasGoApp(App):
             self.button(self.body,'Switch account','ride_switch',self.logout,False)
         else:
             self.label(self.body,'The journey moves on its own. Skip ahead to jump to the next stage.',13,MUTED)
-            self.button(self.body,'Complete ride' if ride['stage']==2 else 'Skip to next stage','ride_next',self.next_ride)
+            last = geo.last_stage(ride)
+            self.button(self.body,'Complete ride' if ride['stage']==last else 'Skip to next stage','ride_next',self.next_ride)
         self.button(self.body,'Cancel ride','ride_cancel',lambda:self.message('Cancel this ride?','Your reserved shared seats will be released.',self.cancel_ride),False)
+
+    def shared_stops(self, ride, co):
+        """The order of stops in a shared car: you board, the earlier rider gets out, then you do."""
+        box = self.box(self.body,LILAC)
+        self.label(box,'SHARED CAR · ORDER OF STOPS',10,VIOLET,True)
+        stage = ride['stage']
+        stops = ((f"{co['name']} is on board (picked up at {co['boarded']})", True),
+                 (f"You board at {PLACES[ride['pickup']]}", stage >= 2),
+                 (f"{co['name']} gets out at {co['drop']}", co['dropped']),
+                 (f"You get out at {PLACES[ride['destination']]}", False))
+        current = (1, 1, 2, 3)[stage]
+        for i, (text, done) in enumerate(stops):
+            mark = '[x]' if done else ('>' if i == current else '[  ]')
+            self.label(box,f'{mark} {i+1}. {text}',13,INK if done or i == current else MUTED,i == current)
+        if not co['dropped']:
+            self.label(box,f"Your drop-off comes after {co['name']}'s. Please wait while the driver finishes "
+                           f"that stop.",12,VIOLET)
+        else:
+            self.label(box,f"{co['name']} has been dropped. Next stop: you.",12,VIOLET)
 
     def redispatch(self):
         ride = self.store.ride
         exclude = [ride['driver_id']] + ride.get('declined', [])
-        chosen, why, start = self.pick_driver(ride['pickup'], exclude=exclude)
+        decision = self.decide(ride['pickup'], exclude=exclude)
+        chosen, start = decision['choice'], self.start_of(decision['choice'])
         before = self.store.snapshot()
         ride.setdefault('declined', []).append(ride['driver_id'])
         ride.update(driver=f'{chosen.name} · ' + ('registered driver' if chosen.account else 'ATLAS demo driver'),
-                    why=why, driver_id=chosen.account or None, pending=bool(chosen.account),
+                    why=decision['why'], driver_id=chosen.account or None, pending=bool(chosen.account),
                     live=dict(start=[start[0], start[1]], t=time.time()))
+        if decision['twin'] and decision['twin'].get('rollouts'):
+            ride['twin'] = dict(ride.get('twin') or {}, **{k: v for k, v in decision['twin'].items() if k != 'multiplier'})
+        self.store._log([e for e in decision['log'] if e['agent'] != 'Agent 2'])
         self.store.commit(before)
         self.render()
 
@@ -926,6 +1050,14 @@ class AtlasGoApp(App):
         self.select(status,'STARTING AREA',PLACES,d['base'],'driver_base',
                     lambda v:(self.store.set_online(d['online'],v),Clock.schedule_once(lambda _dt:self.render(),0)))
         self.button(status,'Use my phone location','driver_locate',self.locate,False)
+        if self.layer2_on() and self.store.twin['status']['pricing'] == 'active':
+            hint = layer2.driver_hint(d['base'], self.now_dt())
+            box = self.box(self.body,AMBER)
+            self.label(box,'TWIN HINT · AGENT 2 · '+self.now_dt().strftime('%H:%M'),10,SURGE,True)
+            self.label(box,hint['text'],15,INK,True)
+            self.label(box,'A suggestion, never an order: you can ignore it.',11,MUTED)
+            self.button(box,'Show me on the map','twin_hint_map',lambda:self.go('map'),False)
+            self.shown['driver_hint'] = hint
         job = self.store.driver_job()
         if job:
             card = self.box(self.body,LILAC)
@@ -966,6 +1098,7 @@ class AtlasGoApp(App):
         job = self.store.driver_job()
         exclude = [self.store.user['id']] + job.get('declined', [])
         chosen, why, start = self.pick_driver(job['pickup'], exclude=exclude)
+        self.store.twin_record([layer2.entry('Guardian', f'{chosen.name} offered after a decline', 'info')])
         self.store.driver_respond(False, fallback=dict(
             driver=f'{chosen.name} · ' + ('registered driver' if chosen.account else 'ATLAS demo driver'),
             why=why, start=start, driver_id=chosen.account or None))
@@ -1012,6 +1145,12 @@ class AtlasGoApp(App):
         plan = ai.courier_plan(kitchen['id'], prep=kitchen['prep'])
         self.label(prep,'COURIER TIMING · LEARNED',10,VIOLET,True)
         self.label(prep,ai.courier_text(plan),13,INK)
+        if self.layer2_on():
+            hint = self.box(self.body,AMBER)
+            self.label(hint,'TWIN HINT · KITCHEN',10,SURGE,True)
+            text = layer2.kitchen_hint(order['courier'] if order and order.get('courier') else plan)
+            self.label(hint,text,14,INK,True)
+            self.shown['kitchen_hint'] = text
         stats = self.box(self.body)
         self.label(stats,'SALES',10,GREEN,True)
         self.label(stats,f"{kitchen.get('orders',0)} orders delivered · {money(kitchen.get('sales',0))} food sales",19,INK,True)
@@ -1172,6 +1311,12 @@ class AtlasGoApp(App):
             self.label(card,record['status']+' · '+money(record['fare']),17,GREEN,True)
             route = 'To '+PLACES[record['address']] if is_food else PLACES[record['pickup']]+' > '+PLACES[record['destination']]
             self.label(card,route,13,MUTED)
+            if not is_food and geo.has_co_rider(record):
+                co = record['co']
+                self.label(card,f"Shared with {co['name']} · {co['name']} got out at {co['drop']} first" if co['dropped']
+                           else f"Shared with {co['name']}",12,VIOLET)
+            if not is_food and (record.get('twin') or {}).get('rollouts'):
+                self.label(card,'Twin-tested by Agent 1 · checked by the Guardian',12,CYAN)
             self.label(card,record['id'],10,MUTED)
 
     def profile(self):
@@ -1207,10 +1352,11 @@ class AtlasGoApp(App):
         self.store.reset()
         self.pickup,self.destination,self.party,self.restaurant,self.address,self.comfort = 0,1,1,0,0,False
         self.outlook_day, self.lab, self.models, self.form, self.reg_role = 0, None, None, {}, 'passenger'
+        self.layer2_checks = None
         self.go('welcome')
 
     def privacy(self):
-        self.title_block('Transparent by design','Your data. Your device.','Privacy notice · effective 7 November 2026')
+        self.title_block('Transparent by design','Your data. Your device.','Privacy notice · effective 14 November 2026')
         for heading,description in (
             ('Accounts stay on this phone','Your name, email, mobile number and role details are stored in private app storage. '
              'Passwords are never stored: only a salted PBKDF2-SHA256 hash. There is no server account, advertising or analytics.'),
@@ -1226,6 +1372,11 @@ class AtlasGoApp(App):
             ('Learning, on this device only','Surge outlooks, driver choice, acceptance estimates and courier timing come from '
              'small models learned offline in a simulated city and bundled with the app. The learning lab retrains a sandbox copy '
              'on this phone and never changes how rides are dispatched.'),
+            ('The city twin (Layer 2)','Version 1.3 adds a digital twin of Cork that runs on this phone. It mirrors the '
+             'drivers, rides and couriers already in the app, plays the next 30 minutes with the learned surge outlook, '
+             'and lets three agents rehearse the driver, the price and driver hints before you see them. A Guardian '
+             'checks each decision and keeps a log on this phone. Nothing is sent anywhere. You can switch the twin off '
+             'in the Twin tab; the app then works exactly as 1.2.0.'),
             ('About this project','Maintainer: FUllSCIPTS / ATLAS on GitHub. Questions: github.com/FUllSCIPTS/ATLAS/issues. '
              'Do not post personal details publicly.')):
             card = self.box(self.body)
@@ -1233,6 +1384,82 @@ class AtlasGoApp(App):
             self.label(card,description,15,MUTED)
         if not self.store.signed_in:
             self.button(self.body,'Back','privacy_back',lambda:self.go('welcome'),False)
+
+    # ------------------------------------------------------------------ Layer 2: the city twin
+    def twin_screen(self):
+        now_dt = self.now_dt()
+        on = self.layer2_on()
+        state = self.store.twin
+        self.title_block('City twin · Layer 2', f'Cork, {layer2.HORIZON_MIN} minutes ahead',
+                         f"City time {now_dt.strftime('%H:%M')} · rehearsing to "
+                         f"{(now_dt + dt.timedelta(minutes=layer2.HORIZON_MIN)).strftime('%H:%M')} · runs on this phone")
+        mirror = layer2.mirror(self.store, time.time())
+        card = self.box(self.body,ICE)
+        self.label(card,'MIRROR',10,CYAN,True)
+        self.label(card,f"Twin fidelity {mirror['fidelity']:.2f} · {mirror['drivers']} drivers · "
+                        f"{mirror['count']} things tracked",15,INK,True)
+        self.add_map(card, 190, fit=[geo.PLACE_COORDS[i] for i in range(3)])
+        self.live_label = self.label(card,self.live_text(),11,MUTED)
+        self.shown['fidelity'] = mirror['fidelity']
+        fore = self.box(self.body,ICE)
+        self.label(fore,'FORESEE · NEXT 30 MINUTES (FROM LAYER 1’S OUTLOOK)',10,CYAN,True)
+        for row in layer2.foresee(now_dt):
+            plan = layer2.agent2(row['place'], now_dt)
+            move = f" · move {plan['move']['cars']} cars from {PLACES[plan['move']['src']]}" if plan['move'] else ''
+            self.label(fore,f"{row['name']} · demand {ai.ratio_text(row['ratio']) if row['ratio'] >= 1.005 else 'as usual'}",14,INK,True)
+            self.label(fore,f"{row['free']} cars free · Agent 2: ×{plan['multiplier']:.1f}{move}",12,MUTED)
+        layers = self.box(self.body)
+        self.label(layers,'LAYER 1 · EXISTING · UNCHANGED',10,VIOLET,True)
+        for name, method in ai.MODELS:
+            self.label(layers,name+' · running',13,INK,True)
+        self.label(layers,'LAYER 2 · TWIN AGENTS',10,CYAN,True)
+        for key, name, what in layer2.AGENTS:
+            st = 'off' if not on else state['status'].get(key, 'watching' if key == 'guardian' else 'active')
+            if key == 'guardian' and on:
+                st = f"watching · {state['blocks']} blocked of {state['checks']} checked"
+            self.label(layers,name+' · '+st,13,INK if on else MUTED,True)
+            self.label(layers,what,11,MUTED)
+        self.button(layers,'Turn Layer 2 off (Layer 1 only)' if on else 'Turn Layer 2 on','layer2_toggle',
+                    self.toggle_layer2,not on)
+        self.label(layers,'With Layer 2 off, ATLAS Go chooses drivers and prices exactly as version 1.2.0.',11,MUTED)
+        guard = self.box(self.body)
+        self.label(guard,'GUARDIAN LOG · EVERY DECISION, CHECKED',10,GREEN,True)
+        log = state['log'][-8:]
+        if not log:
+            self.label(guard,'No decisions yet. Book a ride, or run the fault drill below.',13,MUTED)
+        for item in reversed(log):
+            shade = RED if item['result'] == 'blocked' else CYAN if item['result'] in ('fallback','retested') else GREEN
+            when = dt.datetime.fromtimestamp(item['t']).strftime('%H:%M:%S')
+            self.label(guard,f"{when} · {item['agent']} · {item['decision']}",13,INK,True)
+            self.label(guard,item['result']+(' · '+item['detail'] if item.get('detail') else ''),12,shade,True)
+        self.button(guard,'Run Guardian fault drill','twin_drill',self.fault_drill,False)
+        self.label(guard,'The drill makes Agent 2 send a ×4.0 price in the twin. The Guardian should block it, '
+                         'serve riders with Layer 1’s base price, re-test Agent 2 and hand control back.',11,MUTED)
+        checks = self.box(self.body,LILAC)
+        self.label(checks,'CHECK LAYER 2',10,VIOLET,True)
+        for name, ok, detail in getattr(self, 'layer2_checks', None) or []:
+            self.label(checks,('PASS · ' if ok else 'FAIL · ')+name,14,INK if ok else SURGE,True)
+            self.label(checks,detail,12,MUTED)
+        self.button(checks,'Check Layer 2' if not getattr(self,'layer2_checks',None) else 'Check again','twin_check',
+                    self.check_layer2,False)
+
+    def toggle_layer2(self):
+        self.store.set_layer2(not self.layer2_on())
+        self.render()
+
+    def fault_drill(self):
+        if not self.layer2_on():
+            raise ValueError('Turn Layer 2 on to run the fault drill.')
+        place = self.pickup
+        self.store.twin_record([], status=dict(pricing='retesting'))
+        entries = layer2.fault_drill(self.store, place, self.now_dt())
+        handed = any(e['result'] == 'handed back' for e in entries)
+        self.store.twin_record(entries, status=dict(pricing='active' if handed else 'retesting'))
+        self.render()
+
+    def check_layer2(self):
+        self.layer2_checks = layer2.self_test(self.now_dt())
+        self.render()
 
     # ------------------------------------------------------------------ ATLAS intelligence
     def shift_outlook(self, days):
@@ -1262,7 +1489,7 @@ class AtlasGoApp(App):
         self.label(card,'SURGE OUTLOOK',10,VIOLET,True)
         self.label(card,day.strftime('%a %d %b %Y') + (' · today' if day == today else ''),13,MUTED)
         self.label(card,summary['title'],21,INK,True)
-        card.add_widget(OutlookChart(summary['hours'], now=dt.datetime.now().hour if day == today else None))
+        card.add_widget(OutlookChart(summary['hours'], now=self.now_dt().hour if day == today else None))
         self.label(card,'Bars: expected ride requests per hour. Orange: surge. Grey ticks: an ordinary '
                         + day.strftime('%A') + '. Violet: extra drivers the agent sends ahead.',11,MUTED)
         self.label(card,summary['text'],14,INK,True)

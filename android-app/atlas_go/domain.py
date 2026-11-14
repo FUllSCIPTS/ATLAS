@@ -45,6 +45,8 @@ DISHES = {dish.id: dish for dish in MENU}
 
 @dataclass
 class Offer:
+    """A carpool already on the road. One rider (co_rider) is in the car before you join:
+    the driver picks you up next, drops co_rider at co_drop first, then drops you."""
     id: str
     driver: str
     pickup: int
@@ -52,6 +54,9 @@ class Offer:
     capacity: int
     price: int
     seats: int
+    co_rider: str = ''      # rider already in the vehicle ('' for a carpool with nobody on board)
+    co_from: str = ''       # zone where the driver picked that rider up (geo.ZONE_COORDS)
+    co_drop: str = ''       # zone on your route where that rider gets out, before you
 
     def matches(self, pickup: int, destination: int, party: int) -> bool:
         return self.pickup == pickup and self.destination == destination and 1 <= party <= self.seats

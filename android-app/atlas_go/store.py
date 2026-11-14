@@ -12,14 +12,20 @@ from pathlib import Path
 from time import time_ns
 from . import accounts as acc
 from . import geo
+from . import twin as layer2
 from .domain import Cart, Catalog, Offer, distance, fare, PLACES
 
 SCREENS = ('welcome', 'login', 'register', 'home', 'ride', 'share', 'food', 'menu', 'cart', 'active_ride',
            'active_order', 'activity', 'profile', 'privacy', 'intelligence', 'map', 'driver', 'seller',
-           'seller_menu', 'account')
+           'seller_menu', 'account', 'twin')
 OFFER_IDS = ('pool-1', 'pool-2', 'pool-3', 'pool-4')
 FIRST_SELLER_KITCHEN = 3
 MAX_DISHES = 30
+
+
+def _priced(base: int, multiplier: float) -> int:
+    """Fare in cents after a capped Layer 2 price multiplier, rounded to 10 cents."""
+    return base if multiplier == 1.0 else int(round(base * multiplier / 10.0)) * 10
 
 
 def _is_point(value) -> bool:
@@ -48,11 +54,13 @@ class LocalStore:
         self.ride = None
         self.order = None
         self.ui = {}
+        self.twin = layer2.default_state()     # Layer 2 (1.3.0): on/off, agent status, Guardian log
         self.offers = [
-            Offer('pool-1', 'Alex · Electric hatchback', 0, 1, 3, 490, 3),
-            Offer('pool-2', 'Sam · Hybrid sedan', 0, 1, 2, 590, 2),
-            Offer('pool-3', 'Jordan · Electric sedan', 1, 3, 3, 990, 3),
-            Offer('pool-4', 'Taylor · Hybrid hatchback', 2, 0, 2, 690, 2),
+            # Each carpool already carries one rider, who is dropped before you (see geo.last_stage).
+            Offer('pool-1', 'Alex · Electric hatchback', 0, 1, 3, 490, 3, 'Ciara', 'Bishopstown', 'Grand Parade'),
+            Offer('pool-2', 'Sam · Hybrid sedan', 0, 1, 2, 590, 2, 'Daniel', 'Wilton', 'Mardyke'),
+            Offer('pool-3', 'Jordan · Electric sedan', 1, 3, 3, 990, 3, 'Méabh', 'MacCurtain St', 'Douglas'),
+            Offer('pool-4', 'Taylor · Hybrid hatchback', 2, 0, 2, 690, 2, 'Fionn', 'Montenotte', 'Grand Parade'),
         ]
         if save:
             self.commit(before)
@@ -72,6 +80,9 @@ class LocalStore:
             self.history = data.get('history', [])
             self.ride, self.order = data.get('ride'), data.get('order')
             self.ui = data.get('ui', {})
+            # 1.2.0 files have no Layer 2 state; a damaged one is reset on its own (rides are kept).
+            twin = data.get('twin')
+            self.twin = twin if layer2.valid_state(twin) else layer2.default_state()
             for offer in self.offers:
                 seats = data.get('seats', {}).get(offer.id, offer.capacity)
                 offer.seats = max(0, min(offer.capacity, int(seats)))
@@ -160,8 +171,10 @@ class LocalStore:
                 raise ValueError('Invalid booking record.')
             if not isinstance(record.get('id'), str) or type(record.get('fare')) is not int or record['fare'] < 0:
                 raise ValueError('Invalid booking identity or total.')
-            if type(record.get('stage')) is not int or record['stage'] not in range(3):
+            if type(record.get('stage')) is not int or record['stage'] not in range(4):
                 raise ValueError('Invalid booking stage.')
+            if 'restaurant' in record and record['stage'] > 2:
+                raise ValueError('Invalid order stage.')
             if record.get('passenger') is not None and not isinstance(record['passenger'], str):
                 raise ValueError('Invalid passenger.')
             if type(record.get('pending', False)) is not bool:
@@ -189,8 +202,25 @@ class LocalStore:
                     raise ValueError('Invalid ride kind.')
                 if record['shared'] and record.get('offer') not in OFFER_IDS:
                     raise ValueError('Invalid shared offer.')
+                co = record.get('co')
+                if co is not None:
+                    if not record['shared'] or not isinstance(co, dict) or not _is_point(co.get('point')):
+                        raise ValueError('Invalid rider already on board.')
+                    if not all(isinstance(co.get(k), str) and co[k] for k in ('name', 'drop')) or \
+                            type(co.get('dropped')) is not bool:
+                        raise ValueError('Invalid rider already on board.')
+                    # The earlier rider is dropped exactly when your journey enters its last leg.
+                    if co['dropped'] != (record['stage'] == 3 or record.get('status') == 'Completed'):
+                        raise ValueError('The earlier rider must be dropped before you.')
+                if record['stage'] > geo.last_stage(record):
+                    raise ValueError('Invalid booking stage.')
                 if not isinstance(record.get('why', ''), str):
                     raise ValueError('Invalid dispatch explanation.')
+                surge = record.get('surge', 1.0)
+                if type(surge) not in (int, float) or not 1.0 <= surge <= layer2.PRICE_CAP:
+                    raise ValueError('Invalid price multiplier.')
+                if record.get('twin') is not None and not isinstance(record['twin'], dict):
+                    raise ValueError('Invalid twin record.')
                 if record.get('driver_id') is not None and not isinstance(record['driver_id'], str):
                     raise ValueError('Invalid driver account.')
                 if live is not None and not _is_point(live.get('start')):
@@ -214,7 +244,7 @@ class LocalStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         payload = dict(cart=self.cart.items, history=self.history, ride=self.ride, order=self.order,
                        seats={o.id: o.seats for o in self.offers}, ui=self.ui, accounts=self.accounts,
-                       kitchens=self.kitchens, session=self.session, guest=self.guest)
+                       kitchens=self.kitchens, session=self.session, guest=self.guest, twin=self.twin)
         temporary = self.path.with_suffix('.tmp')
         with temporary.open('w', encoding='utf-8') as stream:
             json.dump(payload, stream, ensure_ascii=False)
@@ -224,7 +254,7 @@ class LocalStore:
 
     def snapshot(self):
         return deepcopy((self.cart, self.history, self.ride, self.order, self.ui, self.offers,
-                         self.accounts, self.kitchens, self.session, self.guest))
+                         self.accounts, self.kitchens, self.session, self.guest, self.twin))
 
     def commit(self, before) -> None:
         try:
@@ -232,7 +262,7 @@ class LocalStore:
         except OSError:
             if before is not None:
                 (self.cart, self.history, self.ride, self.order, self.ui, self.offers,
-                 self.accounts, self.kitchens, self.session, self.guest) = before
+                 self.accounts, self.kitchens, self.session, self.guest, self.twin) = before
                 self.catalog = Catalog(self.kitchens)
                 self.cart.catalog = self.catalog
             raise
@@ -422,7 +452,8 @@ class LocalStore:
     def book(self, pickup: int, destination: int, comfort: bool = False,
              offer_id: str | None = None, party: int = 1,
              driver: str | None = None, why: str | None = None,
-             driver_id: str | None = None, start=None, now: float | None = None) -> None:
+             driver_id: str | None = None, start=None, now: float | None = None,
+             multiplier: float = 1.0, twin: dict | None = None, log=()) -> None:
         if self.ride:
             raise ValueError('Finish or cancel your active ride first.')
         if self.user and self.user['role'] != 'passenger':
@@ -433,34 +464,55 @@ class LocalStore:
         offer = next((o for o in self.offers if o.id == offer_id), None)
         if offer_id and (not offer or not offer.matches(pickup, destination, party)):
             raise ValueError('This shared ride does not match your route or seats.')
+        if type(multiplier) not in (int, float) or not 1.0 <= multiplier <= layer2.PRICE_CAP:
+            raise ValueError('Prices are capped at twice the base fare.')
         if driver_id is not None:
             account = self.account(driver_id)
             if not account or account['role'] != 'driver' or not account['driver']['online']:
                 raise ValueError('That driver is no longer online.')
         now = time.time() if now is None else now
         before = self.snapshot()
+        co = None
         if offer:
             offer.reserve(party)
-            start = (geo.PLACE_COORDS[pickup][0] - 0.004, geo.PLACE_COORDS[pickup][1] - 0.006)
+            if offer.co_rider:
+                # The car is already carrying offer.co_rider: it comes from where they boarded.
+                start = geo.ZONE_COORDS[offer.co_from]
+                co = dict(name=offer.co_rider, boarded=offer.co_from, drop=offer.co_drop,
+                          point=list(geo.ZONE_COORDS[offer.co_drop]), dropped=False)
+            else:
+                start = (geo.PLACE_COORDS[pickup][0] - 0.004, geo.PLACE_COORDS[pickup][1] - 0.006)
         elif start is None:
             start = (geo.PLACE_COORDS[pickup][0] + 0.006, geo.PLACE_COORDS[pickup][1] + 0.008)
         self.ride = dict(id=f'R-{time_ns()}', pickup=pickup, destination=destination,
                          shared=bool(offer), party=party, offer=offer_id,
                          driver=offer.driver if offer else (driver or 'Morgan · ATLAS demo driver'),
-                         fare=offer.price * party if offer else fare(pickup, destination, comfort), stage=0,
+                         fare=offer.price * party if offer else _priced(fare(pickup, destination, comfort), multiplier),
+                         stage=0,
                          passenger=self.session, driver_id=None if offer else driver_id,
                          pending=bool(driver_id) and not offer,
                          live=dict(start=[round(start[0], 6), round(start[1], 6)], t=now))
         if why and not offer:
             self.ride['why'] = why
+        if co:
+            self.ride['co'] = co
+        if not offer and multiplier != 1.0:
+            self.ride['surge'] = round(float(multiplier), 2)
+        if twin and not offer:
+            self.ride['twin'] = dict(twin)
+        self._log(log)
         self.commit(before)
 
     def _advance_ride(self, cancel: bool = False, now: float | None = None) -> None:
         now = time.time() if now is None else now
         before = self.snapshot()
         ride = self.ride
-        if cancel or ride['stage'] == 2:
-            if cancel and ride['shared']:
+        last = geo.last_stage(ride)
+        if cancel or ride['stage'] == last:
+            if not cancel and geo.has_co_rider(ride) and not ride['co']['dropped']:
+                raise ValueError('The rider who was already in the car is dropped first.')
+            if ride['shared']:
+                # The seats are free again once you leave the car, whether you cancel or arrive.
                 next(o for o in self.offers if o.id == ride['offer']).release(ride['party'])
             ride['status'] = 'Cancelled' if cancel else 'Completed'
             ride['pending'] = False
@@ -475,6 +527,8 @@ class LocalStore:
         else:
             ride['stage'] += 1
             ride['live']['t'] = now
+            if geo.has_co_rider(ride) and ride['stage'] == 3:
+                ride['co']['dropped'] = True      # earlier rider leaves the car before your last leg
         self.commit(before)
 
     def advance_ride(self, cancel: bool = False, now: float | None = None) -> None:
@@ -483,6 +537,31 @@ class LocalStore:
         if not cancel and self.ride.get('driver_id') and self.ride.get('pending'):
             raise ValueError('The driver has not accepted this ride yet.')
         self._advance_ride(cancel, now)
+
+    # ------------------------------------------------------------------ Layer 2 (twin) state
+    def _log(self, entries) -> None:
+        for e in entries:
+            self.twin['log'].append(dict(e))
+            self.twin['checks'] += e['result'] in ('passed', 'blocked')
+            self.twin['blocks'] += e['result'] == 'blocked'
+        del self.twin['log'][:-layer2.LOG_LIMIT]
+
+    def twin_record(self, entries, status: dict | None = None) -> None:
+        """Append Guardian log entries (and optionally agent status) in one saved step."""
+        before = self.snapshot()
+        self._log(entries)
+        if status:
+            if set(status) - {'dispatch', 'pricing'} or any(v not in ('active', 'retesting') for v in status.values()):
+                raise ValueError('Unknown agent status.')
+            self.twin['status'].update(status)
+        self.commit(before)
+
+    def set_layer2(self, enabled: bool) -> None:
+        before = self.snapshot()
+        self.twin['enabled'] = bool(enabled)
+        self._log([layer2.entry('Guardian', 'Layer 2 switched ' + ('on' if enabled else 'off') +
+                                ('' if enabled else ' · Layer 1 serves every ride'), 'info')])
+        self.commit(before)
 
     # ------------------------------------------------------------------ food
     def kitchen_of(self, account: dict | None) -> dict | None:

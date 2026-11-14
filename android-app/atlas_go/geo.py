@@ -24,6 +24,8 @@ ZONE_COORDS = {
     'MacCurtain St': (51.9020, -8.4700), 'South Mall': (51.8968, -8.4690), 'Kent Station': (51.9017, -8.4582),
     'Lower Glanmire Rd': (51.9030, -8.4520), 'Montenotte': (51.9065, -8.4520), 'Blackpool': (51.9150, -8.4730),
     'Airport rank': (51.8470, -8.4910), 'Ballygarvan': (51.8300, -8.4630), 'Frankfield': (51.8640, -8.4560),
+    # shared-ride riders already on board (1.3.0)
+    'Bishopstown': (51.8848, -8.5262), 'Wilton': (51.8856, -8.5108),
 }
 
 # Built-in kitchens (domain.RESTAURANTS order)
@@ -131,6 +133,21 @@ def ride_legs(ride: dict):
     return tuple(live['start']), pickup, dest
 
 
+def has_co_rider(ride: dict) -> bool:
+    """A shared ride that joined a car with another rider already on board (1.3.0 and later)."""
+    return bool(ride.get('shared') and isinstance(ride.get('co'), dict))
+
+
+def last_stage(ride: dict) -> int:
+    """Shared rides with a rider on board have four stages, others three:
+    0 driver on the way to you · 1 at your pickup · 2 dropping the earlier rider (shared only) · 3/2 to your destination."""
+    return 3 if has_co_rider(ride) else 2
+
+
+def co_drop_point(ride: dict):
+    return tuple(ride['co']['point'])
+
+
 def ride_position(ride: dict, now: float):
     """Where the ride's car is now, and how far through the current stage it is (0-1)."""
     start, pickup, dest = ride_legs(ride)
@@ -142,6 +159,16 @@ def ride_position(ride: dict, now: float):
         return lerp(start, pickup, f), min(1.0, f)
     if ride['stage'] == 1:
         return pickup, min(1.0, t / BOARD_SECONDS)
+    if has_co_rider(ride):
+        drop = co_drop_point(ride)
+        a, b = (pickup, drop) if ride['stage'] == 2 else (drop, dest)
+        if ride['stage'] == 3:
+            # the earlier rider gets out first; then the car continues to your destination
+            if t < BOARD_SECONDS / 2:
+                return drop, 0.0
+            t -= BOARD_SECONDS / 2
+        f = t / leg_seconds(a, b)
+        return lerp(a, b, f), min(1.0, f)
     f = t / leg_seconds(pickup, dest)
     return lerp(pickup, dest, f), min(1.0, f)
 
@@ -149,14 +176,22 @@ def ride_position(ride: dict, now: float):
 def ride_eta_text(ride: dict, now: float) -> str:
     start, pickup, dest = ride_legs(ride)
     t = max(0.0, now - ride['live']['t'])
+    co = ride['co'] if has_co_rider(ride) else None
     if ride.get('pending'):
         return 'Waiting for the driver to accept'
     if ride['stage'] == 0:
         left = max(0.0, leg_seconds(start, pickup) - t) * TIME_LAPSE / 60
+        if co:
+            return f"{co['name']} is on board · driver reaches you in about {max(1, math.ceil(left))} min"
         return f'Driver arrives in about {max(1, math.ceil(left))} min'
     if ride['stage'] == 1:
         return 'Driver is at the pickup point'
-    left = max(0.0, leg_seconds(pickup, dest) - t) * TIME_LAPSE / 60
+    if co and ride['stage'] == 2:
+        left = max(0.0, leg_seconds(pickup, co_drop_point(ride)) - t) * TIME_LAPSE / 60
+        return f"Dropping {co['name']} at {co['drop']} first · about {max(1, math.ceil(left))} min"
+    a = co_drop_point(ride) if co else pickup
+    extra = BOARD_SECONDS / 2 if co else 0
+    left = max(0.0, leg_seconds(a, dest) + extra - t) * TIME_LAPSE / 60
     return f'About {max(1, math.ceil(left))} min to your destination'
 
 

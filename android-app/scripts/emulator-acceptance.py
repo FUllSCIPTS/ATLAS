@@ -27,7 +27,7 @@ try:
     adb('logcat','-c')
     adb('shell','am','start','-n',ACTIVITY,'--ez','atlas_acceptance','true')
     captured=set()
-    deadline=time.monotonic()+300
+    deadline=time.monotonic()+600
     result=None
     while time.monotonic()<deadline:
         request=private_text('capture-request.txt')

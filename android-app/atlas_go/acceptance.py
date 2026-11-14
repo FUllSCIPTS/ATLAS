@@ -1,6 +1,7 @@
 """Python UI acceptance: dispatch actual Kivy controls and capture framebuffer.
 Android enables this only in a debuggable APK with an explicit launch intent.
 """
+import datetime as dt
 import json
 import time
 import traceback
@@ -10,6 +11,10 @@ from kivy.core.window import Window
 from kivy.utils import platform
 from .store import LocalStore
 from . import intelligence as ai
+from . import twin as layer2
+
+ORDINARY = dt.datetime(2026, 11, 4, 10, 0)     # an ordinary Wednesday morning: no surge, base prices
+BUSY = dt.datetime(2027, 3, 17, 13, 0)         # St Patrick's Day lunchtime: Layer 1 forecasts a surge
 
 
 def ai_rank(app):
@@ -92,12 +97,20 @@ class Acceptance:
     def live_off(self):
         self.app.live_paused = True
 
+    def clock(self, when):
+        self.app.clock_override = when
+        self.app.render()
+
+    def last_results(self, n):
+        return [e['result'] for e in self.app.store.twin['log'][-n:]]
+
     def account(self, email):
         return next(a for a in self.app.store.accounts if a['email'] == email)
 
     def start(self, _dt=0):
         a = self.app
         a.reset()
+        a.clock_override = ORDINARY
         a.live_paused = True
         S = a.store
         drv, sel, pas = 'driver@atlas.ie', 'seller@atlas.ie', 'rider@atlas.ie'
@@ -112,6 +125,11 @@ class Acceptance:
                               'Learned dispatch policy chooses and explains the driver'),
             lambda:self.check(a.live_map is not None and S.ride['live']['start'], 'Ride screen shows the live map'),
             lambda:self.capture('04-ride-live'),
+            lambda:self.check(len(S.ride['twin']['rollouts'])==3 and S.ride['twin']['layer1']=='Morgan',
+                              'Agent 1 rehearsed Layer 1\'s top three drivers in the twin'),
+            lambda:self.check(self.last_results(2)==['passed','passed'] and S.twin['checks']==2,
+                              'Guardian checked the driver and the price'),
+            lambda:self.check(S.ride['fare']==860 and 'surge' not in S.ride,'Ordinary hour keeps the base fare'),
             lambda:self.click('ride_next'),lambda:self.click('ride_next'),lambda:self.click('ride_next'),
             lambda:self.check(S.ride is None and len(S.history)==1,'Solo ride completed'),
             lambda:self.click('nav_home'),lambda:self.click('home_pool'),lambda:self.capture('05-shared-rides'),
@@ -119,6 +137,27 @@ class Acceptance:
             lambda:self.click('join_pool-1'),self.shared_reserved,
             lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
             lambda:self.check(S.ride is None and S.offers[0].seats==3,'Cancellation restores capacity'),
+            # ---- shared ride: a rider is already in the car and gets out before you
+            lambda:self.click('nav_home'),lambda:self.click('home_pool'),
+            lambda:setattr(a.controls['party'],'text','1 seat'),lambda:self.click('find_pool'),
+            lambda:self.click('join_pool-1'),
+            lambda:self.check(S.ride['co']['name']=='Ciara' and S.ride['stage']==0 and not S.ride['co']['dropped'],
+                              'Joined a car with a rider already on board'),
+            lambda:self.check(S.ride['live']['start']==list(layer2.geo.ZONE_COORDS['Bishopstown']),
+                              'The car comes from where the earlier rider boarded'),
+            lambda:setattr(a.scroll,'scroll_y',0.35),lambda:self.capture('24-shared-waiting'),
+            lambda:self.click('ride_next'),lambda:self.check(S.ride['stage']==1,'Driver at the new rider\'s pickup'),
+            lambda:self.click('ride_next'),
+            lambda:self.check(S.ride['stage']==2 and not S.ride['co']['dropped'],'Earlier rider is dropped next'),
+            lambda:self.check(a.controls['ride_next'].text!='Complete ride','New rider cannot be dropped yet'),
+            lambda:setattr(a.scroll,'scroll_y',0.35),lambda:self.capture('25-shared-co-drop'),
+            lambda:self.click('ride_next'),
+            lambda:self.check(S.ride['stage']==3 and S.ride['co']['dropped'],'Earlier rider dropped before the last leg'),
+            lambda:self.check(a.controls['ride_next'].text=='Complete ride','Now the new rider can be dropped'),
+            lambda:self.click('ride_next'),
+            lambda:self.check(S.ride is None and S.history[-1]['status']=='Completed' and S.history[-1]['co']['dropped'],
+                              'Shared ride completed after the earlier rider\'s drop-off'),
+            lambda:self.check(S.offers[0].seats==3,'Seats free again after arrival'),
             lambda:self.click('nav_food'),lambda:self.capture('06-food-home'),
             lambda:self.click('restaurant_0'),lambda:self.capture('07-food-menu'),
             lambda:self.click('add_bowl'),lambda:self.click('add_juice'),lambda:self.click('menu_cart'),
@@ -152,6 +191,33 @@ class Acceptance:
             lambda:self.click('lab_train'),self.lab_finished,
             lambda:self.check(a.lab.result()['candidate']<a.lab.nearest,'Sandbox policy beats the nearest-driver rule'),
             lambda:setattr(a.scroll,'scroll_y',0),lambda:self.capture('15-learning-lab'),
+            # ---- Layer 2: the Twin tab, Guardian fault drill, switching Layer 2 off and a busy-time price
+            lambda:self.click('nav_twin'),
+            lambda:self.check(a.screen=='twin' and 0 < a.shown['fidelity'] <= 1 and 'layer2_toggle' in a.controls,
+                              'Twin tab shows the mirror and both layers'),
+            lambda:self.capture('26-twin-tab'),
+            lambda:self.click('twin_check'),
+            lambda:self.check(len(a.layer2_checks)==4 and all(ok for _, ok, _ in a.layer2_checks),'All four Layer 2 checks pass'),
+            lambda:self.click('twin_drill'),
+            lambda:self.check(self.last_results(4)==['blocked','fallback','retested','handed back'],
+                              'Guardian blocks a x4 price, falls back to Layer 1, re-tests and hands back'),
+            lambda:self.check(S.twin['status']['pricing']=='active' and LocalStore(S.path).twin['blocks']>=1,
+                              'Agent 2 active again; Guardian log persists'),
+            lambda:setattr(a.scroll,'scroll_y',0.32),lambda:self.capture('27-guardian-log'),
+            lambda:self.click('layer2_toggle'),lambda:self.check(not S.twin['enabled'],'Layer 2 switched off'),
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),lambda:self.click('book_ride'),
+            lambda:self.check('twin' not in S.ride and S.ride['fare']==860 and S.ride['driver'].startswith('Morgan'),
+                              'With Layer 2 off, Layer 1 books exactly as 1.2.0'),
+            lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
+            lambda:self.click('nav_twin'),lambda:self.click('layer2_toggle'),
+            lambda:self.check(S.twin['enabled'],'Layer 2 switched back on'),
+            lambda:self.clock(BUSY),lambda:self.click('nav_home'),lambda:self.click('home_ride'),
+            lambda:setattr(a.scroll,'scroll_y',0.55),lambda:self.capture('28-surge-price'),
+            lambda:self.click('book_ride'),
+            lambda:self.check(S.ride['surge']==1.4 and S.ride['fare']==1200,'Busy time: capped x1.4 price, checked'),
+            lambda:self.check(1.0 < S.ride['surge'] <= layer2.PRICE_CAP and self.last_results(1)==['passed'],
+                              'Guardian passed the busy-time price'),
+            lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),lambda:self.clock(ORDINARY),
             # ---- driver registration
             lambda:self.click('nav_profile'),lambda:self.click('profile_register'),
             lambda:self.click('reg_role_driver'),
@@ -170,6 +236,15 @@ class Acceptance:
                               'Plate normalised; password stored only as a hash'),
             lambda:self.click('driver_online'),lambda:self.check(self.account(drv)['driver']['online'],'Driver goes online'),
             lambda:self.capture('17-driver-home'),
+            lambda:self.check(a.shown['driver_hint']['action']=='none' and 'twin_hint_map' in a.controls,
+                              'Driver sees a twin hint: no move needed at an ordinary hour'),
+            lambda:self.clock(BUSY),
+            lambda:self.check(a.shown['driver_hint']['action']=='move' and a.shown['driver_hint']['place']==1,
+                              'Busy time: Agent 2 suggests moving towards the city centre'),
+            lambda:setattr(a.scroll,'scroll_y',0.6),lambda:self.capture('29-driver-twin-hint'),
+            lambda:self.click('twin_hint_map'),lambda:self.check(a.screen=='map','Hint opens the live map'),
+            lambda:self.clock(ORDINARY),lambda:self.click('nav_twin'),
+            lambda:self.check(a.screen=='twin','Drivers have the Twin tab'),
             lambda:self.click('nav_profile'),lambda:self.click('logout'),
             lambda:self.check(a.screen=='welcome' and S.user is None and self.account(drv)['driver']['online'],
                               'Signed out; driver stays available for dispatch on this phone'),
@@ -220,6 +295,7 @@ class Acceptance:
             lambda:self.click('welcome_login'),lambda:self.fill(login_email=sel,login_password='bread2026'),lambda:self.click('login_submit'),
             lambda:self.click('order_accept'),lambda:self.click('order_ready'),
             lambda:self.check(S.order['stage']==1,'Seller marked the food ready'),
+            lambda:self.check('Courier arrives' in a.shown.get('kitchen_hint',''),'Kitchen sees the twin courier hint'),
             lambda:self.capture('22-seller-order'),
             lambda:self.click('nav_profile'),lambda:self.click('logout'),
             lambda:self.click('welcome_login'),lambda:self.fill(login_email=pas,login_password='ride2026x'),lambda:self.click('login_submit'),
@@ -247,7 +323,8 @@ class Acceptance:
             lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
             lambda:self.click('nav_home'),lambda:self.click('home_pool'),lambda:setattr(a.controls['pickup'],'text','Cork Airport'),
             lambda:self.check(not any(k.startswith('join_') for k in a.controls),'Unmatched route has no join button'),
-            lambda:setattr(a.controls['pickup'],'text','UCC Campus'),lambda:self.click('join_pool-2'),
+            lambda:setattr(a.controls['pickup'],'text','UCC Campus'),
+            lambda:setattr(a.controls['party'],'text','2 seats'),lambda:self.click('join_pool-2'),
             lambda:self.check(S.offers[1].seats==0,'Last two seats can be reserved'),
             lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
             lambda:self.check(S.offers[1].seats==2,'Second cancellation restores seats'),
