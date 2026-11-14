@@ -1,5 +1,11 @@
 # ATLAS — Supplementary Code and Data
 
+## ATLAS Go
+
+<!-- ATLAS Go contents will be added here. -->
+
+---
+
 Code, data, trained models and raw results for the article
 
 > **ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems**
