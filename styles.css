@@ -394,6 +394,7 @@ h1, h2, h3, p { margin: 0; }
 /* ------------------------------------------------------------------ Cryptography view (crypto.js) */
 .sec-field.wide { flex: 1 1 280px; max-width: 520px; }
 .cr-bad { color: #ffb3ab; }
+.cr-ok { color: #c2f77a; }
 .cr-bitgrid { display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 2px; max-width: 520px; padding: 6px; border: 1px solid var(--line-soft); border-radius: 6px; background: #0b111a; }
 .cr-bitgrid i { aspect-ratio: 1; border-radius: 2px; background: #1c2735; }
 .cr-bitgrid i.on { background: #ffc983; }
@@ -572,7 +573,7 @@ h1, h2, h3, p { margin: 0; }
   .dsa-canvas.small .dsa-svg { max-width: 300px; margin-inline: auto; }
   .dsa-hbar { grid-template-columns: minmax(110px, 130px) minmax(0, 1fr) 64px; font-size: 11px; }
 }
-.sec-note > .dsa-t { flex: 1 1 0; min-width: 0; }
+.sec-note > .dsa-t, .sec-note > .ml-t { flex: 1 1 0; min-width: 0; }
 
 /* Foundations topics (foundations.js): standalone units with what / why / how and live labs */
 .fd-units { display: grid; gap: 10px; margin: 4px 0 14px; }

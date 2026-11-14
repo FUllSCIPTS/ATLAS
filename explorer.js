@@ -43,6 +43,7 @@ const systems = {
     kindLabels: { sync: "Request / state", event: "Kafka event", learn: "Model / policy data" },
   },
   go: goSystem,
+  golayers: goLayersSystem,
 };
 let S = systems.starter;
 let linkById = {};
