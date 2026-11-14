@@ -1,7 +1,5 @@
 ## ATLAS Go
 
-[![Watch the ATLAS Go demo — Digital Twin and multi-agent layer]()](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)
-
 **[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
 
 
