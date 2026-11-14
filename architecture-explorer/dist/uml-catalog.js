@@ -56,9 +56,9 @@ const umlCatalog = {
    "concept": "Store only {salt, hash, iterations} at registration",
    "symbol": "LocalStore.register",
    "path": "android-app/atlas_go/store.py",
-   "line": 260,
+   "line": 290,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L260"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290"
   },
   "sec-pw-test": {
    "concept": "Test: same password, different salts and hashes",
@@ -136,49 +136,49 @@ const umlCatalog = {
    "concept": "Sign in, 5 failures → 60 s lockout, generic error",
    "symbol": "LocalStore.login",
    "path": "android-app/atlas_go/store.py",
-   "line": 304,
+   "line": 334,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L304"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L334"
   },
   "sec-login-failures": {
    "concept": "Failure counter kept in memory only",
    "symbol": "self.failures = {}          # email -> [count, locked_until]; memory ...",
    "path": "android-app/atlas_go/store.py",
-   "line": 33,
+   "line": 39,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L33"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39"
   },
   "sec-login-session": {
    "concept": "Session validated on load (must name an account)",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 86,
+   "line": 97,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L86"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97"
   },
   "sec-login-guest": {
    "concept": "Guest mode (no identity, least privilege)",
    "symbol": "LocalStore.continue_as_guest",
    "path": "android-app/atlas_go/store.py",
-   "line": 321,
+   "line": 351,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L321"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L351"
   },
   "sec-login-logout": {
    "concept": "Sign out",
    "symbol": "LocalStore.logout",
    "path": "android-app/atlas_go/store.py",
-   "line": 326,
+   "line": 356,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L326"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L356"
   },
   "sec-login-clear": {
    "concept": "Clear the password field after submit",
    "symbol": "AtlasGoApp.submit_login",
    "path": "android-app/atlas_go/app.py",
-   "line": 613,
+   "line": 641,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L613"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L641"
   },
   "sec-login-lab": {
    "concept": "Explorer lab: LocalStore.login replica",
@@ -224,65 +224,65 @@ const umlCatalog = {
    "concept": "De-provision with re-authentication, anonymise history",
    "symbol": "LocalStore.delete_account",
    "path": "android-app/atlas_go/store.py",
-   "line": 333,
+   "line": 363,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L333"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L363"
   },
   "sec-rbac-screens": {
    "concept": "RBAC layer 1: screen allow-list per role",
    "symbol": "AtlasGoApp.render",
    "path": "android-app/atlas_go/app.py",
-   "line": 422,
+   "line": 442,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L422"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442"
   },
   "sec-rbac-online": {
    "concept": "RBAC layer 2: only drivers go online",
    "symbol": "LocalStore.set_online",
    "path": "android-app/atlas_go/store.py",
-   "line": 367,
+   "line": 397,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L367"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L397"
   },
   "sec-rbac-location": {
    "concept": "RBAC layer 2: only drivers share location",
    "symbol": "LocalStore.update_location",
    "path": "android-app/atlas_go/store.py",
-   "line": 377,
+   "line": 407,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L377"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L407"
   },
   "sec-rbac-respond": {
    "concept": "RBAC layer 2: a driver answers only their own job",
    "symbol": "LocalStore.driver_respond",
    "path": "android-app/atlas_go/store.py",
-   "line": 392,
+   "line": 422,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L392"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422"
   },
   "sec-rbac-book": {
    "concept": "RBAC layer 2: only passengers or guests book",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 422,
+   "line": 452,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
   },
   "sec-rbac-checkout": {
    "concept": "RBAC layer 2: only passengers or guests order food",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 557,
+   "line": 636,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L557"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636"
   },
   "sec-rbac-kitchen": {
    "concept": "RBAC layer 2: a seller edits only their own kitchen",
    "symbol": "LocalStore._my_kitchen",
    "path": "android-app/atlas_go/store.py",
-   "line": 496,
+   "line": 575,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L496"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L575"
   },
   "sec-gw-routes": {
    "concept": "Route allow-list (method, role, regex)",
@@ -904,17 +904,17 @@ const umlCatalog = {
    "concept": "Explorer lab: Sim.eval_all + Sim.bip replica",
    "symbol": "mlBipSolve",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 169,
+   "line": 203,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L169"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L203"
   },
   "ml-bip-lab-eval": {
    "concept": "Explorer lab: one configuration's latency, cost, risk",
    "symbol": "mlEvalConfig",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 147,
+   "line": 181,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L147"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L181"
   },
   "ml-bip-cli": {
    "concept": "Command-line lab: load sweep with the real Sim.bip",
@@ -1008,9 +1008,9 @@ const umlCatalog = {
    "concept": "Explorer lab: enumerate 2^n in the browser",
    "symbol": "mlEnumerateTiming",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 248,
+   "line": 282,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L248"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L282"
   },
   "ml-sol-cli": {
    "concept": "Command-line lab: enumeration vs branch-and-bound vs LP",
@@ -1088,9 +1088,9 @@ const umlCatalog = {
    "concept": "Explorer lab: AR forecaster, gradient descent vs Adam",
    "symbol": "mlTrainForecaster",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 306,
+   "line": 340,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L306"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L340"
   },
   "ml-fc-cli": {
    "concept": "Command-line lab: gradient descent vs Adam vs least squares",
@@ -1160,9 +1160,9 @@ const umlCatalog = {
    "concept": "Explorer lab: grow an Isolation Forest",
    "symbol": "mlForestGrow",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 392,
+   "line": 427,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L392"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L427"
   },
   "ml-an-cli": {
    "concept": "Command-line lab: Isolation Forest on paper telemetry",
@@ -1256,9 +1256,9 @@ const umlCatalog = {
    "concept": "Explorer lab: REINFORCE (LearningLab.train port)",
    "symbol": "mlRlTrain",
    "path": "architecture-explorer/dist/ml.js",
-   "line": 460,
+   "line": 495,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L460"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L495"
   },
   "ml-rl-cli": {
    "concept": "Command-line lab: REINFORCE and Q-learning",
@@ -1267,6 +1267,374 @@ const umlCatalog = {
    "line": 234,
    "status": "lab",
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L234"
+  },
+  "ml-tw-mirror": {
+   "concept": "Mirror drivers, active car and courier; fidelity score",
+   "symbol": "mirror",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 142,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L142"
+  },
+  "ml-tw-ratio": {
+   "concept": "30-minute demand ratio from Layer 1's outlook (read-only)",
+   "symbol": "ratio_30",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 114,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L114"
+  },
+  "ml-tw-foresee": {
+   "concept": "Foresee demand, free cars and pressure per place",
+   "symbol": "foresee",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 124,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L124"
+  },
+  "ml-tw-rehearse": {
+   "concept": "Monte Carlo rehearsal of one driver over 30 minutes",
+   "symbol": "rehearse",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 182,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L182"
+  },
+  "ml-tw-agent1": {
+   "concept": "Agent 1: rehearse Layer 1's top 3, send the lowest total wait",
+   "symbol": "agent1",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 215,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L215"
+  },
+  "ml-tw-agent2": {
+   "concept": "Agent 2: keep / surge only / small surge + move cars",
+   "symbol": "agent2",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 262,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L262"
+  },
+  "ml-tw-hint": {
+   "concept": "Driver repositioning hint from Agent 2's plan",
+   "symbol": "driver_hint",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 287,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L287"
+  },
+  "ml-tw-checkd": {
+   "concept": "Guardian: dispatch limits (top 3, declined, online, pickup, 250 ms)",
+   "symbol": "check_dispatch",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 316,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L316"
+  },
+  "ml-tw-checkp": {
+   "concept": "Guardian: price limits (x1.0-x2.0, step 0.5, 250 ms)",
+   "symbol": "check_price",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 331,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L331"
+  },
+  "ml-tw-retest": {
+   "concept": "Guardian: 500-rollout re-test before handing control back",
+   "symbol": "retest_pricing",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 345,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L345"
+  },
+  "ml-tw-decide": {
+   "concept": "One ride through both layers, with fallback to Layer 1",
+   "symbol": "decide_ride",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 361,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L361"
+  },
+  "ml-tw-drill": {
+   "concept": "Fault drill: inject bad decisions, count what the Guardian catches",
+   "symbol": "fault_drill",
+   "path": "android-app/atlas_go/twin.py",
+   "line": 399,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L399"
+  },
+  "ml-tw-store": {
+   "concept": "Twin state: decision log, blocks and re-tests",
+   "symbol": "LocalStore.twin_record",
+   "path": "android-app/atlas_go/store.py",
+   "line": 549,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L549"
+  },
+  "ml-tw-lab": {
+   "concept": "Explorer lab: Agent 1 rehearsal (twin.agent1 port)",
+   "symbol": "mlAgent1",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 575,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L575"
+  },
+  "ml-tw-lab-rehearse": {
+   "concept": "Explorer lab: twin.rehearse port",
+   "symbol": "mlRehearse",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 559,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L559"
+  },
+  "ml-tw-lab-agent2": {
+   "concept": "Explorer lab: twin.agent2 port",
+   "symbol": "mlAgent2",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 603,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L603"
+  },
+  "ml-tw-lab-guard": {
+   "concept": "Explorer lab: Guardian checks and fault drill",
+   "symbol": "mlFaultDrill",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 642,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L642"
+  },
+  "ml-x-ml-twin": {
+   "concept": "ML 21: foresight, rehearsal stability, Agent 2, Guardian",
+   "symbol": "main",
+   "path": "ml_lab/machine_learning/ml21_digital_twin.py",
+   "line": 114,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml21_digital_twin.py#L114"
+  },
+  "ml-ac-train": {
+   "concept": "ML 22: A2C vs REINFORCE on the app's dispatch problem",
+   "symbol": "train",
+   "path": "ml_lab/machine_learning/ml22_actor_critic.py",
+   "line": 104,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L104"
+  },
+  "ml-ac-actor": {
+   "concept": "ML 22: actor network, gradient of log pi",
+   "symbol": "Actor.update",
+   "path": "ml_lab/machine_learning/ml22_actor_critic.py",
+   "line": 64,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L64"
+  },
+  "ml-ac-critic": {
+   "concept": "ML 22: critic network V(s), squared-error update",
+   "symbol": "Critic.update",
+   "path": "ml_lab/machine_learning/ml22_actor_critic.py",
+   "line": 90,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L90"
+  },
+  "ml-ac-lab": {
+   "concept": "Explorer lab: A2C and REINFORCE trained side by side",
+   "symbol": "mlAcTrain",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 743,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L743"
+  },
+  "ml-ac-lab-critic": {
+   "concept": "Explorer lab: critic value of a situation",
+   "symbol": "mlCriticValue",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 730,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L730"
+  },
+  "ml-ma-train": {
+   "concept": "ML 23: IPPO vs MAPPO training loop",
+   "symbol": "train",
+   "path": "ml_lab/machine_learning/ml23_mappo_shared_critic.py",
+   "line": 162,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L162"
+  },
+  "ml-ma-env": {
+   "concept": "ML 23: three-zone twin, two agents, one team reward",
+   "symbol": "TwinCity.step",
+   "path": "ml_lab/machine_learning/ml23_mappo_shared_critic.py",
+   "line": 68,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L68"
+  },
+  "ml-ma-ppo": {
+   "concept": "ML 23: PPO clipped update per actor",
+   "symbol": "Actor.ppo_update",
+   "path": "ml_lab/machine_learning/ml23_mappo_shared_critic.py",
+   "line": 121,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L121"
+  },
+  "ml-ma-critic": {
+   "concept": "ML 23: critic fitted to returns (shared or own)",
+   "symbol": "Critic.fit",
+   "path": "ml_lab/machine_learning/ml23_mappo_shared_critic.py",
+   "line": 142,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L142"
+  },
+  "ml-ma-lab": {
+   "concept": "Explorer lab: one IPPO / MAPPO iteration",
+   "symbol": "mlMarlIterate",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 878,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L878"
+  },
+  "ml-ma-lab-env": {
+   "concept": "Explorer lab: TwinCity port",
+   "symbol": "mlCity",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 813,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L813"
+  },
+  "ml-ma-lab-ppo": {
+   "concept": "Explorer lab: PPO clip port",
+   "symbol": "mlPpo",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 853,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L853"
+  },
+  "ml-lp-step": {
+   "concept": "One city hour: forecast, act, record, learn online",
+   "symbol": "Loop.step",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 307,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L307"
+  },
+  "ml-lp-forecast": {
+   "concept": "LSTM forecast for the next 6 hours from the logged window",
+   "symbol": "Loop.forecast",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 258,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L258"
+  },
+  "ml-lp-hidden": {
+   "concept": "LSTM in pure Python (gates, cell, hidden state)",
+   "symbol": "lstm_hidden",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 142,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L142"
+  },
+  "ml-lp-head": {
+   "concept": "Output layer: hidden state -> 6 forecasts",
+   "symbol": "head",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 157,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L157"
+  },
+  "ml-lp-choose": {
+   "concept": "Supply agent: Q over (calendar, LSTM level)",
+   "symbol": "Loop.choose",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 254,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L254"
+  },
+  "ml-lp-record": {
+   "concept": "Experience log row (14 days kept)",
+   "symbol": "Loop._record",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 280,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L280"
+  },
+  "ml-lp-daily": {
+   "concept": "Nightly update and champion / challenger validation",
+   "symbol": "Loop.daily_update",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 375,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L375"
+  },
+  "ml-lp-calendar": {
+   "concept": "30 calendar inputs: hour, weekday, event tag, now and +3 h",
+   "symbol": "calendar",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 125,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L125"
+  },
+  "ml-lp-demand": {
+   "concept": "Simulated city demand (city_sim model, deterministic)",
+   "symbol": "demand",
+   "path": "android-app/atlas_go/loop.py",
+   "line": 87,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L87"
+  },
+  "ml-lp-weights": {
+   "concept": "Generated LSTM weights and agent tables",
+   "symbol": "W",
+   "path": "android-app/atlas_go/lstm_weights.py",
+   "line": 18,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/lstm_weights.py#L18"
+  },
+  "ml-lp-export": {
+   "concept": "Offline training of the compact LSTM and the agent",
+   "symbol": "train",
+   "path": "android-app/training/export_lstm.py",
+   "line": 43,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/export_lstm.py#L43"
+  },
+  "ml-lp-surge": {
+   "concept": "Live forecast as the dispatch policy's surge feature",
+   "symbol": "AtlasGoApp.live_surge",
+   "path": "android-app/atlas_go/app.py",
+   "line": 879,
+   "status": "synth",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L879"
+  },
+  "ml-lp-lab": {
+   "concept": "Explorer lab: the phone's LSTM in the browser",
+   "symbol": "mlLstmHidden",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 961,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L961"
+  },
+  "ml-lp-lab-whatif": {
+   "concept": "Explorer lab: what-if event tag and demand shock",
+   "symbol": "mlLoopWhatIf",
+   "path": "architecture-explorer/dist/ml.js",
+   "line": 979,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/ml.js#L979"
+  },
+  "ml-lp-lab-data": {
+   "concept": "Export weights and a recorded loop run for the explorer",
+   "symbol": "main",
+   "path": "architecture-explorer/starter/scripts/export_ml_live.py",
+   "line": 24,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/scripts/export_ml_live.py#L24"
+  },
+  "ml-x-ml-loop": {
+   "concept": "ML 24: loop vs calendar agent, learning vs frozen, validation",
+   "symbol": "run_loop",
+   "path": "ml_lab/machine_learning/ml24_lstm_rl_loop.py",
+   "line": 31,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml24_lstm_rl_loop.py#L31"
   },
   "ml-ev-tune": {
    "concept": "Grid search on validation seeds",
@@ -1357,12 +1725,12 @@ const umlCatalog = {
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt02_momentum_and_adam.py#L31"
   },
   "ml-x-ml-runner": {
-   "concept": "ML lab runner: 20 experiments, 7 study paths",
+   "concept": "ML lab runner: 24 experiments, 11 study paths",
    "symbol": "main",
    "path": "ml_lab/machine_learning/run_ml.py",
-   "line": 39,
+   "line": 43,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/run_ml.py#L39"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/run_ml.py#L43"
   },
   "ml-x-ml-hw": {
    "concept": "ML 16: Holt-Winters and forecasting baselines",
@@ -1536,33 +1904,33 @@ const umlCatalog = {
    "concept": "ADT operation: book a ride",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 422,
+   "line": 452,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
   },
   "dsa-app-checkout": {
    "concept": "ADT operation: check out a cart",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 557,
+   "line": 636,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L557"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636"
   },
   "dsa-app-online": {
    "concept": "Linear scan: drivers that are online",
    "symbol": "LocalStore.online_drivers",
    "path": "android-app/atlas_go/store.py",
-   "line": 359,
+   "line": 389,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L359"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L389"
   },
   "dsa-app-history": {
    "concept": "Linear scan: the user's ride and order history",
    "symbol": "LocalStore.my_history",
    "path": "android-app/atlas_go/store.py",
-   "line": 653,
+   "line": 732,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L653"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732"
   },
   "dsa-app-distances": {
    "concept": "2-D table lookup DISTANCES[pickup][destination]",
@@ -1576,17 +1944,17 @@ const umlCatalog = {
    "concept": "Minimum selection: nearest saved place",
    "symbol": "nearest_place",
    "path": "android-app/atlas_go/geo.py",
-   "line": 60,
+   "line": 62,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L60"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62"
   },
   "dsa-app-tiles": {
    "concept": "Grid indexing: tiles that cover the view",
    "symbol": "tile_range",
    "path": "android-app/atlas_go/geo.py",
-   "line": 105,
+   "line": 107,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L105"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L107"
   },
   "dsa-app-fare": {
    "concept": "Fare rule evaluated with a stack in the explorer",
@@ -1632,17 +2000,17 @@ const umlCatalog = {
    "concept": "Hash table: cart quantities per dish",
    "symbol": "Cart.add",
    "path": "android-app/atlas_go/domain.py",
-   "line": 130,
+   "line": 135,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L130"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L135"
   },
   "dsa-app-menu": {
    "concept": "Linear filter: a kitchen's menu",
    "symbol": "Catalog.menu",
    "path": "android-app/atlas_go/domain.py",
-   "line": 105,
+   "line": 110,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L105"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L110"
   },
   "dsa-app-pools": {
    "concept": "Drivers and pickup minutes used by the heap and sorting labs",
@@ -1680,33 +2048,33 @@ const umlCatalog = {
    "concept": "Great-circle distance: the graph lab's edge weights",
    "symbol": "haversine_km",
    "path": "android-app/atlas_go/geo.py",
-   "line": 39,
+   "line": 41,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L39"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L41"
   },
   "dsa-app-legs": {
    "concept": "Straight-line trip legs (no road graph)",
    "symbol": "ride_legs",
    "path": "android-app/atlas_go/geo.py",
-   "line": 128,
+   "line": 130,
    "status": "related",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L128"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L130"
   },
   "dsa-app-advance": {
    "concept": "State machine: advance a ride",
    "symbol": "LocalStore.advance_ride",
    "path": "android-app/atlas_go/store.py",
-   "line": 480,
+   "line": 534,
    "status": "related",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L480"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L534"
   },
   "dsa-app-validate": {
    "concept": "Invariant check on saved state",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 86,
+   "line": 97,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L86"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97"
   },
   "dsa-app-selftest": {
    "concept": "Self-test of the on-device models",
@@ -2587,7 +2955,11 @@ const umlCatalog = {
    "ml-x-ml-hw",
    "ml-x-ml-cv",
    "ml-x-ml-drift",
-   "ml-x-opt-bo"
+   "ml-x-opt-bo",
+   "ml-lp-export",
+   "ml-lp-hidden",
+   "ml-lp-weights",
+   "ml-lp-lab"
   ],
   "ml/anomaly": [
    "ml-an-telemetry",
@@ -2622,7 +2994,11 @@ const umlCatalog = {
    "ml-x-ml-q",
    "ml-x-ml-bandit",
    "ml-x-ml-rank",
-   "ml-x-opt-es"
+   "ml-x-opt-es",
+   "ml-lp-choose",
+   "ml-tw-agent1",
+   "ml-ac-lab",
+   "ml-ma-lab"
   ],
   "ml/evaluation": [
    "ml-ev-tune",
@@ -2636,13 +3012,80 @@ const umlCatalog = {
    "ml-x-ml-metrics",
    "ml-x-ml-bv"
   ],
+  "ml/twin": [
+   "ml-tw-mirror",
+   "ml-tw-ratio",
+   "ml-tw-foresee",
+   "ml-tw-rehearse",
+   "ml-tw-agent1",
+   "ml-tw-agent2",
+   "ml-tw-hint",
+   "ml-tw-checkd",
+   "ml-tw-checkp",
+   "ml-tw-retest",
+   "ml-tw-decide",
+   "ml-tw-drill",
+   "ml-tw-store",
+   "ml-rl-rank",
+   "ml-tw-lab",
+   "ml-tw-lab-rehearse",
+   "ml-tw-lab-agent2",
+   "ml-tw-lab-guard",
+   "ml-x-ml-twin"
+  ],
+  "ml/actorcritic": [
+   "ml-ac-train",
+   "ml-ac-actor",
+   "ml-ac-critic",
+   "ml-rl-learnlab",
+   "ml-rl-weights",
+   "ml-rl-ride",
+   "ml-ac-lab",
+   "ml-ac-lab-critic",
+   "ml-rl-lab"
+  ],
+  "ml/marl": [
+   "ml-ma-train",
+   "ml-ma-env",
+   "ml-ma-ppo",
+   "ml-ma-critic",
+   "ml-tw-agent1",
+   "ml-tw-agent2",
+   "ml-tw-checkd",
+   "ml-ma-lab",
+   "ml-ma-lab-env",
+   "ml-ma-lab-ppo"
+  ],
+  "ml/loop": [
+   "ml-lp-step",
+   "ml-lp-forecast",
+   "ml-lp-hidden",
+   "ml-lp-head",
+   "ml-lp-calendar",
+   "ml-lp-choose",
+   "ml-lp-record",
+   "ml-lp-daily",
+   "ml-lp-demand",
+   "ml-lp-weights",
+   "ml-lp-export",
+   "ml-lp-surge",
+   "ml-rl-supply",
+   "ml-lp-lab",
+   "ml-lp-lab-whatif",
+   "ml-lp-lab-data",
+   "ml-x-ml-loop"
+  ],
   "ml/gaps": [
    "ml-bip-modules",
    "ml-bip-solve",
    "ml-bip-params",
    "ml-fc-train",
    "ml-rl-learnlab",
-   "ml-rl-bandit"
+   "ml-rl-bandit",
+   "ml-tw-agent1",
+   "ml-tw-agent2",
+   "ml-lp-daily",
+   "ml-tw-ratio"
   ],
   "dsa/complexity": [
    "dsa-app-online",

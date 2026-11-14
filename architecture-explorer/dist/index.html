@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0c1119">
-  <meta name="description" content="Explore the ATLAS ride-hailing and food-delivery stack and the ATLAS Go 1.2.0 Android app with passenger, driver and seller accounts, a live map and on-device intelligence: trace data flows and inspect deployment and source layout.">
+  <meta name="description" content="Explore the ATLAS ride-hailing and food-delivery stack and the ATLAS Go 1.4.0 Android app with passenger, driver and seller accounts, a live map, on-device intelligence, a digital twin with three agents and a live LSTM → RL loop: trace data flows and inspect deployment and source layout.">
   <link rel="icon" href="./atlas.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <title>ATLAS Architecture Explorer</title>
@@ -14,6 +14,7 @@
   <script src="./security.js" defer></script>
   <script src="./crypto.js" defer></script>
   <script src="./foundations.js" defer></script>
+  <script src="./ml-live.js" defer></script>
   <script src="./ml.js" defer></script>
   <script src="./dsa.js" defer></script>
   <script src="./explorer.js" defer></script>
@@ -38,7 +39,8 @@
     <div class="system-switch" role="group" aria-label="Which system to explore">
       <span class="trace-label">SYSTEM</span>
       <button type="button" data-system="starter" aria-pressed="true"><span data-icon="cloud"></span> Server starter <small>FastAPI · Kafka · ML</small></button>
-      <button type="button" data-system="go" aria-pressed="false"><span data-icon="car"></span> ATLAS Go 1.2.0 app <small>Android · accounts · live map · RL</small></button>
+      <button type="button" data-system="go" aria-pressed="false"><span data-icon="car"></span> ATLAS Go 1.4.0 app <small>Android · accounts · live map · RL</small></button>
+      <button type="button" data-system="golayers" aria-pressed="false"><span data-icon="brain"></span> ATLAS Go 1.4 · two learning layers <small>Digital twin · 3 agents · LSTM → RL</small></button>
     </div>
     <div class="view-tabs" role="tablist" aria-label="Explorer views">
       <button id="tab-architecture" type="button" role="tab" aria-selected="true" aria-controls="workspace" data-view="architecture"><span data-icon="map"></span> Architecture</button>

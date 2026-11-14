@@ -15,14 +15,19 @@
     "docs/UML_BLUEPRINT.md",
     "docs/img/uml/uml-app-class-diagram.svg",
     "docs/img/uml/uml-app-layers.svg",
+    "docs/img/uml/uml-atlas-go-1-4-two-learning-layers.svg",
     "docs/img/uml/uml-booking-and-dispatch-types.svg",
     "docs/img/uml/uml-component-and-deployment-boundaries.svg",
     "docs/img/uml/uml-connected-booking-sequence.svg",
     "docs/img/uml/uml-database-adapter.svg",
+    "docs/img/uml/uml-digital-twin-one-ride-through-both-layers.svg",
     "docs/img/uml/uml-driver-acceptance-and-completion.svg",
     "docs/img/uml/uml-event-delivery-and-offer-creation.svg",
     "docs/img/uml/uml-food-order-from-a-seller-kitchen.svg",
+    "docs/img/uml/uml-layer-classes-twin-py-loop-py.svg",
+    "docs/img/uml/uml-live-lstm-rl-loop-one-city-hour-and-one-n.svg",
     "docs/img/uml/uml-live-map-and-location.svg",
+    "docs/img/uml/uml-loop-json-and-the-twin-block-of-state-json.svg",
     "docs/img/uml/uml-on-device-data-model-state-json.svg",
     "docs/img/uml/uml-on-device-intelligence-1-2-0.svg",
     "docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg",
@@ -34,6 +39,7 @@
     "docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg",
     "docs/img/uml/uml-scoring-types-and-lstm.svg",
     "docs/img/uml/uml-screen-navigation.svg",
+    "docs/img/uml/uml-shared-ride-with-a-rider-on-board-1-3-0.svg",
     "docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg",
     "docs/img/uml/uml-training-serving-and-approval.svg",
     "docs/img/uml/uml-trip-state-machine.svg",
@@ -49,6 +55,7 @@
     "packages/db.py",
     "packages/ride-event.schema.json",
     "requirements.txt",
+    "scripts/export_ml_live.py",
     "scripts/generate_blueprint.py",
     "scripts/initialize.sh",
     "scripts/local.sh",
@@ -71,15 +78,20 @@
     "apps/shared/demo.css": "170e4a4545847490cd666493f311cf58d0f943b5e22b9a4399fcebf7728407c5",
     "compose.yaml": "6d1d051ef6534736974d582608cf75f784c8035a63192ad353c1d6c3d923c2d7",
     "docs/img/uml/uml-app-class-diagram.svg": "131b265568fc55dafa7a6242de770989eb0aec8929cb4196a91a3673905531b3",
-    "docs/img/uml/uml-app-layers.svg": "7b5e1b84436f8d3d3a62e0285a1b0bad6a3a53fbb6f5b72c98accc6853e2fafe",
+    "docs/img/uml/uml-app-layers.svg": "83c4e5031bd4979ddf6ecc5f198163c8db8374c62a3dc75c41588f35a4bc7a5d",
+    "docs/img/uml/uml-atlas-go-1-4-two-learning-layers.svg": "948cef62a36a7d7bad2da4b94328a58fb02a20ecbcc18146963a2de0eedd93af",
     "docs/img/uml/uml-booking-and-dispatch-types.svg": "e46b5d080808ecb0b700bde9fbd7adfe2a0622fab702b740bf30ce45c799476b",
     "docs/img/uml/uml-component-and-deployment-boundaries.svg": "1b3c8866699979f7a7fb8fd3fa4db4910a21fc49ed9de832e40abfba7898ca66",
     "docs/img/uml/uml-connected-booking-sequence.svg": "fbe46cbc00f882a322037cd6fd6d63e055b840f30b8ff397b9f9d5cec8168d6d",
     "docs/img/uml/uml-database-adapter.svg": "4580fced497318be407164b3246fc0c0f672cfe90eeddb5436d2a5eeb1b53462",
+    "docs/img/uml/uml-digital-twin-one-ride-through-both-layers.svg": "d835f648dbcb3e1653b70c422a5e4b7ffdcb3b0cca03997f22e667651b040424",
     "docs/img/uml/uml-driver-acceptance-and-completion.svg": "650ef5df979a20a0c2a19e79561a0223a49859ac4810419fc2383a5f3b6bba24",
     "docs/img/uml/uml-event-delivery-and-offer-creation.svg": "efa533ab34fdc2af9b8478a748de61b9eaa54113d0d5e15dca1c994f17908686",
     "docs/img/uml/uml-food-order-from-a-seller-kitchen.svg": "dcdfcd91289adc5a658e4bf7b84cd2723aedaf79ad03c9551c11c49a1d0c8941",
+    "docs/img/uml/uml-layer-classes-twin-py-loop-py.svg": "8f25c30a924db2dc4e583559a6c0f713c9ad9b21484ef56322d8eb722ffb521c",
+    "docs/img/uml/uml-live-lstm-rl-loop-one-city-hour-and-one-n.svg": "ca0f39aa90f14f943465033f32a8fb0a5ccda8286e353cd2cb78f094f40e9c4e",
     "docs/img/uml/uml-live-map-and-location.svg": "9a8abb35abd9af039bc187bf77d312395896f6be824540346c59e3780c670167",
+    "docs/img/uml/uml-loop-json-and-the-twin-block-of-state-json.svg": "c140df1f013d9f825e5062c7b8a4ca7b8110013c09663beb859c79fd93592724",
     "docs/img/uml/uml-on-device-data-model-state-json.svg": "f090b1455a555960ff8e6304668145d32f4cde7338b5f6e006ed75fbcca3d802",
     "docs/img/uml/uml-on-device-intelligence-1-2-0.svg": "042622b279d9fdc34552b473414d39d5c7e5c2bdd466546a0a25d25fd72b4b0e",
     "docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg": "f5ce27b53955fd47aa546c8ca6061e971865b162b3e40aed47d0831cd4069497",
@@ -91,7 +103,8 @@
     "docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg": "763d6d989e7a85bfc7d9c117d13bef27303b0a5a9b854f7d20814ea670581960",
     "docs/img/uml/uml-scoring-types-and-lstm.svg": "e13d3fcb6a63177d9f5008632316731f3272e46cf2b8307c9a2799a6c99ec04a",
     "docs/img/uml/uml-screen-navigation.svg": "f2a994928f0966c9c760d43e15d95fa76487cc2bfeed447812cdf97428e0558f",
-    "docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg": "8a02d7fbe398539c5feadc4c4bb899788891837607748c7c91a3e19875a6e6d4",
+    "docs/img/uml/uml-shared-ride-with-a-rider-on-board-1-3-0.svg": "a38ef2c01e56dda9876c3cab864c025358c280533bf79b5d3110d782d5603865",
+    "docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg": "8f5d75e253514db1d90913683dabd2b13d67eaed666f1a650edd4f7c84dd7f3f",
     "docs/img/uml/uml-training-serving-and-approval.svg": "c8ee3b25326056ad71c72e80a5435a96fa586abc7e970eadcd12cec477125d02",
     "docs/img/uml/uml-trip-state-machine.svg": "86aa4e5e5b5d6e11abf596b87d8b5b8d67a2226c63b5274f693c3f9ed11264bb",
     "infra/schema.sql": "398183c0013c2a08b1fd134b9cc6420b2aaa89e0c762bd869cd34db3d34d21b4",
@@ -105,9 +118,10 @@
     "packages/db.py": "4099d6b06782ca38409a23021729858f33414d270bb3025f942067b8ad6ae9cb",
     "packages/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
     "requirements.txt": "c389f3b4d23c04757137fdfe15446b1789d3316825a1dc924dd23beab32bbed5",
+    "scripts/export_ml_live.py": "37540c641b5fe8cedbe6ddb2aa45bfc5653b15592ef7bfdf9ac7378e2bb0d864",
     "scripts/initialize.sh": "9802c580a934b1979dc700a631f9da9b6f4dae776a952c040e09ad6e0a8f47c8",
     "scripts/local.sh": "12aad3b6b28e44e0cee4fc065322f048ad0bf3131cc069845a4c5d2ee374497b",
-    "scripts/security_catalog.py": "f6e98b31c1aa8f871148f7ff70e1bc1e564013a0fa748f3bc1a4c34524a8a91d",
+    "scripts/security_catalog.py": "e73b74cfe008e93f6a58405d207b5e858c5c64b5a48d9b052034b1bc6b2a5afa",
     "services/dispatch.py": "60bee8fb80be4d407798d0c1b466ca635c6955bdbec49a9bce274bf420c7eefa",
     "services/gateway.py": "88353781d315b133644b2d3ce33cc0bb0c1f5c76df915f4c728f776f631712d1",
     "services/trips.py": "59eaf936bf892b261334f1587252218d6c2a1b804ce27e618936bf57abdc7389",
@@ -569,6 +583,27 @@
         }
       ]
     },
+    "scripts/export_ml_live.py": {
+      "language": "Python",
+      "imports": [
+        "import argparse",
+        "import datetime as dt",
+        "import json",
+        "import sys",
+        "from pathlib import Path",
+        "from atlas_go import learned, loop as live, lstm_weights as LW"
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "name": "main",
+          "signature": "main()",
+          "line": 24,
+          "async": false,
+          "decorators": []
+        }
+      ]
+    },
     "scripts/initialize.sh": {
       "language": "Shell",
       "imports": [],
@@ -612,56 +647,56 @@
         {
           "name": "read",
           "signature": "read(location, main)",
-          "line": 437,
+          "line": 493,
           "async": false,
           "decorators": []
         },
         {
           "name": "python_symbols",
           "signature": "python_symbols(text)",
-          "line": 447,
+          "line": 503,
           "async": false,
           "decorators": []
         },
         {
           "name": "locate",
           "signature": "locate(text, path, symbol)",
-          "line": 459,
+          "line": 515,
           "async": false,
           "decorators": []
         },
         {
           "name": "resolve",
           "signature": "resolve(main)",
-          "line": 480,
+          "line": 536,
           "async": false,
           "decorators": []
         },
         {
           "name": "markdown",
           "signature": "markdown(rows, views, intro)",
-          "line": 513,
+          "line": 569,
           "async": false,
           "decorators": []
         },
         {
           "name": "script",
           "signature": "script(rows)",
-          "line": 534,
+          "line": 590,
           "async": false,
           "decorators": []
         },
         {
           "name": "replace_block",
           "signature": "replace_block(document, content, name)",
-          "line": 542,
+          "line": 598,
           "async": false,
           "decorators": []
         },
         {
           "name": "main",
           "signature": "main()",
-          "line": 551,
+          "line": 607,
           "async": false,
           "decorators": []
         }
@@ -1153,6 +1188,7 @@
     "dist/explorer.js",
     "dist/foundations.js",
     "dist/index.html",
+    "dist/ml-live.js",
     "dist/ml.js",
     "dist/ride-event.schema.json",
     "dist/security.js",
@@ -1172,14 +1208,19 @@
     "starter/docs/UML_BLUEPRINT.md",
     "starter/docs/img/uml/uml-app-class-diagram.svg",
     "starter/docs/img/uml/uml-app-layers.svg",
+    "starter/docs/img/uml/uml-atlas-go-1-4-two-learning-layers.svg",
     "starter/docs/img/uml/uml-booking-and-dispatch-types.svg",
     "starter/docs/img/uml/uml-component-and-deployment-boundaries.svg",
     "starter/docs/img/uml/uml-connected-booking-sequence.svg",
     "starter/docs/img/uml/uml-database-adapter.svg",
+    "starter/docs/img/uml/uml-digital-twin-one-ride-through-both-layers.svg",
     "starter/docs/img/uml/uml-driver-acceptance-and-completion.svg",
     "starter/docs/img/uml/uml-event-delivery-and-offer-creation.svg",
     "starter/docs/img/uml/uml-food-order-from-a-seller-kitchen.svg",
+    "starter/docs/img/uml/uml-layer-classes-twin-py-loop-py.svg",
+    "starter/docs/img/uml/uml-live-lstm-rl-loop-one-city-hour-and-one-n.svg",
     "starter/docs/img/uml/uml-live-map-and-location.svg",
+    "starter/docs/img/uml/uml-loop-json-and-the-twin-block-of-state-json.svg",
     "starter/docs/img/uml/uml-on-device-data-model-state-json.svg",
     "starter/docs/img/uml/uml-on-device-intelligence-1-2-0.svg",
     "starter/docs/img/uml/uml-on-device-ride-and-order-lifecycles.svg",
@@ -1191,6 +1232,7 @@
     "starter/docs/img/uml/uml-ride-with-a-registered-driver-on-the-sam.svg",
     "starter/docs/img/uml/uml-scoring-types-and-lstm.svg",
     "starter/docs/img/uml/uml-screen-navigation.svg",
+    "starter/docs/img/uml/uml-shared-ride-with-a-rider-on-board-1-3-0.svg",
     "starter/docs/img/uml/uml-system-overview-apps-front-end-back-end-.svg",
     "starter/docs/img/uml/uml-training-serving-and-approval.svg",
     "starter/docs/img/uml/uml-trip-state-machine.svg",
@@ -1206,6 +1248,7 @@
     "starter/packages/db.py",
     "starter/packages/ride-event.schema.json",
     "starter/requirements.txt",
+    "starter/scripts/export_ml_live.py",
     "starter/scripts/generate_blueprint.py",
     "starter/scripts/initialize.sh",
     "starter/scripts/local.sh",
@@ -1220,7 +1263,7 @@
   ],
   "supporting_source_sha256": {
     "deploy/atlas-explorer.service": "66eab9b12a63fc985358260c04faa33ce039df4c234af12570ad4c655adf528e",
-    "dist/atlas-go.js": "afc74e0b2e7efaf69a18f3471a09e033233a0ca56055eca21de3b6523db023aa",
+    "dist/atlas-go.js": "162aec819977446c3cc455cbcb64fc050cbd6eba213623e50f687a006c1ef319",
     "dist/atlas.js": "c155c3968107f38fcd7612e07671ef8ea9d08ed60343c313b366186a79ba4667",
     "dist/atlas.svg": "6ad19e85d79ecde63c453a40c65eb44b817b273318f57c6f1b7e107bacdc7d2e",
     "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
@@ -1228,14 +1271,15 @@
     "dist/build.js": "d5a857be99c9d627cafb780017ceb463d90c7ad50e011d2e0c56cff3b71cdec1",
     "dist/crypto.js": "363e5557af86a1058112411edadd5761e73d219060af5cf262c97dee9401db30",
     "dist/dsa.js": "f14b7e3ac092546383e18bc59faf162ba0205f33b31f6124da37d0959f746527",
-    "dist/explorer.js": "4c7fb5d0ae04c3713af8f8f4c3404f941c6823c07ea3ede7d40f36260d703d27",
+    "dist/explorer.js": "1892e92ebd5a0e430801e87fad9ae1709913b8f4ce9db1f969e7a73ea9f4126f",
     "dist/foundations.js": "25299caebd3ca5183f8e29ab36339bfd979183a49859ae53a2d56dc477aa9efa",
-    "dist/index.html": "8219dea41184baca7ad32be37f520ae59e3eb260df14476cd96a4abf22c59693",
-    "dist/ml.js": "3f4184d496cd7e9e2970bd554c6cc1e45202ef93ee4f1991c408e29e741bcf3d",
+    "dist/index.html": "16ed421eb81dec2cb2e650b8c80244cc7e7c558d7197c53d73148b10ae9ece56",
+    "dist/ml-live.js": "1b8323d33ff9e7804e7aebdae152c7444b0fd903d964dcfbb5d7ea79cbcc3135",
+    "dist/ml.js": "a2687fe0f21d0354a0af3cf80c73bb39824e2736a98270daec4f5e48d6067da9",
     "dist/ride-event.schema.json": "c6bed74ac7147e6b472062c2319ab181a535affbb2812faf9c3a5bb5198a128c",
     "dist/security.js": "0300c2b34e8fd37b1cbe88d281f9e20624f9b8bed94c1827ec6e77661620edf7",
-    "dist/styles.css": "57f163db5e4e7ee4779be816b1b6f18527869245bd6ae0ab94f1ef9a733ed040",
-    "dist/uml-catalog.js": "5f2f8e720410044c04a74161134b20962d2f67a126c8b4b2474ba4504bb89567",
+    "dist/styles.css": "33f7c68aebf29ab6ad2f2a0fa63133aba80efbba2739591afbfbc5d37b343acf",
+    "dist/uml-catalog.js": "99eada4b32900ecfdab25fe4aa1d512af27bcfe626cf982e17ea640cecb6f873",
     "server.mjs": "84d4e5ce4883585ac1c911e58541d30f58d7bced1219b46370d9949073a31737",
     "starter/scripts/generate_blueprint.py": "b6a0cd63b81dff5c8c4a92d60953af52c64bd0e9506c5c67fb78d2a1fe167aab"
   },
@@ -4066,392 +4110,392 @@
         {
           "name": "indexSystem",
           "signature": "indexSystem()",
-          "line": 53,
+          "line": 54,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.links.map>",
           "signature": "indexSystem.<callback: S.links.map>(link)",
-          "line": 55,
+          "line": 56,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.folders.flatMap>",
           "signature": "indexSystem.<callback: S.folders.flatMap>(group)",
-          "line": 56,
+          "line": 57,
           "async": false,
           "decorators": []
         },
         {
           "name": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>",
           "signature": "indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)",
-          "line": 56,
+          "line": 57,
           "async": false,
           "decorators": []
         },
         {
           "name": "$",
           "signature": "$(id)",
-          "line": 60,
+          "line": 61,
           "async": false,
           "decorators": []
         },
         {
           "name": "icon",
           "signature": "icon(name, size = 18)",
-          "line": 61,
+          "line": 62,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>",
           "signature": "<callback: document.querySelectorAll(\"[data-icon]\").forEach>(element)",
-          "line": 64,
+          "line": 65,
           "async": false,
           "decorators": []
         },
         {
           "name": "announce",
           "signature": "announce(message)",
-          "line": 66,
+          "line": 67,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentColor",
           "signature": "componentColor(id)",
-          "line": 70,
+          "line": 71,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentMark",
           "signature": "componentMark(id, size = 19)",
-          "line": 74,
+          "line": 75,
           "async": false,
           "decorators": []
         },
         {
           "name": "viewHeading",
           "signature": "viewHeading(kicker, title, detail, badge = \"\")",
-          "line": 78,
+          "line": 79,
           "async": false,
           "decorators": []
         },
         {
           "name": "updateControls",
           "signature": "updateControls()",
-          "line": 82,
+          "line": 83,
           "async": false,
           "decorators": []
         },
         {
           "name": "updateControls.<callback: Object.entries(S.scenarios).map>",
           "signature": "updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])",
-          "line": 84,
+          "line": 85,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView",
           "signature": "architectureView()",
-          "line": 94,
+          "line": 95,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: S.links.filter>",
           "signature": "architectureView.<callback: S.links.filter>({ from, to })",
-          "line": 97,
+          "line": 98,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: trace?.steps.map>",
           "signature": "architectureView.<callback: trace?.steps.map>([id])",
-          "line": 98,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: [...visibleLinks].flatMap>",
           "signature": "architectureView.<callback: [...visibleLinks].flatMap>({ from, to })",
-          "line": 100,
+          "line": 101,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)",
-          "line": 101,
+          "line": 102,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>",
           "signature": "architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: [\"base\", \"active\"].map>(tone)",
-          "line": 101,
+          "line": 102,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: [...S.links].sort>",
           "signature": "architectureView.<callback: [...S.links].sort>(a, b)",
-          "line": 103,
+          "line": 104,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: orderedLinks.map>",
           "signature": "architectureView.<callback: orderedLinks.map>(link)",
-          "line": 104,
+          "line": 105,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.values(S.groups).map>",
           "signature": "architectureView.<callback: Object.values(S.groups).map>(group, index)",
-          "line": 109,
+          "line": 110,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.entries(S.components).map>",
           "signature": "architectureView.<callback: Object.entries(S.components).map>([id, component])",
-          "line": 110,
+          "line": 111,
           "async": false,
           "decorators": []
         },
         {
           "name": "architectureView.<callback: Object.entries(kindLabels).map>",
           "signature": "architectureView.<callback: Object.entries(kindLabels).map>([kind, label])",
-          "line": 127,
+          "line": 128,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup",
           "signature": "cardsMarkup()",
-          "line": 130,
+          "line": 131,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: Object.entries(S.components).filter>",
           "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>([, component])",
-          "line": 132,
+          "line": 133,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>",
           "signature": "cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)",
-          "line": 133,
+          "line": 134,
           "async": false,
           "decorators": []
         },
         {
           "name": "cardsMarkup.<callback: matches.map>",
           "signature": "cardsMarkup.<callback: matches.map>([id, component])",
-          "line": 134,
+          "line": 135,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentsView",
           "signature": "componentsView()",
-          "line": 139,
+          "line": 140,
           "async": false,
           "decorators": []
         },
         {
           "name": "componentsView.<callback: Object.entries(S.groups).map>",
           "signature": "componentsView.<callback: Object.entries(S.groups).map>([id, group])",
-          "line": 142,
+          "line": 143,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView",
           "signature": "deploymentView()",
-          "line": 146,
+          "line": 147,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView.<callback: S.zones.map>",
           "signature": "deploymentView.<callback: S.zones.map>(zone, index)",
-          "line": 148,
+          "line": 149,
           "async": false,
           "decorators": []
         },
         {
           "name": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>",
           "signature": "deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)",
-          "line": 148,
+          "line": 149,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView",
           "signature": "foldersView()",
-          "line": 152,
+          "line": 153,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>",
           "signature": "foldersView.<callback: S.folders.map>(group)",
-          "line": 155,
+          "line": 156,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>.<callback: group.children.some>",
           "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)",
-          "line": 155,
+          "line": 156,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: S.folders.map>.<callback: group.children.map>",
           "signature": "foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)",
-          "line": 155,
+          "line": 156,
           "async": false,
           "decorators": []
         },
         {
           "name": "foldersView.<callback: selected.example.map>",
           "signature": "foldersView.<callback: selected.example.map>(file)",
-          "line": 156,
+          "line": 157,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup",
           "signature": "inspectorMarkup()",
-          "line": 159,
+          "line": 160,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: S.links.filter>",
           "signature": "inspectorMarkup.<callback: S.links.filter>({ to })",
-          "line": 165,
+          "line": 166,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: S.links.filter>",
           "signature": "inspectorMarkup.<callback: S.links.filter>({ from })",
-          "line": 166,
+          "line": 167,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter>",
           "signature": "inspectorMarkup.<callback: neighbors.filter>({ rows })",
-          "line": 172,
+          "line": 173,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })",
-          "line": 172,
+          "line": 173,
           "async": false,
           "decorators": []
         },
         {
           "name": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>",
           "signature": "inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)",
-          "line": 172,
+          "line": 173,
           "async": false,
           "decorators": []
         },
         {
           "name": "render",
           "signature": "render()",
-          "line": 179,
+          "line": 180,
           "async": false,
           "decorators": []
         },
         {
           "name": "setSystem",
           "signature": "setSystem(id, fromClick = false)",
-          "line": 206,
+          "line": 207,
           "async": false,
           "decorators": []
         },
         {
           "name": "stopPlayback",
           "signature": "stopPlayback()",
-          "line": 223,
+          "line": 224,
           "async": false,
           "decorators": []
         },
         {
           "name": "switchView",
           "signature": "switchView(view)",
-          "line": 228,
+          "line": 229,
           "async": false,
           "decorators": []
         },
         {
           "name": "applyStep",
           "signature": "applyStep(step)",
-          "line": 239,
+          "line": 240,
           "async": false,
           "decorators": []
         },
         {
           "name": "setScenario",
           "signature": "setScenario(id)",
-          "line": 258,
+          "line": 259,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace",
           "signature": "playTrace()",
-          "line": 271,
+          "line": 272,
           "async": false,
           "decorators": []
         },
         {
           "name": "playTrace.<callback: setInterval>",
           "signature": "playTrace.<callback: setInterval>()",
-          "line": 278,
+          "line": 279,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"click\">",
           "signature": "<callback: document.addEventListener, \"click\">(event)",
-          "line": 287,
+          "line": 288,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">",
           "signature": "<callback: document.querySelector('[role=\"tablist\"]').addEventListener, \"keydown\">(event)",
-          "line": 329,
+          "line": 330,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"input\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"input\">(event)",
-          "line": 341,
+          "line": 342,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: $(\"view-content\").addEventListener, \"toggle\">",
           "signature": "<callback: $(\"view-content\").addEventListener, \"toggle\">(event)",
-          "line": 348,
+          "line": 349,
           "async": false,
           "decorators": []
         }
@@ -5465,6 +5509,12 @@
         }
       ]
     },
+    "dist/ml-live.js": {
+      "language": "JavaScript",
+      "imports": [],
+      "classes": [],
+      "functions": []
+    },
     "dist/ml.js": {
       "language": "JavaScript",
       "imports": [],
@@ -5473,1372 +5523,2877 @@
         {
           "name": "<callback: mlTopics.map>",
           "signature": "<callback: mlTopics.map>(t)",
-          "line": 34,
+          "line": 45,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChip",
           "signature": "mlChip(status)",
-          "line": 36,
+          "line": 47,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRng",
           "signature": "mlRng(seed)",
-          "line": 43,
+          "line": 54,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRng.uniform",
           "signature": "mlRng.uniform()",
-          "line": 45,
+          "line": 56,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRng.normal",
           "signature": "mlRng.normal()",
-          "line": 46,
+          "line": 57,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRng.range",
           "signature": "mlRng.range(lo, hi)",
-          "line": 47,
+          "line": 58,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRng.int",
           "signature": "mlRng.int(n)",
-          "line": 47,
+          "line": 58,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlButton",
           "signature": "mlButton(action, label, { primary = false, iconName = \"\", disabled = false } = {})",
-          "line": 60,
+          "line": 74,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSelect",
           "signature": "mlSelect(name, label, options, value)",
-          "line": 64,
+          "line": 78,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSelect.<callback: options.map>",
           "signature": "mlSelect.<callback: options.map>([v, l])",
-          "line": 65,
+          "line": 79,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRange",
           "signature": "mlRange(name, label, min, max, step, value, shown)",
-          "line": 68,
+          "line": 82,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart",
           "signature": "mlChart(series, { logX = false, logY = false, xLabel = \"\", yLabel = \"\", height = 170, hlines = [], vline = null } = {})",
-          "line": 73,
+          "line": 87,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.flatMap>",
           "signature": "mlChart.<callback: series.flatMap>(s)",
-          "line": 75,
+          "line": 89,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: hlines.map>",
           "signature": "mlChart.<callback: hlines.map>(h)",
-          "line": 75,
+          "line": 89,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.fx",
           "signature": "mlChart.fx(x)",
-          "line": 76,
+          "line": 90,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.fy",
           "signature": "mlChart.fy(y)",
-          "line": 76,
+          "line": 90,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.flatMap>",
           "signature": "mlChart.<callback: series.flatMap>(s)",
-          "line": 77,
+          "line": 91,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.flatMap>.<callback: s.points.map>",
           "signature": "mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)",
-          "line": 77,
+          "line": 91,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: all.map>",
           "signature": "mlChart.<callback: all.map>(p)",
-          "line": 77,
+          "line": 91,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.sx",
           "signature": "mlChart.sx(x)",
-          "line": 81,
+          "line": 95,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.sy",
           "signature": "mlChart.sy(y)",
-          "line": 82,
+          "line": 96,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.fmt",
           "signature": "mlChart.fmt(v)",
-          "line": 83,
+          "line": 97,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>",
           "signature": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)",
-          "line": 84,
+          "line": 98,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map((f) => y0 + pad + f * (y1 - y0 - 2 * pad)).map>",
           "signature": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map((f) => y0 + pad + f * (y1 - y0 - 2 * pad)).map>(v)",
-          "line": 84,
+          "line": 98,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.flatMap>",
           "signature": "mlChart.<callback: series.flatMap>(s)",
-          "line": 85,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.flatMap>.<callback: s.points.map>",
           "signature": "mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)",
-          "line": 85,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].filter>",
           "signature": "mlChart.<callback: [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].filter>(v)",
-          "line": 85,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>",
           "signature": "mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)",
-          "line": 85,
+          "line": 99,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: ticksY.map>",
           "signature": "mlChart.<callback: ticksY.map>(v)",
-          "line": 87,
+          "line": 101,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: ticksX.map>",
           "signature": "mlChart.<callback: ticksX.map>(v)",
-          "line": 88,
+          "line": 102,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: hlines.map>",
           "signature": "mlChart.<callback: hlines.map>(h)",
-          "line": 91,
+          "line": 105,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.map>",
           "signature": "mlChart.<callback: series.map>(s)",
-          "line": 93,
+          "line": 107,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlChart.<callback: series.map>.<callback: s.points.map>",
           "signature": "mlChart.<callback: series.map>.<callback: s.points.map>(p)",
-          "line": 93,
+          "line": 107,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlLegend",
           "signature": "mlLegend(items)",
-          "line": 97,
+          "line": 111,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlLegend.<callback: items.map>",
           "signature": "mlLegend.<callback: items.map>([cls, text])",
-          "line": 98,
+          "line": 112,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOverview",
           "signature": "mlOverview()",
-          "line": 112,
+          "line": 130,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOverview.<callback: Object.keys(mlStatus).map>",
           "signature": "mlOverview.<callback: Object.keys(mlStatus).map>(k)",
-          "line": 114,
+          "line": 132,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOverview.<callback: mlMap.map>",
           "signature": "mlOverview.<callback: mlMap.map>([topic, ic, title, status, text, where])",
-          "line": 115,
+          "line": 133,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOverview.<callback: [\n      [\"Forecast\", \"λ* = max(load, LSTM 5-min forecast)\", \"Plan for the load that is coming\"],\n      [\"Score\", \"Isolation Forest on telemetry\", \"Blame the module whose demand deviates most\"],\n      [\"Optimise\", \"Sim.bip over 2⁶ = 64 configurations\", \"min J subject to utilisation, SLA, replicas, availability\"],\n      [\"Override\", \"score ≥ 0.9 → all loose; ≥ 0.7 → isolate blamed module\", \"Safety rules around the optimiser\"],\n      [\"Hysteresis\", \"merge back only after 300 s\", \"Stop the optimiser oscillating\"],\n      [\"Apply\", \"dual-run while pods start (8–30 s)\", \"40 ms state hand-over, measured in the prototype\"],\n    ].map>",
           "signature": "mlOverview.<callback: [\n      [\"Forecast\", \"λ* = max(load, LSTM 5-min forecast)\", \"Plan for the load that is coming\"],\n      [\"Score\", \"Isolation Forest on telemetry\", \"Blame the module whose demand deviates most\"],\n      [\"Optimise\", \"Sim.bip over 2⁶ = 64 configurations\", \"min J subject to utilisation, SLA, replicas, availability\"],\n      [\"Override\", \"score ≥ 0.9 → all loose; ≥ 0.7 → isolate blamed module\", \"Safety rules around the optimiser\"],\n      [\"Hysteresis\", \"merge back only after 300 s\", \"Stop the optimiser oscillating\"],\n      [\"Apply\", \"dual-run while pods start (8–30 s)\", \"40 ms state hand-over, measured in the prototype\"],\n    ].map>([t, c, s], i)",
-          "line": 123,
+          "line": 141,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlOverview.<callback: [\n      [\"Layer 1 forecasts\", \"Loop.forecast (LSTM, every hour)\", \"Demand ÷ ordinary for the next 1–6 h\"],\n      [\"Layer 1 acts\", \"Loop.choose · intelligence.choose\", \"Extra drivers; dispatch by policy v1.4 (live surge feature)\"],\n      [\"Layer 1 learns\", \"Loop.step · Loop.daily_update\", \"Outcomes logged; nightly champion / challenger\"],\n      [\"Layer 2 mirrors\", \"twin.mirror · foresee\", \"The city now and in 30 minutes\"],\n      [\"Layer 2 rehearses\", \"twin.agent1 · agent2\", \"Best of Layer 1's top 3; capped surge and moves\"],\n      [\"Layer 2 guards\", \"twin.check_dispatch · check_price\", \"Anything out of bounds → Layer 1's answer\"],\n    ].map>",
+          "signature": "mlOverview.<callback: [\n      [\"Layer 1 forecasts\", \"Loop.forecast (LSTM, every hour)\", \"Demand ÷ ordinary for the next 1–6 h\"],\n      [\"Layer 1 acts\", \"Loop.choose · intelligence.choose\", \"Extra drivers; dispatch by policy v1.4 (live surge feature)\"],\n      [\"Layer 1 learns\", \"Loop.step · Loop.daily_update\", \"Outcomes logged; nightly champion / challenger\"],\n      [\"Layer 2 mirrors\", \"twin.mirror · foresee\", \"The city now and in 30 minutes\"],\n      [\"Layer 2 rehearses\", \"twin.agent1 · agent2\", \"Best of Layer 1's top 3; capped surge and moves\"],\n      [\"Layer 2 guards\", \"twin.check_dispatch · check_price\", \"Anything out of bounds → Layer 1's answer\"],\n    ].map>([t, c, s], i)",
+          "line": 168,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig",
           "signature": "mlEvalConfig(c, lam, pCrash)",
-          "line": 147,
+          "line": 181,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig.<callback: c.map>",
           "signature": "mlEvalConfig.<callback: c.map>(x)",
-          "line": 149,
+          "line": 183,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig.<callback: v.map>",
           "signature": "mlEvalConfig.<callback: v.map>(vi, i)",
-          "line": 155,
+          "line": 189,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig.<callback: reps.reduce>",
           "signature": "mlEvalConfig.<callback: reps.reduce>(s, r)",
-          "line": 157,
+          "line": 191,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig.<callback: c.reduce>",
           "signature": "mlEvalConfig.<callback: c.reduce>(s, x)",
-          "line": 157,
+          "line": 191,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvalConfig.<callback: v.filter>",
           "signature": "mlEvalConfig.<callback: v.filter>(_, i)",
-          "line": 158,
+          "line": 192,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve",
           "signature": "mlBipSolve(lam, a, anomModule, now, hybrid = true)",
-          "line": 169,
+          "line": 203,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve.<callback: Array.from>",
           "signature": "mlBipSolve.<callback: Array.from>(_, i)",
-          "line": 176,
+          "line": 210,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve.<callback: c.reduce>",
           "signature": "mlBipSolve.<callback: c.reduce>(x, y)",
-          "line": 177,
+          "line": 211,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve.<callback: c.reduce>",
           "signature": "mlBipSolve.<callback: c.reduce>(x, ci, i)",
-          "line": 180,
+          "line": 214,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve.<callback: m.reps.some>",
           "signature": "mlBipSolve.<callback: m.reps.some>(r)",
-          "line": 183,
+          "line": 217,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlBipSolve.<callback: rows.filter>",
           "signature": "mlBipSolve.<callback: rows.filter>(r)",
-          "line": 188,
+          "line": 222,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAfterOverrides",
           "signature": "mlAfterOverrides(choice, a, anomModule)",
-          "line": 191,
+          "line": 225,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlShape",
           "signature": "mlShape(c)",
-          "line": 197,
+          "line": 231,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlShape.<callback: c.reduce>",
           "signature": "mlShape.<callback: c.reduce>(x, y)",
-          "line": 197,
+          "line": 231,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlConfigChips",
           "signature": "mlConfigChips(c, now = null)",
-          "line": 199,
+          "line": 233,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlConfigChips.<callback: ML_SERVICES.map>",
           "signature": "mlConfigChips.<callback: ML_SERVICES.map>(name, i)",
-          "line": 200,
+          "line": 234,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer",
           "signature": "mlOptimizer()",
-          "line": 203,
+          "line": 237,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: res.rows.filter>",
           "signature": "mlOptimizer.<callback: res.rows.filter>(r)",
-          "line": 208,
+          "line": 242,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: res.rows.filter((r) => r.ok).sort>",
           "signature": "mlOptimizer.<callback: res.rows.filter((r) => r.ok).sort>(x, y)",
-          "line": 208,
+          "line": 242,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: res.rows.find>",
           "signature": "mlOptimizer.<callback: res.rows.find>(r)",
-          "line": 209,
+          "line": 243,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: res.rows.find>",
           "signature": "mlOptimizer.<callback: res.rows.find>(r)",
-          "line": 209,
+          "line": 243,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.fmtRow",
           "signature": "mlOptimizer.fmtRow(r)",
-          "line": 210,
+          "line": 244,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: Array.from>",
           "signature": "mlOptimizer.<callback: Array.from>(_, i)",
-          "line": 212,
+          "line": 246,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: loads.map>",
           "signature": "mlOptimizer.<callback: loads.map>(lam)",
-          "line": 213,
+          "line": 247,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: ML_SERVICES.map>",
           "signature": "mlOptimizer.<callback: ML_SERVICES.map>(name, i)",
-          "line": 216,
+          "line": 250,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: ML_SERVICES.map>.<callback: sweep.map>",
           "signature": "mlOptimizer.<callback: ML_SERVICES.map>.<callback: sweep.map>(c, j)",
-          "line": 216,
+          "line": 250,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: [1000, 2500, 5000, 7500, 10000].map>",
           "signature": "mlOptimizer.<callback: [1000, 2500, 5000, 7500, 10000].map>(l)",
-          "line": 217,
+          "line": 251,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: ML_SERVICES.map>",
           "signature": "mlOptimizer.<callback: ML_SERVICES.map>(s, i)",
-          "line": 230,
+          "line": 264,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: [[\"latency\", best.parts.lat], [\"cost\", best.parts.cost], [\"risk\", best.parts.risk], [\"switching\", best.parts.sw]].map>",
           "signature": "mlOptimizer.<callback: [[\"latency\", best.parts.lat], [\"cost\", best.parts.cost], [\"risk\", best.parts.risk], [\"switching\", best.parts.sw]].map>([k, v])",
-          "line": 235,
+          "line": 269,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOptimizer.<callback: extremes.filter>",
           "signature": "mlOptimizer.<callback: extremes.filter>(r)",
-          "line": 237,
+          "line": 271,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming",
           "signature": "mlEnumerateTiming(n, seed = n)",
-          "line": 248,
+          "line": 282,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.u",
           "signature": "mlEnumerateTiming.u(lo, hi)",
-          "line": 249,
+          "line": 283,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: lm.map>",
           "signature": "mlEnumerateTiming.<callback: lm.map>(_, i)",
-          "line": 252,
+          "line": 286,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: ln.map>",
           "signature": "mlEnumerateTiming.<callback: ln.map>(x, i)",
-          "line": 253,
+          "line": 287,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: kp.map>",
           "signature": "mlEnumerateTiming.<callback: kp.map>(x, i)",
-          "line": 253,
+          "line": 287,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: pr.map>",
           "signature": "mlEnumerateTiming.<callback: pr.map>(x, i)",
-          "line": 253,
+          "line": 287,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: A[0].reduce>",
           "signature": "mlEnumerateTiming.<callback: A[0].reduce>(s, x)",
-          "line": 254,
+          "line": 288,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: A[1].reduce>",
           "signature": "mlEnumerateTiming.<callback: A[1].reduce>(s, x)",
-          "line": 254,
+          "line": 288,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: A[2].reduce>",
           "signature": "mlEnumerateTiming.<callback: A[2].reduce>(s, x)",
-          "line": 254,
+          "line": 288,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: A[3].reduce>",
           "signature": "mlEnumerateTiming.<callback: A[3].reduce>(s, x)",
-          "line": 254,
+          "line": 288,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEnumerateTiming.<callback: bestK.toString(2).split(\"\").filter>",
           "signature": "mlEnumerateTiming.<callback: bestK.toString(2).split(\"\").filter>(x)",
-          "line": 262,
+          "line": 296,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers",
           "signature": "mlSolvers()",
-          "line": 265,
+          "line": 299,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ML_TIMING.filter>",
           "signature": "mlSolvers.<callback: ML_TIMING.filter>(r)",
-          "line": 267,
+          "line": 301,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ML_TIMING.filter((r) => r[1] != null).map>",
           "signature": "mlSolvers.<callback: ML_TIMING.filter((r) => r[1] != null).map>(r)",
-          "line": 267,
+          "line": 301,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ML_TIMING.map>",
           "signature": "mlSolvers.<callback: ML_TIMING.map>(r)",
-          "line": 268,
+          "line": 302,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ML_TIMING.map>",
           "signature": "mlSolvers.<callback: ML_TIMING.map>(r)",
-          "line": 269,
+          "line": 303,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ML_TIMING.map>",
           "signature": "mlSolvers.<callback: ML_TIMING.map>(r)",
-          "line": 281,
+          "line": 315,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: [6, 10, 14, 18, 20].map>",
           "signature": "mlSolvers.<callback: [6, 10, 14, 18, 20].map>(n)",
-          "line": 284,
+          "line": 318,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSolvers.<callback: ml.enum.map>",
           "signature": "mlSolvers.<callback: ml.enum.map>(e)",
-          "line": 286,
+          "line": 320,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrace",
           "signature": "mlTrace(days, seed = 2026)",
-          "line": 291,
+          "line": 325,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster",
           "signature": "mlTrainForecaster(optimiser, lr, { lags = 30, days = 21, maxEpochs = 120, patience = 10 } = {})",
-          "line": 306,
+          "line": 340,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: Array.from>",
           "signature": "mlTrainForecaster.<callback: Array.from>(x)",
-          "line": 308,
+          "line": 342,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: y.map>",
           "signature": "mlTrainForecaster.<callback: y.map>(x)",
-          "line": 311,
+          "line": 345,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: idx.filter>",
           "signature": "mlTrainForecaster.<callback: idx.filter>(t)",
-          "line": 313,
+          "line": 347,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: idx.filter>",
           "signature": "mlTrainForecaster.<callback: idx.filter>(t)",
-          "line": 313,
+          "line": 347,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: idx.filter>",
           "signature": "mlTrainForecaster.<callback: idx.filter>(t)",
-          "line": 313,
+          "line": 347,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.predict",
           "signature": "mlTrainForecaster.predict(w, t)",
-          "line": 314,
+          "line": 348,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.mse",
           "signature": "mlTrainForecaster.mse(w, set)",
-          "line": 315,
+          "line": 349,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.mse.<callback: set.reduce>",
           "signature": "mlTrainForecaster.mse.<callback: set.reduce>(s, t)",
-          "line": 315,
+          "line": 349,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.back",
           "signature": "mlTrainForecaster.back(x)",
-          "line": 335,
+          "line": 369,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.mae",
           "signature": "mlTrainForecaster.mae(fn)",
-          "line": 337,
+          "line": 371,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.mae.<callback: te.reduce>",
           "signature": "mlTrainForecaster.mae.<callback: te.reduce>(s, t)",
-          "line": 337,
+          "line": 371,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: te.slice(-1440).filter>",
           "signature": "mlTrainForecaster.<callback: te.slice(-1440).filter>(_, i)",
-          "line": 338,
+          "line": 372,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: mae>",
           "signature": "mlTrainForecaster.<callback: mae>(t)",
-          "line": 341,
+          "line": 375,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: mae>",
           "signature": "mlTrainForecaster.<callback: mae>(t)",
-          "line": 341,
+          "line": 375,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: mae>",
           "signature": "mlTrainForecaster.<callback: mae>(t)",
-          "line": 341,
+          "line": 375,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTrainForecaster.<callback: day.map>",
           "signature": "mlTrainForecaster.<callback: day.map>(t)",
-          "line": 342,
+          "line": 376,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting",
           "signature": "mlForecasting()",
-          "line": 346,
+          "line": 380,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: fc.gd.curve.filter>",
           "signature": "mlForecasting.<callback: fc.gd.curve.filter>(p)",
-          "line": 357,
+          "line": 391,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: fc.adam.curve.filter>",
           "signature": "mlForecasting.<callback: fc.adam.curve.filter>(p)",
-          "line": 357,
+          "line": 391,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: [{ points: fc.gd.curve.filter((p) => p[1] < 5), cls: \"s1\" }, { points: fc.adam.curve.filter((p) => p[1] < 5), cls: \"s3\" }].filter>",
           "signature": "mlForecasting.<callback: [{ points: fc.gd.curve.filter((p) => p[1] < 5), cls: \"s1\" }, { points: fc.adam.curve.filter((p) => p[1] < 5), cls: \"s3\" }].filter>(x)",
-          "line": 357,
+          "line": 391,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: [[\"gradient descent\", fc.gd], [\"Adam\", fc.adam]].map>",
           "signature": "mlForecasting.<callback: [[\"gradient descent\", fc.gd], [\"Adam\", fc.adam]].map>([name, r])",
-          "line": 359,
+          "line": 393,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: fc.adam.day.map>",
           "signature": "mlForecasting.<callback: fc.adam.day.map>(p)",
-          "line": 362,
+          "line": 396,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: fc.adam.day.map>",
           "signature": "mlForecasting.<callback: fc.adam.day.map>(p)",
-          "line": 362,
+          "line": 396,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForecasting.<callback: [{ points: fc.adam.day.map((p) => [p[0], p[1]]), cls: \"s0\" }, { points: fc.adam.day.map((p) => [p[0], p[2]]), cls: \"s3\" }].filter>",
           "signature": "mlForecasting.<callback: [{ points: fc.adam.day.map((p) => [p[0], p[1]]), cls: \"s0\" }, { points: fc.adam.day.map((p) => [p[0], p[2]]), cls: \"s3\" }].filter>()",
-          "line": 362,
+          "line": 396,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlDrivers",
           "signature": "mlDrivers(subtle = false, seed = 11)",
-          "line": 372,
+          "line": 407,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlC",
           "signature": "mlC(n)",
-          "line": 379,
+          "line": 414,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTree",
           "signature": "mlTree(points, depth, maxDepth, g)",
-          "line": 381,
+          "line": 416,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTree.<callback: points.map>",
           "signature": "mlTree.<callback: points.map>(p)",
-          "line": 383,
+          "line": 418,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTree.<callback: points.filter>",
           "signature": "mlTree.<callback: points.filter>(p)",
-          "line": 386,
+          "line": 421,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlTree.<callback: points.filter>",
           "signature": "mlTree.<callback: points.filter>(p)",
-          "line": 386,
+          "line": 421,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlPath",
           "signature": "mlPath(node, x, depth = 0)",
-          "line": 389,
+          "line": 424,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow",
           "signature": "mlForestGrow(nTrees, subtle = false)",
-          "line": 392,
+          "line": 427,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.score",
           "signature": "mlForestGrow.score(x)",
-          "line": 399,
+          "line": 434,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.score.<callback: trees.reduce>",
           "signature": "mlForestGrow.score.<callback: trees.reduce>(s, tr)",
-          "line": 399,
+          "line": 434,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: data.train.map(score).sort>",
           "signature": "mlForestGrow.<callback: data.train.map(score).sort>(a, b)",
-          "line": 400,
+          "line": 435,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: data.test.map>",
           "signature": "mlForestGrow.<callback: data.test.map>(x)",
-          "line": 402,
+          "line": 437,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: data.odd.map>",
           "signature": "mlForestGrow.<callback: data.odd.map>(x)",
-          "line": 402,
+          "line": 437,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: pts.filter>",
           "signature": "mlForestGrow.<callback: pts.filter>(p)",
-          "line": 403,
+          "line": 438,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: pts.filter>",
           "signature": "mlForestGrow.<callback: pts.filter>(p)",
-          "line": 403,
+          "line": 438,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: pts.filter>",
           "signature": "mlForestGrow.<callback: pts.filter>(p)",
-          "line": 405,
+          "line": 440,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.depthOf",
           "signature": "mlForestGrow.depthOf(x)",
-          "line": 406,
+          "line": 441,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.depthOf.<callback: trees.reduce>",
           "signature": "mlForestGrow.depthOf.<callback: trees.reduce>(s, tr)",
-          "line": 406,
+          "line": 441,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: flagged.filter>",
           "signature": "mlForestGrow.<callback: flagged.filter>(p)",
-          "line": 407,
+          "line": 442,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: flagged.filter>",
           "signature": "mlForestGrow.<callback: flagged.filter>(p)",
-          "line": 407,
+          "line": 442,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlForestGrow.<callback: flagged.filter>",
           "signature": "mlForestGrow.<callback: flagged.filter>(p)",
-          "line": 407,
+          "line": 442,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly",
           "signature": "mlAnomaly()",
-          "line": 410,
+          "line": 445,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>()",
-          "line": 412,
+          "line": 447,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.sx",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.sx(v)",
-          "line": 413,
+          "line": 448,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.sy",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.sy(v)",
-          "line": 413,
+          "line": 448,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: [0, 50, 100, 150, 200].map>",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: [0, 50, 100, 150, 200].map>(v)",
-          "line": 415,
+          "line": 450,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: [0, 10, 20, 30].map>",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: [0, 10, 20, 30].map>(v)",
-          "line": 416,
+          "line": 451,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: F.pts.map>",
           "signature": "mlAnomaly.<callback: () => {\n    const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);\n    return `<svg class=\"ml-chart\" viewBox=\"0 0 ${W} ${H}\" role=\"img\" aria-label=\"Driver telemetry coloured by anomaly score\">\n      ${[0, 50, 100, 150, 200].map((v) => `<line class=\"grid\" x1=\"${P.l}\" x2=\"${W - P.r}\" y1=\"${sy(v)}\" y2=\"${sy(v)}\"/><text class=\"tick\" x=\"${P.l - 6}\" y=\"${sy(v) + 3}\" text-anchor=\"end\">${v}</text>`).join(\"\")}\n      ${[0, 10, 20, 30].map((v) => `<text class=\"tick\" x=\"${sx(v)}\" y=\"${H - P.b + 13}\" text-anchor=\"middle\">${v}</text>`).join(\"\")}\n      <text class=\"axis\" x=\"${(W + P.l) / 2}\" y=\"${H - 3}\" text-anchor=\"middle\">distance to pickup (km)</text><text class=\"axis\" x=\"10\" y=\"${(H - P.b) / 2}\" transform=\"rotate(-90 10 ${(H - P.b) / 2})\" text-anchor=\"middle\">speed (km/h)</text>\n      ${F.pts.map((p) => `<circle cx=\"${sx(p.x[0]).toFixed(1)}\" cy=\"${sy(p.x[1]).toFixed(1)}\" r=\"${p.y ? 3.4 : 2.6}\" class=\"${p.s > F.threshold ? \"flag\" : \"ok\"}${p.y ? \" odd\" : \"\"}\" style=\"opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}\"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join(\"\")}\n    </svg>`;\n  }>.<callback: F.pts.map>(p)",
-          "line": 418,
+          "line": 453,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlFeatures",
           "signature": "mlFeatures(c)",
-          "line": 441,
+          "line": 476,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlScore",
           "signature": "mlScore(c, w)",
-          "line": 442,
+          "line": 477,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlScore.<callback: mlFeatures(c).reduce>",
           "signature": "mlScore.<callback: mlFeatures(c).reduce>(s, f, i)",
-          "line": 442,
+          "line": 477,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlExpectedCost",
           "signature": "mlExpectedCost(c)",
-          "line": 443,
+          "line": 478,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlCandidates",
           "signature": "mlCandidates(g)",
-          "line": 449,
+          "line": 484,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlCandidates.<callback: Array.from>",
           "signature": "mlCandidates.<callback: Array.from>()",
-          "line": 449,
+          "line": 484,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSoftmax",
           "signature": "mlSoftmax(scores)",
-          "line": 450,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSoftmax.<callback: scores.map>",
           "signature": "mlSoftmax.<callback: scores.map>(s)",
-          "line": 450,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSoftmax.<callback: ex.reduce>",
           "signature": "mlSoftmax.<callback: ex.reduce>(a, b)",
-          "line": 450,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSoftmax.<callback: ex.map>",
           "signature": "mlSoftmax.<callback: ex.map>(e)",
-          "line": 450,
+          "line": 485,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew",
           "signature": "mlRlNew()",
-          "line": 452,
+          "line": 487,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.<callback: Array.from>",
           "signature": "mlRlNew.<callback: Array.from>()",
-          "line": 453,
+          "line": 488,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.evalPolicy",
           "signature": "mlRlNew.evalPolicy(w, greedy)",
-          "line": 454,
+          "line": 489,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.evalPolicy.<callback: test.reduce>",
           "signature": "mlRlNew.evalPolicy.<callback: test.reduce>(s, cs)",
-          "line": 454,
+          "line": 489,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.map>",
           "signature": "mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.map>(c)",
-          "line": 454,
+          "line": 489,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.reduce>",
           "signature": "mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.reduce>(t, c, i)",
-          "line": 454,
+          "line": 489,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.<callback: test.reduce>",
           "signature": "mlRlNew.<callback: test.reduce>(s, cs)",
-          "line": 455,
+          "line": 490,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlNew.<callback: test.reduce>.<callback: cs.reduce>",
           "signature": "mlRlNew.<callback: test.reduce>.<callback: cs.reduce>(b, c)",
-          "line": 455,
+          "line": 490,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlTrain",
           "signature": "mlRlTrain(state, episodes, lr = 0.004)",
-          "line": 460,
+          "line": 495,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlTrain.<callback: phi.map>",
           "signature": "mlRlTrain.<callback: phi.map>(f)",
-          "line": 464,
+          "line": 499,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlTrain.<callback: phi.map>.<callback: f.reduce>",
           "signature": "mlRlTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)",
-          "line": 464,
+          "line": 499,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlTrain.<callback: [0, 1, 2, 3].map>",
           "signature": "mlRlTrain.<callback: [0, 1, 2, 3].map>(k)",
-          "line": 469,
+          "line": 504,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRlTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>",
           "signature": "mlRlTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)",
-          "line": 469,
+          "line": 504,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl",
           "signature": "mlRl()",
-          "line": 477,
+          "line": 512,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: ML_POOL.map>",
           "signature": "mlRl.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])",
-          "line": 480,
+          "line": 515,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: pool.map>",
           "signature": "mlRl.<callback: pool.map>(c)",
-          "line": 481,
+          "line": 516,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: pool.map>",
           "signature": "mlRl.<callback: pool.map>(c)",
-          "line": 481,
+          "line": 516,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: S.w.map>",
           "signature": "mlRl.<callback: S.w.map>(x)",
-          "line": 491,
+          "line": 526,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: pool.map>",
           "signature": "mlRl.<callback: pool.map>(c, i)",
-          "line": 496,
+          "line": 531,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: Object.entries(ML_COURIER).sort>",
           "signature": "mlRl.<callback: Object.entries(ML_COURIER).sort>(a, b)",
-          "line": 499,
+          "line": 534,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRl.<callback: Object.entries(ML_COURIER).sort((a, b) => a[0] - b[0]).map>",
           "signature": "mlRl.<callback: Object.entries(ML_COURIER).sort((a, b) => a[0] - b[0]).map>([s, d])",
-          "line": 499,
+          "line": 534,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlPoisson",
+          "signature": "mlPoisson(g, lam)",
+          "line": 551,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRehearse",
+          "signature": "mlRehearse(c, ratio, g, rollouts = ML_TWIN.rollouts)",
+          "line": 559,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwinPool",
+          "signature": "mlTwinPool()",
+          "line": 572,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwinPool.<callback: ML_POOL.map>",
+          "signature": "mlTwinPool.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])",
+          "line": 572,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1",
+          "signature": "mlAgent1(ratio, rollouts, seed)",
+          "line": 575,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: pool.map>",
+          "signature": "mlAgent1.<callback: pool.map>(c)",
+          "line": 577,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: pool.map>",
+          "signature": "mlAgent1.<callback: pool.map>(c, i)",
+          "line": 578,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>",
+          "signature": "mlAgent1.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>(a, b)",
+          "line": 578,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: ranked.slice(0, ML_TWIN.topK).map>",
+          "signature": "mlAgent1.<callback: ranked.slice(0, ML_TWIN.topK).map>(x)",
+          "line": 579,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: top.map>",
+          "signature": "mlAgent1.<callback: top.map>(c)",
+          "line": 580,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent1.<callback: waits.forEach>",
+          "signature": "mlAgent1.<callback: waits.forEach>(w, i)",
+          "line": 582,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwinStability",
+          "signature": "mlTwinStability(ratio)",
+          "line": 587,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwinStability.<callback: [5, 20, 50, 200, 1000].map>",
+          "signature": "mlTwinStability.<callback: [5, 20, 50, 200, 1000].map>(n)",
+          "line": 589,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlSurgeOnly",
+          "signature": "mlSurgeOnly(r)",
+          "line": 597,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlSmallSurge",
+          "signature": "mlSmallSurge(r)",
+          "line": 598,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAreaWait",
+          "signature": "mlAreaWait(demand, free, m)",
+          "line": 599,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent2",
+          "signature": "mlAgent2(ratio, free, movable = 2)",
+          "line": 603,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent2.<callback: [[\"Keep prices, no moves\", 1, 0], [\"Surge only\", mlSurgeOnly(ratio), 0], [\"Small surge + move idle cars\", mlSmallSurge(ratio), movable]]\n    .map>",
+          "signature": "mlAgent2.<callback: [[\"Keep prices, no moves\", 1, 0], [\"Surge only\", mlSurgeOnly(ratio), 0], [\"Small surge + move idle cars\", mlSmallSurge(ratio), movable]]\n    .map>([name, m, moved])",
+          "line": 606,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAgent2.<callback: plans.reduce>",
+          "signature": "mlAgent2.<callback: plans.reduce>(a, b)",
+          "line": 607,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCheckDispatch",
+          "signature": "mlCheckDispatch(d)",
+          "line": 613,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCheckPrice",
+          "signature": "mlCheckPrice(m, expected, elapsed = 0)",
+          "line": 621,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRetest",
+          "signature": "mlRetest(seed = 7, rollouts = ML_TWIN.retest)",
+          "line": 631,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill",
+          "signature": "mlFaultDrill(seed = 3)",
+          "line": 642,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: pool.map>",
+          "signature": "mlFaultDrill.<callback: pool.map>(c)",
+          "line": 643,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: pool.map>",
+          "signature": "mlFaultDrill.<callback: pool.map>(c, i)",
+          "line": 644,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>",
+          "signature": "mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>(a, b)",
+          "line": 644,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort((a, b) => b.p - a.p).map>",
+          "signature": "mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort((a, b) => b.p - a.p).map>(x)",
+          "line": 644,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.dispatch",
+          "signature": "mlFaultDrill.dispatch(extra = {})",
+          "line": 646,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.price",
+          "signature": "mlFaultDrill.price()",
+          "line": 647,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 649,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 650,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 651,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 652,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 653,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 654,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 655,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 656,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 657,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<anonymous>",
+          "signature": "mlFaultDrill.<anonymous>()",
+          "line": 658,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: [\n    [\"Dispatch: driver outside Layer 1's top 3\", () => mlCheckDispatch(dispatch({ choice: outside }))],\n    [\"Dispatch: driver who already declined\", () => { const d = dispatch(); d.declined = [d.choice.name]; return mlCheckDispatch(d); }],\n    [\"Dispatch: driver gone offline\", () => { const d = dispatch(); d.offline = [d.choice.name]; return mlCheckDispatch(d); }],\n    [\"Dispatch: pickup 9–20 min beyond Layer 1\", () => { const far = { ...top[1], eta: top[0].eta + 9 + g.int(12) }, t = [top[0], far, top[2]]; return mlCheckDispatch({ top: t, layer1: t[0], choice: far, elapsed: 5 }); }],\n    [\"Dispatch: no answer within 250 ms\", () => mlCheckDispatch(dispatch({ elapsed: g.range(251, 2000) }))],\n    [\"Price: not a number\", () => mlCheckPrice(NaN, 1.2)],\n    [\"Price: below the base fare\", () => mlCheckPrice(Math.round(g.range(0.3, 0.99) * 100) / 100, 1.0)],\n    [\"Price: above the ×2.0 cap\", () => mlCheckPrice(Math.round(g.range(2.05, 5) * 10) / 10, 2.0)],\n    [\"Price: jump > 0.5 above the twin\", () => { const e = 1 + Math.round(g.range(0, 0.4) * 10) / 10; return mlCheckPrice(Math.min(2, e + 0.6 + g.int(3) / 10), e); }],\n    [\"Price: no answer within 250 ms\", () => { const [m, e] = price(); return mlCheckPrice(m, e, g.range(251, 2000)); }],\n  ].map>",
+          "signature": "mlFaultDrill.<callback: [\n    [\"Dispatch: driver outside Layer 1's top 3\", () => mlCheckDispatch(dispatch({ choice: outside }))],\n    [\"Dispatch: driver who already declined\", () => { const d = dispatch(); d.declined = [d.choice.name]; return mlCheckDispatch(d); }],\n    [\"Dispatch: driver gone offline\", () => { const d = dispatch(); d.offline = [d.choice.name]; return mlCheckDispatch(d); }],\n    [\"Dispatch: pickup 9–20 min beyond Layer 1\", () => { const far = { ...top[1], eta: top[0].eta + 9 + g.int(12) }, t = [top[0], far, top[2]]; return mlCheckDispatch({ top: t, layer1: t[0], choice: far, elapsed: 5 }); }],\n    [\"Dispatch: no answer within 250 ms\", () => mlCheckDispatch(dispatch({ elapsed: g.range(251, 2000) }))],\n    [\"Price: not a number\", () => mlCheckPrice(NaN, 1.2)],\n    [\"Price: below the base fare\", () => mlCheckPrice(Math.round(g.range(0.3, 0.99) * 100) / 100, 1.0)],\n    [\"Price: above the ×2.0 cap\", () => mlCheckPrice(Math.round(g.range(2.05, 5) * 10) / 10, 2.0)],\n    [\"Price: jump > 0.5 above the twin\", () => { const e = 1 + Math.round(g.range(0, 0.4) * 10) / 10; return mlCheckPrice(Math.min(2, e + 0.6 + g.int(3) / 10), e); }],\n    [\"Price: no answer within 250 ms\", () => { const [m, e] = price(); return mlCheckPrice(m, e, g.range(251, 2000)); }],\n  ].map>([name, fn])",
+          "line": 659,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlFaultDrill.<callback: faults.reduce>",
+          "signature": "mlFaultDrill.<callback: faults.reduce>(s, f)",
+          "line": 662,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin",
+          "signature": "mlTwin()",
+          "line": 665,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: [\n      [\"Layer 1 ranks\", \"intelligence.rank → policy v1.4 softmax\", \"Unchanged since 1.2.0 (SHA-256 checked by a unit test)\"],\n      [\"Mirror\", \"twin.mirror → fidelity 0–1\", \"Registered drivers with only a home area count 0.6\"],\n      [\"Foresee\", \"twin.ratio_30, foresee, extra_requests\", \"Demand ÷ ordinary, per place, next 30 min\"],\n      [\"Agent 1 rehearses\", \"twin.rehearse × 200 for the top 3\", \"Rider wait + declines + riders left waiting\"],\n      [\"Agent 2 plans\", \"twin.agent2 every 5 min per area\", \"Keep · surge only · small surge + move idle cars\"],\n      [\"Guardian checks\", \"twin.check_dispatch, check_price\", \"Block → Layer 1's answer; re-test 500× before handing back\"],\n    ].map>",
+          "signature": "mlTwin.<callback: [\n      [\"Layer 1 ranks\", \"intelligence.rank → policy v1.4 softmax\", \"Unchanged since 1.2.0 (SHA-256 checked by a unit test)\"],\n      [\"Mirror\", \"twin.mirror → fidelity 0–1\", \"Registered drivers with only a home area count 0.6\"],\n      [\"Foresee\", \"twin.ratio_30, foresee, extra_requests\", \"Demand ÷ ordinary, per place, next 30 min\"],\n      [\"Agent 1 rehearses\", \"twin.rehearse × 200 for the top 3\", \"Rider wait + declines + riders left waiting\"],\n      [\"Agent 2 plans\", \"twin.agent2 every 5 min per area\", \"Keep · surge only · small surge + move idle cars\"],\n      [\"Guardian checks\", \"twin.check_dispatch, check_price\", \"Block → Layer 1's answer; re-test 500× before handing back\"],\n    ].map>([t, c, s], i)",
+          "line": 677,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: a1.ranked.map>",
+          "signature": "mlTwin.<callback: a1.ranked.map>(x, i)",
+          "line": 680,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: T.stab.filter>",
+          "signature": "mlTwin.<callback: T.stab.filter>(r)",
+          "line": 686,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: T.stab.filter((r) => r[0] !== \"ref\").map>",
+          "signature": "mlTwin.<callback: T.stab.filter((r) => r[0] !== \"ref\").map>([n, a])",
+          "line": 686,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: T.stab.find>",
+          "signature": "mlTwin.<callback: T.stab.find>(r)",
+          "line": 686,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: a2.plans.map>",
+          "signature": "mlTwin.<callback: a2.plans.map>(pl)",
+          "line": 688,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlTwin.<callback: T.drill.faults.map>",
+          "signature": "mlTwin.<callback: T.drill.faults.map>([n, c])",
+          "line": 696,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew",
+          "signature": "mlAcNew()",
+          "line": 707,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: Array.from>",
+          "signature": "mlAcNew.<callback: Array.from>()",
+          "line": 708,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.cost",
+          "signature": "mlAcNew.cost(pick)",
+          "line": 709,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.cost.<callback: test.reduce>",
+          "signature": "mlAcNew.cost.<callback: test.reduce>(s, cs)",
+          "line": 709,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.argmax",
+          "signature": "mlAcNew.argmax(xs)",
+          "line": 710,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.init",
+          "signature": "mlAcNew.init(n, sd)",
+          "line": 711,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.init.<callback: Array.from>",
+          "signature": "mlAcNew.init.<callback: Array.from>()",
+          "line": 711,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: Array.from>",
+          "signature": "mlAcNew.<callback: Array.from>()",
+          "line": 715,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: Array.from>",
+          "signature": "mlAcNew.<callback: Array.from>()",
+          "line": 716,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: cost>",
+          "signature": "mlAcNew.<callback: cost>(cs)",
+          "line": 718,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: cost>.<callback: cs.map>",
+          "signature": "mlAcNew.<callback: cost>.<callback: cs.map>(c)",
+          "line": 718,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: cost>",
+          "signature": "mlAcNew.<callback: cost>(cs)",
+          "line": 718,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.<callback: cost>.<callback: cs.map>",
+          "signature": "mlAcNew.<callback: cost>.<callback: cs.map>(c)",
+          "line": 718,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.S.evalR",
+          "signature": "mlAcNew.S.evalR()",
+          "line": 720,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.S.evalR.<callback: cost>",
+          "signature": "mlAcNew.S.evalR.<callback: cost>(cs)",
+          "line": 720,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.S.evalR.<callback: cost>.<callback: cs.map>",
+          "signature": "mlAcNew.S.evalR.<callback: cost>.<callback: cs.map>(c)",
+          "line": 720,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.S.evalA",
+          "signature": "mlAcNew.S.evalA()",
+          "line": 721,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcNew.S.evalA.<callback: cost>",
+          "signature": "mlAcNew.S.evalA.<callback: cost>(cs)",
+          "line": 721,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores",
+          "signature": "mlActorScores(A, phi)",
+          "line": 726,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores.<callback: phi.map>",
+          "signature": "mlActorScores.<callback: phi.map>(f)",
+          "line": 727,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores.<callback: phi.map>.<callback: A.b.map>",
+          "signature": "mlActorScores.<callback: phi.map>.<callback: A.b.map>(bj, j)",
+          "line": 727,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores.<callback: phi.map>.<callback: A.b.map>.<callback: f.reduce>",
+          "signature": "mlActorScores.<callback: phi.map>.<callback: A.b.map>.<callback: f.reduce>(s, x, k)",
+          "line": 727,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores.<callback: h.map>",
+          "signature": "mlActorScores.<callback: h.map>(hi)",
+          "line": 728,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorScores.<callback: h.map>.<callback: hi.reduce>",
+          "signature": "mlActorScores.<callback: h.map>.<callback: hi.reduce>(s, x, j)",
+          "line": 728,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCriticValue",
+          "signature": "mlCriticValue(C, phi)",
+          "line": 730,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCriticValue.<callback: C.b.map>",
+          "signature": "mlCriticValue.<callback: C.b.map>(bj, j)",
+          "line": 731,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCriticValue.<callback: C.b.map>.<callback: x.reduce>",
+          "signature": "mlCriticValue.<callback: C.b.map>.<callback: x.reduce>(s, xi, k)",
+          "line": 731,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCriticValue.<callback: h.reduce>",
+          "signature": "mlCriticValue.<callback: h.reduce>(s, hj, j)",
+          "line": 732,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlWelford",
+          "signature": "mlWelford(w, x)",
+          "line": 734,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRideReward",
+          "signature": "mlRideReward(c, g)",
+          "line": 736,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlSample",
+          "signature": "mlSample(p, g)",
+          "line": 741,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain",
+          "signature": "mlAcTrain(S, rides)",
+          "line": 743,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: phi.map>",
+          "signature": "mlAcTrain.<callback: phi.map>(f)",
+          "line": 747,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: phi.map>.<callback: f.reduce>",
+          "signature": "mlAcTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)",
+          "line": 747,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: [0, 1, 2, 3].map>",
+          "signature": "mlAcTrain.<callback: [0, 1, 2, 3].map>(k)",
+          "line": 748,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>",
+          "signature": "mlAcTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)",
+          "line": 748,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: cv.h.map>",
+          "signature": "mlAcTrain.<callback: cv.h.map>(hj, j)",
+          "line": 757,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: cv.h.forEach>",
+          "signature": "mlAcTrain.<callback: cv.h.forEach>(hj, j)",
+          "line": 758,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: cv.x.forEach>",
+          "signature": "mlAcTrain.<callback: cv.x.forEach>(xi, k)",
+          "line": 760,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: gc.forEach>",
+          "signature": "mlAcTrain.<callback: gc.forEach>(gj, j)",
+          "line": 761,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: p.map>",
+          "signature": "mlAcTrain.<callback: p.map>(pi, i)",
+          "line": 762,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: A.v.map>",
+          "signature": "mlAcTrain.<callback: A.v.map>(_, j)",
+          "line": 763,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: A.v.map>.<callback: gs.reduce>",
+          "signature": "mlAcTrain.<callback: A.v.map>.<callback: gs.reduce>(t, gi, i)",
+          "line": 763,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: h.map>",
+          "signature": "mlAcTrain.<callback: h.map>(hi, i)",
+          "line": 764,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: h.map>.<callback: hi.map>",
+          "signature": "mlAcTrain.<callback: h.map>.<callback: hi.map>(hij, j)",
+          "line": 764,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: gv.forEach>",
+          "signature": "mlAcTrain.<callback: gv.forEach>(x, j)",
+          "line": 765,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: phi.reduce>",
+          "signature": "mlAcTrain.<callback: phi.reduce>(t, f, i)",
+          "line": 766,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlAcTrain.<callback: gpre.reduce>",
+          "signature": "mlAcTrain.<callback: gpre.reduce>(t, gi)",
+          "line": 767,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic",
+          "signature": "mlActorCritic()",
+          "line": 773,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.first",
+          "signature": "mlActorCritic.first(curve)",
+          "line": 776,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.first.<callback: curve.find>",
+          "signature": "mlActorCritic.first.<callback: curve.find>(p)",
+          "line": 776,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.<callback: pool.map>",
+          "signature": "mlActorCritic.<callback: pool.map>(c)",
+          "line": 778,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.<callback: [\n    [\"Three cheap, willing drivers nearby\", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],\n    [\"The Mardyke pool (ML_POOL)\", pool],\n    [\"Only far or reluctant drivers\", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],\n  ].map>",
+          "signature": "mlActorCritic.<callback: [\n    [\"Three cheap, willing drivers nearby\", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],\n    [\"The Mardyke pool (ML_POOL)\", pool],\n    [\"Only far or reluctant drivers\", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],\n  ].map>([name, cs])",
+          "line": 783,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.<callback: [\n    [\"Three cheap, willing drivers nearby\", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],\n    [\"The Mardyke pool (ML_POOL)\", pool],\n    [\"Only far or reluctant drivers\", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],\n  ].map>.<callback: cs.reduce>",
+          "signature": "mlActorCritic.<callback: [\n    [\"Three cheap, willing drivers nearby\", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],\n    [\"The Mardyke pool (ML_POOL)\", pool],\n    [\"Only far or reluctant drivers\", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],\n  ].map>.<callback: cs.reduce>(t, c, i)",
+          "line": 783,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlActorCritic.<callback: pool.map>",
+          "signature": "mlActorCritic.<callback: pool.map>(c, i)",
+          "line": 803,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity",
+          "signature": "mlCity(g)",
+          "line": 813,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.reset",
+          "signature": "mlCity.E.reset()",
+          "line": 815,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.forecast",
+          "signature": "mlCity.E.forecast(t = E.t)",
+          "line": 816,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.obs1",
+          "signature": "mlCity.E.obs1()",
+          "line": 817,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.obs2",
+          "signature": "mlCity.E.obs2()",
+          "line": 818,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.state",
+          "signature": "mlCity.E.state()",
+          "line": 819,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.avail1",
+          "signature": "mlCity.E.avail1()",
+          "line": 820,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.mask1",
+          "signature": "mlCity.E.mask1()",
+          "line": 821,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.mask2",
+          "signature": "mlCity.E.mask2()",
+          "line": 822,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.step",
+          "signature": "mlCity.E.step(a1, a2)",
+          "line": 823,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.step.<callback: E.busy.filter>",
+          "signature": "mlCity.E.step.<callback: E.busy.filter>(b)",
+          "line": 825,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.step.<callback: E.busy.filter((b) => b[0] <= E.t).forEach>",
+          "signature": "mlCity.E.step.<callback: E.busy.filter((b) => b[0] <= E.t).forEach>(b)",
+          "line": 825,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlCity.E.step.<callback: E.busy.filter>",
+          "signature": "mlCity.E.step.<callback: E.busy.filter>(b)",
+          "line": 826,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMaskedSoftmax",
+          "signature": "mlMaskedSoftmax(logits, mask)",
+          "line": 839,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMaskedSoftmax.<callback: logits.filter>",
+          "signature": "mlMaskedSoftmax.<callback: logits.filter>(_, i)",
+          "line": 840,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMaskedSoftmax.<callback: logits.map>",
+          "signature": "mlMaskedSoftmax.<callback: logits.map>(z, i)",
+          "line": 840,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMaskedSoftmax.<callback: e.reduce>",
+          "signature": "mlMaskedSoftmax.<callback: e.reduce>(a, b)",
+          "line": 840,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMaskedSoftmax.<callback: e.map>",
+          "signature": "mlMaskedSoftmax.<callback: e.map>(x)",
+          "line": 841,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlDot",
+          "signature": "mlDot(a, b)",
+          "line": 843,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlDot.<callback: a.reduce>",
+          "signature": "mlDot.<callback: a.reduce>(s, x, i)",
+          "line": 843,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge",
+          "signature": "mlRidge(X, y, lam = 1e-2)",
+          "line": 844,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge.<callback: Array.from>",
+          "signature": "mlRidge.<callback: Array.from>(_, i)",
+          "line": 845,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge.<callback: Array.from>.<callback: Array.from>",
+          "signature": "mlRidge.<callback: Array.from>.<callback: Array.from>(_, j)",
+          "line": 845,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>",
+          "signature": "mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>(s, x, r)",
+          "line": 845,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>",
+          "signature": "mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>(s, x)",
+          "line": 845,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlRidge.<callback: A.map>",
+          "signature": "mlRidge.<callback: A.map>(row, i)",
+          "line": 851,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlPpo",
+          "signature": "mlPpo(W, batch, lr = 0.05, clip = 0.2, epochs = 4)",
+          "line": 853,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlPpo.<callback: W.map>",
+          "signature": "mlPpo.<callback: W.map>(row)",
+          "line": 855,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlPpo.<callback: p.forEach>",
+          "signature": "mlPpo.<callback: p.forEach>(pi, i)",
+          "line": 857,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlLearner",
+          "signature": "mlMarlLearner(method, seed)",
+          "line": 861,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlLearner.init",
+          "signature": "mlMarlLearner.init(r, c)",
+          "line": 862,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlLearner.init.<callback: Array.from>",
+          "signature": "mlMarlLearner.init.<callback: Array.from>()",
+          "line": 862,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlLearner.init.<callback: Array.from>.<callback: Array.from>",
+          "signature": "mlMarlLearner.init.<callback: Array.from>.<callback: Array.from>()",
+          "line": 862,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlEpisode",
+          "signature": "mlMarlEpisode(env, act1, act2, record)",
+          "line": 865,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate",
+          "signature": "mlMarlIterate(L, batch = 16)",
+          "line": 878,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sample",
+          "signature": "mlMarlIterate.sample(W)",
+          "line": 879,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sample.<anonymous>",
+          "signature": "mlMarlIterate.sample.<anonymous>(o, m)",
+          "line": 879,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sample.<anonymous>.<callback: W.map>",
+          "signature": "mlMarlIterate.sample.<anonymous>.<callback: W.map>(row)",
+          "line": 879,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: totals.reduce>",
+          "signature": "mlMarlIterate.<callback: totals.reduce>(a, b)",
+          "line": 888,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 889,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 891,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 891,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 892,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 892,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 892,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d)",
+          "line": 892,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sd",
+          "signature": "mlMarlIterate.sd(xs)",
+          "line": 893,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sd.<callback: xs.reduce>",
+          "signature": "mlMarlIterate.sd.<callback: xs.reduce>(a, b)",
+          "line": 893,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.sd.<callback: xs.reduce>",
+          "signature": "mlMarlIterate.sd.<callback: xs.reduce>(s, x)",
+          "line": 893,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d, i)",
+          "line": 896,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlIterate.<callback: data.map>",
+          "signature": "mlMarlIterate.<callback: data.map>(d, i)",
+          "line": 897,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlGreedy",
+          "signature": "mlGreedy(W)",
+          "line": 899,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlGreedy.<anonymous>",
+          "signature": "mlGreedy.<anonymous>(o, m)",
+          "line": 899,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlGreedy.<anonymous>.<callback: W.map>",
+          "signature": "mlGreedy.<anonymous>.<callback: W.map>(row, i)",
+          "line": 899,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlEvaluate",
+          "signature": "mlMarlEvaluate(act1, act2, n = 300)",
+          "line": 900,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew",
+          "signature": "mlMarlNew(seed = 1)",
+          "line": 907,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>(o, m)",
+          "line": 911,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>()",
+          "line": 911,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>(o, m)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>(x, i)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>(i)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>(o, m)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>(x, i)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>",
+          "signature": "mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>(i)",
+          "line": 912,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarlTrain",
+          "signature": "mlMarlTrain(S, iterations)",
+          "line": 915,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl",
+          "signature": "mlMarl()",
+          "line": 920,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.half",
+          "signature": "mlMarl.half(L)",
+          "line": 923,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.half.<callback: [0, 1].map>",
+          "signature": "mlMarl.half.<callback: [0, 1].map>(k)",
+          "line": 923,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.half.<callback: [0, 1].map>.<callback: xs.reduce>",
+          "signature": "mlMarl.half.<callback: [0, 1].map>.<callback: xs.reduce>(s, x)",
+          "line": 923,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.smooth",
+          "signature": "mlMarl.smooth(c)",
+          "line": 924,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.smooth.<callback: c.map>",
+          "signature": "mlMarl.smooth.<callback: c.map>([x], i)",
+          "line": 924,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.smooth.<callback: c.map>.<callback: w.reduce>",
+          "signature": "mlMarl.smooth.<callback: c.map>.<callback: w.reduce>(s, p)",
+          "line": 924,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlMarl.<callback: ML_A1.map>",
+          "signature": "mlMarl.<callback: ML_A1.map>(a)",
+          "line": 939,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlSig",
+          "signature": "mlSig(x)",
+          "line": 960,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHidden",
+          "signature": "mlLstmHidden(X)",
+          "line": 961,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHidden.<callback: z.forEach>",
+          "signature": "mlLstmHidden.<callback: z.forEach>(zi, i)",
+          "line": 966,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHidden.<callback: c.map>",
+          "signature": "mlLstmHidden.<callback: c.map>(cj, j)",
+          "line": 967,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHidden.<callback: c.map>",
+          "signature": "mlLstmHidden.<callback: c.map>(cj, j)",
+          "line": 968,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHead",
+          "signature": "mlLstmHead(h, V = ML_LSTM.V, C = ML_LSTM.C)",
+          "line": 972,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHead.<callback: C.map>",
+          "signature": "mlLstmHead.<callback: C.map>(ck, k)",
+          "line": 972,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLstmHead.<callback: C.map>.<callback: h.reduce>",
+          "signature": "mlLstmHead.<callback: C.map>.<callback: h.reduce>(s, hj, j)",
+          "line": 972,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoopTime",
+          "signature": "mlLoopTime(k)",
+          "line": 974,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoopWhatIf",
+          "signature": "mlLoopWhatIf(tagName, shock)",
+          "line": 979,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoopWhatIf.<callback: ML_LSTM.REF_X.map>",
+          "signature": "mlLoopWhatIf.<callback: ML_LSTM.REF_X.map>(r)",
+          "line": 980,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoopWhatIf.<callback: mlLstmHead(mlLstmHidden(X)).map>",
+          "signature": "mlLoopWhatIf.<callback: mlLstmHead(mlLstmHidden(X)).map>(y)",
+          "line": 985,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop",
+          "signature": "mlLoop()",
+          "line": 988,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: y.map>",
+          "signature": "mlLoop.<callback: y.map>(v, i)",
+          "line": 990,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.sum",
+          "signature": "mlLoop.sum(i, upto)",
+          "line": 992,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.sum.<callback: rows.slice(0, upto + 1).reduce>",
+          "signature": "mlLoop.sum.<callback: rows.slice(0, upto + 1).reduce>(s, r)",
+          "line": 992,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: Array.from>",
+          "signature": "mlLoop.<callback: Array.from>(_, j)",
+          "line": 994,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: [\n      [\"Forecast\", \"Loop.forecast → lstm_hidden, head\", \"24 h in (5 measured + 30 calendar inputs) → 16 hidden → next 1–6 h ÷ ordinary\"],\n      [\"Act\", \"Loop.choose(key)\", \"State = calendar context + LSTM level (8 buckets); action = extra drivers 0–150 %\"],\n      [\"Record\", \"Loop._record → loop.json\", \"Served, unserved, idle, forecast, hidden state; 14 days kept\"],\n      [\"Learn online\", \"Loop.step\", \"Challenger Q-table: hindsight update of every action from the logged demand\"],\n      [\"Update nightly\", \"Loop.daily_update\", \"SGD on the LSTM's output layer (surge hours × 4); challenger agent\"],\n      [\"Validate\", \"champion vs challenger\", \"LSTM: error on the last 24 h must fall ≥ 1 %; agent: replay of the last 7 days must not cost more\"],\n    ].map>",
+          "signature": "mlLoop.<callback: [\n      [\"Forecast\", \"Loop.forecast → lstm_hidden, head\", \"24 h in (5 measured + 30 calendar inputs) → 16 hidden → next 1–6 h ÷ ordinary\"],\n      [\"Act\", \"Loop.choose(key)\", \"State = calendar context + LSTM level (8 buckets); action = extra drivers 0–150 %\"],\n      [\"Record\", \"Loop._record → loop.json\", \"Served, unserved, idle, forecast, hidden state; 14 days kept\"],\n      [\"Learn online\", \"Loop.step\", \"Challenger Q-table: hindsight update of every action from the logged demand\"],\n      [\"Update nightly\", \"Loop.daily_update\", \"SGD on the LSTM's output layer (surge hours × 4); challenger agent\"],\n      [\"Validate\", \"champion vs challenger\", \"LSTM: error on the last 24 h must fall ≥ 1 %; agent: replay of the last 7 days must not cost more\"],\n    ].map>([t, c, s], i)",
+          "line": 1005,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: ML_LSTM.REF_Y.map>",
+          "signature": "mlLoop.<callback: ML_LSTM.REF_Y.map>(v)",
+          "line": 1007,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: base.map>",
+          "signature": "mlLoop.<callback: base.map>(v)",
+          "line": 1007,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? \"ordinary\" : ML_LSTM.TAGS[k + 1]; }>",
+          "signature": "mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? \"ordinary\" : ML_LSTM.TAGS[k + 1]; }>()",
+          "line": 1009,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? \"ordinary\" : ML_LSTM.TAGS[k + 1]; }>.<callback: ML_LSTM.TAGS.slice(1).findIndex>",
+          "signature": "mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? \"ordinary\" : ML_LSTM.TAGS[k + 1]; }>.<callback: ML_LSTM.TAGS.slice(1).findIndex>(_, j)",
+          "line": 1009,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: ML_LSTM.TAGS.slice(1).map>",
+          "signature": "mlLoop.<callback: ML_LSTM.TAGS.slice(1).map>(t)",
+          "line": 1009,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: base.map>",
+          "signature": "mlLoop.<callback: base.map>(v, i)",
+          "line": 1010,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: whatIf.map>",
+          "signature": "mlLoop.<callback: whatIf.map>(v, i)",
+          "line": 1010,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: ML_LSTM.BUCKETS.filter>",
+          "signature": "mlLoop.<callback: ML_LSTM.BUCKETS.filter>(b)",
+          "line": 1011,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: rows.map>",
+          "signature": "mlLoop.<callback: rows.map>(r, i)",
+          "line": 1014,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: rows.map>",
+          "signature": "mlLoop.<callback: rows.map>(r, i)",
+          "line": 1014,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: rows.map>",
+          "signature": "mlLoop.<callback: rows.map>(r, i)",
+          "line": 1015,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: rows.map>",
+          "signature": "mlLoop.<callback: rows.map>(r, i)",
+          "line": 1015,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: row[2].map>",
+          "signature": "mlLoop.<callback: row[2].map>(v)",
+          "line": 1017,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: actual.map>",
+          "signature": "mlLoop.<callback: actual.map>(v)",
+          "line": 1017,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlLoop.<callback: nights.map>",
+          "signature": "mlLoop.<callback: nights.map>(u)",
+          "line": 1019,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvaluation",
           "signature": "mlEvaluation()",
-          "line": 512,
+          "line": 1033,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlEvaluation.<callback: ML_ABLATION.map>",
           "signature": "mlEvaluation.<callback: ML_ABLATION.map>([n, p99, sla, cost, tr], i)",
-          "line": 520,
+          "line": 1041,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlGaps",
           "signature": "mlGaps()",
-          "line": 532,
+          "line": 1053,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlInspector",
           "signature": "mlInspector()",
-          "line": 564,
+          "line": 1095,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlInspector.<callback: info.facts.map>",
           "signature": "mlInspector.<callback: info.facts.map>([k, v])",
-          "line": 569,
+          "line": 1100,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlInspector.<callback: info.files.map>",
           "signature": "mlInspector.<callback: info.files.map>([l, u])",
-          "line": 570,
+          "line": 1101,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlInspector.<callback: info.questions.map>",
           "signature": "mlInspector.<callback: info.questions.map>(q)",
-          "line": 572,
+          "line": 1103,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlView",
           "signature": "mlView()",
-          "line": 579,
+          "line": 1110,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlView.<callback: mlTopics.map>",
           "signature": "mlView.<callback: mlTopics.map>(x)",
-          "line": 582,
+          "line": 1113,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlOpen",
           "signature": "mlOpen(topic)",
-          "line": 586,
+          "line": 1117,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlSetHash",
           "signature": "mlSetHash()",
-          "line": 591,
+          "line": 1122,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRun",
           "signature": "mlRun(busy, task)",
-          "line": 595,
+          "line": 1126,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlRun.<callback: setTimeout>",
           "signature": "mlRun.<callback: setTimeout>()",
-          "line": 598,
+          "line": 1129,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick",
           "signature": "mlClick(button)",
-          "line": 605,
+          "line": 1136,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"enum\">",
           "signature": "mlClick.<callback: mlRun, \"enum\">()",
-          "line": 622,
+          "line": 1153,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"enum\">.<callback: ml.enum.filter>",
           "signature": "mlClick.<callback: mlRun, \"enum\">.<callback: ml.enum.filter>(e)",
-          "line": 622,
+          "line": 1153,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"enum\">.<callback: ml.enum.filter((e) => e.n !== n).concat(mlEnumerateTiming(n)).sort>",
           "signature": "mlClick.<callback: mlRun, \"enum\">.<callback: ml.enum.filter((e) => e.n !== n).concat(mlEnumerateTiming(n)).sort>(x, y)",
-          "line": 622,
+          "line": 1153,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"fc\">",
           "signature": "mlClick.<callback: mlRun, \"fc\">()",
-          "line": 623,
+          "line": 1154,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"forest\">",
           "signature": "mlClick.<callback: mlRun, \"forest\">()",
-          "line": 624,
+          "line": 1155,
           "async": false,
           "decorators": []
         },
         {
           "name": "mlClick.<callback: mlRun, \"rl\">",
           "signature": "mlClick.<callback: mlRun, \"rl\">()",
-          "line": 626,
+          "line": 1157,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlClick.<callback: mlRun, \"tw\">",
+          "signature": "mlClick.<callback: mlRun, \"tw\">()",
+          "line": 1159,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlClick.<callback: mlRun, \"tw\">",
+          "signature": "mlClick.<callback: mlRun, \"tw\">()",
+          "line": 1160,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlClick.<callback: mlRun, \"ac\">",
+          "signature": "mlClick.<callback: mlRun, \"ac\">()",
+          "line": 1163,
+          "async": false,
+          "decorators": []
+        },
+        {
+          "name": "mlClick.<callback: mlRun, \"marl\">",
+          "signature": "mlClick.<callback: mlRun, \"marl\">()",
+          "line": 1165,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"input\">",
           "signature": "<callback: document.addEventListener, \"input\">(event)",
-          "line": 631,
+          "line": 1172,
           "async": false,
           "decorators": []
         },
         {
           "name": "<callback: document.addEventListener, \"change\">",
           "signature": "<callback: document.addEventListener, \"change\">(event)",
-          "line": 638,
+          "line": 1179,
           "async": false,
           "decorators": []
         }
