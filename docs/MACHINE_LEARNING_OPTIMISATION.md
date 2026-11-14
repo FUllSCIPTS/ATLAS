@@ -78,19 +78,7 @@ Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 
 **Figure 1. System learning and decision map.**
 
-```mermaid
-flowchart LR
-A["Telemetry and history"] --> B["Demand forecast"]
-A --> C["Anomaly detection"]
-B --> D["Architecture optimiser"]
-C --> D
-D --> E["Deploy architecture"]
-A --> F["Dispatch and supply policies"]
-F --> G["Observed outcomes"]
-G --> H["Validated model updates"]
-H --> B
-H --> F
-```
+![Figure 1: ML and optimisation theory illustration](figures/ml_optimisation/figure_01.svg)
 
 *How to read this figure:* Forecasting estimates what may happen, optimisation selects a feasible configuration, and feedback supports later model updates. The coupling optimiser is in the research simulator, while the operational policies belong to ATLAS Go.
 
@@ -188,18 +176,7 @@ of the time tight, 18 % hybrid and 0.5 % fully loose (`results/cluster.json`, `a
 
 **Figure 2. Five-second coupling decision workflow.**
 
-```mermaid
-flowchart TD
-A["Current load and telemetry"] --> B["Forecast next load"]
-A --> C["Score anomalies"]
-B --> D["Enumerate feasible coupling choices"]
-C --> D
-D --> E["Compare latency cost risk"]
-E --> F["Select lowest objective"]
-F --> G["Apply anomaly override"]
-G --> H["Enforce dwell hysteresis"]
-H --> I["Deploy with handover"]
-```
+![Figure 2: ML and optimisation theory illustration](figures/ml_optimisation/figure_02.svg)
 
 *How to read this figure:* This is the paper simulator's decision sequence. Prediction, feasibility checking and safe transition are different steps.
 
@@ -292,14 +269,7 @@ Tuning the baselines as carefully as ATLAS is what makes the comparison fair.
 
 **Figure 3. Forecasting from observed history.**
 
-```mermaid
-flowchart LR
-A["Past 24 hourly demand values"] --> B["Prepare sequence and features"]
-B --> C["LSTM memory"]
-C --> D["Forecast next 6 hours"]
-D --> E["Compare against future observations"]
-E --> F["Calculate MAE and peak errors"]
-```
+![Figure 3: ML and optimisation theory illustration](figures/ml_optimisation/figure_03.svg)
 
 *How to read this figure:* Past observations feed a forecaster; future outcomes are used later for evaluation, never as inputs at prediction time. The specific window size shown illustrates the on-device ATLAS Go 1.4 model.
 
@@ -351,16 +321,7 @@ plain gradient descent, Adam and the closed-form least-squares solution, with ea
 
 **Figure 4. Why random trees isolate anomalies.**
 
-```mermaid
-flowchart TD
-A["Observed telemetry vector"] --> B["Random feature and split"]
-B --> C{"Is point alone?"}
-C -->|Yes| D["Record short path"]
-C -->|No| E["Split another time"]
-E --> C
-D --> F["Average path across trees"]
-F --> G["Shorter path means more unusual"]
-```
+![Figure 4: ML and optimisation theory illustration](figures/ml_optimisation/figure_04.svg)
 
 *How to read this figure:* An isolated operating point tends to need fewer partitions than a typical point. A score is not a calibrated failure probability.
 
@@ -397,14 +358,7 @@ a crash of the same module.
 
 **Figure 5. Ride-dispatch feedback loop.**
 
-```mermaid
-flowchart LR
-A["Driver and rider situation"] --> B["Policy ranks available drivers"]
-B --> C["Choose driver"]
-C --> D["Ride outcome and reward"]
-D --> E["Update policy in training"]
-E --> B
-```
+![Figure 5: ML and optimisation theory illustration](figures/ml_optimisation/figure_05.svg)
 
 *How to read this figure:* The policy learns from consequences. In production, new policies must be evaluated before replacing a working policy.
 
@@ -456,14 +410,7 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 
 **Figure 6. Four functions of the ATLAS digital twin.**
 
-```mermaid
-flowchart LR
-A["Mirror current drivers"] --> B["Foresee future demand"]
-B --> C["Rehearse alternative actions"]
-C --> D{"Guardian checks limits"}
-D -->|Pass| E["Use rehearsed decision"]
-D -->|Fail| F["Fallback to baseline"]
-```
+![Figure 6: ML and optimisation theory illustration](figures/ml_optimisation/figure_06.svg)
 
 *How to read this figure:* A twin allows simulated trial decisions; the Guardian independently checks limits before any recommendation can be used.
 
@@ -498,17 +445,7 @@ UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/ar
 
 **Figure 7. Two roles in actor-critic learning.**
 
-```mermaid
-flowchart TD
-A["State and candidate drivers"] --> B["Actor chooses an action"]
-A --> C["Critic predicts expected return"]
-B --> D["Environment returns outcome"]
-D --> E["Compare actual and predicted return"]
-C --> E
-E --> F["Advantage signal"]
-F --> G["Train actor"]
-F --> H["Train critic"]
-```
+![Figure 7: ML and optimisation theory illustration](figures/ml_optimisation/figure_07.svg)
 
 *How to read this figure:* The actor selects; the critic estimates how good the situation is. Their comparison produces an advantage used for training.
 
@@ -555,18 +492,7 @@ UML: [ML catalogue → Actor & critic](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 **Figure 8. MAPPO local actors and shared training critic.**
 
-```mermaid
-flowchart TD
-A["Local dispatch observation"] --> B["Dispatch actor"]
-C["Local pricing observation"] --> D["Pricing actor"]
-B --> E["Combined environment"]
-D --> E
-E --> F["Global state and team reward"]
-F --> G["Shared training critic"]
-G --> H["Advantage and clipped losses"]
-H --> B
-H --> D
-```
+![Figure 8: ML and optimisation theory illustration](figures/ml_optimisation/figure_08.svg)
 
 *How to read this figure:* Each actor uses its own allowed observation when acting; only the training critic receives global information. The diagram illustrates CTDE rather than implying MAPPO is already used in the production app.
 
@@ -646,19 +572,7 @@ UML: [ML catalogue → Multi-agent RL](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 **Figure 9. Closed forecast and learning loop.**
 
-```mermaid
-flowchart TD
-A["Recent demand history"] --> B["LSTM predicts demand"]
-B --> C["Supply RL policy selects boost"]
-C --> D["City simulation advances"]
-D --> E["Record demand action and outcome"]
-E --> F["Train challenger models"]
-F --> G{"Pass evaluation gates?"}
-G -->|Yes| H["Promote challenger"]
-G -->|No| I["Keep champion"]
-H --> A
-I --> A
-```
+![Figure 9: ML and optimisation theory illustration](figures/ml_optimisation/figure_09.svg)
 
 *How to read this figure:* Forecast and policy learning are connected by logged outcomes. Model replacement requires validation, not just a successful training run.
 
@@ -701,15 +615,7 @@ UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 **Figure 10. Fair paired comparison.**
 
-```mermaid
-flowchart LR
-A["Fixed training window"] --> B["Fit candidate and baseline"]
-B --> C["Validation only for tuning"]
-C --> D["Lock settings"]
-D --> E["Same held-out test seeds"]
-E --> F["Paired outcome differences"]
-F --> G["Mean and uncertainty interval"]
-```
+![Figure 10: ML and optimisation theory illustration](figures/ml_optimisation/figure_10.svg)
 
 *How to read this figure:* Both methods should face the same held-out scenarios and random seeds, with tuning complete before evaluation.
 
@@ -786,14 +692,7 @@ F --> G["Mean and uncertainty interval"]
 
 **Figure 11. Numbers vectors matrices and gradients.**
 
-```mermaid
-flowchart LR
-A["Scalar: one demand value"] --> B["Vector: driver features"]
-B --> C["Matrix: many driver rows"]
-C --> D["Weighted prediction"]
-D --> E["Loss"]
-E --> F["Gradient adjusts weights"]
-```
+![Figure 11: ML and optimisation theory illustration](figures/ml_optimisation/figure_11.svg)
 
 *How to read this figure:* A scalar is one value, a vector groups features, a matrix groups observations, and the gradient tells learning algorithms which way to move weights.
 
@@ -828,16 +727,7 @@ For $`L=(wx-y)^2/2`$, the gradient is $`(wx-y)x`$.
 
 **Figure 12. Learning methods by purpose.**
 
-```mermaid
-flowchart TD
-A["What is the goal?"] --> B{"Known target labels?"}
-B -->|Yes| C["Supervised prediction"]
-B -->|No| D["Unsupervised patterns"]
-A --> E{"Sequential decisions?"}
-E -->|Yes| F["Reinforcement learning"]
-A --> G{"Best feasible action?"}
-G -->|Yes| H["Mathematical optimisation"]
-```
+![Figure 12: ML and optimisation theory illustration](figures/ml_optimisation/figure_12.svg)
 
 *How to read this figure:* The tasks differ: prediction estimates outcomes, unsupervised learning discovers structure, RL learns sequential behaviour, and optimisation selects a constrained action.
 
@@ -867,19 +757,7 @@ A **model** is a parameterised function $`f_\theta(x)`$ mapping inputs to output
 
 **Figure 13. Supervised training without leakage.**
 
-```mermaid
-flowchart LR
-A["Timestamped labelled data"] --> B["Chronological split"]
-B --> C["Train set"]
-B --> D["Validation set"]
-B --> E["Test set"]
-C --> F["Fit preprocessing and model"]
-D --> G["Tune hyperparameters"]
-F --> H["Freeze selected model"]
-G --> H
-E --> I["Final evaluation"]
-H --> I
-```
+![Figure 13: ML and optimisation theory illustration](figures/ml_optimisation/figure_13.svg)
 
 *How to read this figure:* The held-out test set is used only after model selection. Fit scalers and imputers using training data, not future data.
 
@@ -926,16 +804,7 @@ For regression, $`MAE=\frac1n\sum|y_i-\hat y_i|`$, $`RMSE=\sqrt{\frac1n\sum(y_i-
 
 **Figure 14. Single tree versus forest versus boosting.**
 
-```mermaid
-flowchart TD
-A["Tabular input"] --> B["Single decision tree"]
-A --> C["Bootstrap datasets"]
-C --> D["Many randomised trees"]
-D --> E["Average forest outputs"]
-A --> F["Boosting learner 1"]
-F --> G["Learner 2 corrects residuals"]
-G --> H["Add learner 3"]
-```
+![Figure 14: ML and optimisation theory illustration](figures/ml_optimisation/figure_14.svg)
 
 *How to read this figure:* A single tree makes explicit if-else decisions; a forest averages differently trained trees; boosting builds an additive sequence of learners.
 
@@ -965,15 +834,7 @@ Kernel functions $`K(x,z)`$ implicitly compare nonlinear features (e.g. the RBF 
 
 **Figure 15. Three jobs without labels.**
 
-```mermaid
-flowchart LR
-A["Unlabelled feature vectors"] --> B["Clustering"]
-A --> C["PCA projection"]
-A --> D["Isolation Forest"]
-B --> E["Groups of similar points"]
-C --> F["Compact coordinates"]
-D --> G["Unusualness score"]
-```
+![Figure 15: ML and optimisation theory illustration](figures/ml_optimisation/figure_15.svg)
 
 *How to read this figure:* Clustering groups observations, PCA compresses correlated measurements, and anomaly detection finds atypical observations.
 
@@ -994,16 +855,7 @@ D --> G["Unusualness score"]
 
 **Figure 16. LSTM memory write retain and read.**
 
-```mermaid
-flowchart TD
-A["Previous memory"] --> B["Forget gate retains part"]
-C["Current input"] --> D["Input gate writes candidate"]
-B --> E["Updated memory cell"]
-D --> E
-E --> F["Output gate"]
-F --> G["Current hidden state"]
-G --> H["Forecast output"]
-```
+![Figure 16: ML and optimisation theory illustration](figures/ml_optimisation/figure_16.svg)
 
 *How to read this figure:* An LSTM keeps a modifiable memory: forget controls retention, input controls writing, and output controls what the prediction head sees.
 
@@ -1069,16 +921,7 @@ The **forget gate** controls retained memory; the **input gate** controls newly 
 
 **Figure 17. Chronological forecasting and drift.**
 
-```mermaid
-flowchart LR
-A["Past training period"] --> B["Later validation period"]
-B --> C["Future test period"]
-C --> D["Deploy frozen model"]
-D --> E["Monitor forecast errors"]
-E --> F{"Evidence of drift?"}
-F -->|Yes| G["Retrain and validate challenger"]
-F -->|No| H["Keep monitoring"]
-```
+![Figure 17: ML and optimisation theory illustration](figures/ml_optimisation/figure_17.svg)
 
 *How to read this figure:* The order of time matters: future data cannot enter earlier training, and drift triggers evaluation rather than automatic promotion.
 
@@ -1097,15 +940,7 @@ F -->|No| H["Keep monitoring"]
 
 **Figure 18. State action reward and next state.**
 
-```mermaid
-flowchart LR
-A["Observe state"] --> B["Choose action"]
-B --> C["Environment transition"]
-C --> D["Receive reward"]
-D --> E["Observe next state"]
-E --> F["Update value or policy"]
-F --> A
-```
+![Figure 18: ML and optimisation theory illustration](figures/ml_optimisation/figure_18.svg)
 
 *How to read this figure:* An RL agent learns through action consequences, unlike supervised learning where a fixed target is supplied with every example.
 
@@ -1157,15 +992,7 @@ A baseline independent of the sampled action can reduce variance without introdu
 
 **Figure 19. Gradient descent iterations.**
 
-```mermaid
-flowchart TD
-A["Initial decision"] --> B["Evaluate objective"]
-B --> C["Calculate gradient"]
-C --> D["Move against gradient"]
-D --> E{"Convergence test"}
-E -->|Continue| B
-E -->|Stop| F["Return final candidate"]
-```
+![Figure 19: ML and optimisation theory illustration](figures/ml_optimisation/figure_19.svg)
 
 *How to read this figure:* A step in the negative gradient direction locally lowers a differentiable objective if the step size is suitable; this does not guarantee the global minimum for nonconvex problems.
 
@@ -1186,20 +1013,7 @@ An optimisation problem has **decision variables** $`x`$, an **objective** $`f(x
 
 **Figure 20. Branch and bound search.**
 
-```mermaid
-flowchart TD
-A["Solve LP relaxation"] --> B{"Integral solution?"}
-B -->|Yes| C["Update feasible incumbent"]
-B -->|No| D["Branch on fractional variable"]
-D --> E["Left subproblem"]
-D --> F["Right subproblem"]
-E --> G{"Bound can improve best?"}
-F --> H{"Bound can improve best?"}
-G -->|Yes| I["Continue searching"]
-G -->|No| J["Prune"]
-H -->|Yes| I
-H -->|No| J
-```
+![Figure 20: ML and optimisation theory illustration](figures/ml_optimisation/figure_20.svg)
 
 *How to read this figure:* LP relaxation provides a bound; branching explores discrete decisions, while a provably uncompetitive subtree is pruned.
 
@@ -1226,14 +1040,7 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 
 **Figure 21. Travel routes versus driver matching.**
 
-```mermaid
-flowchart LR
-A["Road network"] --> B["Shortest path search"]
-B --> C["Route travel cost"]
-D["Driver ride cost matrix"] --> E["Assignment solver"]
-E --> F["Minimum total matching"]
-C --> D
-```
+![Figure 21: ML and optimisation theory illustration](figures/ml_optimisation/figure_21.svg)
 
 *How to read this figure:* Route cost estimation supplies travel times; assignment then chooses a globally consistent driver-to-ride matching instead of independent nearest-driver choices.
 
@@ -1258,17 +1065,7 @@ C --> D
 
 **Figure 22. Pareto trade-off process.**
 
-```mermaid
-flowchart TD
-A["Feasible candidates"] --> B["Measure waiting time"]
-A --> C["Measure operating cost"]
-A --> D["Measure risk"]
-B --> E["Remove dominated candidates"]
-C --> E
-D --> E
-E --> F["Pareto choices"]
-F --> G["Choose with explicit preferences"]
-```
+![Figure 22: ML and optimisation theory illustration](figures/ml_optimisation/figure_22.svg)
 
 *How to read this figure:* A Pareto-efficient point cannot improve one objective without worsening another. The final policy needs stated preferences or hard bounds.
 
@@ -1289,16 +1086,7 @@ F --> G["Choose with explicit preferences"]
 
 **Figure 23. Champion challenger evaluation gate.**
 
-```mermaid
-flowchart TD
-A["Historical training logs"] --> B["Train challenger"]
-C["Current champion"] --> D["Same held-out scenarios"]
-B --> D
-D --> E["Compare quality and safety"]
-E --> F{"Predefined gate passed?"}
-F -->|Yes| G["Promote challenger"]
-F -->|No| H["Retain champion"]
-```
+![Figure 23: ML and optimisation theory illustration](figures/ml_optimisation/figure_23.svg)
 
 *How to read this figure:* Hold the evaluation conditions constant and choose promotion criteria before observing test results.
 
@@ -1323,15 +1111,7 @@ F -->|No| H["Retain champion"]
 
 **Figure 24. Worked forecast-to-decision story.**
 
-```mermaid
-flowchart LR
-A["Forecast 12 requests"] --> B["Available drivers 9"]
-B --> C["Compare boost 0 2 4"]
-C --> D["Compute shortage and cost"]
-D --> E["Check relocation constraints"]
-E --> F["Choose lowest feasible loss"]
-F --> G["Observe actual result"]
-```
+![Figure 24: ML and optimisation theory illustration](figures/ml_optimisation/figure_24.svg)
 
 *How to read this figure:* A forecast is an estimate, not an action. The optimiser compares feasible boosts and the later outcome tests whether the choice worked.
 
@@ -1429,14 +1209,7 @@ Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recomput
 
 **Figure 25. Three questions for every technique.**
 
-```mermaid
-flowchart LR
-A["What is it?"] --> D["Conceptual understanding"]
-B["Why is it useful?"] --> D
-C["How does it work?"] --> D
-D --> E["Work numerical example"]
-E --> F["Connect to ATLAS implementation"]
-```
+![Figure 25: ML and optimisation theory illustration](figures/ml_optimisation/figure_25.svg)
 
 *How to read this figure:* Use the same three questions throughout the guide to move from definition to motivation, then to computation and practical implementation.
 
@@ -1580,15 +1353,7 @@ Consider **forecasting and repositioning drivers**:
 
 **Figure 26. Six-step equation reading method.**
 
-```mermaid
-flowchart TD
-A["Read equation"] --> B["Name every symbol"]
-B --> C["Identify known inputs"]
-C --> D["Substitute small numbers"]
-D --> E["Calculate output"]
-E --> F["Interpret units and meaning"]
-F --> G["Check assumptions and feasibility"]
-```
+![Figure 26: ML and optimisation theory illustration](figures/ml_optimisation/figure_26.svg)
 
 *How to read this figure:* Mathematics becomes easier to understand when every symbol represents a familiar physical quantity and every calculation ends with an interpretation.
 
