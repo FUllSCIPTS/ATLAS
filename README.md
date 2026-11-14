@@ -3,6 +3,24 @@
 <!-- ATLAS Go contents will be added here. -->
 
 ---
+## ATLAS Go Android app
+
+**Version 1.2.0** — a Python/Kivy Android app for Cork with **passenger, driver and food-seller registration**, a **live map** (OpenStreetMap tiles, device location, moving drivers and couriers, offline fallback), solo and shared rides, food ordering from built-in and seller kitchens, and **six on-device ML models** wired into the live flows (dispatch policy, per-driver acceptance model, surge outlook, supply agent, courier timing, learning lab). Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated until an operator back end is connected.
+
+| Open or download | Contents |
+|---|---|
+| [Installable Android APK 1.2.0 — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) | **New version 1.2.0:** passenger, driver and food-seller registration, live map (OpenStreetMap, your location, moving drivers and couriers), and six on-device ML models in the live flows. Open the link, click **Request access**; once approved, download with your Google account. Uninstall 1.1.0 first (new signing key). SHA-256 `737c41ec935e4a87d849a04b1434fbe66fa47bdcb9420387e2a94f58400813cb` |
+| **Source code** — [browse `android-app/`](android-app/) · [download atlas-go-1.2.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.2.0/atlas-go-1.2.0-source.zip) | The complete app source is public under the [MIT licence](LICENSE): the `atlas_go` Python package, tests, model-training scripts, build configuration and docs. Build it yourself with the [build guide](android-app/docs/GOOGLE_PLAY.md). |
+| [ATLAS Go 1.2.0 downloads](android-app/releases/1.2.0/README.md) | APK link (request access), `SHA256SUMS`, release notes, validation evidence and screenshots |
+| [Changelog](android-app/CHANGELOG.md) | 1.2.0 changes and compatibility |
+| [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s, recorded with 1.1.0: rides, food, how the RL agent learns, two years of Cork's calendar, and ATLAS rewiring itself as load changes |
+
+| Welcome | Live map | Driver request | Seller kitchen |
+|---|---|---|---|
+| <img src="android-app/docs/screenshots/01-welcome.png" alt="Welcome screen with account options" width="200"> | <img src="android-app/docs/screenshots/10-live-map.png" alt="Live map of Cork" width="200"> | <img src="android-app/docs/screenshots/21-driver-request.png" alt="Driver receiving a ride request" width="200"> | <img src="android-app/docs/screenshots/22-seller-order.png" alt="Food seller handling an order" width="200"> |
+
+**Verified (1.2.0):** 117 Python tests; 247 UI assertions in each of two screen configurations with 22 screenshots; model retraining reproduces the bundled models byte for byte; bundle validation, release manifest, 16 KB native alignment and APK v2/v3 signature checks pass ([evidence](android-app/releases/1.2.0/VALIDATION.md)). The Android 16 emulator run executes in GitHub Actions on push.
+
 # ATLAS — Supplementary Code and Data
 Code, data, trained models and raw results for the article
 
@@ -55,23 +73,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 8) [📱 Web Technology 2 — Kivy Front End with ATLAS Go: 16 illustrated lessons on the Python/Kivy front end the Android app actually uses: app lifecycle, widgets and layouts, dp/sp, binding, events, forms, canvas drawing and charts, the Clock, touch, threads, screens as state, pyjnius, Buildozer packaging and UI testing](docs/WEB_TECHNOLOGY_2.md) · [Launch Colab lab — 16 Try-it programs + 11 experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) · [Lab manual](kivy_lab/README.md)
 
-## ATLAS Go Android app
 
-**Version 1.2.0** — a Python/Kivy Android app for Cork with **passenger, driver and food-seller registration**, a **live map** (OpenStreetMap tiles, device location, moving drivers and couriers, offline fallback), solo and shared rides, food ordering from built-in and seller kitchens, and **six on-device ML models** wired into the live flows (dispatch policy, per-driver acceptance model, surge outlook, supply agent, courier timing, learning lab). Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated until an operator back end is connected.
-
-| Open or download | Contents |
-|---|---|
-| [Installable Android APK 1.2.0 — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view) | **New version 1.2.0:** passenger, driver and food-seller registration, live map (OpenStreetMap, your location, moving drivers and couriers), and six on-device ML models in the live flows. Open the link, click **Request access**; once approved, download with your Google account. Uninstall 1.1.0 first (new signing key). SHA-256 `737c41ec935e4a87d849a04b1434fbe66fa47bdcb9420387e2a94f58400813cb` |
-| **Source code** — [browse `android-app/`](android-app/) · [download atlas-go-1.2.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.2.0/atlas-go-1.2.0-source.zip) | The complete app source is public under the [MIT licence](LICENSE): the `atlas_go` Python package, tests, model-training scripts, build configuration and docs. Build it yourself with the [build guide](android-app/docs/GOOGLE_PLAY.md). |
-| [ATLAS Go 1.2.0 downloads](android-app/releases/1.2.0/README.md) | APK link (request access), `SHA256SUMS`, release notes, validation evidence and screenshots |
-| [Changelog](android-app/CHANGELOG.md) | 1.2.0 changes and compatibility |
-| [▶ Demo video — atlas-go-demo.mp4](android-app/docs/video/atlas-go-demo.mp4) | 4 min 52 s, recorded with 1.1.0: rides, food, how the RL agent learns, two years of Cork's calendar, and ATLAS rewiring itself as load changes |
-
-| Welcome | Live map | Driver request | Seller kitchen |
-|---|---|---|---|
-| <img src="android-app/docs/screenshots/01-welcome.png" alt="Welcome screen with account options" width="200"> | <img src="android-app/docs/screenshots/10-live-map.png" alt="Live map of Cork" width="200"> | <img src="android-app/docs/screenshots/21-driver-request.png" alt="Driver receiving a ride request" width="200"> | <img src="android-app/docs/screenshots/22-seller-order.png" alt="Food seller handling an order" width="200"> |
-
-**Verified (1.2.0):** 117 Python tests; 247 UI assertions in each of two screen configurations with 22 screenshots; model retraining reproduces the bundled models byte for byte; bundle validation, release manifest, 16 KB native alignment and APK v2/v3 signature checks pass ([evidence](android-app/releases/1.2.0/VALIDATION.md)). The Android 16 emulator run executes in GitHub Actions on push.
 
 ## Quick start
 
