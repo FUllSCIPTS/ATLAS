@@ -1,3 +1,4 @@
+# PRESENT WORK on ATLAS Go
 ## ATLAS Go
 
 **[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
@@ -23,6 +24,7 @@
 
 **Verified (1.2.0):** 117 Python tests; 247 UI assertions in each of two screen configurations with 22 screenshots; model retraining reproduces the bundled models byte for byte; bundle validation, release manifest, 16 KB native alignment and APK v2/v3 signature checks pass ([evidence](android-app/releases/1.2.0/VALIDATION.md)). The Android 16 emulator run executes in GitHub Actions on push.
 
+# PAST WORK on ATLAS
 # ATLAS — Supplementary Code and Data
 Code, data, trained models and raw results for the article
 
