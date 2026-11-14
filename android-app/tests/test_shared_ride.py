@@ -141,6 +141,8 @@ def test_legacy_shared_ride_from_1_2_0_still_has_three_stages(tmp_path):
 def test_map_refits_after_layout_gives_the_real_size():
     """Ride maps are created at Kivy's default 100 x 100 and laid out later; the fit must follow."""
     import os
+    if not os.environ.get('DISPLAY'):
+        pytest.skip('needs a display (Kivy creates a window); run under xvfb-run')
     os.environ.setdefault('KIVY_NO_ARGS', '1')
     os.environ.setdefault('KIVY_NO_CONSOLELOG', '1')
     pytest.importorskip('kivy')
