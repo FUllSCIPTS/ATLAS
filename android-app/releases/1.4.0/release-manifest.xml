@@ -1,0 +1,40 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" android:installLocation="0" android:versionCode="5" android:versionName="1.4.0" package="org.atlas.mobility" platformBuildVersionCode="36" platformBuildVersionName="16">
+   
+    
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36"/>
+      
+  <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true"/>
+      
+    
+  <uses-feature android:glEsVersion="0x00020000"/>
+      
+
+    
+  <uses-permission android:name="android.permission.INTERNET"/>
+      
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+      
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+      
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+      
+    
+  <application android:allowBackup="false" android:extractNativeLibs="true" android:hardwareAccelerated="true" android:icon="@mipmap/icon" android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar">
+            
+    <meta-data android:name="wakelock" android:value="0"/>
+            
+    <activity android:configChanges="0x40003fff" android:exported="true" android:label="@string/app_name" android:launchMode="2" android:name="org.kivy.android.PythonActivity" android:screenOrientation="1" android:theme="@style/KivySupportCutout">
+                  
+      <intent-filter>
+                        
+        <action android:name="android.intent.action.MAIN"/>
+                        
+        <category android:name="android.intent.category.LAUNCHER"/>
+                    
+      </intent-filter>
+              
+    </activity>
+        
+  </application>
+  
+</manifest>

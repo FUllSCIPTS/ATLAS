@@ -4,7 +4,7 @@
 
 ATLAS Go 1.4.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
-- [Installable APK 1.4.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Installs over 1.3.0 (same signing key); uninstall 1.2.0 first. SHA-256 `@@APK14_SHA@@`
+- [Installable APK 1.4.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Installs over 1.3.0 (same signing key); uninstall 1.2.0 first. SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977`
 - **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.4.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) (SHA-256 `@@SRC14_SHA@@`)
 - [1.4.0 release page: SHA256SUMS, release notes and validation](releases/1.4.0/README.md) · earlier: [1.3.0](releases/1.3.0/README.md) · [1.2.0](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
@@ -110,15 +110,14 @@ Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android
 
 ## Validation
 
-| Check | Result (1.3.0) |
+| Check | Result (1.4.0) |
 |---|---|
-| Python unit tests | 158 (157 passed + 1 display-only test skipped in CI; all 158 pass under `xvfb-run`) |
-| Desktop UI acceptance, 440 × 940 | 305 assertions, 28 screenshots |
-| Desktop UI acceptance, 360 × 780 at font scale 1.2 | 305 assertions, 28 screenshots |
-| **Android 16 emulator (CI)** | 362 assertions, 28 OS screenshots, no crash; the non-debuggable release build launches |
-| Layer 1 | `intelligence.py` and `learned.py` byte-identical to 1.2.0; six-model self-test passes |
-| Layer 2 | Four self-checks pass on the phone; Guardian fault drill blocks, falls back, re-tests 500/500 and hands back |
-| Release bundle | bundletool validation, manifest check (version 1.3.0 / code 4, not debuggable, backup off, foreground-only permissions), 232 native libraries aligned to 16 KB |
-| APK signature | APK Signature Scheme v2 and v3 |
+| Python unit tests | 173 (172 passed + 1 display-only test skipped in CI; all 173 pass under `xvfb-run`) |
+| Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 314 assertions and 29 screenshots in each |
+| **Android 16 emulator (CI)** | 373 assertions, 29 OS screenshots, no crash; the non-debuggable release build launches |
+| Live loop | Pure-Python LSTM equals the training model (2 × 10⁻⁶); seven city days with nightly retraining and held-out validation run on the emulator |
+| Held-out simulation | Next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent |
+| Release bundle | bundletool validation, manifest (1.4.0 / code 5, not debuggable, backup off, foreground-only permissions), 232 native libraries aligned to 16 KB |
+| APK signature | v2 and v3, same key as 1.3.0 |
 
-Details: [releases/1.3.0/VALIDATION.md](releases/1.3.0/VALIDATION.md).
+Details: [releases/1.4.0/VALIDATION.md](releases/1.4.0/VALIDATION.md).
