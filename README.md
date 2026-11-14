@@ -13,7 +13,7 @@
 | Open or download | Contents |
 |---|---|
 | [**Installable Android APK 1.3.0 — request access**](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) | Release APK (not debuggable), built and tested in CI. Open the link and click **Request access**; once approved, download with your Google account. **Uninstall 1.2.0 first** (different signing key). SHA-256 `e3c92bd67f667c14bdaaf6fff56b7dd74307637dc6e264b0b9bad318a1c87371` |
-| **Source code 1.3.0** — [browse `android-app/`](android-app/) · [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) | The complete app source under the [MIT licence](LICENSE): the `atlas_go` package (new: `twin.py`), 158 tests, training scripts, build configuration and docs. SHA-256 `@@SRC_SHA@@` |
+| **Source code 1.3.0** — [browse `android-app/`](android-app/) · [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) | The complete app source under the [MIT licence](LICENSE): the `atlas_go` package (new: `twin.py`), 158 tests, training scripts, build configuration and docs. SHA-256 `4e085a2f61304859e3f1a9e3fc521fe1317791eb45956036c2cb884e985d70f8` |
 | [ATLAS Go 1.3.0 release page](android-app/releases/1.3.0/README.md) | Checksums, release notes, test evidence and the 28 Android screenshots |
 | [What changed in 1.3.0](android-app/CHANGELOG.md) · [User guide](android-app/docs/USER_GUIDE.md) | Every screen, including the Twin tab and the shared-ride stop order |
 | Earlier versions | [1.2.0 downloads](android-app/releases/1.2.0/README.md) · [1.1.0 demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4) |

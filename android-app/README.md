@@ -5,7 +5,7 @@
 ATLAS Go 1.3.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
 - [Installable APK 1.3.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Uninstall 1.2.0 first (different signing key). SHA-256 `e3c92bd67f667c14bdaaf6fff56b7dd74307637dc6e264b0b9bad318a1c87371`
-- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) (SHA-256 `@@SRC_SHA@@`)
+- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) (SHA-256 `4e085a2f61304859e3f1a9e3fc521fe1317791eb45956036c2cb884e985d70f8`)
 - [1.3.0 release page: SHA256SUMS, release notes and validation](releases/1.3.0/README.md) · [1.2.0 release page](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
 - [What changed in 1.3.0](CHANGELOG.md)
