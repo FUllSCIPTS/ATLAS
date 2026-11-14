@@ -1,57 +1,33 @@
-# Temporary (branch only): hand the tested 1.4.0 build to a draft release so the owner can
-# download it. Draft releases and their files are visible only to repository collaborators.
-name: ATLAS Go 1.4.0 draft assets
+# Temporary (branch only, removed before merging): publish the 1.4.0 source archive as a release asset.
+name: ATLAS Go 1.4.0 source release
 on:
   push:
     branches: [atlas-go-1.4.0]
     paths: ['.github/workflows/atlas-go-draft-assets.yml']
 permissions:
   contents: write
-  actions: read
 jobs:
-  draft:
+  source:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: actions/download-artifact@v8
-        with:
-          name: atlas-go-python-android
-          run-id: 43605521786
-          github-token: ${{ github.token }}
-          path: artifact
-      - name: Universal release APK signed with the owner's upload key
-        env:
-          KS_B64: ${{ secrets.ATLAS_UPLOAD_KEYSTORE_BASE64 }}
-          KS_ALIAS: ${{ secrets.ATLAS_UPLOAD_ALIAS }}
-          KS_PASS: ${{ secrets.ATLAS_UPLOAD_PASSWORD }}
-        run: |
-          set -euo pipefail
-          mkdir -p out
-          cp artifact/release/atlas-go-unsigned.aab out/atlas-go-1.4.0-unsigned.aab
-          cp artifact/release/atlas-go-demo.apk out/atlas-go-1.4.0-debug.apk
-          (cd artifact && zip -qr "$GITHUB_WORKSPACE/out/atlas-go-1.4.0-ci-evidence.zip" release/test-output test-output local-data/test-output local-data-narrow/test-output build-android.log || true)
-          if [ -n "$KS_B64" ]; then
-            curl -fL --retry 3 https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar -o /tmp/bundletool.jar
-            echo 'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  /tmp/bundletool.jar' | sha256sum -c -
-            ks="$RUNNER_TEMP/upload.p12"; umask 077; echo "$KS_B64" | base64 -d > "$ks"
-            java -jar /tmp/bundletool.jar build-apks --bundle out/atlas-go-1.4.0-unsigned.aab --output /tmp/u.apks --mode universal \
-              --ks "$ks" --ks-key-alias "$KS_ALIAS" --ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS"
-            rm -f "$ks"
-            unzip -p /tmp/u.apks universal.apk > out/atlas-go-1.4.0.apk
-            java -jar artifact/release/apksigner.jar verify --print-certs out/atlas-go-1.4.0.apk | tee out/apk-certificate.txt
-          else
-            echo 'No upload-key secret: only the debug APK and unsigned AAB are attached.' | tee out/apk-certificate.txt
-          fi
-          (cd out && sha256sum * > SHA256SUMS)
-      - name: Draft release with the tested files
+      - name: Build atlas-go-1.4.0-source.zip and create the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete atlas-go-v1.4.0-draft --yes 2>/dev/null || true
-          gh release create atlas-go-v1.4.0-draft --draft --target "$GITHUB_SHA" --title 'ATLAS Go 1.4.0 tested build (draft, private)' \
-            --notes 'Files from CI run 43605521786 (unit tests, two desktop UI runs, Buildozer build, Android 16 emulator acceptance). Draft: visible to collaborators only.' out/*
+          set -euo pipefail
+          root=atlas-go-1.4.0-source
+          mkdir -p "/tmp/$root"
+          git archive --format=tar HEAD android-app LICENSE | tar -x -C "/tmp/$root"
+          rm -rf "/tmp/$root/android-app/docs/video"
+          find "/tmp/$root" -name '*.md' -exec sed -i 's/`@@SRC14_SHA@@`/listed in SOURCE-SHA256.txt on the release page/' {} +
+          find "/tmp/$root" -exec touch -d '2026-11-14 15:00:00Z' {} +
+          (cd /tmp && find "$root" | sort | zip -q -X -@ "$GITHUB_WORKSPACE/atlas-go-1.4.0-source.zip")
+          sha256sum atlas-go-1.4.0-source.zip | tee SOURCE-SHA256.txt
+          unzip -l atlas-go-1.4.0-source.zip | tail -1
+          if ! gh release view atlas-go-v1.4.0 >/dev/null 2>&1; then
+            gh release create atlas-go-v1.4.0 --target "$GITHUB_SHA" --prerelease --title 'ATLAS Go 1.4.0 — Python Android demo' \
+              --notes 'ATLAS Go 1.4.0: the Layer 1 live loop on the phone (LSTM forecasts, RL supply agent acts, outcomes recorded, both models retrained and validated), plus the 1.3.0 digital twin with three agents and shared rides that drop the rider already on board first. Source: atlas-go-1.4.0-source.zip (MIT). The APK is shared on request from the ATLAS Go downloads folder on Google Drive. Release notes and validation: android-app/releases/1.4.0/.'
+          fi
+          gh release upload atlas-go-v1.4.0 atlas-go-1.4.0-source.zip SOURCE-SHA256.txt --clobber

@@ -8,30 +8,44 @@
 ---
 ## ATLAS Go Android app
 
-**Version 1.3.0** — the version shown in the video above. A Python/Kivy Android app for Cork with **passenger, driver and food-seller accounts**, a **live map**, solo and shared rides, food ordering and, new in 1.3.0, a **digital twin of Cork with three agents on a separate layer** above the existing learning agents. Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated.
+**Version 1.4.0** — the app shown in the video above, now with the **learning agents running as one loop on the phone**. A Python/Kivy Android app for Cork with **passenger, driver and food-seller accounts**, a **live map**, solo and shared rides and food ordering. Layer 1 (LSTM forecaster + RL agents) now forecasts, acts, records outcomes and retrains itself; Layer 2 (digital twin with three agents, 1.3.0) sits on top. Accounts and bookings are stored on the phone; rides, deliveries and payments are simulated.
 
 | Open or download | Contents |
 |---|---|
-| [**Installable Android APK 1.3.0 — request access**](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) | Release APK (not debuggable), built and tested in CI. Open the link and click **Request access**; once approved, download with your Google account. **Uninstall 1.2.0 first** (different signing key). SHA-256 `e3c92bd67f667c14bdaaf6fff56b7dd74307637dc6e264b0b9bad318a1c87371` |
-| **Source code 1.3.0** — [browse `android-app/`](android-app/) · [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) | The complete app source under the [MIT licence](LICENSE): the `atlas_go` package (new: `twin.py`), 158 tests, training scripts, build configuration and docs. SHA-256 `4e085a2f61304859e3f1a9e3fc521fe1317791eb45956036c2cb884e985d70f8` |
-| [ATLAS Go 1.3.0 release page](android-app/releases/1.3.0/README.md) | Checksums, release notes, test evidence and the 28 Android screenshots |
-| [What changed in 1.3.0](android-app/CHANGELOG.md) · [User guide](android-app/docs/USER_GUIDE.md) | Every screen, including the Twin tab and the shared-ride stop order |
-| Earlier versions | [1.2.0 downloads](android-app/releases/1.2.0/README.md) · [1.1.0 demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4) |
+| [**Installable Android APK 1.4.0 — request access**](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) | Release APK (not debuggable), built and tested in CI. Open the link and click **Request access**; once approved, download with your Google account. Installs over 1.3.0; uninstall 1.2.0 first. SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977` |
+| **Source code 1.4.0** — [browse `android-app/`](android-app/) · [download atlas-go-1.4.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) | The complete app source under the [MIT licence](LICENSE): the `atlas_go` package (new: `loop.py`, `lstm_weights.py`; 1.3.0: `twin.py`), 173 tests, training scripts (new: `training/export_lstm.py`), build configuration and docs. SHA-256 `@@SRC14_SHA@@` |
+| [ATLAS Go 1.4.0 release page](android-app/releases/1.4.0/README.md) | Checksums, release notes, test evidence and the 29 Android screenshots |
+| [What changed](android-app/CHANGELOG.md) · [User guide](android-app/docs/USER_GUIDE.md) | Every screen, including the live loop, the Twin tab and the shared-ride stop order |
+| Earlier versions | [1.3.0](android-app/releases/1.3.0/README.md) · [1.2.0](android-app/releases/1.2.0/README.md) · [1.1.0 demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4) |
 
-**What 1.3.0 adds, as in the video**
+**Layer 1 — the LSTM and RL agents as a closed loop (new in 1.4.0)**
 
-- **Two layers.** Layer 1 — the LSTM-style surge forecast, the RL dispatch agent, the acceptance model, the supply agent and the Q-learning courier timing — is **unchanged** (byte-identical to 1.2.0; a test checks it). Layer 2 sits on top and only reads Layer 1. Switching Layer 2 off in the app gives exactly the 1.2.0 behaviour.
+LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated.
+
+| Component | 1.3.0 | 1.4.0 |
+|---|---|---|
+| LSTM training implementation | Present | Present (+ `training/export_lstm.py` for the on-device LSTM) |
+| RL agent training implementation | Present | Present (+ forecast-aware supply agent) |
+| RL experience used to train the LSTM | Connected (simulation) | Connected, offline and on the phone |
+| LSTM forecast feature in dispatch | Represented (fixed tables) | **Live** next-hour LSTM forecast |
+| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented** — every city hour |
+| Continuous online LSTM–RL retraining | Not implemented | **Implemented** — agent hourly, LSTM nightly, champion/challenger validation on held-out hours |
+
+Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent.
+
+**Layer 2 — the digital twin and three agents (1.3.0, as in the video)**
+
 - **Digital twin** of Cork: mirrors drivers, rides and couriers, and plays the next 30 minutes from Layer 1's forecast.
 - **Agent 1 · Dispatch** rehearses Layer 1's top three drivers in the twin and sends the lowest total wait (*Why this driver · twin-tested*).
 - **Agent 2 · Pricing + moves**: capped surge (never above ×2.0) and *Twin hints* for drivers and kitchens.
-- **Agent 3 · Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back. A new **Twin** tab shows the Guardian log and a fault drill.
+- **Agent 3 · Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back.
 - **Shared rides:** a rider is already in the car. The new rider waits while the driver comes with that rider, boards, and is **dropped only after the earlier rider's drop-off**.
 
-| Twin-tested ride | Shared car: earlier rider first | Twin tab | Guardian log | Driver twin hint |
+| Live loop (Layer 1) | Twin-tested ride | Shared car: earlier rider first | Twin tab | Guardian log |
 |---|---|---|---|---|
-| <img src="android-app/docs/screenshots/04-ride-live.png" alt="Ride booked with twin-tested driver" width="160"> | <img src="android-app/docs/screenshots/25-shared-co-drop.png" alt="Shared ride dropping the earlier rider first" width="160"> | <img src="android-app/docs/screenshots/26-twin-tab.png" alt="Twin tab" width="160"> | <img src="android-app/docs/screenshots/27-guardian-log.png" alt="Guardian log" width="160"> | <img src="android-app/docs/screenshots/29-driver-twin-hint.png" alt="Driver twin hint" width="160"> |
+| <img src="android-app/docs/screenshots/30-live-loop.png" alt="Live LSTM to RL loop" width="150"> | <img src="android-app/docs/screenshots/04-ride-live.png" alt="Ride booked with twin-tested driver" width="150"> | <img src="android-app/docs/screenshots/25-shared-co-drop.png" alt="Shared ride dropping the earlier rider first" width="150"> | <img src="android-app/docs/screenshots/26-twin-tab.png" alt="Twin tab" width="150"> | <img src="android-app/docs/screenshots/27-guardian-log.png" alt="Guardian log" width="150"> |
 
-**Tested (1.3.0):** 158 Python unit tests; 305 UI assertions in each of two desktop screen configurations; the Buildozer APK/AAB build and **362 assertions with 28 screenshots on an Android 16 emulator**, no crash; the non-debuggable release build launches; bundle validation, release manifest (1.3.0 / code 4) and 16 KB native alignment pass ([evidence](android-app/releases/1.3.0/VALIDATION.md)).
+**Tested (1.4.0):** 173 Python unit tests; 314 UI assertions in each of two desktop screen configurations; the Buildozer APK/AAB build and **373 assertions with 29 screenshots on an Android 16 emulator**, no crash; the non-debuggable release build launches; bundle validation, release manifest (1.4.0 / code 5) and 16 KB native alignment pass ([evidence](android-app/releases/1.4.0/VALIDATION.md)).
 
 # PAST WORK on ATLAS --- The Theoretical Ground!
 # ATLAS — Supplementary Code and Data
@@ -64,7 +78,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [Final handover and acceptance checks](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md) · [UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
-4) [ATLAS Go 1.3.0 Python Android app — passenger, driver and food-seller accounts, live map, rides, shared rides, food, and the digital twin with three agents (Layer 2)](android-app/README.md) · [Source code (MIT): browse](android-app/) or [download zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
+4) [ATLAS Go 1.4.0 Python Android app — accounts, live map, rides, shared rides, food, the live LSTM → RL loop (Layer 1) and the digital twin with three agents (Layer 2)](android-app/README.md) · [Source code (MIT): browse](android-app/) or [download zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
 
 5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
