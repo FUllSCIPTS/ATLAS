@@ -75,6 +75,25 @@ Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 
 ## 1. Map of machine learning and optimisation in ATLAS
 
+
+**Figure 1. System learning and decision map.**
+
+```mermaid
+flowchart LR
+A["Telemetry and history"] --> B["Demand forecast"]
+A --> C["Anomaly detection"]
+B --> D["Architecture optimiser"]
+C --> D
+D --> E["Deploy architecture"]
+A --> F["Dispatch and supply policies"]
+F --> G["Observed outcomes"]
+G --> H["Validated model updates"]
+H --> B
+H --> F
+```
+
+*How to read this figure:* Forecasting estimates what may happen, optimisation selects a feasible configuration, and feedback supports later model updates. The coupling optimiser is in the research simulator, while the operational policies belong to ATLAS Go.
+
 | Component | Technique | Problem type | Where | Tag |
 |---|---|---|---|---|
 | **Coupling decision** | Binary integer program; exhaustive enumeration, LP relaxation + risk-aware rounding + repair, branch-and-bound | Combinatorial optimisation | `atlas_sim/cluster.py` → `Sim.bip`, `Sim.eval_all`; `run_bip_timing.py`; `run_round2.py` | 📄 |
@@ -166,6 +185,24 @@ of the time tight, 18 % hybrid and 0.5 % fully loose (`results/cluster.json`, `a
 
 ### 2.3 How one decision runs (`Sim.run`, every 5 s)
 
+
+**Figure 2. Five-second coupling decision workflow.**
+
+```mermaid
+flowchart TD
+A["Current load and telemetry"] --> B["Forecast next load"]
+A --> C["Score anomalies"]
+B --> D["Enumerate feasible coupling choices"]
+C --> D
+D --> E["Compare latency cost risk"]
+E --> F["Select lowest objective"]
+F --> G["Apply anomaly override"]
+G --> H["Enforce dwell hysteresis"]
+H --> I["Deploy with handover"]
+```
+
+*How to read this figure:* This is the paper simulator's decision sequence. Prediction, feasibility checking and safe transition are different steps.
+
 1. **Forecast** — $`\lambda^*=\max(\lambda_{\mathrm{current}},\hat\lambda_{\mathrm{LSTM},5\mathrm{min}})`$. Planning for the forecast is what lets
    pods start before a flash sale arrives (§4).
 2. **Anomaly score** — `Sim.score` runs the Isolation Forest on telemetry and attributes the anomaly to
@@ -252,6 +289,20 @@ Tuning the baselines as carefully as ATLAS is what makes the comparison fair.
 
 ## 4. Forecasting demand: LSTM and baselines
 
+
+**Figure 3. Forecasting from observed history.**
+
+```mermaid
+flowchart LR
+A["Past 24 hourly demand values"] --> B["Prepare sequence and features"]
+B --> C["LSTM memory"]
+C --> D["Forecast next 6 hours"]
+D --> E["Compare against future observations"]
+E --> F["Calculate MAE and peak errors"]
+```
+
+*How to read this figure:* Past observations feed a forecaster; future outcomes are used later for evaluation, never as inputs at prediction time. The specific window size shown illustrates the on-device ATLAS Go 1.4 model.
+
 **Paper (📄, `atlas_sim/forecast.py`, `run_forecast.py`).** One year of per-minute traffic with 48
 flash sales; split 70/15/15 % by time (train / validation / test). Input: the last 60 minutes of eight
 telemetry fields plus calendar features (sin/cos of hour and weekday). Output: log-load 5, 15 and 60
@@ -297,6 +348,22 @@ plain gradient descent, Adam and the closed-form least-squares solution, with ea
 
 ## 5. Anomaly detection: Isolation Forest
 
+
+**Figure 4. Why random trees isolate anomalies.**
+
+```mermaid
+flowchart TD
+A["Observed telemetry vector"] --> B["Random feature and split"]
+B --> C{"Is point alone?"}
+C -->|Yes| D["Record short path"]
+C -->|No| E["Split another time"]
+E --> C
+D --> F["Average path across trees"]
+F --> G["Shorter path means more unusual"]
+```
+
+*How to read this figure:* An isolated operating point tends to need fewer partitions than a typical point. A score is not a calibrated failure probability.
+
 An Isolation Forest builds random trees by picking a random feature and a random split value until
 each point is alone. **Anomalies are isolated in fewer splits**, so a short average path length means a
 high score s(x) = 2<sup>−E[h(x)]/c(n)</sup>. It needs **no labels**.
@@ -326,6 +393,20 @@ a crash of the same module.
 ---
 
 ## 7. Reinforcement learning: dispatch, courier timing and supply
+
+
+**Figure 5. Ride-dispatch feedback loop.**
+
+```mermaid
+flowchart LR
+A["Driver and rider situation"] --> B["Policy ranks available drivers"]
+B --> C["Choose driver"]
+C --> D["Ride outcome and reward"]
+D --> E["Update policy in training"]
+E --> B
+```
+
+*How to read this figure:* The policy learns from consequences. In production, new policies must be evaluated before replacing a working policy.
 
 **Ride dispatch — REINFORCE (✅ 🧪, `intelligence.py`, `training/rl_sim.py`).** For each ride, four
 candidate drivers; features φ = [−ETA/5, acceptance, −surge·last-free-driver, −surge]; policy
@@ -372,6 +453,20 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 
 ## 8. The digital twin: mirror, foresee, rehearse, guard
 
+
+**Figure 6. Four functions of the ATLAS digital twin.**
+
+```mermaid
+flowchart LR
+A["Mirror current drivers"] --> B["Foresee future demand"]
+B --> C["Rehearse alternative actions"]
+C --> D{"Guardian checks limits"}
+D -->|Pass| E["Use rehearsed decision"]
+D -->|Fail| F["Fallback to baseline"]
+```
+
+*How to read this figure:* A twin allows simulated trial decisions; the Guardian independently checks limits before any recommendation can be used.
+
 **What.** A digital twin is a simulation that is kept in step with a real system and used to try
 decisions before they are made. ATLAS Go 1.3 adds one for Cork (`atlas_go/twin.py`, ✅ 🧪) as a separate
 **Layer 2** on top of the learned models (Layer 1), which it only *reads*:
@@ -399,6 +494,23 @@ UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/ar
 ---
 
 ## 9. Actor and critic networks
+
+
+**Figure 7. Two roles in actor-critic learning.**
+
+```mermaid
+flowchart TD
+A["State and candidate drivers"] --> B["Actor chooses an action"]
+A --> C["Critic predicts expected return"]
+B --> D["Environment returns outcome"]
+D --> E["Compare actual and predicted return"]
+C --> E
+E --> F["Advantage signal"]
+F --> G["Train actor"]
+F --> H["Train critic"]
+```
+
+*How to read this figure:* The actor selects; the critic estimates how good the situation is. Their comparison produces an advantage used for training.
 
 **What.** An **actor** is a network that outputs $`\pi_\theta(a\mid s)`$; a **critic** estimates $`V_\phi(s)`$, the expected future return for a state. For a terminal one-step action the advantage may be $`A=r-V_\phi(s)`$; for a sampled episode, $`A_t=G_t-V_\phi(s_t)`$. A basic actor–critic step is:
 
@@ -439,6 +551,24 @@ UML: [ML catalogue → Actor & critic](https://github.com/FUllSCIPTS/ATLAS/blob/
 ---
 
 ## 10. Multi-agent RL: two agents, one shared critic
+
+
+**Figure 8. MAPPO local actors and shared training critic.**
+
+```mermaid
+flowchart TD
+A["Local dispatch observation"] --> B["Dispatch actor"]
+C["Local pricing observation"] --> D["Pricing actor"]
+B --> E["Combined environment"]
+D --> E
+E --> F["Global state and team reward"]
+F --> G["Shared training critic"]
+G --> H["Advantage and clipped losses"]
+H --> B
+H --> D
+```
+
+*How to read this figure:* Each actor uses its own allowed observation when acting; only the training critic receives global information. The diagram illustrates CTDE rather than implying MAPPO is already used in the production app.
 
 **What.** When several agents share one reward, each agent's return also depends on what the others did.
 **Centralised training, decentralised execution (CTDE)** handles this: during training one **shared
@@ -513,6 +643,25 @@ UML: [ML catalogue → Multi-agent RL](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 ## 11. LSTM + RL as one loop: forecast, act, record, update, validate
 
+
+**Figure 9. Closed forecast and learning loop.**
+
+```mermaid
+flowchart TD
+A["Recent demand history"] --> B["LSTM predicts demand"]
+B --> C["Supply RL policy selects boost"]
+C --> D["City simulation advances"]
+D --> E["Record demand action and outcome"]
+E --> F["Train challenger models"]
+F --> G{"Pass evaluation gates?"}
+G -->|Yes| H["Promote challenger"]
+G -->|No| I["Keep champion"]
+H --> A
+I --> A
+```
+
+*How to read this figure:* Forecast and policy learning are connected by logged outcomes. Model replacement requires validation, not just a successful training run.
+
 **What.** Until 1.3, the LSTM and the RL agents met only offline: the agent's experience log trained the
 LSTM in the simulation, and the phone used fixed tables. ATLAS Go 1.4 closes the loop on the phone
 (`atlas_go/loop.py`, ✅ 🧪):
@@ -548,6 +697,21 @@ UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/
 ---
 
 ## 12. Evaluating fairly: splits, seeds and statistics — 📄 Paper
+
+
+**Figure 10. Fair paired comparison.**
+
+```mermaid
+flowchart LR
+A["Fixed training window"] --> B["Fit candidate and baseline"]
+B --> C["Validation only for tuning"]
+C --> D["Lock settings"]
+D --> E["Same held-out test seeds"]
+E --> F["Paired outcome differences"]
+F --> G["Mean and uncertainty interval"]
+```
+
+*How to read this figure:* Both methods should face the same held-out scenarios and random seeds, with tuning complete before evaluation.
 
 - **Separate data for each purpose:** forecaster trained, early-stopped and tested on disjoint time
   ranges; policies tuned on validation seeds 101–110, compared on test seeds 1–30.
@@ -619,6 +783,20 @@ UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 ## T1. Mathematical prerequisites and notation
 
+
+**Figure 11. Numbers vectors matrices and gradients.**
+
+```mermaid
+flowchart LR
+A["Scalar: one demand value"] --> B["Vector: driver features"]
+B --> C["Matrix: many driver rows"]
+C --> D["Weighted prediction"]
+D --> E["Loss"]
+E --> F["Gradient adjusts weights"]
+```
+
+*How to read this figure:* A scalar is one value, a vector groups features, a matrix groups observations, and the gradient tells learning algorithms which way to move weights.
+
 **Scalars, vectors and matrices.** A scalar is one number, such as demand $`d=120`$ rides/hour. A vector holds several related numbers, such as $`x=[\text{distance},\text{pickup delay},\text{surge}]`$. A matrix $`X\in\mathbb{R}^{n\times p}`$ contains $`n`$ observations and $`p`$ features. A training set is $`\mathcal D=\{(x_i,y_i)\}_{i=1}^n`$, with labels $`y_i`$; an unlabelled set has only $`x_i`$.
 
 **Linear algebra.** The dot product $`w^\top x=\sum_jw_jx_j`$ scores a candidate; $`\|x\|_2=\sqrt{\sum_jx_j^2}`$ is Euclidean length; matrix multiplication $`Xw`$ produces all linear predictions. The transpose flips row/column orientation. A positive-semidefinite matrix $`H`$ obeys $`z^\top Hz\ge0`$, a key condition in convex optimisation.
@@ -647,6 +825,22 @@ For $`L=(wx-y)^2/2`$, the gradient is $`(wx-y)x`$.
 
 ## T2. What learning means: tasks, data and generalisation
 
+
+**Figure 12. Learning methods by purpose.**
+
+```mermaid
+flowchart TD
+A["What is the goal?"] --> B{"Known target labels?"}
+B -->|Yes| C["Supervised prediction"]
+B -->|No| D["Unsupervised patterns"]
+A --> E{"Sequential decisions?"}
+E -->|Yes| F["Reinforcement learning"]
+A --> G{"Best feasible action?"}
+G -->|Yes| H["Mathematical optimisation"]
+```
+
+*How to read this figure:* The tasks differ: prediction estimates outcomes, unsupervised learning discovers structure, RL learns sequential behaviour, and optimisation selects a constrained action.
+
 A **model** is a parameterised function $`f_\theta(x)`$ mapping inputs to outputs. **Training** chooses parameters $`\theta`$ to minimise empirical loss $`R_{\rm train}(\theta)=\frac1n\sum_i\ell(f_\theta(x_i),y_i)`$. **Generalisation** asks whether the learnt rule works on previously unseen cases from the intended deployment distribution.
 
 | Task | Input → output | Typical loss / criterion | ATLAS analogy |
@@ -669,6 +863,25 @@ A **model** is a parameterised function $`f_\theta(x)`$ mapping inputs to output
 **Train/validation/test:** training fits weights; validation chooses hyperparameters, thresholds and checkpoints; test estimates final performance. In time series, split chronologically (no random reshuffle across future/past). For the same rider/driver appearing repeatedly, group-aware splits may be needed to prevent identity leakage.
 
 ## T3. Supervised learning from first principles
+
+
+**Figure 13. Supervised training without leakage.**
+
+```mermaid
+flowchart LR
+A["Timestamped labelled data"] --> B["Chronological split"]
+B --> C["Train set"]
+B --> D["Validation set"]
+B --> E["Test set"]
+C --> F["Fit preprocessing and model"]
+D --> G["Tune hyperparameters"]
+F --> H["Freeze selected model"]
+G --> H
+E --> I["Final evaluation"]
+H --> I
+```
+
+*How to read this figure:* The held-out test set is used only after model selection. Fit scalers and imputers using training data, not future data.
 
 ### T3.1 Linear regression
 
@@ -710,6 +923,22 @@ For regression, $`MAE=\frac1n\sum|y_i-\hat y_i|`$, $`RMSE=\sqrt{\frac1n\sum(y_i-
 
 ## T4. Trees, ensembles, kernels and probabilistic learners
 
+
+**Figure 14. Single tree versus forest versus boosting.**
+
+```mermaid
+flowchart TD
+A["Tabular input"] --> B["Single decision tree"]
+A --> C["Bootstrap datasets"]
+C --> D["Many randomised trees"]
+D --> E["Average forest outputs"]
+A --> F["Boosting learner 1"]
+F --> G["Learner 2 corrects residuals"]
+G --> H["Add learner 3"]
+```
+
+*How to read this figure:* A single tree makes explicit if-else decisions; a forest averages differently trained trees; boosting builds an additive sequence of learners.
+
 **Decision trees.** Recursively split the feature space: for example, *if pickup ETA ≤ 4 minutes, use branch A; otherwise branch B*. Classification splits can minimise Gini impurity $`1-\sum_kp_k^2`$ or entropy $`-\sum_kp_k\log p_k`$; regression splits often minimise squared error. Deep trees memorise; depth, leaf-size and pruning control complexity.
 
 **Bagging and random forests.** Train many trees on bootstrap samples and average/vote. Random forests additionally sample a subset of features when splitting, reducing correlation among trees. Ensemble averaging frequently reduces variance, but can still inherit bias or dataset problems.
@@ -733,6 +962,21 @@ Kernel functions $`K(x,z)`$ implicitly compare nonlinear features (e.g. the RBF 
 
 ## T5. Unsupervised learning, representation and anomalies
 
+
+**Figure 15. Three jobs without labels.**
+
+```mermaid
+flowchart LR
+A["Unlabelled feature vectors"] --> B["Clustering"]
+A --> C["PCA projection"]
+A --> D["Isolation Forest"]
+B --> E["Groups of similar points"]
+C --> F["Compact coordinates"]
+D --> G["Unusualness score"]
+```
+
+*How to read this figure:* Clustering groups observations, PCA compresses correlated measurements, and anomaly detection finds atypical observations.
+
 **k-means:** choose $`k`$ cluster centres and minimise within-cluster squared distances $`\sum_i\min_j\|x_i-\mu_j\|^2`$. Alternate assigning points and recomputing centres. It prefers roughly spherical Euclidean clusters, is sensitive to scales and initialization, and does not automatically discover the correct number of zones.
 
 **DBSCAN:** group points with sufficiently many neighbours within distance $`\varepsilon`$, leaving isolated points as noise. It can find irregular spatial shapes; its behaviour depends on distance metric, $`\varepsilon`$, min_samples, and uneven densities. Geographic coordinates require an appropriate geographic distance.
@@ -746,6 +990,22 @@ Kernel functions $`K(x,z)`$ implicitly compare nonlinear features (e.g. the RBF 
 **Learning to rank:** rank driver candidates using relevance or expected utility; pointwise losses predict each candidate independently, pairwise losses compare two candidates, and listwise losses evaluate a whole ranked list. Beware selection bias: historical dispatch outcomes were observed only for drivers previously offered trips.
 
 ## T6. Neural networks, gradients and sequence models
+
+
+**Figure 16. LSTM memory write retain and read.**
+
+```mermaid
+flowchart TD
+A["Previous memory"] --> B["Forget gate retains part"]
+C["Current input"] --> D["Input gate writes candidate"]
+B --> E["Updated memory cell"]
+D --> E
+E --> F["Output gate"]
+F --> G["Current hidden state"]
+G --> H["Forecast output"]
+```
+
+*How to read this figure:* An LSTM keeps a modifiable memory: forget controls retention, input controls writing, and output controls what the prediction head sees.
 
 A dense layer is $`h=\phi(Wx+b)`$. Multi-layer networks compose layers: $`\hat y=f_\theta(x)`$. ReLU $`\max(0,z)`$ gives nonlinearity; sigmoid maps to (0,1); softmax $`p_i=e^{z_i}/\sum_je^{z_j}`$ produces categorical probabilities. Backpropagation applies the chain rule from loss to every layer.
 
@@ -806,6 +1066,22 @@ The **forget gate** controls retained memory; the **input gate** controls newly 
 
 ## T7. Forecasting, drift and online learning
 
+
+**Figure 17. Chronological forecasting and drift.**
+
+```mermaid
+flowchart LR
+A["Past training period"] --> B["Later validation period"]
+B --> C["Future test period"]
+C --> D["Deploy frozen model"]
+D --> E["Monitor forecast errors"]
+E --> F{"Evidence of drift?"}
+F -->|Yes| G["Retrain and validate challenger"]
+F -->|No| H["Keep monitoring"]
+```
+
+*How to read this figure:* The order of time matters: future data cannot enter earlier training, and drift triggers evaluation rather than automatic promotion.
+
 **Classical baselines:** persistence ($`\hat y_{t+h}=y_t`$); seasonal naive ($`\hat y_{t+h}=y_{t+h-s}`$); moving averages; exponential smoothing ($`\ell_t=\alpha y_t+(1-\alpha)\ell_{t-1}`$); Holt trend; Holt–Winters trend + seasonality; autoregression $`\hat y_t=b+\sum_{j=1}^pw_jy_{t-j}`$. A sophisticated LSTM should beat meaningful baselines on the same horizons, not merely fit training curves.
 
 **Stationarity** loosely means key statistical properties do not change over time. Real demand shows weekday cycles, holidays, special events, road incidents and shifts. Transformations (e.g. log1p) can stabilise scale, but inverse-transform predictions before evaluating in rides/hour.
@@ -817,6 +1093,21 @@ The **forget gate** controls retained memory; the **input gate** controls newly 
 **Forecast → decision.** Predicting a surge is useful only if the resulting action improves fulfilled requests, wait times or cost. Report *decision-aware* evaluation: replace the forecaster while keeping the policy fixed, and compare downstream outcomes.
 
 ## T8. Reinforcement learning, policy gradients and multi-agent learning
+
+
+**Figure 18. State action reward and next state.**
+
+```mermaid
+flowchart LR
+A["Observe state"] --> B["Choose action"]
+B --> C["Environment transition"]
+C --> D["Receive reward"]
+D --> E["Observe next state"]
+E --> F["Update value or policy"]
+F --> A
+```
+
+*How to read this figure:* An RL agent learns through action consequences, unlike supervised learning where a fixed target is supplied with every example.
 
 **Markov decision process (MDP):** $`(\mathcal S,\mathcal A,P,r,\gamma)`$ contains states, actions, transition probabilities, rewards and discount factor $`0\le\gamma<1`$. At time $`t`$, observe $`s_t`$, choose $`a_t`$, receive $`r_t`$ and next state $`s_{t+1}`$. A policy $`\pi(a|s)`$ maps states to action probabilities. The objective is expected discounted return $`E[\sum_{t\ge0}\gamma^tr_t]`$.
 
@@ -863,6 +1154,21 @@ A baseline independent of the sampled action can reduce variance without introdu
 
 ## T9. Optimisation foundations and continuous methods
 
+
+**Figure 19. Gradient descent iterations.**
+
+```mermaid
+flowchart TD
+A["Initial decision"] --> B["Evaluate objective"]
+B --> C["Calculate gradient"]
+C --> D["Move against gradient"]
+D --> E{"Convergence test"}
+E -->|Continue| B
+E -->|Stop| F["Return final candidate"]
+```
+
+*How to read this figure:* A step in the negative gradient direction locally lowers a differentiable objective if the step size is suitable; this does not guarantee the global minimum for nonconvex problems.
+
 An optimisation problem has **decision variables** $`x`$, an **objective** $`f(x)`$, and a **feasible set** $`\mathcal F`$: $`\min_{x\in\mathcal F}f(x)`$. Constraints may be inequalities $`g_i(x)\le0`$, equalities $`h_j(x)=0`$, integrality or discrete-choice restrictions. A feasible decision meets every hard constraint; an optimum is the best feasible decision.
 
 **Convexity:** a set is convex when every line segment joining two feasible points is feasible. A differentiable function is convex if $`f(y)\ge f(x)+\nabla f(x)^\top(y-x)`$; for twice differentiable functions a PSD Hessian is sufficient (and under standard open convex domain assumptions equivalent). Every local minimum of a convex objective over a convex feasible set is global; nonlinear or integer problems generally lack this guarantee.
@@ -876,6 +1182,26 @@ An optimisation problem has **decision variables** $`x`$, an **objective** $`f(x
 **Stochastic and black-box methods:** Bayesian optimisation models an expensive unknown score using a surrogate and acquisition function; evolutionary strategies, differential evolution and particle swarm optimisation explore without gradients. These are useful when derivatives are unavailable, but require careful evaluation budgets and repeated seeds.
 
 ## T10. Constraints, duality and integer optimisation
+
+
+**Figure 20. Branch and bound search.**
+
+```mermaid
+flowchart TD
+A["Solve LP relaxation"] --> B{"Integral solution?"}
+B -->|Yes| C["Update feasible incumbent"]
+B -->|No| D["Branch on fractional variable"]
+D --> E["Left subproblem"]
+D --> F["Right subproblem"]
+E --> G{"Bound can improve best?"}
+F --> H{"Bound can improve best?"}
+G -->|Yes| I["Continue searching"]
+G -->|No| J["Prune"]
+H -->|Yes| I
+H -->|No| J
+```
+
+*How to read this figure:* LP relaxation provides a bound; branching explores discrete decisions, while a provably uncompetitive subtree is pruned.
 
 **Linear programming (LP):** minimise $`c^\top x`$ subject to $`Ax\le b`$, $`Ex=d`$, and bounds. Continuous LPs admit efficient methods such as simplex and interior-point algorithms. A **binary integer program (BIP)** requires some or all $`x_i\in\{0,1\}`$; combinatorial choice makes it harder.
 
@@ -897,6 +1223,20 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 
 ## T11. Graph, scheduling, dynamic and heuristic optimisation
 
+
+**Figure 21. Travel routes versus driver matching.**
+
+```mermaid
+flowchart LR
+A["Road network"] --> B["Shortest path search"]
+B --> C["Route travel cost"]
+D["Driver ride cost matrix"] --> E["Assignment solver"]
+E --> F["Minimum total matching"]
+C --> D
+```
+
+*How to read this figure:* Route cost estimation supplies travel times; assignment then chooses a globally consistent driver-to-ride matching instead of independent nearest-driver choices.
+
 **Graph model:** a graph $`G=(V,E)`$ represents locations and roads with edge weights (time, cost or distance). Dijkstra finds shortest paths for nonnegative weights; Bellman–Ford permits negative weights and detects reachable negative cycles; A* uses a heuristic lower bound (for optimality, conditions such as admissibility and suitable handling of consistency/reopening matter). Do not confuse shortest travel time with straight-line distance.
 
 **Assignment:** choose driver–ride pairs to minimise total cost, with constraints that each driver/ride is assigned at most once. A bipartite weighted assignment can be solved with the Hungarian algorithm. If eligibility, capacities, fairness or time windows enter, the formulation may require integer programming.
@@ -915,6 +1255,23 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 
 ## T12. Multi-objective, robust and safe decision-making
 
+
+**Figure 22. Pareto trade-off process.**
+
+```mermaid
+flowchart TD
+A["Feasible candidates"] --> B["Measure waiting time"]
+A --> C["Measure operating cost"]
+A --> D["Measure risk"]
+B --> E["Remove dominated candidates"]
+C --> E
+D --> E
+E --> F["Pareto choices"]
+F --> G["Choose with explicit preferences"]
+```
+
+*How to read this figure:* A Pareto-efficient point cannot improve one objective without worsening another. The final policy needs stated preferences or hard bounds.
+
 **Trade-offs:** minimising average wait, carbon emissions and surge unfairness often yields no single best point. A solution is **Pareto-dominated** if another feasible solution improves at least one objective without worsening any. The Pareto front contains nondominated solutions.
 
 **Scalarisation:** normalised weighted sum $`\min \sum_kw_kf_k(x)/s_k`$ is simple, but choice of weights and scales changes decisions; weighted sums may miss nonconvex parts of a Pareto front. The **epsilon-constraint method** minimises one objective while bounding the rest.
@@ -928,6 +1285,22 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 **Fairness and privacy:** assess service across locations, times, accessibility needs and rider/driver groups without inferring protected traits from data where unjustified. Document collection purpose, retention, consent, access controls and leakage risk. A low global average wait can hide systematically underserved zones.
 
 ## T13. Experimental design, statistical validity and reproducibility
+
+
+**Figure 23. Champion challenger evaluation gate.**
+
+```mermaid
+flowchart TD
+A["Historical training logs"] --> B["Train challenger"]
+C["Current champion"] --> D["Same held-out scenarios"]
+B --> D
+D --> E["Compare quality and safety"]
+E --> F{"Predefined gate passed?"}
+F -->|Yes| G["Promote challenger"]
+F -->|No| H["Retain champion"]
+```
+
+*How to read this figure:* Hold the evaluation conditions constant and choose promotion criteria before observing test results.
 
 **Start with a hypothesis.** Example: “Adding an LSTM forecast to the same dispatch policy reduces unserved demand during sudden surges without raising average fare beyond a defined tolerance.” Predefine the primary metric, operational constraints, baselines and test distribution.
 
@@ -946,6 +1319,21 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 ## T14. Fully worked integrated example, revision questions and glossary
 
 ### T14.1 One small ride-hailing decision, end-to-end
+
+
+**Figure 24. Worked forecast-to-decision story.**
+
+```mermaid
+flowchart LR
+A["Forecast 12 requests"] --> B["Available drivers 9"]
+B --> C["Compare boost 0 2 4"]
+C --> D["Compute shortage and cost"]
+D --> E["Check relocation constraints"]
+E --> F["Choose lowest feasible loss"]
+F --> G["Observe actual result"]
+```
+
+*How to read this figure:* A forecast is an estimate, not an action. The optimiser compares feasible boosts and the later outcome tests whether the choice worked.
 
 Assume an hourly demand forecaster predicts **12 requests** in Zone A, with current **9 available drivers**. Available boost actions bring **0, 2 or 4** drivers, at operating costs **0, 3 or 7** units respectively. Define simplified one-hour loss
 
@@ -1037,6 +1425,20 @@ Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recomput
 ---
 
 ## T15. What it is, why it matters, and how it works — concept-by-concept teaching companion
+
+
+**Figure 25. Three questions for every technique.**
+
+```mermaid
+flowchart LR
+A["What is it?"] --> D["Conceptual understanding"]
+B["Why is it useful?"] --> D
+C["How does it work?"] --> D
+D --> E["Work numerical example"]
+E --> F["Connect to ATLAS implementation"]
+```
+
+*How to read this figure:* Use the same three questions throughout the guide to move from definition to motivation, then to computation and practical implementation.
 
 This chapter is designed for **first-time learners**. Each explanation follows the same three questions: **What?** (definition and goal), **Why?** (when or why we need it), and **How?** (the mechanism, including a small example). The methods are general theory; any ATLAS analogy is illustrative unless Part I identifies a specific implemented function.
 
@@ -1174,6 +1576,21 @@ Consider **forecasting and repositioning drivers**:
 ---
 
 ## T16. Equation-by-equation explanations: What, Why and How
+
+
+**Figure 26. Six-step equation reading method.**
+
+```mermaid
+flowchart TD
+A["Read equation"] --> B["Name every symbol"]
+B --> C["Identify known inputs"]
+C --> D["Substitute small numbers"]
+D --> E["Calculate output"]
+E --> F["Interpret units and meaning"]
+F --> G["Check assumptions and feasibility"]
+```
+
+*How to read this figure:* Mathematics becomes easier to understand when every symbol represents a familiar physical quantity and every calculation ends with an interpretation.
 
 Use this chapter alongside the equations in Parts I–II. For every formula: identify inputs, interpret the output, substitute numbers, check units, and ask whether it applies to prediction, learning or a constrained decision. Equations shown as standalone blocks use GitHub's `math` fences.
 
