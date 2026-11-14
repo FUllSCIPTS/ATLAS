@@ -1,6 +1,27 @@
 ## ATLAS Go
 
-<!-- ATLAS Go contents will be added here. -->
+[![Watch the ATLAS Go demo — Digital Twin and multi-agent layer](android-app/docs/video/atlas-go-demo-v1.3-poster.jpg)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)
+
+**[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
+
+| Time | Chapter |
+|---|---|
+| 0:00 | **The app:** rides, shared rides and food in ATLAS Go 1.2.0 |
+| 0:59 | **The learner:** how the RL dispatch agent learns who to send |
+| 2:40 | **The city's calendar:** two years of Cork's holidays and events; the LSTM sees the surge hours ahead |
+| 3:56 | **Behind the screen:** ATLAS rewires itself as load changes: monolith → hybrid → microservices → monolith |
+| 4:43 | **Live in the app:** a ride and a food order, start to finish |
+| 5:26 | **New — the twin (proposed for 1.3):** a digital twin of Cork and three new agents on a separate layer |
+
+**What the new part adds.** The existing learners — the LSTM surge forecast and the Q-learning dispatch agent — stay unchanged as **Layer 1**. A new **Layer 2** sits on top and only reads their forecast and Q-values:
+
+- **Digital twin** — mirrors every car, rider and road once a second, and plays the next 30 minutes before anything is sent to a phone.
+- **Agent 1 · Dispatch** (every 2 s) — takes Layer 1's top-3 drivers, rehearses each match in the twin and sends the best.
+- **Agent 2 · Pricing and repositioning** (every 5 min per zone) — tries several plans in the twin; capped surge (×2.0) and early moves of idle cars.
+- **Agent 3 · Guardian** — checks every decision, blocks unsafe ones (for example a ×4 price), hands over to Layer 1 with the base price, and gives control back once the agent passes again in the twin.
+- **In the app** — a *Why this driver · twin-tested* card and price check for riders, a *Twin hint* for drivers before a surge, a courier-ETA hint for kitchens, and a new **Twin** tab showing both layers and the Guardian log.
+
+The twin part is a design preview: the twin layer is proposed work and is not yet in ATLAS Go 1.2.0. All figures in the video come from simulation.
 
 ---
 ## ATLAS Go Android app
