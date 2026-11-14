@@ -520,10 +520,14 @@ G_t is realised discounted return; V_shared(s_t) is the shared critic's estimate
 **3. Clipped surrogate — stop rewarding excessively large probability changes.**
 
 ```math
-u_t=\min\left(q_t\widehat A_t,\;\operatorname{clip}(q_t,1-\epsilon,1+\epsilon)\widehat A_t\right)
+\widetilde{q}_t=\min\bigl(1+\epsilon,\max(1-\epsilon,q_t)\bigr)
 ```
 
-clip(x,l,u) returns l when x<l, u when x>u, otherwise x. With epsilon=0.2, ratio 1.5 and positive advantage 2, the terms are 3 and 2.4; take min = 2.4. This clipping affects the optimisation objective, not a hard bound on final policy behaviour.
+```math
+u_t=\min\bigl(q_t\widehat{A}_t,\;\widetilde{q}_t\widehat{A}_t\bigr)
+```
+
+The first equation clips the probability ratio between 1 minus epsilon and 1 plus epsilon. The second equation takes the smaller advantage-weighted term. With epsilon = 0.2, ratio 1.5 and advantage 2, the clipped ratio is 1.2; compare 3 with 2.4 and choose 2.4. This clipping affects the optimisation objective, not a hard bound on final policy behaviour.
 
 **4. Loss — turn the benefit into something an optimiser can minimise.**
 
@@ -1576,7 +1580,11 @@ q_t=\frac{\pi_{\mathrm{new}}(a_t\mid o_t)}{\pi_{\mathrm{old}}(a_t\mid o_t)}
 ```
 
 ```math
-u_t=\min\left(q_t\widehat A_t,\operatorname{clip}(q_t,1-\epsilon,1+\epsilon)\widehat A_t\right)
+\widetilde{q}_t=\min\bigl(1+\epsilon,\max(1-\epsilon,q_t)\bigr)
+```
+
+```math
+u_t=\min\bigl(q_t\widehat{A}_t,\;\widetilde{q}_t\widehat{A}_t\bigr)
 ```
 
 ```math
