@@ -114,11 +114,11 @@ The evaluated application has six modules (`atlas_sim/traffic.py`):
 | Visit ratio *v<sub>i</sub>* | 1.00 | 1.00 | 0.45 | 0.35 | 0.18 | 0.15 |
 | Demand *d<sub>i</sub>* (core-ms per visit) | 0.5 | 2.0 | 1.5 | 1.5 | 4.0 | 3.0 |
 
-The decision is a binary vector $\mathbf c\in\{0,1\}^{6}$: $c_i=0$ keeps module $i$ inside the monolith process (tight), whereas $c_i=1$ runs it as an autoscaled service (loose). All zeros is a monolith, all ones is microservices, and a mixture is **hybrid**. Six binary choices have $2^6=64$ possible configurations.
+The decision is a binary vector $`\mathbf c\in\{0,1\}^{6}`$: $`c_i=0`$ keeps module $`i`$ inside the monolith process (tight), whereas $`c_i=1`$ runs it as an autoscaled service (loose). All zeros is a monolith, all ones is microservices, and a mixture is **hybrid**. Six binary choices have $`2^6=64`$ possible configurations.
 
 ### 2.2 Objective and constraints
 
-`Sim.eval_all` predicts four quantities for every candidate at the forecast load $\lambda^*$:
+`Sim.eval_all` predicts four quantities for every candidate at the forecast load $`\lambda^*`$:
 
 | Quantity | Model (in `eval_all`) | Meaning |
 |---|---|---|
@@ -166,7 +166,7 @@ of the time tight, 18 % hybrid and 0.5 % fully loose (`results/cluster.json`, `a
 
 ### 2.3 How one decision runs (`Sim.run`, every 5 s)
 
-1. **Forecast** — $\lambda^*=\max(\lambda_{\mathrm{current}},\hat\lambda_{\mathrm{LSTM},5\mathrm{min}})$. Planning for the forecast is what lets
+1. **Forecast** — $`\lambda^*=\max(\lambda_{\mathrm{current}},\hat\lambda_{\mathrm{LSTM},5\mathrm{min}})`$. Planning for the forecast is what lets
    pods start before a flash sale arrives (§4).
 2. **Anomaly score** — `Sim.score` runs the Isolation Forest on telemetry and attributes the anomaly to
    the module whose measured demand deviates most.
@@ -329,9 +329,21 @@ a crash of the same module.
 
 **Ride dispatch — REINFORCE (✅ 🧪, `intelligence.py`, `training/rl_sim.py`).** For each ride, four
 candidate drivers; features φ = [−ETA/5, acceptance, −surge·last-free-driver, −surge]; policy
-$\pi(a)=\operatorname{softmax}(\mathbf w^\top\boldsymbol\phi_a)$. Reward (arrives after the decision): −pickup minutes − 10·cancelled −
+the following two-stage softmax rule:
+
+```math
+z_a=\mathbf w^\top\boldsymbol\phi_a
+```
+
+```math
+\pi(a)=\frac{e^{z_a}}{\sum_{j=1}^{K}e^{z_j}}
+```
+
+**What?** The first equation scores driver a using feature weights; the second converts all K drivers' scores into probabilities that sum to one. **Why?** This lets the dispatch policy favour good drivers while keeping stochastic choices for training. **How?** If two drivers score 2 and 1, exponentiate both: their probabilities are about 0.731 and 0.269. The symbols are: w = learned weights, phi_a = features of driver a, z_a = score, pi(a) = selection probability.
+
+Reward (arrives after the decision): −pickup minutes − 10·cancelled −
 shortage caused by pulling the last driver out of a zone about to surge. Update:
-$\mathbf w\leftarrow\mathbf w+\eta(r-b)(\boldsymbol\phi_a-\mathbb E_{a'\sim\pi}[\boldsymbol\phi_{a'}])$ with a running-average baseline $b$ (variance reduction).
+$`\mathbf w\leftarrow\mathbf w+\eta(r-b)(\boldsymbol\phi_a-\mathbb E_{a'\sim\pi}[\boldsymbol\phi_{a'}])`$ with a running-average baseline $`b`$ (variance reduction).
 After 30 000 episodes the bundled policy v1.4 costs 5.38 expected minutes against 6.42 for "send the
 nearest driver"; `LearningLab` retrains it from zero on the phone and compares, but never dispatches
 with the candidate.
@@ -388,7 +400,7 @@ UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/ar
 
 ## 9. Actor and critic networks
 
-**What.** An **actor** is a network that outputs $\pi_\theta(a\mid s)$; a **critic** estimates $V_\phi(s)$, the expected future return for a state. For a terminal one-step action the advantage may be $A=r-V_\phi(s)$; for a sampled episode, $A_t=G_t-V_\phi(s_t)$. A basic actor–critic step is:
+**What.** An **actor** is a network that outputs $`\pi_\theta(a\mid s)`$; a **critic** estimates $`V_\phi(s)`$, the expected future return for a state. For a terminal one-step action the advantage may be $`A=r-V_\phi(s)`$; for a sampled episode, $`A_t=G_t-V_\phi(s_t)`$. A basic actor–critic step is:
 
 ```math
 \begin{aligned}
@@ -397,7 +409,7 @@ UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/ar
 \end{aligned}
 ```
 
-The actor reinforces actions that beat the critic's prediction; the critic learns to predict the return. For a nonterminal one-step temporal-difference update, use $A_t\approx r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t)$ instead.
+The actor reinforces actions that beat the critic's prediction; the critic learns to predict the return. For a nonterminal one-step temporal-difference update, use $`A_t\approx r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t)`$ instead.
 
 **Why.** REINFORCE (§7) uses one running average b as the baseline. It cannot tell an easy situation
 (three cheap, willing drivers) from a hard one (only far, reluctant drivers), so most of r − b is about the
@@ -431,17 +443,39 @@ UML: [ML catalogue → Actor & critic](https://github.com/FUllSCIPTS/ATLAS/blob/
 **What.** When several agents share one reward, each agent's return also depends on what the others did.
 **Centralised training, decentralised execution (CTDE)** handles this: during training one **shared
 critic** V(s<sub>global</sub>) sees the whole city; at run time each actor acts on its **own** view.
-**MAPPO** (multi-agent PPO) trains every actor with advantages from that shared critic and PPO's clipped
-objective:
+**MAPPO** (multi-agent PPO) uses a shared critic during training while each actor acts from its own observations. The PPO objective is easier to learn as four independent calculations.
+
+**1. Probability ratio — how much more likely is the old action?**
 
 ```math
-\begin{aligned}
-r_t&=\frac{\pi_{\theta}(a_t\mid o_{i,t})}{\pi_{\theta_{\mathrm{old}}}(a_t\mid o_{i,t})},\\
-\mathcal L_i^{\mathrm{clip}}&=-\mathbb E\!\left[\min\left(r_t\hat A_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\\
-\hat A_t&=G_t-V_{\mathrm{shared}}(s_t),\qquad\epsilon=0.2.
-\end{aligned}
+q_t=\frac{\pi_{\mathrm{new}}(a_t\mid o_{i,t})}{\pi_{\mathrm{old}}(a_t\mid o_{i,t})}
 ```
 
+Here a_t is the action agent i took, o_{i,t} its observation, and q_t the new/old action-probability ratio (not the environment reward). If old probability is 0.40 and new probability is 0.60, q_t=1.5.
+
+**2. Advantage — was that action better than predicted?**
+
+```math
+\widehat A_t=G_t-V_{\mathrm{shared}}(s_t)
+```
+
+G_t is realised discounted return; V_shared(s_t) is the shared critic's estimate from the global state. If return is 12 and predicted value 10, advantage = +2. If return is 8, advantage = -2.
+
+**3. Clipped surrogate — stop rewarding excessively large probability changes.**
+
+```math
+u_t=\min\left(q_t\widehat A_t,\;\operatorname{clip}(q_t,1-\epsilon,1+\epsilon)\widehat A_t\right)
+```
+
+clip(x,l,u) returns l when x<l, u when x>u, otherwise x. With epsilon=0.2, ratio 1.5 and positive advantage 2, the terms are 3 and 2.4; take min = 2.4. This clipping affects the optimisation objective, not a hard bound on final policy behaviour.
+
+**4. Loss — turn the benefit into something an optimiser can minimise.**
+
+```math
+\mathcal L_i^{\mathrm{clip}}=-\frac{1}{N}\sum_{t=1}^{N}u_t
+```
+
+N is the number of sampled decisions. The negative sign turns maximising the PPO surrogate into minimising a loss. MAPPO also normally optimises a critic loss and may include an entropy bonus. One training batch averages many positive and negative advantages.
 **IPPO** is the same but each agent fits its own critic on its own observation.
 
 **How in ATLAS (lab, 🎓).** The proposal behind ATLAS Go 1.3 has exactly two learning agents with one team
@@ -585,35 +619,35 @@ UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/
 
 ## T1. Mathematical prerequisites and notation
 
-**Scalars, vectors and matrices.** A scalar is one number, such as demand $d=120$ rides/hour. A vector holds several related numbers, such as $x=[\text{distance},\text{pickup delay},\text{surge}]$. A matrix $X\in\mathbb{R}^{n\times p}$ contains $n$ observations and $p$ features. A training set is $\mathcal D=\{(x_i,y_i)\}_{i=1}^n$, with labels $y_i$; an unlabelled set has only $x_i$.
+**Scalars, vectors and matrices.** A scalar is one number, such as demand $`d=120`$ rides/hour. A vector holds several related numbers, such as $`x=[\text{distance},\text{pickup delay},\text{surge}]`$. A matrix $`X\in\mathbb{R}^{n\times p}`$ contains $`n`$ observations and $`p`$ features. A training set is $`\mathcal D=\{(x_i,y_i)\}_{i=1}^n`$, with labels $`y_i`$; an unlabelled set has only $`x_i`$.
 
-**Linear algebra.** The dot product $w^\top x=\sum_jw_jx_j$ scores a candidate; $\|x\|_2=\sqrt{\sum_jx_j^2}$ is Euclidean length; matrix multiplication $Xw$ produces all linear predictions. The transpose flips row/column orientation. A positive-semidefinite matrix $H$ obeys $z^\top Hz\ge0$, a key condition in convex optimisation.
+**Linear algebra.** The dot product $`w^\top x=\sum_jw_jx_j`$ scores a candidate; $`\|x\|_2=\sqrt{\sum_jx_j^2}`$ is Euclidean length; matrix multiplication $`Xw`$ produces all linear predictions. The transpose flips row/column orientation. A positive-semidefinite matrix $`H`$ obeys $`z^\top Hz\ge0`$, a key condition in convex optimisation.
 
-**Probability.** $P(A|B)=P(A\cap B)/P(B)$ is conditional probability. Bayes' rule is
+**Probability.** $`P(A|B)=P(A\cap B)/P(B)`$ is conditional probability. Bayes' rule is
 
 ```math
 P(H|E)=\frac{P(E|H)P(H)}{P(E)}
 ```
 
-A random variable has expectation $E[X]=\sum_x xP(X=x)$ (or an integral for continuous $X$); variance is $E[(X-E[X])^2]$. Covariance tracks two variables changing together, but correlation does not prove causation.
+A random variable has expectation $`E[X]=\sum_x xP(X=x)`$ (or an integral for continuous $`X`$); variance is $`E[(X-E[X])^2]`$. Covariance tracks two variables changing together, but correlation does not prove causation.
 
-**Derivatives.** A derivative is the local slope: for $f(w)=(w-3)^2$, $f'(w)=2(w-3)$. The gradient $\nabla f$ is the vector of slopes; the Hessian $\nabla^2f$ contains second partial derivatives. The chain rule makes neural-network backpropagation possible:
+**Derivatives.** A derivative is the local slope: for $`f(w)=(w-3)^2`$, $`f'(w)=2(w-3)`$. The gradient $`\nabla f`$ is the vector of slopes; the Hessian $`\nabla^2f`$ contains second partial derivatives. The chain rule makes neural-network backpropagation possible:
 
 ```math
 \frac{dL}{dw}=\frac{dL}{d\hat y}\frac{d\hat y}{dw}
 ```
 
-For $L=(wx-y)^2/2$, the gradient is $(wx-y)x$.
+For $`L=(wx-y)^2/2`$, the gradient is $`(wx-y)x`$.
 
-**Useful distributions.** Bernoulli models yes/no; binomial counts successes; Poisson models arrival counts in a fixed interval when assumptions fit; Gaussian models many continuous noise patterns; beta represents uncertainty about a Bernoulli success probability. If $p\sim\mathrm{Beta}(\alpha,\beta)$ and we see $s$ successes and $f$ failures, then $p|\mathcal D\sim\mathrm{Beta}(\alpha+s,\beta+f)$, with posterior mean $(\alpha+s)/(\alpha+\beta+s+f)$.
+**Useful distributions.** Bernoulli models yes/no; binomial counts successes; Poisson models arrival counts in a fixed interval when assumptions fit; Gaussian models many continuous noise patterns; beta represents uncertainty about a Bernoulli success probability. If $`p\sim\mathrm{Beta}(\alpha,\beta)`$ and we see $`s`$ successes and $`f`$ failures, then $`p|\mathcal D\sim\mathrm{Beta}(\alpha+s,\beta+f)`$, with posterior mean $`(\alpha+s)/(\alpha+\beta+s+f)`$.
 
-**Scale and units matter.** Never add milliseconds directly to dollars without normalising or defining explicit trade-off weights. Feature standardisation is $z=(x-\mu_{\rm train})/\sigma_{\rm train}$. Learn $\mu,\sigma$ *only from training data*; reusing test data leaks information.
+**Scale and units matter.** Never add milliseconds directly to dollars without normalising or defining explicit trade-off weights. Feature standardisation is $`z=(x-\mu_{\rm train})/\sigma_{\rm train}`$. Learn $`\mu,\sigma`$ *only from training data*; reusing test data leaks information.
 
-**Toy example.** Candidate driver A has distance 2 km and acceptance probability 0.8; B has 1 km and 0.5. A score $s=-1\cdot\text{distance}+4\cdot\text{acceptance}$ yields A = 1.2 and B = 1.0. The coefficients encode a preference, not a universal truth.
+**Toy example.** Candidate driver A has distance 2 km and acceptance probability 0.8; B has 1 km and 0.5. A score $`s=-1\cdot\text{distance}+4\cdot\text{acceptance}`$ yields A = 1.2 and B = 1.0. The coefficients encode a preference, not a universal truth.
 
 ## T2. What learning means: tasks, data and generalisation
 
-A **model** is a parameterised function $f_\theta(x)$ mapping inputs to outputs. **Training** chooses parameters $\theta$ to minimise empirical loss $R_{\rm train}(\theta)=\frac1n\sum_i\ell(f_\theta(x_i),y_i)$. **Generalisation** asks whether the learnt rule works on previously unseen cases from the intended deployment distribution.
+A **model** is a parameterised function $`f_\theta(x)`$ mapping inputs to outputs. **Training** chooses parameters $`\theta`$ to minimise empirical loss $`R_{\rm train}(\theta)=\frac1n\sum_i\ell(f_\theta(x_i),y_i)`$. **Generalisation** asks whether the learnt rule works on previously unseen cases from the intended deployment distribution.
 
 | Task | Input → output | Typical loss / criterion | ATLAS analogy |
 |---|---|---|---|
@@ -638,49 +672,49 @@ A **model** is a parameterised function $f_\theta(x)$ mapping inputs to outputs.
 
 ### T3.1 Linear regression
 
-For $x\in\mathbb R^p$, predict $\hat y=w^\top x+b$ and minimise
+For $`x\in\mathbb R^p`$, predict $`\hat y=w^\top x+b`$ and minimise
 
 ```math
 J(w,b)=\frac1{2n}\sum_{i=1}^n(\hat y_i-y_i)^2
 ```
 
-Gradient descent takes $w\leftarrow w-\eta\nabla_wJ$, $b\leftarrow b-\eta\partial J/\partial b$. With a full-rank design matrix, ordinary least squares has $\hat w=(X^\top X)^{-1}X^\top y$; in practice prefer QR/SVD rather than explicitly inverting a matrix.
+Gradient descent takes $`w\leftarrow w-\eta\nabla_wJ`$, $`b\leftarrow b-\eta\partial J/\partial b`$. With a full-rank design matrix, ordinary least squares has $`\hat w=(X^\top X)^{-1}X^\top y`$; in practice prefer QR/SVD rather than explicitly inverting a matrix.
 
-**Worked step:** one observation $x=2,y=6$, model $\hat y=wx$, start $w=1$, learning rate $\eta=0.1$. Loss $L=(2-6)^2/2=8$; gradient $(2-6)2=-8$; new weight $w=1.8$, new prediction $3.6$. The update moves toward 6.
+**Worked step:** one observation $`x=2,y=6`$, model $`\hat y=wx`$, start $`w=1`$, learning rate $`\eta=0.1`$. Loss $`L=(2-6)^2/2=8`$; gradient $`(2-6)2=-8`$; new weight $`w=1.8`$, new prediction $`3.6`$. The update moves toward 6.
 
-**Ridge regression:** add $\lambda\|w\|_2^2$ to penalise large coefficients (normally leave intercept unpenalised). **Lasso:** add $\lambda\|w\|_1$, which can zero out coefficients. $\lambda$ is chosen on validation data.
+**Ridge regression:** add $`\lambda\|w\|_2^2`$ to penalise large coefficients (normally leave intercept unpenalised). **Lasso:** add $`\lambda\|w\|_1`$, which can zero out coefficients. $`\lambda`$ is chosen on validation data.
 
 ### T3.2 Logistic regression and calibration
 
-Logistic regression predicts $p=P(y=1|x)=\sigma(w^\top x+b)$, with sigmoid $\sigma(z)=1/(1+e^{-z})$. Learn by binary cross-entropy:
+Logistic regression predicts $`p=P(y=1|x)=\sigma(w^\top x+b)`$, with sigmoid $`\sigma(z)=1/(1+e^{-z})`$. Learn by binary cross-entropy:
 
 ```math
 L=-\frac1n\sum_i[y_i\log p_i+(1-y_i)\log(1-p_i)]
 ```
 
-A 0.5 threshold is not mandatory. If a missed acceptance and a false acceptance have different costs, tune the decision threshold on validation data. **Calibration** means that of all predictions around 0.8, roughly 80% should succeed; the Brier score $\frac1n\sum_i(p_i-y_i)^2$ assesses probability quality.
+A 0.5 threshold is not mandatory. If a missed acceptance and a false acceptance have different costs, tune the decision threshold on validation data. **Calibration** means that of all predictions around 0.8, roughly 80% should succeed; the Brier score $`\frac1n\sum_i(p_i-y_i)^2`$ assesses probability quality.
 
-**Example:** with logit $z=\ln 3$, $\sigma(z)=0.75$. If the driver declines ($y=0$), example cross-entropy is $-\ln(0.25)=1.386$; being confidently wrong is penalised.
+**Example:** with logit $`z=\ln 3`$, $`\sigma(z)=0.75`$. If the driver declines ($`y=0`$), example cross-entropy is $`-\ln(0.25)=1.386`$; being confidently wrong is penalised.
 
 ### T3.3 Nearest neighbours and naive Bayes
 
-**k-nearest neighbours (kNN)** finds training examples nearest to a query and takes a majority vote or distance-weighted average. Distances become meaningless when one unscaled feature dominates. Larger $k$ smooths predictions; smaller $k$ is more local but noisier.
+**k-nearest neighbours (kNN)** finds training examples nearest to a query and takes a majority vote or distance-weighted average. Distances become meaningless when one unscaled feature dominates. Larger $`k`$ smooths predictions; smaller $`k`$ is more local but noisier.
 
-**Naive Bayes** uses $P(y|x_1,\dots,x_p)\propto P(y)\prod_jP(x_j|y)$, assuming features are conditionally independent given the class. This assumption is often imperfect yet useful. Use log probabilities to avoid numerical underflow.
+**Naive Bayes** uses $`P(y|x_1,\dots,x_p)\propto P(y)\prod_jP(x_j|y)`$, assuming features are conditionally independent given the class. This assumption is often imperfect yet useful. Use log probabilities to avoid numerical underflow.
 
 ### T3.4 Metrics and imbalanced classes
 
-For a positive class: precision $=TP/(TP+FP)$, recall $=TP/(TP+FN)$, specificity $=TN/(TN+FP)$, $F_1=2PR/(P+R)$. Accuracy can mislead when 99% of telemetry is normal. Confusion matrices must state the positive class and chosen threshold. ROC-AUC measures ranking across thresholds; PR-AUC is often more informative when positives are rare.
+For a positive class: precision $`=TP/(TP+FP)`$, recall $`=TP/(TP+FN)`$, specificity $`=TN/(TN+FP)`$, $`F_1=2PR/(P+R)`$. Accuracy can mislead when 99% of telemetry is normal. Confusion matrices must state the positive class and chosen threshold. ROC-AUC measures ranking across thresholds; PR-AUC is often more informative when positives are rare.
 
-For regression, $MAE=\frac1n\sum|y_i-\hat y_i|$, $RMSE=\sqrt{\frac1n\sum(y_i-\hat y_i)^2}$. RMSE emphasises large errors. MAPE is unstable near zero true demand; use a clearly specified alternative such as WAPE or sMAPE where appropriate. Always report the metric's units and aggregation window.
+For regression, $`MAE=\frac1n\sum|y_i-\hat y_i|`$, $`RMSE=\sqrt{\frac1n\sum(y_i-\hat y_i)^2}`$. RMSE emphasises large errors. MAPE is unstable near zero true demand; use a clearly specified alternative such as WAPE or sMAPE where appropriate. Always report the metric's units and aggregation window.
 
 ## T4. Trees, ensembles, kernels and probabilistic learners
 
-**Decision trees.** Recursively split the feature space: for example, *if pickup ETA ≤ 4 minutes, use branch A; otherwise branch B*. Classification splits can minimise Gini impurity $1-\sum_kp_k^2$ or entropy $-\sum_kp_k\log p_k$; regression splits often minimise squared error. Deep trees memorise; depth, leaf-size and pruning control complexity.
+**Decision trees.** Recursively split the feature space: for example, *if pickup ETA ≤ 4 minutes, use branch A; otherwise branch B*. Classification splits can minimise Gini impurity $`1-\sum_kp_k^2`$ or entropy $`-\sum_kp_k\log p_k`$; regression splits often minimise squared error. Deep trees memorise; depth, leaf-size and pruning control complexity.
 
 **Bagging and random forests.** Train many trees on bootstrap samples and average/vote. Random forests additionally sample a subset of features when splitting, reducing correlation among trees. Ensemble averaging frequently reduces variance, but can still inherit bias or dataset problems.
 
-**Boosting.** Build an additive model $F_m(x)=F_{m-1}(x)+\eta h_m(x)$ in which each weak learner addresses the current loss/gradient. Gradient boosting can fit tabular data strongly; tune depth, learning rate and number of estimators, and use early stopping.
+**Boosting.** Build an additive model $`F_m(x)=F_{m-1}(x)+\eta h_m(x)`$ in which each weak learner addresses the current loss/gradient. Gradient boosting can fit tabular data strongly; tune depth, learning rate and number of estimators, and use early stopping.
 
 **Support vector machines.** A linear soft-margin classifier seeks a wide margin:
 
@@ -691,19 +725,19 @@ y_i(w^\top x_i+b)\ge1-\xi_i,\;\xi_i\ge0
 \end{aligned}
 ```
 
-Kernel functions $K(x,z)$ implicitly compare nonlinear features (e.g. the RBF kernel $\exp[-\gamma\|x-z\|^2]$). Scale features and validate $C,\gamma$.
+Kernel functions $`K(x,z)`$ implicitly compare nonlinear features (e.g. the RBF kernel $`\exp[-\gamma\|x-z\|^2]`$). Scale features and validate $`C,\gamma`$.
 
-**Probabilistic estimation.** A frequentist point estimate gives one parameter value; a Bayesian posterior represents uncertainty given a prior and observed data. With a Beta(9,1) prior, 3 accepts and 2 declines give Beta(12,3) and mean $12/15=0.8$. This is the theory behind the app's acceptance updater.
+**Probabilistic estimation.** A frequentist point estimate gives one parameter value; a Bayesian posterior represents uncertainty given a prior and observed data. With a Beta(9,1) prior, 3 accepts and 2 declines give Beta(12,3) and mean $`12/15=0.8`$. This is the theory behind the app's acceptance updater.
 
 **Selecting a model.** For small labelled tabular sets, try a regularised linear model and trees before deep learning; for long sequential structure, use temporal models. Interpretability, training cost, latency, calibration, failure cost and drift robustness are all selection criteria.
 
 ## T5. Unsupervised learning, representation and anomalies
 
-**k-means:** choose $k$ cluster centres and minimise within-cluster squared distances $\sum_i\min_j\|x_i-\mu_j\|^2$. Alternate assigning points and recomputing centres. It prefers roughly spherical Euclidean clusters, is sensitive to scales and initialization, and does not automatically discover the correct number of zones.
+**k-means:** choose $`k`$ cluster centres and minimise within-cluster squared distances $`\sum_i\min_j\|x_i-\mu_j\|^2`$. Alternate assigning points and recomputing centres. It prefers roughly spherical Euclidean clusters, is sensitive to scales and initialization, and does not automatically discover the correct number of zones.
 
-**DBSCAN:** group points with sufficiently many neighbours within distance $\varepsilon$, leaving isolated points as noise. It can find irregular spatial shapes; its behaviour depends on distance metric, $\varepsilon$, min_samples, and uneven densities. Geographic coordinates require an appropriate geographic distance.
+**DBSCAN:** group points with sufficiently many neighbours within distance $`\varepsilon`$, leaving isolated points as noise. It can find irregular spatial shapes; its behaviour depends on distance metric, $`\varepsilon`$, min_samples, and uneven densities. Geographic coordinates require an appropriate geographic distance.
 
-**PCA:** centre/scale features as appropriate; find orthogonal directions of greatest variance using eigendecomposition or SVD. Projection $z=W_k^\top(x-\mu)$ compresses dimensions. High explained variance does not necessarily mean high predictive value.
+**PCA:** centre/scale features as appropriate; find orthogonal directions of greatest variance using eigendecomposition or SVD. Projection $`z=W_k^\top(x-\mu)`$ compresses dimensions. High explained variance does not necessarily mean high predictive value.
 
 **Anomaly detection:** a rule-based method flags explicit limit violations; an Isolation Forest finds points quickly isolated by random splits; one-class SVM learns a boundary around normality; reconstruction methods flag unusually large reconstruction errors. Unlabelled anomaly scores are not calibrated event probabilities. Decide alert thresholds using realistic validation incidents, and report false alarms per hour, recall, detection delay and attribution accuracy.
 
@@ -713,11 +747,11 @@ Kernel functions $K(x,z)$ implicitly compare nonlinear features (e.g. the RBF ke
 
 ## T6. Neural networks, gradients and sequence models
 
-A dense layer is $h=\phi(Wx+b)$. Multi-layer networks compose layers: $\hat y=f_\theta(x)$. ReLU $\max(0,z)$ gives nonlinearity; sigmoid maps to (0,1); softmax $p_i=e^{z_i}/\sum_je^{z_j}$ produces categorical probabilities. Backpropagation applies the chain rule from loss to every layer.
+A dense layer is $`h=\phi(Wx+b)`$. Multi-layer networks compose layers: $`\hat y=f_\theta(x)`$. ReLU $`\max(0,z)`$ gives nonlinearity; sigmoid maps to (0,1); softmax $`p_i=e^{z_i}/\sum_je^{z_j}`$ produces categorical probabilities. Backpropagation applies the chain rule from loss to every layer.
 
 **Training loop:** initialise weights → take a mini-batch → forward pass → compute loss → backpropagate gradients → update parameters → validate → stop/checkpoint. Epoch = one pass over all training examples; batch size controls examples per update; learning rate controls update step.
 
-**Optimisers.** Plain SGD: $\theta_{t+1}=\theta_t-\eta g_t$. Momentum: $v_t=\beta v_{t-1}+g_t,\;\theta_{t+1}=\theta_t-\eta v_t$. Adam:
+**Optimisers.** Plain SGD: $`\theta_{t+1}=\theta_t-\eta g_t`$. Momentum: $`v_t=\beta v_{t-1}+g_t,\;\theta_{t+1}=\theta_t-\eta v_t`$. Adam:
 
 ```math
 \begin{aligned}
@@ -737,9 +771,9 @@ v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2
 
 Operations involving vector parameters are elementwise. Adam uses gradient-history estimates, not a guaranteed optimal step. Gradient clipping helps limit exploding gradients; dropout and weight decay regularise; early stopping limits overfitting.
 
-**Why a recurrent model?** A feed-forward model sees the current snapshot; a recurrent network carries a hidden state encoding earlier observations. A vanilla RNN updates $h_t=\tanh(W_xx_t+W_hh_{t-1}+b)$, but repeated multiplication through time can cause vanishing/exploding gradients.
+**Why a recurrent model?** A feed-forward model sees the current snapshot; a recurrent network carries a hidden state encoding earlier observations. A vanilla RNN updates $`h_t=\tanh(W_xx_t+W_hh_{t-1}+b)`$, but repeated multiplication through time can cause vanishing/exploding gradients.
 
-**LSTM equations.** For input $x_t$, previous hidden $h_{t-1}$, previous cell $c_{t-1}$, with concatenation $[h_{t-1},x_t]$:
+**LSTM equations.** For input $`x_t`$, previous hidden $`h_{t-1}`$, previous cell $`c_{t-1}`$, with concatenation $`[h_{t-1},x_t]`$:
 
 ```math
 \begin{aligned}
@@ -766,17 +800,17 @@ h_t=o_t\odot\tanh(c_t)
 
 The **forget gate** controls retained memory; the **input gate** controls newly written information; the **output gate** controls exposed information. Think of the cell as a notebook with erase, write and read controls.
 
-**Worked LSTM gate step:** let old cell be 0.8, forget gate 0.5, input gate 0.25, candidate update 0.6. Then the new cell is $c_t=0.5(0.8)+0.25(0.6)=0.55$. This is a valid illustrative cell update because the candidate lies in $[-1,1]$.
+**Worked LSTM gate step:** let old cell be 0.8, forget gate 0.5, input gate 0.25, candidate update 0.6. Then the new cell is $`c_t=0.5(0.8)+0.25(0.6)=0.55`$. This is a valid illustrative cell update because the candidate lies in $`[-1,1]`$.
 
 **Sequence design:** a sliding input window of past 24 hours can predict next six hours; an encoder produces representations and an output head yields a multi-horizon forecast. Fit scalers and transforms on training history only; prevent overlapping future labels from leaking into the earlier split; choose between direct multi-step and recursive prediction. Bidirectional LSTMs are acceptable when the *whole input window* is already observed, but must never use data beyond the prediction time.
 
 ## T7. Forecasting, drift and online learning
 
-**Classical baselines:** persistence ($\hat y_{t+h}=y_t$); seasonal naive ($\hat y_{t+h}=y_{t+h-s}$); moving averages; exponential smoothing ($\ell_t=\alpha y_t+(1-\alpha)\ell_{t-1}$); Holt trend; Holt–Winters trend + seasonality; autoregression $\hat y_t=b+\sum_{j=1}^pw_jy_{t-j}$. A sophisticated LSTM should beat meaningful baselines on the same horizons, not merely fit training curves.
+**Classical baselines:** persistence ($`\hat y_{t+h}=y_t`$); seasonal naive ($`\hat y_{t+h}=y_{t+h-s}`$); moving averages; exponential smoothing ($`\ell_t=\alpha y_t+(1-\alpha)\ell_{t-1}`$); Holt trend; Holt–Winters trend + seasonality; autoregression $`\hat y_t=b+\sum_{j=1}^pw_jy_{t-j}`$. A sophisticated LSTM should beat meaningful baselines on the same horizons, not merely fit training curves.
 
 **Stationarity** loosely means key statistical properties do not change over time. Real demand shows weekday cycles, holidays, special events, road incidents and shifts. Transformations (e.g. log1p) can stabilise scale, but inverse-transform predictions before evaluating in rides/hour.
 
-**Concept drift:** $P_t(X)$ may change (covariate shift); $P_t(Y|X)$ may change (concept drift). Monitor prediction error, feature distributions, missingness and downstream service quality. Drift detection alone does not prove retraining helps.
+**Concept drift:** $`P_t(X)`$ may change (covariate shift); $`P_t(Y|X)`$ may change (concept drift). Monitor prediction error, feature distributions, missingness and downstream service quality. Drift detection alone does not prove retraining helps.
 
 **Online learning:** update after new observations arrive. A safe pipeline logs immutable event times, waits for delayed labels, uses bounded update steps, trains a challenger, compares against a champion on untouched holdout/replay data, deploys only after passing gates, and keeps rollback. Off-policy data are biased if actions affect which outcomes get observed; use careful logged-policy evaluation rather than treating all observations as independent randomised trials.
 
@@ -784,7 +818,7 @@ The **forget gate** controls retained memory; the **input gate** controls newly 
 
 ## T8. Reinforcement learning, policy gradients and multi-agent learning
 
-**Markov decision process (MDP):** $(\mathcal S,\mathcal A,P,r,\gamma)$ contains states, actions, transition probabilities, rewards and discount factor $0\le\gamma<1$. At time $t$, observe $s_t$, choose $a_t$, receive $r_t$ and next state $s_{t+1}$. A policy $\pi(a|s)$ maps states to action probabilities. The objective is expected discounted return $E[\sum_{t\ge0}\gamma^tr_t]$.
+**Markov decision process (MDP):** $`(\mathcal S,\mathcal A,P,r,\gamma)`$ contains states, actions, transition probabilities, rewards and discount factor $`0\le\gamma<1`$. At time $`t`$, observe $`s_t`$, choose $`a_t`$, receive $`r_t`$ and next state $`s_{t+1}`$. A policy $`\pi(a|s)`$ maps states to action probabilities. The objective is expected discounted return $`E[\sum_{t\ge0}\gamma^tr_t]`$.
 
 **Bellman relationships:**
 
@@ -797,9 +831,9 @@ V^\pi(s)=E_\pi[r_t+\gamma V^\pi(s_{t+1})|s_t=s]
 Q^*(s,a)=E[r_t+\gamma\max_{a'}Q^*(s_{t+1},a')|s,a]
 ```
 
-The value $V$ concerns a state; $Q$ concerns taking a particular action in a state.
+The value $`V`$ concerns a state; $`Q`$ concerns taking a particular action in a state.
 
-**Exploration versus exploitation:** an $\epsilon$-greedy agent chooses a random action with probability $\epsilon$, otherwise the best known action. Exploration is appropriate in a simulator but may be unsafe on paying customers. Contextual bandits have immediate consequences without explicitly modelling future transitions; full RL models delayed consequences.
+**Exploration versus exploitation:** an $`\epsilon`$-greedy agent chooses a random action with probability $`\epsilon`$, otherwise the best known action. Exploration is appropriate in a simulator but may be unsafe on paying customers. Contextual bandits have immediate consequences without explicitly modelling future transitions; full RL models delayed consequences.
 
 **Tabular Q-learning:**
 
@@ -807,7 +841,7 @@ The value $V$ concerns a state; $Q$ concerns taking a particular action in a sta
 Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma\max_{a'}Q(s',a')-Q(s,a)]
 ```
 
-**Toy calculation:** $Q(s,a)=5,\;r=2,\;\gamma=0.9,\;\max Q(s',\cdot)=8,\;\alpha=0.1$. Target $=2+0.9(8)=9.2$; updated $Q=5+0.1(9.2-5)=5.42$. For a terminal next state, continuation value is zero.
+**Toy calculation:** $`Q(s,a)=5,\;r=2,\;\gamma=0.9,\;\max Q(s',\cdot)=8,\;\alpha=0.1`$. Target $`=2+0.9(8)=9.2`$; updated $`Q=5+0.1(9.2-5)=5.42`$. For a terminal next state, continuation value is zero.
 
 **Deep Q-network (DQN):** approximate Q with a neural network, use replay memory to break correlations and a target network for more stable bootstrapping. Double DQN decouples action selection from target evaluation to reduce maximisation bias. DQN is natural for discrete action spaces.
 
@@ -817,11 +851,11 @@ Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma\max_{a'}Q(s',a')-Q(s,a)]
 \nabla_\theta J\approx\sum_t(G_t-b(s_t))\nabla_\theta\log\pi_\theta(a_t|s_t)
 ```
 
-A baseline independent of the sampled action can reduce variance without introducing policy-gradient bias. An actor selects actions; a critic estimates values. For a one-step terminal transition, advantage may be $r-V(s)$; for nonterminal one-step TD, use $A_t\approx r_t+\gamma V(s_{t+1})-V(s_t)$.
+A baseline independent of the sampled action can reduce variance without introducing policy-gradient bias. An actor selects actions; a critic estimates values. For a one-step terminal transition, advantage may be $`r-V(s)`$; for nonterminal one-step TD, use $`A_t\approx r_t+\gamma V(s_{t+1})-V(s_t)`$.
 
-**Generalised advantage estimation (GAE):** define $\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)$ and $\hat A_t=\sum_{l\ge0}(\gamma\lambda)^l\delta_{t+l}$. The parameter $\lambda$ trades bias against variance.
+**Generalised advantage estimation (GAE):** define $`\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)`$ and $`\hat A_t=\sum_{l\ge0}(\gamma\lambda)^l\delta_{t+l}`$. The parameter $`\lambda`$ trades bias against variance.
 
-**PPO:** constrain the degree of policy change using $r_t(\theta)=\pi_\theta(a_t|s_t)/\pi_{\rm old}(a_t|s_t)$ and clipped surrogate $E[\min(r_t\hat A_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)\hat A_t)]$. This is a practical heuristic, not a universal safety guarantee.
+**PPO:** uses four interpretable quantities: new/old action probability ratio, advantage, clipped surrogate, and negative mean loss. See the four worked equations in §10. The clipping term moderates the training objective but is not a guaranteed bound on policy change or safety.
 
 **Multi-agent RL.** Agents may cooperate, compete or both. A shared reward creates credit-assignment challenges. Under **centralised training, decentralised execution (CTDE)**, actors use only permitted local observations at runtime while a training critic can access global state. IPPO uses local critics; MAPPO often uses a centralised value function with PPO-style updates. A shared critic does **not** imply all agents share policy weights. Non-stationarity occurs because other agents' policies are changing during training.
 
@@ -829,13 +863,13 @@ A baseline independent of the sampled action can reduce variance without introdu
 
 ## T9. Optimisation foundations and continuous methods
 
-An optimisation problem has **decision variables** $x$, an **objective** $f(x)$, and a **feasible set** $\mathcal F$: $\min_{x\in\mathcal F}f(x)$. Constraints may be inequalities $g_i(x)\le0$, equalities $h_j(x)=0$, integrality or discrete-choice restrictions. A feasible decision meets every hard constraint; an optimum is the best feasible decision.
+An optimisation problem has **decision variables** $`x`$, an **objective** $`f(x)`$, and a **feasible set** $`\mathcal F`$: $`\min_{x\in\mathcal F}f(x)`$. Constraints may be inequalities $`g_i(x)\le0`$, equalities $`h_j(x)=0`$, integrality or discrete-choice restrictions. A feasible decision meets every hard constraint; an optimum is the best feasible decision.
 
-**Convexity:** a set is convex when every line segment joining two feasible points is feasible. A differentiable function is convex if $f(y)\ge f(x)+\nabla f(x)^\top(y-x)$; for twice differentiable functions a PSD Hessian is sufficient (and under standard open convex domain assumptions equivalent). Every local minimum of a convex objective over a convex feasible set is global; nonlinear or integer problems generally lack this guarantee.
+**Convexity:** a set is convex when every line segment joining two feasible points is feasible. A differentiable function is convex if $`f(y)\ge f(x)+\nabla f(x)^\top(y-x)`$; for twice differentiable functions a PSD Hessian is sufficient (and under standard open convex domain assumptions equivalent). Every local minimum of a convex objective over a convex feasible set is global; nonlinear or integer problems generally lack this guarantee.
 
-**Gradient descent** $x_{t+1}=x_t-\eta\nabla f(x_t)$ is first-order. **Newton's method** $x_{t+1}=x_t-[\nabla^2f(x_t)]^{-1}\nabla f(x_t)$ uses curvature and can converge rapidly near a suitable optimum, but the Hessian may be indefinite, singular or expensive. Practical methods use linear solves, damping or trust regions. **BFGS** approximates inverse curvature using successive gradients.
+**Gradient descent** $`x_{t+1}=x_t-\eta\nabla f(x_t)`$ is first-order. **Newton's method** $`x_{t+1}=x_t-[\nabla^2f(x_t)]^{-1}\nabla f(x_t)`$ uses curvature and can converge rapidly near a suitable optimum, but the Hessian may be indefinite, singular or expensive. Practical methods use linear solves, damping or trust regions. **BFGS** approximates inverse curvature using successive gradients.
 
-**Worked continuous step:** minimise $f(x)=(x-3)^2+1$. At $x_0=0$, $f'(0)=-6$. With $\eta=0.2$, $x_1=1.2$; the objective drops from 10 to 4.24. Exact Newton step moves from 0 to 3 because $f''=2$, finding $f(3)=1$.
+**Worked continuous step:** minimise $`f(x)=(x-3)^2+1`$. At $`x_0=0`$, $`f'(0)=-6`$. With $`\eta=0.2`$, $`x_1=1.2`$; the objective drops from 10 to 4.24. Exact Newton step moves from 0 to 3 because $`f''=2`$, finding $`f(3)=1`$.
 
 **Conditioning:** the Hessian eigenvalue ratio (for a positive-definite Hessian) describes relative curvature. Poorly conditioned landscapes produce zig-zagging gradient steps; feature scaling, preconditioning or second-order methods can help. Always specify stopping criteria, such as gradient norm, relative objective improvement, maximum iterations and feasibility tolerance.
 
@@ -843,53 +877,53 @@ An optimisation problem has **decision variables** $x$, an **objective** $f(x)$,
 
 ## T10. Constraints, duality and integer optimisation
 
-**Linear programming (LP):** minimise $c^\top x$ subject to $Ax\le b$, $Ex=d$, and bounds. Continuous LPs admit efficient methods such as simplex and interior-point algorithms. A **binary integer program (BIP)** requires some or all $x_i\in\{0,1\}$; combinatorial choice makes it harder.
+**Linear programming (LP):** minimise $`c^\top x`$ subject to $`Ax\le b`$, $`Ex=d`$, and bounds. Continuous LPs admit efficient methods such as simplex and interior-point algorithms. A **binary integer program (BIP)** requires some or all $`x_i\in\{0,1\}`$; combinatorial choice makes it harder.
 
-**Lagrangian:** for $\min f(x)$ with $g_i(x)\le0$ and $h_j(x)=0$,
+**Lagrangian:** for $`\min f(x)`$ with $`g_i(x)\le0`$ and $`h_j(x)=0`$,
 
 ```math
 \mathcal L(x,\lambda,\nu)=f(x)+\sum_i\lambda_i g_i(x)+\sum_j\nu_jh_j(x),\qquad\lambda_i\ge0
 ```
 
-Under appropriate convexity and constraint qualification, KKT conditions characterise optimality: primal feasibility, dual feasibility, stationarity $\nabla_x\mathcal L=0$, and complementary slackness $\lambda_ig_i(x)=0$. The multipliers are *shadow prices*: roughly, the marginal change in optimal objective when relaxing a constraint, with sign interpreted using the chosen constraint convention.
+Under appropriate convexity and constraint qualification, KKT conditions characterise optimality: primal feasibility, dual feasibility, stationarity $`\nabla_x\mathcal L=0`$, and complementary slackness $`\lambda_ig_i(x)=0`$. The multipliers are *shadow prices*: roughly, the marginal change in optimal objective when relaxing a constraint, with sign interpreted using the chosen constraint convention.
 
-**Worked constrained allocation:** allocate $x$ workers, minimise $(x-5)^2$ subject to $x\le3$. The constrained optimum is $x=3$ with loss 4. Set $g(x)=x-3$; stationarity $2(x-5)+\lambda=0$ implies $\lambda=4$, with active constraint and positive multiplier. Relaxing the cap slightly improves the loss at roughly four units per worker near that cap.
+**Worked constrained allocation:** allocate $`x`$ workers, minimise $`(x-5)^2`$ subject to $`x\le3`$. The constrained optimum is $`x=3`$ with loss 4. Set $`g(x)=x-3`$; stationarity $`2(x-5)+\lambda=0`$ implies $`\lambda=4`$, with active constraint and positive multiplier. Relaxing the cap slightly improves the loss at roughly four units per worker near that cap.
 
-**LP relaxation:** replace $c_i\in\{0,1\}$ by $0\le c_i\le1$ to obtain a cheaper lower bound for minimisation. Fractional results must be rounded *and then checked for feasibility*. **Branch-and-bound** solves relaxations at tree nodes, branches on fractional variables and prunes nodes whose bound cannot improve the incumbent. The integrality gap compares the best integer and relaxed objectives and must have a defined denominator.
+**LP relaxation:** replace $`c_i\in\{0,1\}`$ by $`0\le c_i\le1`$ to obtain a cheaper lower bound for minimisation. Fractional results must be rounded *and then checked for feasibility*. **Branch-and-bound** solves relaxations at tree nodes, branches on fractional variables and prunes nodes whose bound cannot improve the incumbent. The integrality gap compares the best integer and relaxed objectives and must have a defined denominator.
 
-**Enumeration:** $n$ binary decisions yield $2^n$ configurations (six modules → 64; 20 modules → 1,048,576). Exhaustive enumeration provides an exact answer for small instances but quickly becomes impractical. Note that solving a linearised model exactly does not guarantee optimality for the original nonlinear model.
+**Enumeration:** $`n`$ binary decisions yield $`2^n`$ configurations (six modules → 64; 20 modules → 1,048,576). Exhaustive enumeration provides an exact answer for small instances but quickly becomes impractical. Note that solving a linearised model exactly does not guarantee optimality for the original nonlinear model.
 
-**ATLAS-specific formulation:** $c_i=0$ means tightly coupled and $c_i=1$ means separate service. Its objective balances latency, resource cost, risk and change penalty, subject to utilisation, SLA and availability requirements (see §2). A switching penalty discourages frequent flips; hysteresis adds an explicit dwell rule.
+**ATLAS-specific formulation:** $`c_i=0`$ means tightly coupled and $`c_i=1`$ means separate service. Its objective balances latency, resource cost, risk and change penalty, subject to utilisation, SLA and availability requirements (see §2). A switching penalty discourages frequent flips; hysteresis adds an explicit dwell rule.
 
 ## T11. Graph, scheduling, dynamic and heuristic optimisation
 
-**Graph model:** a graph $G=(V,E)$ represents locations and roads with edge weights (time, cost or distance). Dijkstra finds shortest paths for nonnegative weights; Bellman–Ford permits negative weights and detects reachable negative cycles; A* uses a heuristic lower bound (for optimality, conditions such as admissibility and suitable handling of consistency/reopening matter). Do not confuse shortest travel time with straight-line distance.
+**Graph model:** a graph $`G=(V,E)`$ represents locations and roads with edge weights (time, cost or distance). Dijkstra finds shortest paths for nonnegative weights; Bellman–Ford permits negative weights and detects reachable negative cycles; A* uses a heuristic lower bound (for optimality, conditions such as admissibility and suitable handling of consistency/reopening matter). Do not confuse shortest travel time with straight-line distance.
 
 **Assignment:** choose driver–ride pairs to minimise total cost, with constraints that each driver/ride is assigned at most once. A bipartite weighted assignment can be solved with the Hungarian algorithm. If eligibility, capacities, fairness or time windows enter, the formulation may require integer programming.
 
-**Toy assignment:** two drivers A,B and two rides 1,2 have costs $C=\begin{bmatrix}3&8\\6&4\end{bmatrix}$. Assignment A→1, B→2 costs $3+4=7$; A→2, B→1 costs $8+6=14$. Choose cost 7.
+**Toy assignment:** two drivers A,B and two rides 1,2 have costs $`C=\begin{bmatrix}3&8\\6&4\end{bmatrix}`$. Assignment A→1, B→2 costs $`3+4=7`$; A→2, B→1 costs $`8+6=14`$. Choose cost 7.
 
-**Knapsack:** maximise $\sum_iv_ix_i$ subject to $\sum_iw_ix_i\le W,\;x_i\in\{0,1\}$. Dynamic programming uses subproblem state $(i,\text{remaining capacity})$. **Bellman's principle of optimality** says an optimal remaining plan is optimal for its resulting subproblem, given a sufficient state.
+**Knapsack:** maximise $`\sum_iv_ix_i`$ subject to $`\sum_iw_ix_i\le W,\;x_i\in\{0,1\}`$. Dynamic programming uses subproblem state $`(i,\text{remaining capacity})`$. **Bellman's principle of optimality** says an optimal remaining plan is optimal for its resulting subproblem, given a sufficient state.
 
-**Dynamic programming for autoscaling:** define $V_t(s)=\min_a[c_t(s,a)+V_{t+1}(T(s,a))]$, with $s$ including current replicas and pending startup/dwell state. Leaving the switching state out breaks the Markov property.
+**Dynamic programming for autoscaling:** define $`V_t(s)=\min_a[c_t(s,a)+V_{t+1}(T(s,a))]`$, with $`s`$ including current replicas and pending startup/dwell state. Leaving the switching state out breaks the Markov property.
 
 **Flow and packing:** max flow transports quantity over edges with capacities; min cut identifies a limiting separation in a network. Bin packing places workloads into a minimum number of finite-capacity pods; first-fit decreasing is a useful heuristic, not a general exact solver.
 
 **Routing and scheduling:** travelling-salesperson, vehicle-routing and pickup/delivery problems add tour consistency, capacity, time windows and precedence. Held–Karp dynamic programming is exact for modest TSP instances; 2-opt iteratively removes crossings/improves tours but may get stuck in a local optimum.
 
-**Metaheuristics:** greedy picks the best immediate move; local search improves a neighbour; tabu search temporarily forbids revisits; simulated annealing sometimes accepts a worse solution with probability $e^{-\Delta/T}$ for deterioration $\Delta>0$; genetic algorithms use selection, crossover and mutation; PSO updates particles using velocity, personal best and swarm best. Benchmark them with the *same computation budget*, initial states and feasibility checks.
+**Metaheuristics:** greedy picks the best immediate move; local search improves a neighbour; tabu search temporarily forbids revisits; simulated annealing sometimes accepts a worse solution with probability $`e^{-\Delta/T}`$ for deterioration $`\Delta>0`$; genetic algorithms use selection, crossover and mutation; PSO updates particles using velocity, personal best and swarm best. Benchmark them with the *same computation budget*, initial states and feasibility checks.
 
 ## T12. Multi-objective, robust and safe decision-making
 
 **Trade-offs:** minimising average wait, carbon emissions and surge unfairness often yields no single best point. A solution is **Pareto-dominated** if another feasible solution improves at least one objective without worsening any. The Pareto front contains nondominated solutions.
 
-**Scalarisation:** normalised weighted sum $\min \sum_kw_kf_k(x)/s_k$ is simple, but choice of weights and scales changes decisions; weighted sums may miss nonconvex parts of a Pareto front. The **epsilon-constraint method** minimises one objective while bounding the rest.
+**Scalarisation:** normalised weighted sum $`\min \sum_kw_kf_k(x)/s_k`$ is simple, but choice of weights and scales changes decisions; weighted sums may miss nonconvex parts of a Pareto front. The **epsilon-constraint method** minimises one objective while bounding the rest.
 
-**Robust optimisation:** when demand $\lambda$ is uncertain within uncertainty set $\mathcal U$, solve $\min_x\max_{\lambda\in\mathcal U}f(x,\lambda)$. This may be conservative; scenario or chance-constrained alternatives need assumptions about uncertainty distribution.
+**Robust optimisation:** when demand $`\lambda`$ is uncertain within uncertainty set $`\mathcal U`$, solve $`\min_x\max_{\lambda\in\mathcal U}f(x,\lambda)`$. This may be conservative; scenario or chance-constrained alternatives need assumptions about uncertainty distribution.
 
-**Chance constraints:** require $P(L(x,\xi)\le L_{\max})\ge1-\delta$. Estimate reliability with enough independent and representative scenarios; finite samples cannot prove zero risk. **CVaR** minimises the mean loss in the worst tail beyond a chosen quantile, making rare severe waits more visible than average loss.
+**Chance constraints:** require $`P(L(x,\xi)\le L_{\max})\ge1-\delta`$. Estimate reliability with enough independent and representative scenarios; finite samples cannot prove zero risk. **CVaR** minimises the mean loss in the worst tail beyond a chosen quantile, making rare severe waits more visible than average loss.
 
-**Online control:** continually switching an action may itself be costly. Model $\kappa\|x_t-x_{t-1}\|_1$ or dwell-time restrictions; test transient states (boot delays, temporary capacity overlap, crashes). For an RL controller, distinguish *soft penalties* in its reward from *hard constraints* enforced by a Guardian.
+**Online control:** continually switching an action may itself be costly. Model $`\kappa\|x_t-x_{t-1}\|_1`$ or dwell-time restrictions; test transient states (boot delays, temporary capacity overlap, crashes). For an RL controller, distinguish *soft penalties* in its reward from *hard constraints* enforced by a Guardian.
 
 **Fairness and privacy:** assess service across locations, times, accessibility needs and rider/driver groups without inferring protected traits from data where unjustified. Document collection purpose, retention, consent, access controls and leakage risk. A low global average wait can hide systematically underserved zones.
 
@@ -899,9 +933,9 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 
 **Ablation:** remove one component at a time (no forecast, no anomaly detector, no optimisation, no Guardian) while keeping everything else fixed. An ablation answers contribution, not necessarily causal effect under interactions; factorial experiments examine interactions.
 
-**Paired runs:** compare candidate and baseline on the *same* random seeds, arrival streams and demand shocks. If $d_i=\text{candidate}_i-\text{baseline}_i$, report $\bar d$, sample standard deviation $s_d$, and an appropriate confidence interval $\bar d\pm t_{n-1,0.975}s_d/\sqrt n$ under the relevant independence/normal-approximation assumptions. Avoid calling each correlated time step an independent replicate.
+**Paired runs:** compare candidate and baseline on the *same* random seeds, arrival streams and demand shocks. If $`d_i=\text{candidate}_i-\text{baseline}_i`$, report $`\bar d`$, sample standard deviation $`s_d`$, and an appropriate confidence interval $`\bar d\pm t_{n-1,0.975}s_d/\sqrt n`$ under the relevant independence/normal-approximation assumptions. Avoid calling each correlated time step an independent replicate.
 
-**Example:** paired improvement values [2,4,3,5,1] minutes yield mean improvement 3 minutes, sample SD $\sqrt{2.5}\approx1.581$, SE $\approx0.707$. With 5 independent paired runs, 95% t interval uses $t_{4,0.975}\approx2.776$, giving approximately [1.04, 4.96] minutes. Report this uncertainty rather than just “3 minutes better.”
+**Example:** paired improvement values [2,4,3,5,1] minutes yield mean improvement 3 minutes, sample SD $`\sqrt{2.5}\approx1.581`$, SE $`\approx0.707`$. With 5 independent paired runs, 95% t interval uses $`t_{4,0.975}\approx2.776`$, giving approximately [1.04, 4.96] minutes. Report this uncertainty rather than just “3 minutes better.”
 
 **For forecasting:** plot performance by horizon and by normal/peak/event conditions; use chronological rolling-origin evaluation. **For classification:** show PR curve, thresholds, false alarms and calibration. **For RL:** evaluate frozen policies on held-out scenarios across multiple training and evaluation seeds; compare against random, nearest, greedy, fixed and relevant learned policies, and track unsafe proposals. **For optimisation:** report objective, feasibility, runtime median/p95, optimality gap and scaling with problem size.
 
@@ -919,7 +953,7 @@ Assume an hourly demand forecaster predicts **12 requests** in Zone A, with curr
 J(a)=5\max(0,12-(9+a))+\text{cost}(a)
 ```
 
-Compute: action 0 → shortage 3, loss 15; action 2 → shortage 1, loss $5+3=8$; action 4 → shortage 0, loss 7. The feasible best of these three actions is **bring 4 drivers**, loss 7. If there is a hard policy limit of at most 2 relocations, action 4 is infeasible and action 2 wins with loss 8.
+Compute: action 0 → shortage 3, loss 15; action 2 → shortage 1, loss $`5+3=8`$; action 4 → shortage 0, loss 7. The feasible best of these three actions is **bring 4 drivers**, loss 7. If there is a hard policy limit of at most 2 relocations, action 4 is infeasible and action 2 wins with loss 8.
 
 Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recompute each action for each outcome; compare expected loss (if scenario probabilities are justified) with worst-case loss (robust decision). This illustrates the difference between an LSTM *prediction*, an optimiser *choice*, and a Guardian *feasibility check*. Finally, log realised demand, relocation decision and true outcome so the predictive and decision layers can be evaluated separately.
 
@@ -940,15 +974,15 @@ Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recomput
 
 ### T14.3 Practice problems (with answers)
 
-**P1 — Gradient descent.** $L(w)=\frac12(w-4)^2$, start $w=0$, $\eta=0.25$. Compute one update. **Answer:** gradient $-4$, updated $w=1$, loss drops from 8 to 4.5.
+**P1 — Gradient descent.** $`L(w)=\frac12(w-4)^2`$, start $`w=0`$, $`\eta=0.25`$. Compute one update. **Answer:** gradient $`-4`$, updated $`w=1`$, loss drops from 8 to 4.5.
 
-**P2 — Classification.** Predictions yield TP=18, FP=6, FN=2, TN=74. Find precision, recall and F1. **Answer:** precision $18/24=0.75$, recall $18/20=0.9$, F1 $\approx0.818$.
+**P2 — Classification.** Predictions yield TP=18, FP=6, FN=2, TN=74. Find precision, recall and F1. **Answer:** precision $`18/24=0.75`$, recall $`18/20=0.9`$, F1 $`\approx0.818`$.
 
 **P3 — Bayesian acceptance.** Prior Beta(2,2), five accepts and one decline. **Answer:** posterior Beta(7,3), posterior mean 0.7.
 
-**P4 — Discounted reward.** Rewards 3 now and 4 next step, $\gamma=0.5$, episode ends after step 2. **Answer:** $G_0=3+0.5(4)=5$.
+**P4 — Discounted reward.** Rewards 3 now and 4 next step, $`\gamma=0.5`$, episode ends after step 2. **Answer:** $`G_0=3+0.5(4)=5`$.
 
-**P5 — Binary combinations.** Ten modules can be tight or loose. How many assignments? **Answer:** $2^{10}=1024$.
+**P5 — Binary combinations.** Ten modules can be tight or loose. How many assignments? **Answer:** $`2^{10}=1024`$.
 
 **P6 — Constraint repair.** Two options cost 4 and 3 respectively, but option 2 violates a 100 ms SLA. **Answer:** choose feasible option 1, not cheaper infeasible option 2.
 
@@ -1010,7 +1044,7 @@ This chapter is designed for **first-time learners**. Each explanation follows t
 
 **What?** A sample is a row representing one observation; features are known quantities used to make a prediction; a label is the outcome to predict. A dataset combines many observations. **Why?** Algorithms cannot infer useful relationships unless inputs are meaningful, consistently measured, and available at decision time. **How?** For predicting a ride acceptance, make each row one historical offer, put distance and estimated pickup delay in the feature columns, and acceptance (0/1) in the label column. Separate the test period first, impute missing training values using training-derived statistics, and apply the same transformation to future data.
 
-**What is feature engineering?** Transforming raw facts into informative variables; e.g. pickup time 17:30 becomes time-of-day sine/cosine so 23:59 is close to 00:01. **Why?** Models are sensitive to how information is represented. **How?** Convert hour $h$ to $\sin(2\pi h/24)$ and $\cos(2\pi h/24)$, fit all statistical preprocessing on the training window, and verify each feature is available before the prediction.
+**What is feature engineering?** Transforming raw facts into informative variables; e.g. pickup time 17:30 becomes time-of-day sine/cosine so 23:59 is close to 00:01. **Why?** Models are sensitive to how information is represented. **How?** Convert hour $`h`$ to $`\sin(2\pi h/24)`$ and $`\cos(2\pi h/24)`$, fit all statistical preprocessing on the training window, and verify each feature is available before the prediction.
 
 ### T15.2 Learning paradigms
 
@@ -1034,17 +1068,17 @@ This chapter is designed for **first-time learners**. Each explanation follows t
 
 ### T15.4 How linear and probabilistic models make predictions
 
-**Linear regression — What?** Predicts a continuous value by a weighted sum of features. **Why?** It is fast, interpretable and a strong baseline. **How?** If demand $=10+2(\text{event score})$, an event score 3 predicts 16. Fit the coefficients by minimising squared errors (T3).
+**Linear regression — What?** Predicts a continuous value by a weighted sum of features. **Why?** It is fast, interpretable and a strong baseline. **How?** If demand $`=10+2(\text{event score})`$, an event score 3 predicts 16. Fit the coefficients by minimising squared errors (T3).
 
-**Logistic regression — What?** Converts a linear score into a probability between zero and one. **Why?** Acceptance and cancellation are binary, not unbounded real outcomes. **How?** Compute $z=w^\top x+b$, then $p=1/(1+e^{-z})$; train with cross-entropy and calibrate the resulting probabilities.
+**Logistic regression — What?** Converts a linear score into a probability between zero and one. **Why?** Acceptance and cancellation are binary, not unbounded real outcomes. **How?** Compute $`z=w^\top x+b`$, then $`p=1/(1+e^{-z})`$; train with cross-entropy and calibrate the resulting probabilities.
 
 **Naive Bayes — What?** A classifier derived from Bayes' rule with a conditional-independence assumption between features. **Why?** It gives a cheap probabilistic baseline with limited training data. **How?** Multiply class prior by feature likelihoods (usually in log space), normalise over the classes, and compare posterior probabilities.
 
-**Bayesian updating — What?** Revises uncertainty about an unknown parameter after new evidence. **Why?** One driver accepting two rides does not justify perfect certainty. **How?** Start with Beta$(\alpha,\beta)$ for acceptance probability, then add successes to $\alpha$ and declines to $\beta$; compute the posterior mean and credible intervals as required.
+**Bayesian updating — What?** Revises uncertainty about an unknown parameter after new evidence. **Why?** One driver accepting two rides does not justify perfect certainty. **How?** Start with Beta$`(\alpha,\beta)`$ for acceptance probability, then add successes to $`\alpha`$ and declines to $`\beta`$; compute the posterior mean and credible intervals as required.
 
 ### T15.5 How nonparametric and ensemble models work
 
-**kNN — What?** Uses nearby historical observations instead of fitting one global formula. **Why?** Similar local contexts may have similar outcomes. **How?** Standardise inputs, compute distances, select the closest $k$ examples, then vote or average. Choose $k$ on validation data.
+**kNN — What?** Uses nearby historical observations instead of fitting one global formula. **Why?** Similar local contexts may have similar outcomes. **How?** Standardise inputs, compute distances, select the closest $`k`$ examples, then vote or average. Choose $`k`$ on validation data.
 
 **Decision tree — What?** Learns nested if/else questions. **Why?** Rules like distance < 3 km and demand > threshold are easy to explain. **How?** At each node select the split that decreases Gini impurity, entropy or squared error; stop or prune to avoid memorising noise.
 
@@ -1056,7 +1090,7 @@ This chapter is designed for **first-time learners**. Each explanation follows t
 
 ### T15.6 How clustering, dimension reduction and anomaly detection work
 
-**k-means — What?** Partitions points around $k$ centroids. **Why?** It can summarise rider pickup areas. **How?** Initialise centres, repeatedly assign observations to the nearest centre and recompute the mean; check cluster stability and suitability.
+**k-means — What?** Partitions points around $`k`$ centroids. **Why?** It can summarise rider pickup areas. **How?** Initialise centres, repeatedly assign observations to the nearest centre and recompute the mean; check cluster stability and suitability.
 
 **DBSCAN — What?** A density-connected clustering method with noise points. **Why?** Pickup locations can form irregular dense streets instead of circular groups. **How?** Define a geographic radius and minimum neighbour count; connect core points and identify isolated points as noise.
 
@@ -1068,11 +1102,11 @@ This chapter is designed for **first-time learners**. Each explanation follows t
 
 **Perceptron/dense network — What?** Weighted inputs followed by a nonlinear activation, possibly stacked in layers. **Why?** Nonlinear combinations of location, time and demand can be difficult for a single straight-line model. **How?** Evaluate every layer forward, compute loss, use chain-rule backpropagation for derivatives, update weights, and validate.
 
-**Gradient descent — What?** Moves the model parameters opposite the loss gradient. **Why?** It can improve parameters without enumerating all possibilities. **How?** Starting $w=0$ for $L=(w-2)^2$, gradient is $-4$; a 0.1 step yields $w=0.4$, reducing loss from 4 to 2.56.
+**Gradient descent — What?** Moves the model parameters opposite the loss gradient. **Why?** It can improve parameters without enumerating all possibilities. **How?** Starting $`w=0`$ for $`L=(w-2)^2`$, gradient is $`-4`$; a 0.1 step yields $`w=0.4`$, reducing loss from 4 to 2.56.
 
-**Adam — What?** Adaptive stochastic gradient optimisation using running first/second moments. **Why?** Different neural parameters can have very different gradient scales. **How?** Compute $m_t$, $v_t$, apply bias correction and use the Adam update in T6; still tune learning rate and validate.
+**Adam — What?** Adaptive stochastic gradient optimisation using running first/second moments. **Why?** Different neural parameters can have very different gradient scales. **How?** Compute $`m_t`$, $`v_t`$, apply bias correction and use the Adam update in T6; still tune learning rate and validate.
 
-**RNN — What?** Reuses hidden state as it processes a sequence. **Why?** Current demand often depends on previous hours. **How?** Repeatedly update $h_t$ from current input and previous hidden state, then predict using $h_t$.
+**RNN — What?** Reuses hidden state as it processes a sequence. **Why?** Current demand often depends on previous hours. **How?** Repeatedly update $`h_t`$ from current input and previous hidden state, then predict using $`h_t`$.
 
 **LSTM — What?** A gated recurrent neural network with a memory cell. **Why?** Ordinary recurrent networks can struggle to preserve signals over long intervals. **How?** Forget, input and output gates control cell memory; T6 gives the exact equations. Train on chronological input windows with only historical information.
 
@@ -1112,7 +1146,7 @@ This chapter is designed for **first-time learners**. Each explanation follows t
 
 **Hungarian assignment — What?** Exact minimum-cost one-to-one matching in a bipartite cost matrix. **Why?** Assigning each ride greedily may give a worse overall matching. **How?** Compute every eligible driver–ride cost and solve the full assignment subject to exclusivity.
 
-**Simulated annealing — What?** Local search that sometimes accepts worse candidates. **Why?** Greedy search can get trapped in a local minimum. **How?** Propose a neighbouring choice, always accept improvements, accept deterioration $\Delta>0$ with probability $\exp(-\Delta/T)$, and gradually lower $T$.
+**Simulated annealing — What?** Local search that sometimes accepts worse candidates. **Why?** Greedy search can get trapped in a local minimum. **How?** Propose a neighbouring choice, always accept improvements, accept deterioration $`\Delta>0`$ with probability $`\exp(-\Delta/T)`$, and gradually lower $`T`$.
 
 **Genetic algorithm — What?** Population-based optimisation inspired by selection and mutation. **Why?** Hard discrete spaces may have complex nonconvex objectives. **How?** Encode candidates, evaluate fitness, select better candidates, recombine/mutate, repair constraints and retain the best feasible result.
 
