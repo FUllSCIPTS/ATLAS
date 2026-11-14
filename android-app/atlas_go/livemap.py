@@ -171,7 +171,9 @@ class LiveMap(StencilView):
         self._drag = None
         self.tiles.listeners.append(self._schedule)
         self._redraw_event = None
+        self._fit = None              # points to keep in view until the user pans or zooms
         self.bind(pos=self._schedule, size=self._schedule)
+        self.bind(size=self._refit)
 
     # ------------------------------------------------------------------ public API
     def set_view(self, center=None, zoom=None):
@@ -182,9 +184,17 @@ class LiveMap(StencilView):
         self._schedule()
 
     def zoom_by(self, step: int):
+        self._fit = None
         self.set_view(zoom=self.zoom + step)
 
+    def _refit(self, *_):
+        # A widget starts at Kivy's default 100 x 100 and gets its real size after layout; fitting
+        # at the default size zoomed out to the whole county on phones. Refit once the size is real.
+        if self._fit is not None:
+            self.fit(*self._fit)
+
     def fit(self, points, padding=0.3):
+        self._fit = (list(points), padding)
         if not self.width or not self.height:
             Clock.schedule_once(lambda _dt: self.fit(points, padding), 0)
             return
@@ -230,6 +240,7 @@ class LiveMap(StencilView):
         touch.grab(self)
         self._drag = touch.pos
         self.follow = None
+        self._fit = None
         return True
 
     def on_touch_move(self, touch):

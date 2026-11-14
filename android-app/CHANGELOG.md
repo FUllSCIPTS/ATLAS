@@ -1,5 +1,32 @@
 # ATLAS Go changelog
 
+## 1.3.0 (versionCode 4) — 14 November 2026
+
+### Added
+- **Layer 2: the city twin** (`atlas_go/twin.py`). A digital twin of Cork mirrors the drivers, the active car and the courier (with a fidelity score) and foresees the next 30 minutes per pickup place from Layer 1's surge outlook. Three agents work on top of Layer 1:
+  - **Agent 1 · Dispatch** takes Layer 1's top three drivers and rehearses each one 200 times in the twin (rider wait, declines, and the riders left waiting if a busy area loses its last free car); the lowest total wait is sent.
+  - **Agent 2 · Pricing and repositioning** rehearses three plans per area every five minutes (keep prices; surge only; small surge plus moving idle cars) with a ×2.0 cap, and gives drivers a *Twin hint* (move, stay or no move needed).
+  - **Agent 3 · Guardian** checks every decision: Layer 1's top three only, no driver who declined or went offline, pickup not far beyond Layer 1's, a 250 ms time budget, price between ×1.0 and ×2.0 and at most +0.5 above the twin's expectation. Blocked decisions fall back to Layer 1 (driver and base price); a blocked agent is re-tested with 500 rollouts in the twin before control is handed back. Every check is kept in a Guardian log on the phone.
+- Passenger: *Price check · Layer 2* card, *Agent 1 · rehearsed in the city twin* card, and a *Twin-tested* reason on the booked ride.
+- Driver: *Twin hint · Agent 2* card with *Show me on the map*. Kitchen: *Twin hint* with the courier's arrival and when to start cooking.
+- **Twin tab** for every role: mirror and live map, 30-minute foresight per place, Layer 1 and Layer 2 status, Guardian log, **Run Guardian fault drill**, **Check Layer 2** (4 self-checks) and a switch to turn Layer 2 off (the app then behaves exactly as 1.2.0).
+- Home card *New in 1.3 · City twin*; privacy notice section on the twin.
+
+### Changed
+- **Shared rides follow the stop order of a shared car.** Each carpool already carries a rider. The driver comes from where that rider boarded; the new rider waits (*Please wait · Ciara is in the car*), boards, and is dropped **only after** the earlier rider's drop-off: driver on the way → at your pickup → dropping the earlier rider → your drop-off. The order is shown as a checklist on the ride screen and on the map, enforced by the store (completing early is refused) and checked when the saved file is loaded.
+- Shared seats are released when the ride is completed, not only when it is cancelled.
+- Ride and twin maps refit after layout: on phones they were fitted at Kivy's default 100 × 100 size and showed the whole county.
+- Solo fares can include a capped busy-time price (×1.0 to ×2.0, rounded to 10 cents) when Layer 2 is on and the Guardian passes it.
+- Bottom navigation adds **Twin** (passenger: 6 tabs; driver and seller: 5).
+- The app clock can be pinned (`ATLAS_CLOCK=2027-03-17T13:00`) for repeatable previews; the acceptance run pins it.
+
+### Unchanged
+- Layer 1 — `intelligence.py` and `learned.py` — is byte-identical to 1.2.0 (a unit test checks the SHA-256 of both files).
+
+### Compatibility
+- 1.2.0 and 1.1.0 `state.json` files load unchanged; Layer 2 starts switched on with an empty log. A shared ride saved by 1.2.0 finishes with the old three stages.
+- Signed with a different key from the 1.2.0 Drive APK: uninstall 1.2.0 before installing the 1.3.0 APK.
+
 ## 1.2.0 (versionCode 3) — 7 November 2026
 
 ### Added

@@ -1,4 +1,4 @@
-# ATLAS Go user guide (1.2.0)
+# ATLAS Go user guide (1.3.0)
 
 The screenshots are captured from the running Python/Kivy app by the automated acceptance run (desktop preview at 440 × 940; the Android workflow replaces them with Android 16 emulator captures of the same screens). They show illustrative Cork data and test accounts, not real customers, drivers or kitchens.
 
@@ -38,9 +38,13 @@ When ATLAS picks a registered driver, the ride waits for that driver to accept. 
 
 ## 4. Shared rides
 
-From Home choose **Share ride**. Use UCC Campus → Cork City Centre (or another seeded route), choose one or two seats and join. Seats are reserved immediately and released if you cancel.
+From Home choose **Share ride**. Use UCC Campus → Cork City Centre (or another seeded route), choose one or two seats and join. Seats are reserved immediately and released when you arrive or cancel.
 
-![Shared rides](screenshots/05-shared-rides.png)
+Each shared car already has a rider on board, and the card tells you who gets out first. The driver comes to you with that rider in the car (*Please wait · Ciara is in the car*), you board, the driver drops the earlier rider, and only then drives you to your destination. The ride screen shows the stops as a checklist; your drop-off is locked until the earlier rider's drop-off is done.
+
+| Join a shared car | Waiting with a rider on board | Earlier rider dropped first |
+|---|---|---|
+| ![Shared rides](screenshots/05-shared-rides.png) | ![Waiting](screenshots/24-shared-waiting.png) | ![Dropping the earlier rider](screenshots/25-shared-co-drop.png) |
 
 ## 5. Food
 
@@ -89,6 +93,22 @@ The Kitchen tab opens or closes the kitchen, sets the preparation time (courier 
 | Models and outlook | Learning lab |
 |---|---|
 | ![Intelligence](screenshots/14-intelligence.png) | ![Learning lab](screenshots/15-learning-lab.png) |
+
+## 11. City twin (Layer 2, new in 1.3)
+
+The **Twin** tab shows the digital twin of Cork. It mirrors the drivers, your car and the courier (*twin fidelity* is how well their positions are known), and plays the next 30 minutes for each pickup place using the surge outlook from *How ATLAS learns*.
+
+Three agents work on top of the learned models, which are unchanged:
+
+- **Agent 1 · Dispatch** rehearses the dispatch policy's top three drivers in the twin and sends the one with the lowest total waiting time. The booking screen and the ride show this as *Rehearsed in the city twin* and *Twin-tested*.
+- **Agent 2 · Pricing + moves** tries three price plans per area. Prices never go above ×2.0, and at an ordinary time they stay ×1.0. Drivers see a *Twin hint* (move towards a busy area, stay, or no move needed); it is a suggestion, never an order.
+- **Agent 3 · Guardian** checks every decision. The **Guardian log** lists each one. **Run Guardian fault drill** makes Agent 2 send a ×4.0 price in the twin: the Guardian blocks it, serves riders with the base price, re-tests Agent 2 500 times and hands control back.
+
+**Turn Layer 2 off** makes ATLAS Go choose drivers and prices exactly as version 1.2.0. **Check Layer 2** runs four self-checks.
+
+| Twin tab | Guardian log | Busy-time price | Driver twin hint |
+|---|---|---|---|
+| ![Twin](screenshots/26-twin-tab.png) | ![Guardian log](screenshots/27-guardian-log.png) | ![Price](screenshots/28-surge-price.png) | ![Hint](screenshots/29-driver-twin-hint.png) |
 
 ## Limits
 

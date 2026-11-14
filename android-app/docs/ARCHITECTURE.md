@@ -1,6 +1,6 @@
-# Python Android implementation blueprint (1.2.0)
+# Python Android implementation blueprint (1.3.0)
 
-ATLAS Go uses Python for every application screen, rule, storage operation and test. Kivy provides the UI; Buildozer/python-for-android package it for Android. Version 1.2.0 adds passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and wires all six on-device models into those flows. The app still has no operator back end: accounts and bookings exist on one phone. The only network traffic is map-tile downloads.
+ATLAS Go uses Python for every application screen, rule, storage operation and test. Kivy provides the UI; Buildozer/python-for-android package it for Android. Version 1.3.0 adds Layer 2 — a digital twin of Cork and three agents (dispatch, pricing and repositioning, Guardian) on top of the unchanged 1.2.0 models — and the stop order of a shared car (the rider already on board is dropped first). Version 1.2.0 added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and wires all six on-device models into those flows. The app still has no operator back end: accounts and bookings exist on one phone. The only network traffic is map-tile downloads.
 
 The full UML blueprint for the app, the web front end, the back end and the databases is in the [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go).
 
@@ -9,7 +9,7 @@ The full UML blueprint for the app, the web front end, the back end and the data
 ```text
 android-app/
   main.py                         Python application entry point
-  buildozer.spec                  Android API, ABIs, permissions and packaging (1.2.0, versionCode 3)
+  buildozer.spec                  Android API, ABIs, permissions and packaging (1.3.0, versionCode 4)
   requirements.txt                Desktop runtime dependencies
   requirements-dev.txt            Testing dependencies
   CHANGELOG.md                    Release history
@@ -21,6 +21,7 @@ android-app/
     store.py                      Atomic JSON persistence: accounts, rides, orders, kitchens, live progress
     intelligence.py               Calendar, surge outlook, dispatch, acceptance, courier timing, lab, self-test
     learned.py                    Learned constants exported from the simulations (generated)
+    twin.py                       Layer 2: mirror, foresee, Agent 1/2, Guardian, fault drill, self-test (1.3.0)
     livemap.py                    LiveMap widget and TileLoader (OSM tiles, cache, offline layer) (1.2.0)
     location.py                   DeviceLocation: Android LocationManager via pyjnius         (1.2.0)
     app.py                        Python/Kivy screens for passengers, drivers and sellers
@@ -31,6 +32,8 @@ android-app/
     test_intelligence.py          Calendar, outlook, policy, courier timing and lab tests
     test_accounts_geo.py          Validation, hashing, maps, live positions, new model features (1.2.0)
     test_roles.py                 Registration, sign-in, driver/seller lifecycles, deletion, migration (1.2.0)
+    test_shared_ride.py           Rider on board, stop order, drop-first enforcement, live legs   (1.3.0)
+    test_twin.py                  Layer 1 unchanged, Agents 1-3, Guardian limits, persistence      (1.3.0)
   training/                       Development-only simulations and exporter (numpy; not packaged)
     rl_sim.py                     Ride dispatch (REINFORCE) and courier timing (Q-learning)
     city_sim.py                   Two simulated years of Cork demand, holidays, supply agent, LSTM
@@ -47,7 +50,10 @@ flowchart LR
     UI["AtlasGoApp<br/>role-aware screens"] --> ST["LocalStore<br/>commands · validation · rollback · tick()"]
     UI --> MAP["LiveMap<br/>tiles · markers · routes"]
     UI --> LOC["DeviceLocation<br/>runtime permission · fixes"]
-    UI --> AI["intelligence.py<br/>dispatch · acceptance · outlook · courier · lab"]
+    UI --> AI["intelligence.py<br/>Layer 1 · dispatch · acceptance · outlook · courier · lab"]
+    UI --> TW["twin.py<br/>Layer 2 · mirror · foresee · Agent 1 · Agent 2 · Guardian"]
+    TW -. reads only .-> AI
+    TW --> ST
     MAP --> TL["TileLoader<br/>threads · disk cache"]
     TL -. HTTPS .-> OSM[("tile.openstreetmap.org")]
     ST --> AC["accounts.py<br/>validation · PBKDF2"]
@@ -167,11 +173,11 @@ Generated from the Python AST of `atlas_go/` for 1.2.0. Dataclass constructors a
 
 ## Persistence and state rules
 
-`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `accounts`, `session`, `guest`, `kitchens`, `cart`, `history`, `ride`, `order`, `seats` and `ui`. `LocalStore.validate` checks every field (roles, unique emails and ids, hash fields, driver counters and locations, kitchen ids and dish prices, record stages and live data) before any screen reads it; damaged files are preserved as `state.invalid.json` and a clean state is created. A 1.1.0 file (without the new fields) loads unchanged. Map tiles are cached under `tiles/` next to the state file.
+`state.json` lives in the app-private data directory. A temporary JSON file is flushed and atomically replaced on each save. Its fields are `accounts`, `session`, `guest`, `kitchens`, `cart`, `history`, `ride`, `order`, `seats`, `ui` and (1.3.0) `twin` — Layer 2 on/off, agent status and the Guardian log (at most 60 entries; a damaged `twin` field is reset on its own). `LocalStore.validate` checks every field (roles, unique emails and ids, hash fields, driver counters and locations, kitchen ids and dish prices, record stages and live data) before any screen reads it; damaged files are preserved as `state.invalid.json` and a clean state is created. A 1.1.0 file (without the new fields) loads unchanged. Map tiles are cached under `tiles/` next to the state file.
 
 Money is integer cents. One active ride and one active food order exist per phone. A ride booked with a registered driver is `pending` until that driver accepts; declining hands it to the next-best driver. A seller-kitchen order is `pending` until the seller accepts, and stays in the cooking stage until the seller marks it ready. Completed, cancelled and delivered records go into history with the passenger's account id (or none for guests); deleting an account anonymises its records. Only passengers (or guests) book and order; only drivers go online; only sellers edit menus.
 
-Ride: driver on the way → at pickup → on your way → completed (or cancelled). Food: preparing → courier on the way → arriving → delivered. Live positions are straight-line interpolations at 25 km/h shown in a 10× time-lapse (`geo.py`).
+Ride: driver on the way → at pickup → on your way → completed (or cancelled). Shared ride with a rider on board (`ride['co']`): driver on the way (carrying that rider) → at your pickup → dropping that rider → on your way → completed. `co['dropped']` becomes true exactly when the ride enters stage 3; completing earlier is refused and a file that breaks this order is quarantined. Solo rides may carry `surge` (×1.0–×2.0) and `twin` (Agent 1 rollouts). Food: preparing → courier on the way → arriving → delivered. Live positions are straight-line interpolations at 25 km/h shown in a 10× time-lapse (`geo.py`).
 
 ## On-device intelligence
 
@@ -185,6 +191,18 @@ Ride: driver on the way → at pickup → on your way → completed (or cancelle
 | Learning lab | `LearningLab` (REINFORCE) | Simulated rides on the phone; sandbox only |
 
 `intelligence.self_test()` runs each model on known inputs; the Intelligence screen exposes it as *Check all models* and the unit tests require all six to pass. `training/export_learned.py` regenerates `learned.py`; for 1.2.0 the output was identical to the bundled file.
+
+## Layer 2: the city twin (1.3.0)
+
+| Part | Implementation | Reads from Layer 1 | Guardian limit |
+|---|---|---|---|
+| Mirror | `twin.mirror(store, now)` | driver pools, registered drivers, live ride and order | — |
+| Foresee | `twin.foresee`, `ratio_30`, `extra_requests` | `outlook()` for this hour and the next | — |
+| Agent 1 · Dispatch | `twin.agent1`, `rehearse` (200 rollouts, seeded per place and 5-minute window) | `rank()` top three, the acceptance and surge features | top three only, not declined/offline, pickup ≤ Layer 1's + 8 min, 250 ms |
+| Agent 2 · Pricing + moves | `twin.agent2`, `driver_hint`, `kitchen_hint` | `outlook()`, `courier_plan()` | ×1.0–×2.0, ≤ twin's expectation + 0.5, 250 ms |
+| Agent 3 · Guardian | `check_dispatch`, `check_price`, `retest_pricing` (500 rollouts), `fault_drill`, `decide_ride` | — | falls back to `choose()` and the base fare |
+
+`intelligence.py` and `learned.py` are byte-identical to 1.2.0 (`tests/test_twin.py` checks their SHA-256). With Layer 2 off, `decide_ride` returns `intelligence.choose()` and the base fare unchanged.
 
 ## Integration contract for a live service
 

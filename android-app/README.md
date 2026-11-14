@@ -1,17 +1,32 @@
-# ATLAS Go — Android app (version 1.2.0)
+# ATLAS Go — Android app (version 1.3.0)
 
-**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, and on-device ATLAS intelligence (learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab).
+**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab) and, new in 1.3.0, **a digital twin of Cork with three agents on top (Layer 2)**.
 
-ATLAS Go 1.2.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
+ATLAS Go 1.3.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
-- [Installable APK 1.2.0 on Google Drive — request access](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view): open the link, click **Request access**; the owner approves by email
-- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.2.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.2.0/atlas-go-1.2.0-source.zip) (SHA-256 `b6339df38ed47b5126306e57aa29e72227796c558a26cfae8b7b224f0e4d9fcb`)
-- [1.2.0 release page: SHA256SUMS, release notes and validation](releases/1.2.0/README.md)
+- @@APK_LINE@@
+- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) (SHA-256 `@@SRC_SHA@@`)
+- [1.3.0 release page: SHA256SUMS, release notes and validation](releases/1.3.0/README.md) · [1.2.0 release page](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
-- [What changed in 1.2.0](CHANGELOG.md)
+- [What changed in 1.3.0](CHANGELOG.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md) · [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
 - [Privacy notice](docs/PRIVACY.md) · [Testing](docs/TESTING.md) · [Build, signing and Google Play](docs/GOOGLE_PLAY.md)
-- [▶ Demo video of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+- [▶ Demo video with the digital twin and multi-agent layer (7 min 39 s)](docs/video/atlas-go-demo-v1.3-twin.mp4) · [demo of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+
+## What's new in 1.3.0
+
+| Area | What works |
+|---|---|
+| Two layers | **Layer 1** is the 1.2.0 intelligence, unchanged (`intelligence.py` and `learned.py` are byte-identical and a test checks it). **Layer 2** (`twin.py`) sits on top and only reads Layer 1's forecast, ranking and cost model. Switch Layer 2 off in the Twin tab and the app behaves exactly as 1.2.0. |
+| Digital twin | Mirrors every driver, the active car and the courier with a fidelity score, and foresees the next 30 minutes per pickup place from Layer 1's surge outlook. |
+| Agent 1 · Dispatch | Rehearses Layer 1's top three drivers 200 times each in the twin (rider wait, declines, riders left waiting if a busy area loses its last car) and sends the lowest total wait. Riders see *Rehearsed in the city twin* and *Twin-tested*. |
+| Agent 2 · Pricing + moves | Rehearses three plans per area every five minutes; capped surge (never above ×2.0, ×1.0 at ordinary times). Drivers get a *Twin hint* (move, stay or no move needed); kitchens get the courier's twin ETA and when to start cooking. |
+| Agent 3 · Guardian | Checks every decision against hard limits and a 250 ms budget, blocks anything unsafe (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times in the twin and hands control back. **Twin tab:** mirror, foresight, both layers, Guardian log, *Run Guardian fault drill*, *Check Layer 2*. |
+| Shared rides | Each shared car already has a rider on board. The new rider waits while the driver comes with that rider, boards, and is **dropped only after the earlier rider's drop-off** — shown as a stop checklist and on the map, and enforced by the app. Seats are released on arrival as well as on cancel. |
+
+| Twin-tested ride | Shared car: earlier rider first | Twin tab | Guardian log | Driver twin hint |
+|---|---|---|---|---|
+| <img src="docs/screenshots/04-ride-live.png" width="150"> | <img src="docs/screenshots/25-shared-co-drop.png" width="150"> | <img src="docs/screenshots/26-twin-tab.png" width="150"> | <img src="docs/screenshots/27-guardian-log.png" width="150"> | <img src="docs/screenshots/29-driver-twin-hint.png" width="150"> |
 
 ## What's new in 1.2.0
 
@@ -65,9 +80,10 @@ Desktop preview needs Python 3.12+; Android packaging uses Buildozer and python-
 cd android-app
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest tests                       # 117 tests
+python -m pytest tests                       # 158 tests
 python main.py                               # desktop preview
 ATLAS_FAKE_GPS=51.8990,-8.4700 python main.py  # preview with a simulated location
+ATLAS_CLOCK=2027-03-17T13:00 python main.py     # preview the twin at a busy time (St Patrick's Day)
 # Android packages (Linux, after installing build prerequisites):
 buildozer android debug
 buildozer android release

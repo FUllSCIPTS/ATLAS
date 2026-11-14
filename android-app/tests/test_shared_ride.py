@@ -136,3 +136,29 @@ def test_legacy_shared_ride_from_1_2_0_still_has_three_stages(tmp_path):
     s.advance_ride(now=T0 + 1)
     s.advance_ride(now=T0 + 2)
     assert s.ride is None and s.history[-1]['status'] == 'Completed' and s.offers[0].seats == 3
+
+
+def test_map_refits_after_layout_gives_the_real_size():
+    """Ride maps are created at Kivy's default 100 x 100 and laid out later; the fit must follow."""
+    import os
+    os.environ.setdefault('KIVY_NO_ARGS', '1')
+    os.environ.setdefault('KIVY_NO_CONSOLELOG', '1')
+    pytest.importorskip('kivy')
+    from atlas_go.livemap import LiveMap
+
+    class NoTiles:
+        listeners, offline = [], True
+
+        def get(self, *_a, **_k):
+            return None
+
+    m = LiveMap(tile_loader=NoTiles(), interactive=False)
+    points = [geo.ZONE_COORDS['Bishopstown'], geo.PLACE_COORDS[0], geo.PLACE_COORDS[1]]
+    m.fit(points)
+    small = m.zoom
+    m.size = (900, 520)                   # real size after layout
+    assert m.zoom > small
+    m.zoom_by(-1)                          # the user zooms: no more automatic refits
+    zoom = m.zoom
+    m.size = (300, 200)
+    assert m.zoom == zoom
