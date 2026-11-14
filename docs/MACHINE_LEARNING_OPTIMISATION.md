@@ -5,7 +5,11 @@ centre of the paper is an optimisation algorithm: every five seconds ATLAS solve
 program (BIP)** that decides which modules run inside one process (tight coupling) and which run as
 separate services (loose coupling). Around it sit four learners: an **LSTM forecaster**, an
 **Isolation-Forest anomaly detector**, and the **reinforcement-learning** dispatch and courier
-agents of the ATLAS Go app. Every claim points at the file that implements it.
+agents of the ATLAS Go app. ATLAS Go 1.3–1.4 adds two more layers of material: a **digital twin**
+with three agents (dispatch, pricing, and a Guardian that shields both), and a **closed LSTM → RL
+loop** that forecasts, acts, records outcomes and retrains itself on the phone. The guide uses them
+to teach **actor and critic networks**, **multi-agent RL with a shared critic (MAPPO)** and
+**continuous learning with validation**. Every claim points at the file that implements it.
 
 > **Where each piece runs.**
 >
@@ -22,23 +26,27 @@ agents of the ATLAS Go app. Every claim points at the file that implements it.
 **Interactive companion:** [ATLAS Architecture Explorer → ML & Optimisation](https://fullscipts.github.io/ATLAS/#ml) —
 run the coupling BIP live (move the load and the anomaly score and watch modules leave the monolith),
 compare the three solvers, train a forecaster with gradient descent and Adam, build an Isolation
-Forest, and train the REINFORCE dispatch policy, all in your browser. Every concept links to its
+Forest, train the REINFORCE dispatch policy, rehearse drivers in the digital twin and test the
+Guardian, train an actor-critic against REINFORCE, train two agents with independent critics and with
+one shared critic, and run ATLAS Go's LSTM in your browser and replay its live loop. Every concept links to its
 function in the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#machine-learning-and-optimisation-catalogue).
 
 **Command-line lab:** `python3 ml_lab/ml_optimisation_lab.py` (numpy, scipy, scikit-learn; about 3 s).
 It imports the repository's own code — the BIP from `atlas_sim.zip`, the solvers from
 `run_bip_timing.py`, the learners from `android-app/` — rather than copies.
 
-**Forty experiments, one file each** ([ml_lab/README.md](../ml_lab/README.md)):
+**Forty-four experiments, one file each** ([ml_lab/README.md](../ml_lab/README.md)):
 
 | Track | Folder | Experiments | Study paths (`--path`) |
 |---|---|---|---|
-| Machine learning | `ml_lab/machine_learning/` (`run_ml.py`) | 1 linear regression · 2 bias-variance and ridge · 3 logistic regression · 4 kNN and scaling · 5 naive Bayes and Bayes' rule · 6 decision tree · 7 forests and boosting · 8 SVM kernels · 9 neural network and backprop · 10 metrics under imbalance · 11 cross-validation and leakage · 12 k-means · 13 DBSCAN on Cork · 14 PCA · 15 four anomaly detectors · 16 forecasting baselines and Holt-Winters · 17 concept drift and online learning · 18 learning to rank · 19 bandits · 20 Q-learning | `supervised`, `trees-and-ensembles`, `neural-networks`, `unsupervised`, `time-series`, `decisions`, `trustworthy-ml` |
+| Machine learning | `ml_lab/machine_learning/` (`run_ml.py`) | 1 linear regression · 2 bias-variance and ridge · 3 logistic regression · 4 kNN and scaling · 5 naive Bayes and Bayes' rule · 6 decision tree · 7 forests and boosting · 8 SVM kernels · 9 neural network and backprop · 10 metrics under imbalance · 11 cross-validation and leakage · 12 k-means · 13 DBSCAN on Cork · 14 PCA · 15 four anomaly detectors · 16 forecasting baselines and Holt-Winters · 17 concept drift and online learning · 18 learning to rank · 19 bandits · 20 Q-learning · **21 digital twin** · **22 actor and critic networks (A2C)** · **23 two agents, one shared critic (MAPPO)** · **24 LSTM + RL closed loop** | `supervised`, `trees-and-ensembles`, `neural-networks`, `unsupervised`, `time-series`, `decisions`, `trustworthy-ml`, `reinforcement-learning`, `digital-twin`, `multi-agent`, `lstm-and-rl` |
 | Optimisation | `ml_lab/optimisation/` (`run_optimisation.py`) | 1 gradient descent and conditioning · 2 momentum, Nesterov, Adam · 3 Newton and BFGS · 4 KKT core allocation · 5 LP transport of drivers · 6 duality and shadow prices · 7 dynamic programming and knapsack · 8 branch-and-bound on the coupling BIP · 9 Dijkstra, A*, Bellman-Ford · 10 Hungarian assignment · 11 TSP: Held-Karp and 2-opt · 12 bin packing pods · 13 max flow / min cut · 14 DP autoscaling with switching costs · 15 local search and tabu · 16 simulated annealing · 17 genetic algorithm · 18 (1+1)-ES, differential evolution, PSO · 19 Bayesian optimisation · 20 Pareto fronts | `continuous`, `linear-and-integer`, `graphs-and-routing`, `dynamic-programming`, `metaheuristics`, `black-box-tuning`, `atlas-coupling` |
 
 ```bash
 python3 ml_lab/machine_learning/run_ml.py --path decisions
 python3 ml_lab/optimisation/opt17_genetic_algorithm.py
+python3 ml_lab/machine_learning/run_ml.py --path multi-agent      # actor-critic, then MAPPO
+python3 ml_lab/machine_learning/ml24_lstm_rl_loop.py              # the 1.4 loop, frozen vs learning
 ```
 
 Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
@@ -55,9 +63,13 @@ Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 5. [Anomaly detection: Isolation Forest](#5-anomaly-detection-isolation-forest)
 6. [Predicting acceptance: logistic regression and a Bayesian update](#6-predicting-acceptance-logistic-regression-and-a-bayesian-update)
 7. [Reinforcement learning: dispatch, courier timing and supply](#7-reinforcement-learning-dispatch-courier-timing-and-supply)
-8. [Evaluating fairly: splits, seeds and statistics](#8-evaluating-fairly-splits-seeds-and-statistics---paper)
-9. [Known gaps — exercises for students](#9-known-gaps--exercises-for-students)
-10. [Suggested lesson plan](#10-suggested-lesson-plan)
+8. [The digital twin: mirror, foresee, rehearse, guard](#8-the-digital-twin-mirror-foresee-rehearse-guard)
+9. [Actor and critic networks](#9-actor-and-critic-networks)
+10. [Multi-agent RL: two agents, one shared critic](#10-multi-agent-rl-two-agents-one-shared-critic)
+11. [LSTM + RL as one loop: forecast, act, record, update, validate](#11-lstm--rl-as-one-loop-forecast-act-record-update-validate)
+12. [Evaluating fairly: splits, seeds and statistics](#12-evaluating-fairly-splits-seeds-and-statistics---paper)
+13. [Known gaps — exercises for students](#13-known-gaps--exercises-for-students)
+14. [Suggested lesson plan](#14-suggested-lesson-plan)
 
 ---
 
@@ -79,6 +91,15 @@ Companion guides: [INFORMATION_SECURITY.md](INFORMATION_SECURITY.md) ·
 | **Surge forecaster (app)** | LSTM written in numpy with a hand-written Adam step | Supervised regression | `training/city_sim.py` → `LSTM.step` | ✅ 🧪 |
 | **Acceptance (app)** | Beta(9, 1) prior, Bernoulli updates | Bayesian estimation | `intelligence.acceptance` | ✅ |
 | **Learning lab (app)** | On-device REINFORCE retraining, never used to dispatch | Policy-gradient RL | `intelligence.LearningLab` | ✅ |
+| **Digital twin (app, 1.3)** | Mirror with fidelity score; 30-min foresight from the outlook; Monte Carlo rehearsal | Simulation-based planning | `atlas_go/twin.py` → `mirror`, `foresee`, `ratio_30`, `rehearse` | ✅ 🧪 |
+| **Agent 1 · dispatch (app, 1.3)** | Rehearses Layer 1's top-3 drivers (200 rollouts), lowest 30-min total wait | Planning on top of a learned policy | `twin.agent1`, `twin.decide_ride` | ✅ 🧪 |
+| **Agent 2 · pricing + moves (app, 1.3)** | Three rehearsed plans per area, capped surge ×2.0 | Planning / constrained optimisation | `twin.agent2`, `twin.driver_hint` | ✅ 🧪 |
+| **Agent 3 · Guardian (app, 1.3)** | Hard limits, time budget, fallback to Layer 1, 500-rollout re-test | Runtime shield (safe RL) | `twin.check_dispatch`, `check_price`, `retest_pricing`, `fault_drill` | ✅ |
+| **Live LSTM (app, 1.4)** | 24 h → 16 hidden → 6 h, pure Python inference every city hour | Time-series regression | `atlas_go/loop.py` → `lstm_hidden`, `head`, `Loop.forecast`; `training/export_lstm.py` | ✅ 🧪 |
+| **Forecast-aware supply agent (app, 1.4)** | Q over (calendar, LSTM level); hindsight updates every hour | Value-based RL | `Loop.choose`, `Loop.step` | ✅ 🧪 |
+| **Continuous retraining (app, 1.4)** | Nightly LSTM head refit + agent challenger; champion/challenger validation | Online learning with validation | `Loop.daily_update` | ✅ 🧪 |
+| **Actor-critic (lab)** | Actor network + critic network V(s), advantage r − V(s) | Policy-gradient RL | `ml_lab/machine_learning/ml22_actor_critic.py` | 🎓 |
+| **Two agents, one critic (lab)** | IPPO vs MAPPO (centralised critic, decentralised actors) | Multi-agent RL | `ml_lab/machine_learning/ml23_mappo_shared_critic.py` | 🎓 |
 
 ---
 
@@ -202,7 +223,7 @@ has p99 129.6 ms at relative cost 1.67, and the monolith 3.56 s at 1.00.
 | `run_cluster.py`, `run_vehicle.py`, `run_round2.py` | **Yes** — through `Sim` | Main comparison, ablation, load and sensitivity sweeps, connected-vehicle case study |
 | `run_bip_timing.py` | **Yes** — solver benchmark | Synthetic instances, n = 6 … 500 |
 | `prototype.zip` → `proto_run.py` | Executes one decision | Measures the tight ↔ loose hand-over of `PaymentModule` and crash recovery; the switch is commanded by the experiment, not by the BIP |
-| Server starter, ATLAS Go app | **No** | They use the learners in §4–§7. 🎓 Exercise 1 in §9 maps the BIP onto the ride-hailing services |
+| Server starter, ATLAS Go app | **No** | They use the learners in §4–§7. 🎓 Exercise 1 in §13 maps the BIP onto the ride-hailing services |
 
 ---
 
@@ -254,6 +275,13 @@ by `serve.py` → `score`.
 **ATLAS Go (✅ 🧪, `training/city_sim.py`).** An LSTM written in numpy, including the Adam update by
 hand (`LSTM.step`: first and second moment estimates, bias correction) — the clearest place in the
 repository to read Adam line by line.
+
+**ATLAS Go 1.4 (✅ 🧪, `training/export_lstm.py` → `atlas_go/lstm_weights.py`, `atlas_go/loop.py`).** A compact
+LSTM — 24 hours in, 16 hidden units, demand ÷ ordinary demand for the next 1–6 hours — trained in numpy on
+the supply agent's **experience log** (served trips, unserved requests, boosts) plus 30 calendar inputs
+(hour and weekday on the unit circle, 11 event tags, now and 3 hours ahead). Held out on July–December 2026:
+next-hour error 9.3 % (surge recall 0.81, precision 0.65). The phone runs it in pure Python
+(`lstm_hidden`, `head`); its forecast matches the numpy model to 2 × 10⁻⁶. See §11 for the loop it drives.
 
 The command-line lab (§5 there) fits the same 5-minute-ahead problem with a linear AR(30) model using
 plain gradient descent, Adam and the closed-form least-squares solution, with early stopping.
@@ -311,6 +339,11 @@ drivers; reward −unserved riders − 0.25·idle extra drivers. Because the exp
 uncensored demand, the agent updates **every** action in hindsight (full-information learning), not
 just the one it took.
 
+**Supply agent 1.4 — the agent acts on the LSTM (✅ 🧪, `loop.py`).** The state is the calendar context
+*and the LSTM's forecast level for the coming hour* (8 levels); the action is the same 0–150 % boost.
+Trained with the same hindsight updates on the LSTM's forecasts, it costs 18 % less than the
+calendar-only agent on the held-out half-year (29,896 vs 36,343; no boost: 52,965). §11 shows it running.
+
 **Server starter (✅ 🧪, `starter/ml/rl.py`).** A two-state, two-action **contextual bandit**: an
 incremental action-value estimate per (demand bucket, action) from recorded trips; `approve` refuses a
 candidate unless every state has ≥ 8 held-out samples and its reward is not below the baseline action.
@@ -318,7 +351,157 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 
 ---
 
-## 8. Evaluating fairly: splits, seeds and statistics — 📄 Paper
+## 8. The digital twin: mirror, foresee, rehearse, guard
+
+**What.** A digital twin is a simulation that is kept in step with a real system and used to try
+decisions before they are made. ATLAS Go 1.3 adds one for Cork (`atlas_go/twin.py`, ✅ 🧪) as a separate
+**Layer 2** on top of the learned models (Layer 1), which it only *reads*:
+
+| Step | What it does | Code | Measured (ML 21) |
+|---|---|---|---|
+| **Mirror** | Copies every driver, the active car and the courier; *fidelity* = how well positions are known (registered drivers with only a home area count 0.6) | `mirror` | 1.00 with only simulated drivers |
+| **Foresee** | Demand ratio for the next 30 minutes per pickup place, from Layer 1's calendar-aware outlook | `ratio_30`, `foresee`, `extra_requests` | error 0.12–0.16 in festival weeks vs 0.43–0.65 for "last hour again" |
+| **Rehearse — Agent 1** | Plays each of Layer 1's top-3 drivers 200 times: rider wait, declines, and riders left waiting if a busy area loses its last car; sends the lowest total wait | `rehearse`, `agent1` | 200 rollouts agree with a 5,000-rollout reference 100 % of the time (5 rollouts: 72–100 %) |
+| **Rehearse — Agent 2** | Three plans per area every 5 min — keep prices; surge only; small surge + move idle cars — scored by wait + 1.5 × price jump + empty km | `agent2`, `driver_hint` | St Patrick's 13:00, City Centre: wait 11.4 → 4.2 min with ×1.4 and 2 moved cars |
+| **Guard — Agent 3** | Checks every decision against hard limits (Layer 1's top 3 only, not declined/offline, pickup ≤ Layer 1's + 8 min, price ×1.0–×2.0 and ≤ twin's expectation + 0.5, 250 ms budget); blocks, falls back to Layer 1, re-tests the agent 500 times before handing back | `check_dispatch`, `check_price`, `retest_pricing`, `fault_drill`, `decide_ride` | 3,000 of 3,000 injected faults caught; 0 false alarms on 6,000 normal decisions |
+
+**Why.** Learned policies see a snapshot (*"which driver now?"*); the twin asks *"what will this do to the
+city in 30 minutes?"* before anything reaches a phone. The Guardian is a **runtime shield**: it does not
+optimise, it keeps a narrow, testable promise — an agent's mistake is caught before it reaches a rider,
+and the service falls back to the tested baseline instead of failing.
+
+**How it connects.** `decide_ride` returns Layer 1's answer (`intelligence.choose`, base fare) whenever
+Layer 2 is off, an agent is being re-tested, or the Guardian blocks. A unit test checks that
+`intelligence.py` and `learned.py` are byte-identical to 1.2.0.
+
+Lab: `ml_lab/machine_learning/ml21_digital_twin.py` · Explorer: [ML & Optimisation → Digital twin](https://fullscipts.github.io/ATLAS/#ml-twin) ·
+UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#uml-ml-twin)
+
+---
+
+## 9. Actor and critic networks
+
+**What.** An **actor** is a network that outputs the policy π(a | s); a **critic** is a second network that
+predicts the value V(s) of a situation. The actor is trained with the **advantage** A = r − V(s)
+(one-step) or A = G<sub>t</sub> − V(s<sub>t</sub>) (return to go):
+
+```text
+actor   θ ← θ + η_a · A · ∇θ log π_θ(a | s)          "do more of choices that beat the critic's expectation"
+critic  φ ← φ + η_c · (G − V_φ(s)) · ∇φ V_φ(s)       "predict how good this situation is, before choosing"
+```
+
+**Why.** REINFORCE (§7) uses one running average b as the baseline. It cannot tell an easy situation
+(three cheap, willing drivers) from a hard one (only far, reluctant drivers), so most of r − b is about the
+situation, not the choice. A critic that reads the whole situation removes that part: the remaining
+advantage is the credit due to the action, so the gradient is less noisy.
+
+**How in ATLAS (lab, 🎓 on 🧪 data).** `ml22_actor_critic.py` learns ride dispatch on the app's own
+environment (`intelligence._candidates`, the same delayed reward as `LearningLab.train`):
+
+- actor: one small network scores every candidate driver (4 features → 8 tanh → 1), softmax over drivers;
+- critic: V(s) from all four candidates (16 inputs → 16 tanh → 1);
+- evaluated on the same 300 held-out situations as the explorer's REINFORCE lab.
+
+| Rides trained | REINFORCE + baseline | Actor-critic (A2C) |
+|---|---|---|
+| 1,000 | 5.64 min | 5.52 min |
+| 2,000 | 5.62 | **5.48** (within 0.1 of v1.4) |
+| 8,000 | 5.47 | **5.34** |
+
+Policy v1.4 (30,000 rides): 5.38 min; nearest driver: 6.42. Variance of the learning signal: r − b 23.4,
+r − V(s) 18.9. In the app, dispatch is still the REINFORCE policy v1.4 plus Agent 1's rehearsal; the
+actor-critic is the natural next step (§13, gap 5).
+
+Explorer: [ML & Optimisation → Actor & critic](https://fullscipts.github.io/ATLAS/#ml-actorcritic) ·
+UML: [ML catalogue → Actor & critic](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#uml-ml-actorcritic)
+
+---
+
+## 10. Multi-agent RL: two agents, one shared critic
+
+**What.** When several agents share one reward, each agent's return also depends on what the others did.
+**Centralised training, decentralised execution (CTDE)** handles this: during training one **shared
+critic** V(s<sub>global</sub>) sees the whole city; at run time each actor acts on its **own** view.
+**MAPPO** (multi-agent PPO) trains every actor with advantages from that shared critic and PPO's clipped
+objective:
+
+```text
+ratio   ρ = π_new(a | o_i) / π_old(a | o_i)
+loss_i  = −E[ min( ρ · A,  clip(ρ, 1 − ε, 1 + ε) · A ) ],   A = G_t − V_shared(s_t),  ε = 0.2
+```
+
+**IPPO** is the same but each agent fits its own critic on its own observation.
+
+**How in ATLAS (lab, 🎓).** The proposal behind ATLAS Go 1.3 has exactly two learning agents with one team
+reward — rider wait + unmet demand + empty km + price jumps. In the app they are rehearsal planners
+(§8); `ml23_mappo_shared_critic.py` trains learned versions in a three-zone twin (Mardyke, City Centre,
+Kent Station) where a concert ends at the Mardyke in the second half of the hour:
+
+- **Agent 2 · pricing + moves** sees zone supply and the concert forecast: do nothing, move a car from
+  Kent or the Centre to the Mardyke, or a capped ×1.3 surge;
+- **Agent 1 · dispatch** sees only its idle cars: serve a City Centre rider with the Centre, Mardyke or Kent car;
+- **shared critic** sees everything (cars, busy cars, forecast, time, surge).
+
+| Policy (500 test hours) | Team cost per hour |
+|---|---|
+| Nearest car, never reposition | 140.9 |
+| Random | 130.3 |
+| IPPO (own critics) | 112.5 ± 3.7 |
+| MAPPO (one shared critic) | 113.3 ± 5.0 |
+
+| Spread of advantages (2nd half of training) | Agent 1 | Agent 2 |
+|---|---|---|
+| IPPO | 29.9 | 18.1 |
+| MAPPO | **17.4** | 17.4 |
+
+Both learn to move cars to the Mardyke before the concert and to keep its car there (about 20 % better than
+the heuristic). The shared critic cuts the noise in Agent 1's learning signal by about 40 % — Agent 1 cannot
+see the concert, the critic can — and MAPPO improves faster in mid-training; in this small twin both end at
+similar policies. Honest takeaway: a shared critic is about *credit assignment and variance*, which matters
+more as agents and partial observability grow.
+
+Explorer: [ML & Optimisation → Two agents, one critic](https://fullscipts.github.io/ATLAS/#ml-marl) ·
+UML: [ML catalogue → Multi-agent RL](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#uml-ml-marl)
+
+---
+
+## 11. LSTM + RL as one loop: forecast, act, record, update, validate
+
+**What.** Until 1.3, the LSTM and the RL agents met only offline: the agent's experience log trained the
+LSTM in the simulation, and the phone used fixed tables. ATLAS Go 1.4 closes the loop on the phone
+(`atlas_go/loop.py`, ✅ 🧪):
+
+```text
+every city hour   LSTM(last 24 h of served, unserved, boost, calendar)  →  demand for the next 6 h
+                  supply agent: state = (calendar, LSTM level)          →  extra drivers 0–150 %
+                  city reveals demand                                   →  experience log (14 days)
+                  challenger Q-table learns with hindsight from the log
+every night       LSTM output layer refitted on logged hidden states    →  challenger LSTM
+                  validation: LSTM on the last 24 held-out hours; agent replayed on the last 7 days
+                  keep a challenger only if it is better  (champion / challenger)
+```
+
+**Why validate.** Continuous learning can make a model worse (noise, drift, a bad day). Each challenger
+is compared with the current champion on data it was not trained on; a worse one is never deployed and
+the reason is logged.
+
+| Measured (ML 24) | Result |
+|---|---|
+| Four periods (Jazz, St Patrick's, Christmas, February) | loop 11,758 vs calendar agent 13,137 (−10.5 %) vs no boost 24,468; worse than the calendar table around St Patrick's and Christmas, better overall |
+| Eight weeks, cost of the last two, learning on vs frozen | −15.7 % (Jan–Feb 2027), −1.5 % (May–Jun), −12.1 % (Sep–Oct) |
+| Forecast error by horizon (28 days) | 13.4, 12.2, 11.7, 12.3, 13.2, 14.3 % for 1–6 h |
+| A deliberately bad challenger (always +150 %) | replay cost 13,160 vs 2,177 → rejected; champion unchanged |
+
+**Limits.** The city is simulated; on the phone only the LSTM's output layer is retrained (the recurrent
+weights are retrained offline with `export_lstm.py`). The live forecast also feeds the dispatch policy's
+surge feature (`AtlasGoApp.live_surge`).
+
+Lab: `ml_lab/machine_learning/ml24_lstm_rl_loop.py` · Explorer: [ML & Optimisation → LSTM + RL loop](https://fullscipts.github.io/ATLAS/#ml-loop) ·
+UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#uml-ml-loop)
+
+---
+
+## 12. Evaluating fairly: splits, seeds and statistics — 📄 Paper
 
 - **Separate data for each purpose:** forecaster trained, early-stopped and tested on disjoint time
   ranges; policies tuned on validation seeds 101–110, compared on test seeds 1–30.
@@ -330,7 +513,7 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 
 ---
 
-## 9. Known gaps — exercises for students
+## 13. Known gaps — exercises for students
 
 | # | Observation | Where | Exercise |
 |---|---|---|---|
@@ -338,13 +521,17 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 | 2 | Enumeration is exponential | `Sim.bip` | Replace it with `lp_round` for n = 20 and measure the decision time and the gap |
 | 3 | The objective weights α = β = γ = 1 are fixed | `Params` | Sweep them and draw the latency–cost Pareto front |
 | 4 | The LSTM's flash-sale error is 15× its error in normal traffic (MAE 745 vs 48 req/s) | `results/forecast.json` | Add the anomaly score or a surge flag as an input; or plan on an upper quantile (quantile loss) |
-| 5 | REINFORCE needs thousands of episodes | `LearningLab` | Add an actor-critic baseline or natural gradient and compare learning curves |
+| 5 | REINFORCE needs thousands of episodes | `LearningLab` | Done as a lab (§9, ML 22: A2C reaches v1.4's level in a quarter of the rides); move the critic into `LearningLab` and compare on the phone |
 | 6 | All app and starter learners are trained on simulated data | `training/`, `starter/ml/` | Discuss what would change with real logs: bias from the old policy (off-policy evaluation), drift, privacy |
 | 7 | The bandit in `rl.py` has two states | `starter/ml/rl.py` | Extend the state with zone and hour; keep the approval gate |
+| 8 | Agents 1 and 2 in the app plan by rehearsal; they do not learn | `twin.agent1`, `twin.agent2` | Replace them with the MAPPO actors of ML 23, keep the Guardian in front, and compare in the twin |
+| 9 | Only the LSTM's output layer is retrained on the phone | `Loop.daily_update` | Add truncated backpropagation through time for the recurrent weights and validate as for the head |
+| 10 | The loop validates on the last 24 hours / 7 days only | `HOLDOUT`, `REPLAY_HOURS` | Try longer windows and a significance test (§12) before accepting a challenger |
+| 11 | The twin's foresight uses the calendar outlook, not the live LSTM | `twin.ratio_30` | Feed `Loop.now()` into `foresee` and measure Agent 2's plans again |
 
 ---
 
-## 10. Suggested lesson plan
+## 14. Suggested lesson plan
 
 | Session | Topic | Use |
 |---|---|---|
@@ -354,4 +541,8 @@ This **offline approval gate** is the safety pattern the app's learning lab mirr
 | 4 | Training as optimisation | §4; lab section 5; explorer → Forecasting (GD vs Adam) |
 | 5 | Unsupervised anomaly detection | §5; explorer → Isolation Forest |
 | 6 | Reinforcement learning | §7; explorer → RL: train REINFORCE live; read `train_food` |
-| 7 | Honest evaluation | §3, §8; reproduce one row of the ablation |
+| 7 | Honest evaluation | §3, §12; reproduce one row of the ablation |
+| 8 | Digital twins and runtime shields | §8; ML 21; explorer → Digital twin: rehearse drivers, break the Guardian |
+| 9 | Actor and critic networks | §9; ML 22; explorer → Actor & critic: train A2C against REINFORCE |
+| 10 | Multi-agent RL with a shared critic | §10; ML 23; explorer → Two agents, one critic: IPPO vs MAPPO |
+| 11 | Closing the loop: LSTM + RL with validation | §11; ML 24; explorer → LSTM + RL loop; ATLAS Go → How ATLAS learns → Run 7 city days |

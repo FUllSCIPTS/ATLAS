@@ -2,7 +2,7 @@
 
 Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-- **Android app** — ATLAS Go 1.2.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab).
+- **Android app** — ATLAS Go 1.4.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab); since 1.3.0 a digital twin with three agents (dispatch, pricing + moves, Guardian) on top of them, and since 1.4.0 a live LSTM → RL loop that retrains and validates itself on the phone ([two learning layers](#atlas-go-1-4-two-learning-layers)).
 - **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
 - **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving.
 - **Databases** — the device's `state.json` (accounts, kitchens, rides, orders) and map-tile cache, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
@@ -35,7 +35,7 @@ The [local SQLite quickstart](../README.md#start-locally-without-docker) runs th
 ```text
 flowchart TD
     subgraph Clients["Apps and front end"]
-        A["ATLAS Go 1.2.0 Android app<br/>passenger · driver · seller<br/>Python · Kivy · main branch"]
+        A["ATLAS Go 1.4.0 Android app<br/>passenger · driver · seller · twin · live loop<br/>Python · Kivy · main branch"]
         W1["Passenger web page<br/>apps/passenger"]
         W2["Driver web page<br/>apps/driver"]
     end
@@ -78,7 +78,7 @@ flowchart TD
 
 | Layer | Component | Technology | Stores data in | Status |
 | --- | --- | --- | --- | --- |
-| App | ATLAS Go Android app 1.2.0 (versionCode 3) | Python 3.14 on device, Kivy 2.3.1, pyjnius, requests, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage (accounts with PBKDF2 hashes, kitchens, rides, orders); tile cache; learned constants in `learned.py` | Accounts, rides and orders on one phone; payments and journeys simulated; live map online with offline fallback; [1.2.0 downloads](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) |
+| App | ATLAS Go Android app 1.4.0 (versionCode 5) | Python 3.14 on device, Kivy 2.3.1, pyjnius, requests, Buildozer / python-for-android, API 36, min API 26 | `state.json` in app-private storage (accounts with PBKDF2 hashes, kitchens, rides, orders); tile cache; learned constants in `learned.py`; `loop.json` (1.4.0 experience log and model versions); LSTM weights in `lstm_weights.py` | Accounts, rides and orders on one phone; payments and journeys simulated; live map online with offline fallback; digital twin (1.3.0) and live LSTM → RL loop (1.4.0) on the phone; [1.4.0 downloads](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) |
 | Front end | Passenger page | HTML + [`apps/shared/client.js`](../apps/shared/client.js) | Browser memory only | Runs against the gateway |
 | Front end | Driver page | HTML + the same client script | Browser memory only | Runs against the gateway |
 | Back end | Gateway | FastAPI, httpx | None | Runs |
@@ -109,6 +109,7 @@ architecture-explorer/
 │   ├── explorer.js
 │   ├── foundations.js
 │   ├── index.html
+│   ├── ml-live.js
 │   ├── ml.js
 │   ├── ride-event.schema.json
 │   ├── security.js
@@ -128,14 +129,19 @@ architecture-explorer/
 │   │   │   └── uml/
 │   │   │       ├── uml-app-class-diagram.svg
 │   │   │       ├── uml-app-layers.svg
+│   │   │       ├── uml-atlas-go-1-4-two-learning-layers.svg
 │   │   │       ├── uml-booking-and-dispatch-types.svg
 │   │   │       ├── uml-component-and-deployment-boundaries.svg
 │   │   │       ├── uml-connected-booking-sequence.svg
 │   │   │       ├── uml-database-adapter.svg
+│   │   │       ├── uml-digital-twin-one-ride-through-both-layers.svg
 │   │   │       ├── uml-driver-acceptance-and-completion.svg
 │   │   │       ├── uml-event-delivery-and-offer-creation.svg
 │   │   │       ├── uml-food-order-from-a-seller-kitchen.svg
+│   │   │       ├── uml-layer-classes-twin-py-loop-py.svg
+│   │   │       ├── uml-live-lstm-rl-loop-one-city-hour-and-one-n.svg
 │   │   │       ├── uml-live-map-and-location.svg
+│   │   │       ├── uml-loop-json-and-the-twin-block-of-state-json.svg
 │   │   │       ├── uml-on-device-data-model-state-json.svg
 │   │   │       ├── uml-on-device-intelligence-1-2-0.svg
 │   │   │       ├── uml-on-device-ride-and-order-lifecycles.svg
@@ -147,6 +153,7 @@ architecture-explorer/
 │   │   │       ├── uml-ride-with-a-registered-driver-on-the-sam.svg
 │   │   │       ├── uml-scoring-types-and-lstm.svg
 │   │   │       ├── uml-screen-navigation.svg
+│   │   │       ├── uml-shared-ride-with-a-rider-on-board-1-3-0.svg
 │   │   │       ├── uml-system-overview-apps-front-end-back-end-.svg
 │   │   │       ├── uml-training-serving-and-approval.svg
 │   │   │       └── uml-trip-state-machine.svg
@@ -167,6 +174,7 @@ architecture-explorer/
 │   │   ├── db.py
 │   │   └── ride-event.schema.json
 │   ├── scripts/
+│   │   ├── export_ml_live.py
 │   │   ├── generate_blueprint.py
 │   │   ├── initialize.sh
 │   │   ├── local.sh
@@ -195,31 +203,34 @@ architecture-explorer/
 
 ## Android app (ATLAS Go)
 
-The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.2.0** (versionCode 3), which adds passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [1.2.0 changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [downloads and SHA256SUMS](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md).
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.4.0** (versionCode 5). **1.4.0** adds Layer 1's live loop — the LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are recorded and both models are retrained nightly and kept only if validated (`loop.py`, `lstm_weights.py`). **1.3.0** added Layer 2 — a digital twin of Cork with Agent 1 (dispatch), Agent 2 (pricing and moves) and Agent 3 (Guardian) on top of the unchanged models (`twin.py`) — and the four-stage shared ride (the rider already on board is dropped first). **1.2.0** (versionCode 3) added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · downloads and SHA256SUMS: [1.4.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) · [two learning layers](#atlas-go-1-4-two-learning-layers).
 
 ```text
 android-app/
 ├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
-├── buildozer.spec          1.2.0 / versionCode 3; API 36, min API 26; arm64-v8a + x86_64;
+├── buildozer.spec          1.4.0 / versionCode 5; API 36, min API 26; arm64-v8a + x86_64;
 │                           INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE/COARSE_LOCATION (foreground)
 ├── CHANGELOG.md
 ├── atlas_go/
-│   ├── __init__.py         Version (1.2.0)
+│   ├── __init__.py         Version (1.4.0)
 │   ├── accounts.py         Roles, field validation, PBKDF2-HMAC-SHA256 hashing          (new)
 │   ├── domain.py           Places, fares, Dish, Offer, Kitchen, Catalog, Cart
 │   ├── geo.py              Cork coordinates, Web-Mercator tiles, live journey positions  (new)
 │   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, tick()
 │   ├── intelligence.py     Calendar, outlook, dispatch, acceptance, courier, LearningLab, self_test
 │   ├── learned.py          Learned constants exported from the simulations (generated, read-only)
+│   ├── twin.py             Layer 2: mirror, foresee, Agent 1/2, Guardian, re-test, fault drill   (1.3.0)
+│   ├── loop.py             Layer 1 live loop: pure-Python LSTM, supply agent, log, validation   (1.4.0)
+│   ├── lstm_weights.py     LSTM weights and agent tables (generated by export_lstm.py)          (1.4.0)
 │   ├── livemap.py          LiveMap widget, TileLoader (threads, disk cache, offline layer) (new)
 │   ├── location.py         DeviceLocation: runtime permission, LocationManager via pyjnius (new)
 │   ├── app.py              AtlasGoApp and widgets: role-aware Kivy screens
 │   └── acceptance.py       Debug-only UI click-through and screenshot capture
-├── tests/                  117 tests: domain, intelligence, accounts/geo, roles
-├── training/               Development-only simulations and exporter (numpy; excluded from the APK)
+├── tests/                  173 tests: domain, intelligence, accounts/geo, roles, shared rides, twin, loop
+├── training/               Development-only simulations and exporters, incl. export_lstm.py (numpy; excluded from the APK)
 ├── scripts/                Emulator acceptance, signing, manifest and alignment checks
 ├── docs/                   User guide, architecture, privacy, Play handover, 22 screenshots, video
-└── releases/1.2.0/         APK, unsigned AAB, SHA256SUMS, release notes, validation
+└── releases/               1.2.0, 1.3.0, 1.4.0: APK, SHA256SUMS, release notes, validation
 ```
 
 ### App layers
@@ -234,6 +245,12 @@ flowchart LR
     U --> MAP["LiveMap<br/>tiles · markers · routes"]
     U --> LOC["DeviceLocation<br/>permission · fixes"]
     U --> AI["intelligence.py<br/>dispatch · acceptance · outlook · courier · lab · self_test"]
+    U --> TW["twin.py (1.3.0)<br/>Layer 2 · mirror · Agents 1–3"]
+    U --> LP["loop.py (1.4.0)<br/>live LSTM → RL loop"]
+    TW -. "read-only" .-> AI
+    LP --> LW[("lstm_weights.py")]
+    LP --> LJ[("loop.json")]
+    TW --> L
     MAP --> TL["TileLoader<br/>2 threads · disk cache"]
     TL -. "HTTPS GET /{z}/{x}/{y}.png" .-> OSM[("OpenStreetMap tile server")]
     TL --> TC[("tiles/ cache")]
@@ -440,7 +457,7 @@ classDiagram
 
 </details>
 
-Module functions: `accounts` — `hash_password`, `verify_password`, `clean_name`, `clean_email`, `clean_phone`, `check_password`, `clean_plate`, `clean_licence`, `clean_business`, `parse_int`, `parse_price`, `public_view`. `geo` — `haversine_km`, `eta_minutes`, `leg_seconds`, `lerp`, `nearest_place`, `valid_point`, `zone_drift`, `world_px`, `from_world_px`, `tile_range`, `fit_zoom`, `ride_legs`, `ride_position`, `ride_eta_text`, `order_position`. `intelligence` (new in 1.2.0) — `surge_level`, `acceptance`, `registered_candidate`, `self_test`; `rank`/`choose` take `extra` candidates and `exclude` account ids; `courier_plan` takes a `prep` time. The full generated list is in [ARCHITECTURE.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
+Module functions: `accounts` — `hash_password`, `verify_password`, `clean_name`, `clean_email`, `clean_phone`, `check_password`, `clean_plate`, `clean_licence`, `clean_business`, `parse_int`, `parse_price`, `public_view`. `geo` — `haversine_km`, `eta_minutes`, `leg_seconds`, `lerp`, `nearest_place`, `valid_point`, `zone_drift`, `world_px`, `from_world_px`, `tile_range`, `fit_zoom`, `ride_legs`, `ride_position`, `ride_eta_text`, `order_position`. `twin` (1.3.0) — `mirror`, `foresee`, `ratio_30`, `extra_requests`, `rehearse`, `agent1`, `agent2`, `driver_hint`, `kitchen_hint`, `check_dispatch`, `check_price`, `retest_pricing`, `decide_ride`, `fault_drill`, `self_test`. `loop` (1.4.0) — `lstm_hidden`, `head`, `level`, `calendar`, `demand`, `tag`, `ordinary`, `self_test`; class `Loop` — `forecast`, `choose`, `step`, `advance_to`, `daily_update`, `now`, `save`, `reset`. `intelligence` (new in 1.2.0) — `surge_level`, `acceptance`, `registered_candidate`, `self_test`; `rank`/`choose` take `extra` candidates and `exclude` account ids; `courier_plan` takes a `prep` time. The full generated list is in [ARCHITECTURE.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog).
 
 ### Screen navigation
 
@@ -534,7 +551,7 @@ stateDiagram-v2
 
 ### On-device data model (`state.json`)
 
-One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atomic replace. `LocalStore.validate` checks every field before a screen reads it; damaged files are kept as `state.invalid.json`. All 1.2.0 fields are optional, so a 1.1.0 file loads unchanged. Map tiles are cached separately under `tiles/{z}/{x}/{y}.png`.
+One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atomic replace. `LocalStore.validate` checks every field before a screen reads it; damaged files are kept as `state.invalid.json`. All 1.2.0 fields are optional, so a 1.1.0 file loads unchanged. 1.3.0 adds the optional `twin` block and, on rides, `co` (shared rider on board), `surge` and `twin`; 1.4.0 keeps the loop in a separate `loop.json` (see [two learning layers](#atlas-go-1-4-two-learning-layers)). Map tiles are cached separately under `tiles/{z}/{x}/{y}.png`.
 
 ![Entity-relationship diagram: On-device data model (state.json)](img/uml/uml-on-device-data-model-state-json.svg)
 
@@ -805,6 +822,8 @@ sequenceDiagram
 
 ### On-device intelligence (1.2.0)
 
+The 1.2.0 models below are unchanged in 1.3.0 and 1.4.0; the next sections show the layers built on top of them.
+
 The models run on the phone in pure Python from constants that simulations produced offline; no numpy or model files are packaged. All training data is synthetic; holiday dates follow Ireland's real public-holiday rules. `training/export_learned.py` reproduced the bundled `learned.py` byte for byte for 1.2.0.
 
 ![Flowchart: On-device intelligence (1.2.0)](img/uml/uml-on-device-intelligence-1-2-0.svg)
@@ -851,6 +870,343 @@ flowchart LR
 `self_test()` runs each model on known inputs (for example: UCC pickup chooses Morgan to protect Mardyke's last car; St Patrick's Day surges and an ordinary Wednesday does not; the lab improves after 3,000 rides). The Intelligence screen's **Check all models** shows the results; the unit tests require all six to pass.
 
 These roles mirror the back-end ML: the dispatch policy corresponds to the RL agent and approved policy in [`ml/rl.py`](../ml/rl.py) and [`ml/registry.py`](../ml/registry.py), the outlook to the LSTM in [`ml/forecast.py`](../ml/forecast.py), and the acceptance model to the discrete model in [`ml/discrete.py`](../ml/discrete.py). When the app is connected, server-approved policies should replace the bundled constants, which remain the offline fallback.
+
+<a name="atlas-go-1-4-two-learning-layers"></a>
+
+### ATLAS Go 1.4: two learning layers (1.3.0 twin + 1.4.0 live loop)
+
+1.3.0 put a **digital twin** of Cork with three agents on top of the 1.2.0 models (**Layer 2**); 1.4.0 turned Layer 1's LSTM and supply agent into a **closed loop** that forecasts, acts, records outcomes and retrains itself on the phone. `intelligence.py` and `learned.py` stay byte-identical to 1.2.0 (`tests/test_twin.py` checks their SHA-256): both layers *read* them. Interactive versions: explorer → **ATLAS Go 1.4 · two learning layers** (system map) and **ML & Optimisation → Digital twin / LSTM + RL loop** (labs); teaching guide §8–§11 in [MACHINE_LEARNING_OPTIMISATION.md](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/MACHINE_LEARNING_OPTIMISATION.md#8-the-digital-twin-mirror-foresee-rehearse-guard).
+
+![Flowchart: ATLAS Go 1.4: two learning layers](img/uml/uml-atlas-go-1-4-two-learning-layers.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+flowchart TB
+    subgraph UI["Phone screens · app.py"]
+        RIDE["Ride booking"]
+        TWUI["Twin tab"]
+        HINT["Driver and kitchen hints"]
+        LEARN["How ATLAS learns<br/>loop_card · loop_week"]
+    end
+    subgraph L2["Layer 2 · twin.py (1.3.0)"]
+        MIR["mirror · foresee · ratio_30"]
+        A1["Agent 1 · dispatch<br/>agent1 · rehearse × 200"]
+        A2["Agent 2 · pricing + moves<br/>agent2 · driver_hint"]
+        GU["Agent 3 · Guardian<br/>check_dispatch · check_price · retest_pricing"]
+    end
+    subgraph L1["Layer 1 · learned models"]
+        AI["intelligence.py (1.2.0, unchanged)<br/>rank · choose · outlook"]
+        LP["loop.py (1.4.0)<br/>lstm_hidden · head · Loop.choose"]
+        LW[("lstm_weights.py<br/>W · B · V · C · Q tables")]
+        LJ[("loop.json<br/>14-day experience log")]
+    end
+    subgraph LV["Learning and validation"]
+        DU["Loop.daily_update<br/>challenger LSTM head · challenger Q"]
+        VA{"champion / challenger<br/>held-out 24 h · replay 7 days"}
+        EX["training/export_lstm.py<br/>offline · numpy · Adam"]
+    end
+    RIDE -- "decide_ride" --> A1
+    AI -. "top 3 (read-only)" .-> A1
+    AI -. "outlook (read-only)" .-> MIR
+    MIR --> A1
+    MIR --> A2
+    A1 --> GU
+    A2 --> GU
+    GU -- "allowed or Layer 1's answer" --> RIDE
+    A2 --> HINT
+    GU --> TWUI
+    LJ -- "last 24 h" --> LP
+    LP -- "live_surge" --> AI
+    LP -- "outcome" --> LJ
+    LJ --> DU --> VA
+    VA -- "kept" --> LP
+    EX --> LW --> LP
+    LP --> LEARN
+```
+
+</details>
+
+| Layer | Function (file) | Role | Tested by |
+| --- | --- | --- | --- |
+| 2 | `mirror`, `foresee`, `ratio_30`, `extra_requests` (`twin.py`) | The city now and in 30 minutes, per pickup place; fidelity 0–1 | `test_twin.py` |
+| 2 | `rehearse`, `agent1` (`twin.py`) | Agent 1: Layer 1's top three, 200 rollouts each, lowest total wait | `test_twin.py`, ML 21 |
+| 2 | `agent2`, `surge_only`, `small_surge`, `driver_hint`, `kitchen_hint` (`twin.py`) | Agent 2: three plans per area, capped ×2.0; hints for drivers and kitchens | `test_twin.py` |
+| 2 | `check_dispatch`, `check_price`, `retest_pricing`, `fault_drill`, `decide_ride` (`twin.py`) | Agent 3 Guardian: hard limits, 250 ms budget, fallback to Layer 1, 500-rollout re-test | `test_twin.py`, fault drill 3,000/3,000 |
+| 2 | `LocalStore.twin_record`, `set_layer2` (`store.py`) | Twin block in `state.json`: switch, agent status, 60-entry log | `test_twin.py` |
+| 1 | `lstm_hidden`, `head`, `Loop.forecast` (`loop.py`) | LSTM 24 h → 16 → 6 h in pure Python | parity with numpy ≤ 2 × 10⁻⁶ (`test_loop.py`) |
+| 1 | `Loop.choose`, `Loop.step`, `Loop._record` (`loop.py`) | Supply agent on (calendar, LSTM level); hindsight learning; outcome log | `test_loop.py` |
+| 1 | `Loop.daily_update`, `_samples`, `_head_error` (`loop.py`) | Nightly challengers and champion / challenger validation | `test_loop.py`, ML 24 |
+| 1 | `AtlasGoApp.live_surge`, `loop_card`, `loop_week`, `check_loop` (`app.py`) | Live forecast as the dispatch surge feature; the How ATLAS learns card | `acceptance.py` (`30-live-loop.png`) |
+| offline | `train`, `predict`, `main` (`training/export_lstm.py`) | Trains the compact LSTM and the forecast-aware agent; writes `lstm_weights.py` byte for byte | reproducibility check |
+
+### Digital twin: one ride through both layers (1.3.0)
+
+![Sequence diagram: Digital twin: one ride through both layers (1.3.0)](img/uml/uml-digital-twin-one-ride-through-both-layers.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    actor P as Passenger
+    participant UI as AtlasGoApp
+    participant TW as twin.decide_ride
+    participant L1 as intelligence (Layer 1)
+    participant A1 as Agent 1 (agent1)
+    participant G as Guardian (check_dispatch)
+    participant S as LocalStore
+    P->>UI: Book a ride at the Mardyke
+    UI->>TW: decide_ride(store, pickup, now, extra, exclude)
+    alt Layer 2 off, or Agent 1 paused for re-test
+        TW->>L1: choose(pickup) and base fare
+    else Layer 2 on
+        TW->>L1: rank(pickup) → top 3 (read-only)
+        TW->>A1: ratio_30(now), mirror
+        loop each of the top 3 drivers
+            A1->>A1: rehearse(candidate, ratio, rng) × 200
+        end
+        A1-->>TW: choice, rehearsed waits, elapsed ms
+        TW->>G: check_dispatch(decision, exclude, online)
+        alt within limits
+            G-->>TW: allowed
+        else breach (not top 3, declined, offline, far, > 250 ms)
+            G-->>TW: blocked + reason
+            TW->>L1: choose(pickup) (fallback)
+        end
+    end
+    TW->>S: twin_record(entries, status)
+    TW-->>UI: driver, fare ×surge, twin reason
+    UI-->>P: Driver card with why this driver
+```
+
+</details>
+
+Agent 2 runs the same pattern once per five-minute window and area: `agent2` → `check_price` → on a block the base fare (×1.0) is used and Agent 2 is paused until `retest_pricing` passes 500 of 500 replays.
+
+### Shared ride with a rider on board (1.3.0)
+
+![State diagram: Shared ride with a rider on board (1.3.0)](img/uml/uml-shared-ride-with-a-rider-on-board-1-3-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+stateDiagram-v2
+    [*] --> on_the_way : join a shared offer (ride.co = the rider on board)
+    on_the_way --> at_your_pickup : car reaches your pickup, carrying the first rider
+    at_your_pickup --> dropping_first_rider : you board · stage 2
+    dropping_first_rider --> on_your_way : first rider dropped · co.dropped = true · stage 3
+    on_your_way --> Completed : you are dropped · seats released
+    on_the_way --> Cancelled
+    at_your_pickup --> Cancelled
+    note right of dropping_first_rider : completing before co.dropped is refused
+```
+
+</details>
+
+Completing before `co.dropped` is refused, and a `state.json` that breaks this order is quarantined. `geo.has_co_rider`, `geo.last_stage` and `geo.co_drop_point` give the four-stage route; `domain.Offer` carries `co_rider`, `co_from` and `co_drop`.
+
+### Live LSTM → RL loop: one city hour and one night (1.4.0)
+
+![Sequence diagram: Live LSTM → RL loop: one city hour and one night (1.4.0)](img/uml/uml-live-lstm-rl-loop-one-city-hour-and-one-n.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    participant UI as AtlasGoApp
+    participant LP as Loop
+    participant N as LSTM (lstm_hidden, head)
+    participant Q as Supply agent (choose)
+    participant C as City (demand)
+    participant J as loop.json
+    UI->>LP: advance_to(now) on the clock tick
+    loop every completed city hour (≤ 72 per tick)
+        LP->>J: window(i): last 24 logged hours
+        LP->>N: X = 5 measured + 30 calendar inputs per hour
+        N-->>LP: forecast ÷ ordinary for 1–6 h, level, hidden state
+        LP->>Q: choose(tag | weekday type | hour | level)
+        Q-->>LP: boost 0–150 %
+        LP->>C: demand(t)
+        C-->>LP: requests this hour
+        LP->>J: _record(served, unserved, idle, cost, forecast, hidden)
+        LP->>LP: challenger Q ← hindsight target for every boost
+        opt hour == 23 (end of the city day)
+            LP->>LP: daily_update(i)
+            Note over LP: LSTM head: SGD on logged hidden states (surge hours ×4)<br/>keep if error on the last 24 h falls ≥ 1 %
+            Note over LP: Agent: replay the last 7 days<br/>keep challenger Q if not worse, new version if better
+        end
+    end
+    LP->>J: save() (atomic)
+    UI->>LP: now() → loop_card: forecast, boost, outcome, versions
+```
+
+</details>
+
+### Layer classes (`twin.py`, `loop.py`)
+
+![Class diagram: Layer classes (twin.py, loop.py)](img/uml/uml-layer-classes-twin-py-loop-py.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+classDiagram
+    class Loop {
+        +path
+        +state: dict
+        +q(key, table) list
+        +counts(key, table) int
+        +choose(key, table) int
+        +forecast(i) dict
+        +window(i) list
+        +warm_up(i)
+        +step() dict
+        +advance_to(now, limit) int
+        +daily_update(i) dict
+        +now(now) dict
+        +save()
+        +reset()
+        -_record(i, boost, dem, fc, by) dict
+        -_samples(until) list
+        -_head_error(samples, V, C) float
+    }
+    class loop_module {
+        <<module loop.py>>
+        +lstm_hidden(X, W, B) list
+        +head(hidden, V, C) list
+        +level(ratio) int
+        +calendar(t) list
+        +demand(t) float
+        +tag(t) str
+        +ordinary(t) float
+        +self_test() list
+    }
+    class twin_module {
+        <<module twin.py>>
+        +mirror(store, now) dict
+        +foresee(now, extra_supply) list
+        +ratio_30(now) float
+        +rehearse(candidate, ratio, rng, rollouts) float
+        +agent1(pickup, now, extra, exclude) dict
+        +agent2(place, now, extra_supply) dict
+        +driver_hint(base, now) dict
+        +kitchen_hint(plan) str
+        +check_dispatch(decision, exclude, online) tuple
+        +check_price(m, expected, elapsed) tuple
+        +retest_pricing(seed, rollouts) tuple
+        +decide_ride(store, pickup, now, extra, exclude, enabled) dict
+        +fault_drill(store, place, now) list
+    }
+    class lstm_weights {
+        <<generated>>
+        W B V C
+        Q NQ QB NB
+        BUCKETS BOOSTS TAGS
+        REF_X REF_Y METRICS
+    }
+    class intelligence {
+        <<1.2.0 · unchanged>>
+        +rank(pickup, extra, exclude)
+        +choose(pickup, extra, exclude)
+        +outlook(day)
+        +event_kind(day, hour)
+    }
+    class LocalStore {
+        +twin_record(entries, status)
+        +set_layer2(enabled)
+    }
+    Loop ..> loop_module : uses
+    loop_module ..> lstm_weights : reads
+    Loop ..> intelligence : event calendar, ordinary demand
+    twin_module ..> intelligence : rank, outlook (read-only)
+    twin_module ..> LocalStore : records decisions
+```
+
+</details>
+
+### `loop.json` and the twin block of `state.json`
+
+![Entity-relationship diagram: loop.json and the twin block of state.json](img/uml/uml-loop-json-and-the-twin-block-of-state-json.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+erDiagram
+    LOOP_JSON ||--|| LSTM_CHAMPION : "lstm"
+    LOOP_JSON ||--|| AGENT_CHAMPION : "agent"
+    LOOP_JSON ||--|| AGENT_CHALLENGER : "challenger"
+    LOOP_JSON ||--o{ HOUR_ROW : "log (14 days)"
+    LOOP_JSON ||--o{ UPDATE_REPORT : "updates (30 kept)"
+    STATE_JSON ||--o| TWIN : "twin (1.3.0)"
+    TWIN ||--o{ TWIN_ENTRY : "log (60 kept)"
+    STATE_JSON ||--o| RIDE : "ride"
+    RIDE ||--o| CO_RIDER : "co (shared, 1.3.0)"
+    LOOP_JSON {
+        int version "1"
+        int cursor "hour index since 2025-01-01"
+        int hours "hours processed"
+    }
+    LSTM_CHAMPION {
+        string name "lstm-1.0"
+        int n "version"
+        array V "16 x 6 output weights"
+        array C "6 biases"
+    }
+    AGENT_CHAMPION {
+        string name "supply-1.0"
+        int n "version"
+        object Q "key -> 6 action values"
+        object NQ "key -> visits"
+    }
+    AGENT_CHALLENGER {
+        object Q
+        object NQ
+    }
+    HOUR_ROW {
+        int i "hour index"
+        array x "served, unserved, boost, ordinary now and next (/400)"
+        float d "demand"
+        float ty "ordinary demand"
+        float boost
+        float un "unserved"
+        float idle
+        float cost
+        array f "6 forecasts or null"
+        array h "16 hidden values"
+        int lv "forecast level"
+        string key "tag|weektype|hour|level"
+    }
+    UPDATE_REPORT {
+        string t "ISO time"
+        object lstm "accepted, before, after, samples"
+        object agent "accepted, improved, champion, challenger, hours"
+    }
+    TWIN {
+        bool enabled "Layer 2 switch"
+        object status "dispatch, pricing: active or retesting"
+        int checks "decisions checked"
+        int blocks "decisions blocked"
+    }
+    TWIN_ENTRY {
+        float t "epoch seconds"
+        string agent
+        string decision
+        string result "passed, blocked, fallback, retested, handed back, info"
+        string detail
+    }
+    RIDE {
+        float surge "x1.0-x2.0 (solo)"
+        object twin "Agent 1 rollouts"
+    }
+    CO_RIDER {
+        string name "rider already on board"
+        string boarded "where they boarded"
+        string drop "their drop-off"
+        array point "drop-off coordinates"
+        bool dropped "true exactly from stage 3"
+    }
+```
+
+</details>
 
 ## Component and deployment boundaries
 
@@ -1480,7 +1836,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-verify"></a>Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
 | <a name="sec-pw-policy"></a>Password policy (8–128, letter + digit) | `check_password` | [android-app/atlas_go/accounts.py L72](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L72) | Implemented |
 | <a name="sec-pw-public"></a>Strip salt and hash before display | `public_view` | [android-app/atlas_go/accounts.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L124) | Implemented |
-| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L260](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L260) | Implemented |
+| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L290](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290) | Implemented |
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
 | <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L212](../../dist/security.js#L212) | Explorer / lab |
 | <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L231](../../dist/security.js#L231) | Explorer / lab |
@@ -1496,12 +1852,12 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L304](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L304) | Implemented |
-| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L33) | Implemented |
-| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L86](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L86) | Implemented |
-| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L321](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L321) | Implemented |
-| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L326](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L326) | Implemented |
-| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L613](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L613) | Implemented |
+| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L334](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L334) | Implemented |
+| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39) | Implemented |
+| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L97](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97) | Implemented |
+| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L351](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L351) | Implemented |
+| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L356](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L356) | Implemented |
+| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L641](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L641) | Implemented |
 | Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
 | <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L275](../../dist/security.js#L275) | Explorer / lab |
 | <a name="sec-pw-cli-c"></a>Lab C: sign-in defences (experiments 12-15) | `exp_lockout` | [security_lab/lab_c_signin_defences.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_c_signin_defences.py#L28) | Explorer / lab |
@@ -1515,19 +1871,19 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L260](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L260) | Implemented |
+| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L290](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290) | Implemented |
 | <a name="sec-id-email"></a>Identity proofing: email format | `clean_email` | [android-app/atlas_go/accounts.py L53](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L53) | Implemented |
 | <a name="sec-id-phone"></a>Identity proofing: phone normalised to E.164 | `clean_phone` | [android-app/atlas_go/accounts.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L60) | Implemented |
 | <a name="sec-id-licence"></a>Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
 | <a name="sec-id-business"></a>Food-business number (self-declared) | `clean_business` | [android-app/atlas_go/accounts.py L95](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L95) | Implemented |
-| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L333](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L333) | Implemented |
-| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L422) | Implemented |
-| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L367](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L367) | Implemented |
-| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L377](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L377) | Implemented |
-| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L392](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L392) | Implemented |
-| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422) | Implemented |
-| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L557](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L557) | Implemented |
-| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L496](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L496) | Implemented |
+| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L363](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L363) | Implemented |
+| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442) | Implemented |
+| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L397](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L397) | Implemented |
+| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L407](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L407) | Implemented |
+| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422) | Implemented |
+| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
+| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L636](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636) | Implemented |
+| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L575](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L575) | Implemented |
 | <a name="sec-pw-cli-b"></a>Lab B: registration and identity (experiments 9-11) | `exp_validation` | [security_lab/lab_b_registration_identity.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_b_registration_identity.py#L28) | Explorer / lab |
 | Lab D: integrity, sessions and lifecycle (experiments 16-20) | `exp_sessions` | [security_lab/lab_d_integrity_lifecycle.py L34](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34) | Explorer / lab |
 
@@ -1607,7 +1963,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-fd-lab-pkce"></a>Explorer lab: PKCE S256 (RFC 7636) | `fdPkceRun` | [architecture-explorer/dist/foundations.js L558](../../dist/foundations.js#L558) | Explorer / lab |
 | <a name="sec-fd-lab-inject"></a>Explorer lab: SQL injection and XSS encoding | `fdInjectLab` | [architecture-explorer/dist/foundations.js L571](../../dist/foundations.js#L571) | Explorer / lab |
 | Hash a password (salt + PBKDF2-HMAC-SHA256) | `hash_password` | [android-app/atlas_go/accounts.py L27](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L27) | Implemented |
-| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L422) | Implemented |
+| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442) | Implemented |
 | OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L428](../../dist/security.js#L428) | Explorer / lab |
 
 <a name="uml-security-gaps"></a>
@@ -1619,7 +1975,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | Work factor and lockout limits | `PBKDF2_ITERATIONS` | [android-app/atlas_go/accounts.py L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L16) | Implemented |
-| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L33) | Implemented |
+| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39) | Implemented |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
 | Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
@@ -1785,8 +2141,8 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-bip-loop"></a>Decision epoch: forecast, anomaly score, BIP, overrides, hysteresis | `Sim.run` | [atlas_sim.zip → atlas_sim/cluster.py L280](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
 | <a name="ml-bip-apply"></a>Apply: dual-run extraction, merge back | `Sim.apply` | [atlas_sim.zip → atlas_sim/cluster.py L218](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
 | <a name="ml-bip-fsm"></a>Ablation baseline: fixed load thresholds | `Sim.fsm_thresholds` | [atlas_sim.zip → atlas_sim/cluster.py L386](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
-| <a name="ml-bip-lab"></a>Explorer lab: Sim.eval_all + Sim.bip replica | `mlBipSolve` | [architecture-explorer/dist/ml.js L169](../../dist/ml.js#L169) | Explorer / lab |
-| <a name="ml-bip-lab-eval"></a>Explorer lab: one configuration's latency, cost, risk | `mlEvalConfig` | [architecture-explorer/dist/ml.js L147](../../dist/ml.js#L147) | Explorer / lab |
+| <a name="ml-bip-lab"></a>Explorer lab: Sim.eval_all + Sim.bip replica | `mlBipSolve` | [architecture-explorer/dist/ml.js L203](../../dist/ml.js#L203) | Explorer / lab |
+| <a name="ml-bip-lab-eval"></a>Explorer lab: one configuration's latency, cost, risk | `mlEvalConfig` | [architecture-explorer/dist/ml.js L181](../../dist/ml.js#L181) | Explorer / lab |
 | <a name="ml-bip-cli"></a>Command-line lab: load sweep with the real Sim.bip | `section_bip` | [ml_lab/ml_optimisation_lab.py L67](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L67) | Explorer / lab |
 | <a name="ml-bip-cli-inside"></a>Command-line lab: every configuration at one load | `section_inside` | [ml_lab/ml_optimisation_lab.py L86](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L86) | Explorer / lab |
 | <a name="ml-bip-cli-anomaly"></a>Command-line lab: anomaly score raises crash risk | `section_anomaly` | [ml_lab/ml_optimisation_lab.py L106](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L106) | Explorer / lab |
@@ -1813,7 +2169,7 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-sol-repair"></a>Phase 3: verify on the nonlinear model, greedy flips | `repair` | [run_round2.py L67](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L67) | Paper (research code) |
 | <a name="ml-sol-refined"></a>Sequential linearisation | `solve_refined` | [run_round2.py L381](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L381) | Paper (research code) |
 | <a name="ml-sol-local"></a>1-flip local search on the nonlinear objective | `local_search` | [run_round2.py L364](https://github.com/FUllSCIPTS/ATLAS/blob/main/run_round2.py#L364) | Paper (research code) |
-| <a name="ml-sol-lab"></a>Explorer lab: enumerate 2^n in the browser | `mlEnumerateTiming` | [architecture-explorer/dist/ml.js L248](../../dist/ml.js#L248) | Explorer / lab |
+| <a name="ml-sol-lab"></a>Explorer lab: enumerate 2^n in the browser | `mlEnumerateTiming` | [architecture-explorer/dist/ml.js L282](../../dist/ml.js#L282) | Explorer / lab |
 | <a name="ml-sol-cli"></a>Command-line lab: enumeration vs branch-and-bound vs LP | `section_solvers` | [ml_lab/ml_optimisation_lab.py L126](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L126) | Explorer / lab |
 | <a name="ml-x-opt-bb"></a>OPT 08: branch-and-bound by hand on the coupling BIP | `branch_and_bound` | [ml_lab/optimisation/opt08_branch_and_bound.py L19](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt08_branch_and_bound.py#L19) | Explorer / lab |
 | <a name="ml-x-opt-tabu"></a>OPT 15: local search and tabu search on a 60-module BIP | `tabu` | [ml_lab/optimisation/opt15_local_search_tabu.py L40](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt15_local_search_tabu.py#L40) | Explorer / lab |
@@ -1838,13 +2194,17 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-fc-starter"></a>Starter DemandLSTM trained with Adam | `train` | [architecture-explorer/starter/ml/forecast.py L20](../ml/forecast.py#L20) | App / starter (synthetic data) |
 | <a name="ml-fc-app"></a>App LSTM in numpy with a hand-written Adam step | `LSTM.step` | [android-app/training/city_sim.py L214](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L214) | App / starter (synthetic data) |
 | Decision epoch: forecast, anomaly score, BIP, overrides, hysteresis | `Sim.run` | [atlas_sim.zip → atlas_sim/cluster.py L280](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
-| <a name="ml-fc-lab"></a>Explorer lab: AR forecaster, gradient descent vs Adam | `mlTrainForecaster` | [architecture-explorer/dist/ml.js L306](../../dist/ml.js#L306) | Explorer / lab |
+| <a name="ml-fc-lab"></a>Explorer lab: AR forecaster, gradient descent vs Adam | `mlTrainForecaster` | [architecture-explorer/dist/ml.js L340](../../dist/ml.js#L340) | Explorer / lab |
 | <a name="ml-fc-cli"></a>Command-line lab: gradient descent vs Adam vs least squares | `section_training` | [ml_lab/ml_optimisation_lab.py L157](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L157) | Explorer / lab |
-| <a name="ml-x-ml-runner"></a>ML lab runner: 20 experiments, 7 study paths | `main` | [ml_lab/machine_learning/run_ml.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/run_ml.py#L39) | Explorer / lab |
+| <a name="ml-x-ml-runner"></a>ML lab runner: 24 experiments, 11 study paths | `main` | [ml_lab/machine_learning/run_ml.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/run_ml.py#L43) | Explorer / lab |
 | <a name="ml-x-ml-hw"></a>ML 16: Holt-Winters and forecasting baselines | `holt_winters` | [ml_lab/machine_learning/ml16_time_series_forecasting.py L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml16_time_series_forecasting.py#L16) | Explorer / lab |
 | <a name="ml-x-ml-cv"></a>ML 11: time-series cross-validation and leakage | `main` | [ml_lab/machine_learning/ml11_cross_validation_leakage.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml11_cross_validation_leakage.py#L18) | Explorer / lab |
 | <a name="ml-x-ml-drift"></a>ML 17: concept drift and online learning | `main` | [ml_lab/machine_learning/ml17_concept_drift_online.py L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml17_concept_drift_online.py#L16) | Explorer / lab |
 | <a name="ml-x-opt-bo"></a>OPT 19: Bayesian optimisation of the forecaster | `main` | [ml_lab/optimisation/opt19_bayesian_optimisation.py L45](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt19_bayesian_optimisation.py#L45) | Explorer / lab |
+| <a name="ml-lp-export"></a>Offline training of the compact LSTM and the agent | `train` | [android-app/training/export_lstm.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/export_lstm.py#L43) | App / starter (synthetic data) |
+| <a name="ml-lp-hidden"></a>LSTM in pure Python (gates, cell, hidden state) | `lstm_hidden` | [android-app/atlas_go/loop.py L142](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L142) | App / starter (synthetic data) |
+| <a name="ml-lp-weights"></a>Generated LSTM weights and agent tables | `W` | [android-app/atlas_go/lstm_weights.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/lstm_weights.py#L18) | App / starter (synthetic data) |
+| <a name="ml-lp-lab"></a>Explorer lab: the phone's LSTM in the browser | `mlLstmHidden` | [architecture-explorer/dist/ml.js L961](../../dist/ml.js#L961) | Explorer / lab |
 
 <a name="uml-ml-anomaly"></a>
 
@@ -1862,7 +2222,7 @@ Generated by `scripts/security_catalog.py`.
 | Solve the BIP: objective J, constraints, argmin over all configurations | `Sim.bip` | [atlas_sim.zip → atlas_sim/cluster.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
 | <a name="ml-an-starter"></a>Starter: acceptance model + driver Isolation Forest | `train` | [architecture-explorer/starter/ml/discrete.py L8](../ml/discrete.py#L8) | App / starter (synthetic data) |
 | <a name="ml-an-serve"></a>Starter: anomaly flag per driver in the scoring API | `score` | [architecture-explorer/starter/ml/serve.py L48](../ml/serve.py#L48) | App / starter (synthetic data) |
-| <a name="ml-an-lab"></a>Explorer lab: grow an Isolation Forest | `mlForestGrow` | [architecture-explorer/dist/ml.js L392](../../dist/ml.js#L392) | Explorer / lab |
+| <a name="ml-an-lab"></a>Explorer lab: grow an Isolation Forest | `mlForestGrow` | [architecture-explorer/dist/ml.js L427](../../dist/ml.js#L427) | Explorer / lab |
 | <a name="ml-an-cli"></a>Command-line lab: Isolation Forest on paper telemetry | `section_iforest` | [ml_lab/ml_optimisation_lab.py L212](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L212) | Explorer / lab |
 | <a name="ml-x-ml-detect"></a>ML 15: z-score, Mahalanobis, Isolation Forest, LOF | `main` | [ml_lab/machine_learning/ml15_anomaly_detection.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml15_anomaly_detection.py#L18) | Explorer / lab |
 | <a name="ml-x-ml-pca"></a>ML 14: PCA reconstruction error | `main` | [ml_lab/machine_learning/ml14_pca.py L17](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml14_pca.py#L17) | Explorer / lab |
@@ -1888,12 +2248,16 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-rl-supply"></a>Driver supply agent with hindsight updates | `run_rl` | [android-app/training/city_sim.py L152](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L152) | App / starter (synthetic data) |
 | <a name="ml-rl-bandit"></a>Starter: action values per demand bucket | `fit` | [architecture-explorer/starter/ml/rl.py L32](../ml/rl.py#L32) | App / starter (synthetic data) |
 | <a name="ml-rl-approve"></a>Starter: held-out approval gate before activation | `approve` | [architecture-explorer/starter/ml/rl.py L51](../ml/rl.py#L51) | App / starter (synthetic data) |
-| <a name="ml-rl-lab"></a>Explorer lab: REINFORCE (LearningLab.train port) | `mlRlTrain` | [architecture-explorer/dist/ml.js L460](../../dist/ml.js#L460) | Explorer / lab |
+| <a name="ml-rl-lab"></a>Explorer lab: REINFORCE (LearningLab.train port) | `mlRlTrain` | [architecture-explorer/dist/ml.js L495](../../dist/ml.js#L495) | Explorer / lab |
 | <a name="ml-rl-cli"></a>Command-line lab: REINFORCE and Q-learning | `section_rl` | [ml_lab/ml_optimisation_lab.py L234](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/ml_optimisation_lab.py#L234) | Explorer / lab |
 | <a name="ml-x-ml-q"></a>ML 20: Q-learning the courier table | `main` | [ml_lab/machine_learning/ml20_q_learning_courier.py L22](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml20_q_learning_courier.py#L22) | Explorer / lab |
 | <a name="ml-x-ml-bandit"></a>ML 19: epsilon-greedy, UCB1, Thompson | `simulate` | [ml_lab/machine_learning/ml19_bandits.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml19_bandits.py#L18) | Explorer / lab |
 | <a name="ml-x-ml-rank"></a>ML 18: learning to rank dispatch candidates | `main` | [ml_lab/machine_learning/ml18_learning_to_rank.py L20](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml18_learning_to_rank.py#L20) | Explorer / lab |
 | <a name="ml-x-opt-es"></a>OPT 18: ES, DE and PSO tune the dispatch weights | `dispatch_objective` | [ml_lab/optimisation/opt18_evolution_strategies_de_pso.py L22](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/optimisation/opt18_evolution_strategies_de_pso.py#L22) | Explorer / lab |
+| <a name="ml-lp-choose"></a>Supply agent: Q over (calendar, LSTM level) | `Loop.choose` | [android-app/atlas_go/loop.py L254](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L254) | App / starter (synthetic data) |
+| <a name="ml-tw-agent1"></a>Agent 1: rehearse Layer 1's top 3, send the lowest total wait | `agent1` | [android-app/atlas_go/twin.py L215](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L215) | App / starter (synthetic data) |
+| <a name="ml-ac-lab"></a>Explorer lab: A2C and REINFORCE trained side by side | `mlAcTrain` | [architecture-explorer/dist/ml.js L743](../../dist/ml.js#L743) | Explorer / lab |
+| <a name="ml-ma-lab"></a>Explorer lab: one IPPO / MAPPO iteration | `mlMarlIterate` | [architecture-explorer/dist/ml.js L878](../../dist/ml.js#L878) | Explorer / lab |
 
 <a name="uml-ml-evaluation"></a>
 
@@ -1914,6 +2278,97 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-x-ml-metrics"></a>ML 10: metrics under class imbalance | `main` | [ml_lab/machine_learning/ml10_metrics_and_imbalance.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml10_metrics_and_imbalance.py#L18) | Explorer / lab |
 | <a name="ml-x-ml-bv"></a>ML 02: bias, variance and ridge | `main` | [ml_lab/machine_learning/ml02_bias_variance_regularisation.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml02_bias_variance_regularisation.py#L18) | Explorer / lab |
 
+<a name="uml-ml-twin"></a>
+
+### ML & Optimisation → Digital twin (ATLAS Go 1.3, Layer 2)
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-twin)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-tw-mirror"></a>Mirror drivers, active car and courier; fidelity score | `mirror` | [android-app/atlas_go/twin.py L142](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L142) | App / starter (synthetic data) |
+| <a name="ml-tw-ratio"></a>30-minute demand ratio from Layer 1's outlook (read-only) | `ratio_30` | [android-app/atlas_go/twin.py L114](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L114) | App / starter (synthetic data) |
+| <a name="ml-tw-foresee"></a>Foresee demand, free cars and pressure per place | `foresee` | [android-app/atlas_go/twin.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L124) | App / starter (synthetic data) |
+| <a name="ml-tw-rehearse"></a>Monte Carlo rehearsal of one driver over 30 minutes | `rehearse` | [android-app/atlas_go/twin.py L182](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L182) | App / starter (synthetic data) |
+| Agent 1: rehearse Layer 1's top 3, send the lowest total wait | `agent1` | [android-app/atlas_go/twin.py L215](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L215) | App / starter (synthetic data) |
+| <a name="ml-tw-agent2"></a>Agent 2: keep / surge only / small surge + move cars | `agent2` | [android-app/atlas_go/twin.py L262](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L262) | App / starter (synthetic data) |
+| <a name="ml-tw-hint"></a>Driver repositioning hint from Agent 2's plan | `driver_hint` | [android-app/atlas_go/twin.py L287](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L287) | App / starter (synthetic data) |
+| <a name="ml-tw-checkd"></a>Guardian: dispatch limits (top 3, declined, online, pickup, 250 ms) | `check_dispatch` | [android-app/atlas_go/twin.py L316](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L316) | App / starter (synthetic data) |
+| <a name="ml-tw-checkp"></a>Guardian: price limits (x1.0-x2.0, step 0.5, 250 ms) | `check_price` | [android-app/atlas_go/twin.py L331](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L331) | App / starter (synthetic data) |
+| <a name="ml-tw-retest"></a>Guardian: 500-rollout re-test before handing control back | `retest_pricing` | [android-app/atlas_go/twin.py L345](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L345) | App / starter (synthetic data) |
+| <a name="ml-tw-decide"></a>One ride through both layers, with fallback to Layer 1 | `decide_ride` | [android-app/atlas_go/twin.py L361](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L361) | App / starter (synthetic data) |
+| <a name="ml-tw-drill"></a>Fault drill: inject bad decisions, count what the Guardian catches | `fault_drill` | [android-app/atlas_go/twin.py L399](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L399) | App / starter (synthetic data) |
+| <a name="ml-tw-store"></a>Twin state: decision log, blocks and re-tests | `LocalStore.twin_record` | [android-app/atlas_go/store.py L549](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L549) | App / starter (synthetic data) |
+| Dispatch: softmax over candidate drivers | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | App / starter (synthetic data) |
+| <a name="ml-tw-lab"></a>Explorer lab: Agent 1 rehearsal (twin.agent1 port) | `mlAgent1` | [architecture-explorer/dist/ml.js L575](../../dist/ml.js#L575) | Explorer / lab |
+| <a name="ml-tw-lab-rehearse"></a>Explorer lab: twin.rehearse port | `mlRehearse` | [architecture-explorer/dist/ml.js L559](../../dist/ml.js#L559) | Explorer / lab |
+| <a name="ml-tw-lab-agent2"></a>Explorer lab: twin.agent2 port | `mlAgent2` | [architecture-explorer/dist/ml.js L603](../../dist/ml.js#L603) | Explorer / lab |
+| <a name="ml-tw-lab-guard"></a>Explorer lab: Guardian checks and fault drill | `mlFaultDrill` | [architecture-explorer/dist/ml.js L642](../../dist/ml.js#L642) | Explorer / lab |
+| <a name="ml-x-ml-twin"></a>ML 21: foresight, rehearsal stability, Agent 2, Guardian | `main` | [ml_lab/machine_learning/ml21_digital_twin.py L114](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml21_digital_twin.py#L114) | Explorer / lab |
+
+<a name="uml-ml-actorcritic"></a>
+
+### ML & Optimisation → Actor & critic networks
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-actorcritic)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-ac-train"></a>ML 22: A2C vs REINFORCE on the app's dispatch problem | `train` | [ml_lab/machine_learning/ml22_actor_critic.py L104](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L104) | Explorer / lab |
+| <a name="ml-ac-actor"></a>ML 22: actor network, gradient of log pi | `Actor.update` | [ml_lab/machine_learning/ml22_actor_critic.py L64](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L64) | Explorer / lab |
+| <a name="ml-ac-critic"></a>ML 22: critic network V(s), squared-error update | `Critic.update` | [ml_lab/machine_learning/ml22_actor_critic.py L90](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml22_actor_critic.py#L90) | Explorer / lab |
+| On-device learning lab (REINFORCE, sandbox) | `LearningLab.train` | [android-app/atlas_go/intelligence.py L415](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L415) | App / starter (synthetic data) |
+| Approved dispatch weights (policy v1.4) | `RIDE_WEIGHTS` | [android-app/atlas_go/learned.py L13](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/learned.py#L13) | App / starter (synthetic data) |
+| Ride dispatch: REINFORCE training | `train_ride` | [android-app/training/rl_sim.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/rl_sim.py#L42) | App / starter (synthetic data) |
+| Explorer lab: A2C and REINFORCE trained side by side | `mlAcTrain` | [architecture-explorer/dist/ml.js L743](../../dist/ml.js#L743) | Explorer / lab |
+| <a name="ml-ac-lab-critic"></a>Explorer lab: critic value of a situation | `mlCriticValue` | [architecture-explorer/dist/ml.js L730](../../dist/ml.js#L730) | Explorer / lab |
+| Explorer lab: REINFORCE (LearningLab.train port) | `mlRlTrain` | [architecture-explorer/dist/ml.js L495](../../dist/ml.js#L495) | Explorer / lab |
+
+<a name="uml-ml-marl"></a>
+
+### ML & Optimisation → Multi-agent RL: two agents, one critic
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-marl)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-ma-train"></a>ML 23: IPPO vs MAPPO training loop | `train` | [ml_lab/machine_learning/ml23_mappo_shared_critic.py L162](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L162) | Explorer / lab |
+| <a name="ml-ma-env"></a>ML 23: three-zone twin, two agents, one team reward | `TwinCity.step` | [ml_lab/machine_learning/ml23_mappo_shared_critic.py L68](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L68) | Explorer / lab |
+| <a name="ml-ma-ppo"></a>ML 23: PPO clipped update per actor | `Actor.ppo_update` | [ml_lab/machine_learning/ml23_mappo_shared_critic.py L121](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L121) | Explorer / lab |
+| <a name="ml-ma-critic"></a>ML 23: critic fitted to returns (shared or own) | `Critic.fit` | [ml_lab/machine_learning/ml23_mappo_shared_critic.py L142](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml23_mappo_shared_critic.py#L142) | Explorer / lab |
+| Agent 1: rehearse Layer 1's top 3, send the lowest total wait | `agent1` | [android-app/atlas_go/twin.py L215](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L215) | App / starter (synthetic data) |
+| Agent 2: keep / surge only / small surge + move cars | `agent2` | [android-app/atlas_go/twin.py L262](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L262) | App / starter (synthetic data) |
+| Guardian: dispatch limits (top 3, declined, online, pickup, 250 ms) | `check_dispatch` | [android-app/atlas_go/twin.py L316](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L316) | App / starter (synthetic data) |
+| Explorer lab: one IPPO / MAPPO iteration | `mlMarlIterate` | [architecture-explorer/dist/ml.js L878](../../dist/ml.js#L878) | Explorer / lab |
+| <a name="ml-ma-lab-env"></a>Explorer lab: TwinCity port | `mlCity` | [architecture-explorer/dist/ml.js L813](../../dist/ml.js#L813) | Explorer / lab |
+| <a name="ml-ma-lab-ppo"></a>Explorer lab: PPO clip port | `mlPpo` | [architecture-explorer/dist/ml.js L853](../../dist/ml.js#L853) | Explorer / lab |
+
+<a name="uml-ml-loop"></a>
+
+### ML & Optimisation → LSTM + RL live loop (ATLAS Go 1.4, Layer 1)
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#ml-loop)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="ml-lp-step"></a>One city hour: forecast, act, record, learn online | `Loop.step` | [android-app/atlas_go/loop.py L307](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L307) | App / starter (synthetic data) |
+| <a name="ml-lp-forecast"></a>LSTM forecast for the next 6 hours from the logged window | `Loop.forecast` | [android-app/atlas_go/loop.py L258](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L258) | App / starter (synthetic data) |
+| LSTM in pure Python (gates, cell, hidden state) | `lstm_hidden` | [android-app/atlas_go/loop.py L142](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L142) | App / starter (synthetic data) |
+| <a name="ml-lp-head"></a>Output layer: hidden state -> 6 forecasts | `head` | [android-app/atlas_go/loop.py L157](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L157) | App / starter (synthetic data) |
+| <a name="ml-lp-calendar"></a>30 calendar inputs: hour, weekday, event tag, now and +3 h | `calendar` | [android-app/atlas_go/loop.py L125](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L125) | App / starter (synthetic data) |
+| Supply agent: Q over (calendar, LSTM level) | `Loop.choose` | [android-app/atlas_go/loop.py L254](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L254) | App / starter (synthetic data) |
+| <a name="ml-lp-record"></a>Experience log row (14 days kept) | `Loop._record` | [android-app/atlas_go/loop.py L280](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L280) | App / starter (synthetic data) |
+| <a name="ml-lp-daily"></a>Nightly update and champion / challenger validation | `Loop.daily_update` | [android-app/atlas_go/loop.py L375](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L375) | App / starter (synthetic data) |
+| <a name="ml-lp-demand"></a>Simulated city demand (city_sim model, deterministic) | `demand` | [android-app/atlas_go/loop.py L87](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L87) | App / starter (synthetic data) |
+| Generated LSTM weights and agent tables | `W` | [android-app/atlas_go/lstm_weights.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/lstm_weights.py#L18) | App / starter (synthetic data) |
+| Offline training of the compact LSTM and the agent | `train` | [android-app/training/export_lstm.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/export_lstm.py#L43) | App / starter (synthetic data) |
+| <a name="ml-lp-surge"></a>Live forecast as the dispatch policy's surge feature | `AtlasGoApp.live_surge` | [android-app/atlas_go/app.py L879](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L879) | App / starter (synthetic data) |
+| Driver supply agent with hindsight updates | `run_rl` | [android-app/training/city_sim.py L152](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L152) | App / starter (synthetic data) |
+| Explorer lab: the phone's LSTM in the browser | `mlLstmHidden` | [architecture-explorer/dist/ml.js L961](../../dist/ml.js#L961) | Explorer / lab |
+| <a name="ml-lp-lab-whatif"></a>Explorer lab: what-if event tag and demand shock | `mlLoopWhatIf` | [architecture-explorer/dist/ml.js L979](../../dist/ml.js#L979) | Explorer / lab |
+| <a name="ml-lp-lab-data"></a>Export weights and a recorded loop run for the explorer | `main` | [architecture-explorer/starter/scripts/export_ml_live.py L24](../scripts/export_ml_live.py#L24) | Explorer / lab |
+| <a name="ml-x-ml-loop"></a>ML 24: loop vs calendar agent, learning vs frozen, validation | `run_loop` | [ml_lab/machine_learning/ml24_lstm_rl_loop.py L31](https://github.com/FUllSCIPTS/ATLAS/blob/main/ml_lab/machine_learning/ml24_lstm_rl_loop.py#L31) | Explorer / lab |
+
 <a name="uml-ml-gaps"></a>
 
 ### ML & Optimisation → Gaps & exercises
@@ -1928,6 +2383,10 @@ Generated by `scripts/security_catalog.py`.
 | Training: Adam, gradient clipping, early stopping | `train` | [atlas_sim.zip → atlas_sim/forecast.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/atlas_sim.zip) | Paper (research code) |
 | On-device learning lab (REINFORCE, sandbox) | `LearningLab.train` | [android-app/atlas_go/intelligence.py L415](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L415) | App / starter (synthetic data) |
 | Starter: action values per demand bucket | `fit` | [architecture-explorer/starter/ml/rl.py L32](../ml/rl.py#L32) | App / starter (synthetic data) |
+| Agent 1: rehearse Layer 1's top 3, send the lowest total wait | `agent1` | [android-app/atlas_go/twin.py L215](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L215) | App / starter (synthetic data) |
+| Agent 2: keep / surge only / small surge + move cars | `agent2` | [android-app/atlas_go/twin.py L262](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L262) | App / starter (synthetic data) |
+| Nightly update and champion / challenger validation | `Loop.daily_update` | [android-app/atlas_go/loop.py L375](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L375) | App / starter (synthetic data) |
+| 30-minute demand ratio from Layer 1's outlook (read-only) | `ratio_30` | [android-app/atlas_go/twin.py L114](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L114) | App / starter (synthetic data) |
 
 <!-- END ML CATALOG -->
 
@@ -1950,13 +2409,13 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L359](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L359) | Implemented |
-| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L653](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L653) | Implemented |
+| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L389](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L389) | Implemented |
+| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L732](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732) | Implemented |
 | <a name="dsa-app-distances"></a>2-D table lookup DISTANCES[pickup][destination] | `DISTANCES` | [android-app/atlas_go/domain.py L5](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L5) | Implemented |
-| <a name="dsa-app-nearest"></a>Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L60) | Implemented |
-| <a name="dsa-app-tiles"></a>Grid indexing: tiles that cover the view | `tile_range` | [android-app/atlas_go/geo.py L105](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L105) | Implemented |
-| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422) | Implemented |
-| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L557](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L557) | Implemented |
+| <a name="dsa-app-nearest"></a>Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
+| <a name="dsa-app-tiles"></a>Grid indexing: tiles that cover the view | `tile_range` | [android-app/atlas_go/geo.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L107) | Implemented |
+| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
+| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L636](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636) | Implemented |
 | <a name="dsa-lab-linear"></a>Linear search with a comparison count | `linear_search` | [dsa_lab/experiments.py L41](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L41) | Explorer / lab |
 | <a name="dsa-lab-binary"></a>Binary search with a comparison count | `binary_search` | [dsa_lab/experiments.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L51) | Explorer / lab |
 | <a name="dsa-lab-dynarray"></a>Dynamic array: growth policy and copies | `DynamicArray.append` | [dsa_lab/experiments.py L267](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L267) | Explorer / lab |
@@ -2013,8 +2472,8 @@ Generated by `scripts/security_catalog.py`.
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | <a name="dsa-app-dishes"></a>Hash table: dish id to Dish | `DISHES` | [android-app/atlas_go/domain.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L43) | Implemented |
-| <a name="dsa-app-cart"></a>Hash table: cart quantities per dish | `Cart.add` | [android-app/atlas_go/domain.py L130](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L130) | Implemented |
-| <a name="dsa-app-menu"></a>Linear filter: a kitchen's menu | `Catalog.menu` | [android-app/atlas_go/domain.py L105](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L105) | Implemented |
+| <a name="dsa-app-cart"></a>Hash table: cart quantities per dish | `Cart.add` | [android-app/atlas_go/domain.py L135](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L135) | Implemented |
+| <a name="dsa-app-menu"></a>Linear filter: a kitchen's menu | `Catalog.menu` | [android-app/atlas_go/domain.py L110](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L110) | Implemented |
 | <a name="dsa-lab-chain"></a>Hash table with separate chaining and resizing | `ChainHash.put` | [dsa_lab/experiments.py L1021](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1021) | Explorer / lab |
 | <a name="dsa-lab-probe"></a>Open addressing: linear probing | `OpenAddressHash.put` | [dsa_lab/experiments.py L1137](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1137) | Explorer / lab |
 | <a name="dsa-lab-tomb"></a>Open addressing: delete with a tombstone | `OpenAddressHash.delete` | [dsa_lab/experiments.py L1169](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1169) | Explorer / lab |
@@ -2048,8 +2507,8 @@ Generated by `scripts/security_catalog.py`.
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | <a name="dsa-app-zones"></a>Zone coordinates: the graph lab's vertices | `ZONE_COORDS` | [android-app/atlas_go/geo.py L21](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L21) | Implemented |
-| <a name="dsa-app-haversine"></a>Great-circle distance: the graph lab's edge weights | `haversine_km` | [android-app/atlas_go/geo.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L39) | Implemented |
-| <a name="dsa-app-legs"></a>Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L128](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L128) | Related (similar code, not this exact structure) |
+| <a name="dsa-app-haversine"></a>Great-circle distance: the graph lab's edge weights | `haversine_km` | [android-app/atlas_go/geo.py L41](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L41) | Implemented |
+| <a name="dsa-app-legs"></a>Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L130](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L130) | Related (similar code, not this exact structure) |
 | <a name="dsa-lab-bfs"></a>Breadth-first search | `bfs` | [dsa_lab/experiments.py L1609](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1609) | Explorer / lab |
 | <a name="dsa-lab-dfs"></a>Depth-first search | `dfs` | [dsa_lab/experiments.py L1597](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1597) | Explorer / lab |
 | <a name="dsa-lab-dijkstra"></a>Dijkstra with a binary heap | `dijkstra` | [dsa_lab/experiments.py L1646](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1646) | Explorer / lab |
@@ -2083,9 +2542,9 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L86](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L86) | Implemented |
+| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L97](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97) | Implemented |
 | <a name="dsa-app-selftest"></a>Self-test of the on-device models | `self_test` | [android-app/atlas_go/intelligence.py L459](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L459) | Implemented |
-| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L480](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L480) | Related (similar code, not this exact structure) |
+| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L534](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L534) | Related (similar code, not this exact structure) |
 | <a name="dsa-lab-fib"></a>Fibonacci with a memo: call count | `fib_memo_calls` | [dsa_lab/experiments.py L1797](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1797) | Explorer / lab |
 | <a name="dsa-lab-knapsack"></a>0/1 knapsack by dynamic programming | `knapsack_01` | [dsa_lab/experiments.py L1819](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1819) | Explorer / lab |
 | <a name="dsa-lab-queens"></a>N queens by backtracking | `n_queens` | [dsa_lab/experiments.py L1837](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1837) | Explorer / lab |
@@ -2100,10 +2559,10 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L653](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L653) | Implemented |
+| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L732](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732) | Implemented |
 | Sorting: rank candidates with sorted() | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | Implemented |
-| Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L60) | Implemented |
-| Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L128](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L128) | Related (similar code, not this exact structure) |
+| Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
+| Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L130](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L130) | Related (similar code, not this exact structure) |
 | LIFO work queue: newest tile request first | `self.requests = queue.LifoQueue()` | [android-app/atlas_go/livemap.py L46](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/livemap.py#L46) | Implemented |
 | Experiment runner E01-E30 | `run_experiment` | [dsa_lab/experiments.py L2137](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L2137) | Explorer / lab |
 
@@ -2235,6 +2694,14 @@ This class uses inherited methods.
 | Method | `DB.__init__(self, connection)` | — | [L15](../packages/db.py#L15) |
 | Method | `DB.run(self, query, *args)` | — | [L18](../packages/db.py#L18) |
 
+### `scripts/export_ml_live.py`
+
+[Open source](../scripts/export_ml_live.py)
+
+| Kind | Signature | Decorators | Source |
+| --- | --- | --- | --- |
+| Function | `main()` | — | [L24](../scripts/export_ml_live.py#L24) |
+
 ### `scripts/initialize.sh`
 
 [Open source](../scripts/initialize.sh)
@@ -2256,14 +2723,14 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `read(location, main)` | — | [L437](../scripts/security_catalog.py#L437) |
-| Function | `python_symbols(text)` | — | [L447](../scripts/security_catalog.py#L447) |
-| Function | `locate(text, path, symbol)` | — | [L459](../scripts/security_catalog.py#L459) |
-| Function | `resolve(main)` | — | [L480](../scripts/security_catalog.py#L480) |
-| Function | `markdown(rows, views, intro)` | — | [L513](../scripts/security_catalog.py#L513) |
-| Function | `script(rows)` | — | [L534](../scripts/security_catalog.py#L534) |
-| Function | `replace_block(document, content, name)` | — | [L542](../scripts/security_catalog.py#L542) |
-| Function | `main()` | — | [L551](../scripts/security_catalog.py#L551) |
+| Function | `read(location, main)` | — | [L493](../scripts/security_catalog.py#L493) |
+| Function | `python_symbols(text)` | — | [L503](../scripts/security_catalog.py#L503) |
+| Function | `locate(text, path, symbol)` | — | [L515](../scripts/security_catalog.py#L515) |
+| Function | `resolve(main)` | — | [L536](../scripts/security_catalog.py#L536) |
+| Function | `markdown(rows, views, intro)` | — | [L569](../scripts/security_catalog.py#L569) |
+| Function | `script(rows)` | — | [L590](../scripts/security_catalog.py#L590) |
+| Function | `replace_block(document, content, name)` | — | [L598](../scripts/security_catalog.py#L598) |
+| Function | `main()` | — | [L607](../scripts/security_catalog.py#L607) |
 
 ### `services/dispatch.py`
 
@@ -2881,62 +3348,62 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `indexSystem()` | — | [L53](../../dist/explorer.js#L53) |
-| Function | `indexSystem.<callback: S.links.map>(link)` | — | [L55](../../dist/explorer.js#L55) |
-| Function | `indexSystem.<callback: S.folders.flatMap>(group)` | — | [L56](../../dist/explorer.js#L56) |
-| Function | `indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)` | — | [L56](../../dist/explorer.js#L56) |
-| Function | `$(id)` | — | [L60](../../dist/explorer.js#L60) |
-| Function | `icon(name, size = 18)` | — | [L61](../../dist/explorer.js#L61) |
-| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L64](../../dist/explorer.js#L64) |
-| Function | `announce(message)` | — | [L66](../../dist/explorer.js#L66) |
-| Function | `componentColor(id)` | — | [L70](../../dist/explorer.js#L70) |
-| Function | `componentMark(id, size = 19)` | — | [L74](../../dist/explorer.js#L74) |
-| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L78](../../dist/explorer.js#L78) |
-| Function | `updateControls()` | — | [L82](../../dist/explorer.js#L82) |
-| Function | `updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])` | — | [L84](../../dist/explorer.js#L84) |
-| Function | `architectureView()` | — | [L94](../../dist/explorer.js#L94) |
-| Function | `architectureView.<callback: S.links.filter>({ from, to })` | — | [L97](../../dist/explorer.js#L97) |
-| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L98](../../dist/explorer.js#L98) |
-| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L100](../../dist/explorer.js#L100) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L101](../../dist/explorer.js#L101) |
-| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L101](../../dist/explorer.js#L101) |
-| Function | `architectureView.<callback: [...S.links].sort>(a, b)` | — | [L103](../../dist/explorer.js#L103) |
-| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L104](../../dist/explorer.js#L104) |
-| Function | `architectureView.<callback: Object.values(S.groups).map>(group, index)` | — | [L109](../../dist/explorer.js#L109) |
-| Function | `architectureView.<callback: Object.entries(S.components).map>([id, component])` | — | [L110](../../dist/explorer.js#L110) |
-| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L127](../../dist/explorer.js#L127) |
-| Function | `cardsMarkup()` | — | [L130](../../dist/explorer.js#L130) |
-| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>([, component])` | — | [L132](../../dist/explorer.js#L132) |
-| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L133](../../dist/explorer.js#L133) |
-| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L134](../../dist/explorer.js#L134) |
-| Function | `componentsView()` | — | [L139](../../dist/explorer.js#L139) |
-| Function | `componentsView.<callback: Object.entries(S.groups).map>([id, group])` | — | [L142](../../dist/explorer.js#L142) |
-| Function | `deploymentView()` | — | [L146](../../dist/explorer.js#L146) |
-| Function | `deploymentView.<callback: S.zones.map>(zone, index)` | — | [L148](../../dist/explorer.js#L148) |
-| Function | `deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)` | — | [L148](../../dist/explorer.js#L148) |
-| Function | `foldersView()` | — | [L152](../../dist/explorer.js#L152) |
-| Function | `foldersView.<callback: S.folders.map>(group)` | — | [L155](../../dist/explorer.js#L155) |
-| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)` | — | [L155](../../dist/explorer.js#L155) |
-| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)` | — | [L155](../../dist/explorer.js#L155) |
-| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L156](../../dist/explorer.js#L156) |
-| Function | `inspectorMarkup()` | — | [L159](../../dist/explorer.js#L159) |
-| Function | `inspectorMarkup.<callback: S.links.filter>({ to })` | — | [L165](../../dist/explorer.js#L165) |
-| Function | `inspectorMarkup.<callback: S.links.filter>({ from })` | — | [L166](../../dist/explorer.js#L166) |
-| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L172](../../dist/explorer.js#L172) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L172](../../dist/explorer.js#L172) |
-| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L172](../../dist/explorer.js#L172) |
-| Function | `render()` | — | [L179](../../dist/explorer.js#L179) |
-| Function | `setSystem(id, fromClick = false)` | — | [L206](../../dist/explorer.js#L206) |
-| Function | `stopPlayback()` | — | [L223](../../dist/explorer.js#L223) |
-| Function | `switchView(view)` | — | [L228](../../dist/explorer.js#L228) |
-| Function | `applyStep(step)` | — | [L239](../../dist/explorer.js#L239) |
-| Function | `setScenario(id)` | — | [L258](../../dist/explorer.js#L258) |
-| Function | `playTrace()` | — | [L271](../../dist/explorer.js#L271) |
-| Function | `playTrace.<callback: setInterval>()` | — | [L278](../../dist/explorer.js#L278) |
-| Function | `<callback: document.addEventListener, "click">(event)` | — | [L287](../../dist/explorer.js#L287) |
-| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L329](../../dist/explorer.js#L329) |
-| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L341](../../dist/explorer.js#L341) |
-| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L348](../../dist/explorer.js#L348) |
+| Function | `indexSystem()` | — | [L54](../../dist/explorer.js#L54) |
+| Function | `indexSystem.<callback: S.links.map>(link)` | — | [L56](../../dist/explorer.js#L56) |
+| Function | `indexSystem.<callback: S.folders.flatMap>(group)` | — | [L57](../../dist/explorer.js#L57) |
+| Function | `indexSystem.<callback: S.folders.flatMap>.<callback: group.children.map>(entry)` | — | [L57](../../dist/explorer.js#L57) |
+| Function | `$(id)` | — | [L61](../../dist/explorer.js#L61) |
+| Function | `icon(name, size = 18)` | — | [L62](../../dist/explorer.js#L62) |
+| Function | `<callback: document.querySelectorAll("[data-icon]").forEach>(element)` | — | [L65](../../dist/explorer.js#L65) |
+| Function | `announce(message)` | — | [L67](../../dist/explorer.js#L67) |
+| Function | `componentColor(id)` | — | [L71](../../dist/explorer.js#L71) |
+| Function | `componentMark(id, size = 19)` | — | [L75](../../dist/explorer.js#L75) |
+| Function | `viewHeading(kicker, title, detail, badge = "")` | — | [L79](../../dist/explorer.js#L79) |
+| Function | `updateControls()` | — | [L83](../../dist/explorer.js#L83) |
+| Function | `updateControls.<callback: Object.entries(S.scenarios).map>([id, trace])` | — | [L85](../../dist/explorer.js#L85) |
+| Function | `architectureView()` | — | [L95](../../dist/explorer.js#L95) |
+| Function | `architectureView.<callback: S.links.filter>({ from, to })` | — | [L98](../../dist/explorer.js#L98) |
+| Function | `architectureView.<callback: trace?.steps.map>([id])` | — | [L99](../../dist/explorer.js#L99) |
+| Function | `architectureView.<callback: [...visibleLinks].flatMap>({ from, to })` | — | [L101](../../dist/explorer.js#L101) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>(kind)` | — | [L102](../../dist/explorer.js#L102) |
+| Function | `architectureView.<callback: Object.keys(kindLabels).flatMap>.<callback: ["base", "active"].map>(tone)` | — | [L102](../../dist/explorer.js#L102) |
+| Function | `architectureView.<callback: [...S.links].sort>(a, b)` | — | [L104](../../dist/explorer.js#L104) |
+| Function | `architectureView.<callback: orderedLinks.map>(link)` | — | [L105](../../dist/explorer.js#L105) |
+| Function | `architectureView.<callback: Object.values(S.groups).map>(group, index)` | — | [L110](../../dist/explorer.js#L110) |
+| Function | `architectureView.<callback: Object.entries(S.components).map>([id, component])` | — | [L111](../../dist/explorer.js#L111) |
+| Function | `architectureView.<callback: Object.entries(kindLabels).map>([kind, label])` | — | [L128](../../dist/explorer.js#L128) |
+| Function | `cardsMarkup()` | — | [L131](../../dist/explorer.js#L131) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>([, component])` | — | [L133](../../dist/explorer.js#L133) |
+| Function | `cardsMarkup.<callback: Object.entries(S.components).filter>.<callback: [component.title, component.tech, component.summary].some>(item)` | — | [L134](../../dist/explorer.js#L134) |
+| Function | `cardsMarkup.<callback: matches.map>([id, component])` | — | [L135](../../dist/explorer.js#L135) |
+| Function | `componentsView()` | — | [L140](../../dist/explorer.js#L140) |
+| Function | `componentsView.<callback: Object.entries(S.groups).map>([id, group])` | — | [L143](../../dist/explorer.js#L143) |
+| Function | `deploymentView()` | — | [L147](../../dist/explorer.js#L147) |
+| Function | `deploymentView.<callback: S.zones.map>(zone, index)` | — | [L149](../../dist/explorer.js#L149) |
+| Function | `deploymentView.<callback: S.zones.map>.<callback: zone.nodes.map>(id)` | — | [L149](../../dist/explorer.js#L149) |
+| Function | `foldersView()` | — | [L153](../../dist/explorer.js#L153) |
+| Function | `foldersView.<callback: S.folders.map>(group)` | — | [L156](../../dist/explorer.js#L156) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.some>(entry)` | — | [L156](../../dist/explorer.js#L156) |
+| Function | `foldersView.<callback: S.folders.map>.<callback: group.children.map>(entry)` | — | [L156](../../dist/explorer.js#L156) |
+| Function | `foldersView.<callback: selected.example.map>(file)` | — | [L157](../../dist/explorer.js#L157) |
+| Function | `inspectorMarkup()` | — | [L160](../../dist/explorer.js#L160) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ to })` | — | [L166](../../dist/explorer.js#L166) |
+| Function | `inspectorMarkup.<callback: S.links.filter>({ from })` | — | [L167](../../dist/explorer.js#L167) |
+| Function | `inspectorMarkup.<callback: neighbors.filter>({ rows })` | — | [L173](../../dist/explorer.js#L173) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>({ heading, rows, target })` | — | [L173](../../dist/explorer.js#L173) |
+| Function | `inspectorMarkup.<callback: neighbors.filter(({ rows }) => rows.length).map>.<callback: rows.map>(link)` | — | [L173](../../dist/explorer.js#L173) |
+| Function | `render()` | — | [L180](../../dist/explorer.js#L180) |
+| Function | `setSystem(id, fromClick = false)` | — | [L207](../../dist/explorer.js#L207) |
+| Function | `stopPlayback()` | — | [L224](../../dist/explorer.js#L224) |
+| Function | `switchView(view)` | — | [L229](../../dist/explorer.js#L229) |
+| Function | `applyStep(step)` | — | [L240](../../dist/explorer.js#L240) |
+| Function | `setScenario(id)` | — | [L259](../../dist/explorer.js#L259) |
+| Function | `playTrace()` | — | [L272](../../dist/explorer.js#L272) |
+| Function | `playTrace.<callback: setInterval>()` | — | [L279](../../dist/explorer.js#L279) |
+| Function | `<callback: document.addEventListener, "click">(event)` | — | [L288](../../dist/explorer.js#L288) |
+| Function | `<callback: document.querySelector('[role="tablist"]').addEventListener, "keydown">(event)` | — | [L330](../../dist/explorer.js#L330) |
+| Function | `<callback: $("view-content").addEventListener, "input">(event)` | — | [L342](../../dist/explorer.js#L342) |
+| Function | `<callback: $("view-content").addEventListener, "toggle">(event)` | — | [L349](../../dist/explorer.js#L349) |
 
 ### `dist/foundations.js`
 
@@ -3088,50 +3555,56 @@ This file declares no functions.
 | Function | `<callback: document.addEventListener, "change">(event)` | — | [L688](../../dist/foundations.js#L688) |
 | Function | `<callback: document.addEventListener, "keydown">(event)` | — | [L694](../../dist/foundations.js#L694) |
 
+### `dist/ml-live.js`
+
+[Open source](../../dist/ml-live.js)
+
+This file declares no functions.
+
 ### `dist/ml.js`
 
 [Open source](../../dist/ml.js)
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `<callback: mlTopics.map>(t)` | — | [L34](../../dist/ml.js#L34) |
-| Function | `mlChip(status)` | — | [L36](../../dist/ml.js#L36) |
-| Function | `mlRng(seed)` | — | [L43](../../dist/ml.js#L43) |
-| Function | `mlRng.uniform()` | — | [L45](../../dist/ml.js#L45) |
-| Function | `mlRng.normal()` | — | [L46](../../dist/ml.js#L46) |
-| Function | `mlRng.range(lo, hi)` | — | [L47](../../dist/ml.js#L47) |
-| Function | `mlRng.int(n)` | — | [L47](../../dist/ml.js#L47) |
-| Function | `mlButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L60](../../dist/ml.js#L60) |
-| Function | `mlSelect(name, label, options, value)` | — | [L64](../../dist/ml.js#L64) |
-| Function | `mlSelect.<callback: options.map>([v, l])` | — | [L65](../../dist/ml.js#L65) |
-| Function | `mlRange(name, label, min, max, step, value, shown)` | — | [L68](../../dist/ml.js#L68) |
-| Function | `mlChart(series, { logX = false, logY = false, xLabel = "", yLabel = "", height = 170, hlines = [], vline = null } = {})` | — | [L73](../../dist/ml.js#L73) |
-| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L75](../../dist/ml.js#L75) |
-| Function | `mlChart.<callback: hlines.map>(h)` | — | [L75](../../dist/ml.js#L75) |
-| Function | `mlChart.fx(x)` | — | [L76](../../dist/ml.js#L76) |
-| Function | `mlChart.fy(y)` | — | [L76](../../dist/ml.js#L76) |
-| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L77](../../dist/ml.js#L77) |
-| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L77](../../dist/ml.js#L77) |
-| Function | `mlChart.<callback: all.map>(p)` | — | [L77](../../dist/ml.js#L77) |
-| Function | `mlChart.sx(x)` | — | [L81](../../dist/ml.js#L81) |
-| Function | `mlChart.sy(y)` | — | [L82](../../dist/ml.js#L82) |
-| Function | `mlChart.fmt(v)` | — | [L83](../../dist/ml.js#L83) |
-| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L84](../../dist/ml.js#L84) |
-| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map((f) => y0 + pad + f * (y1 - y0 - 2 * pad)).map>(v)` | — | [L84](../../dist/ml.js#L84) |
-| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L85](../../dist/ml.js#L85) |
-| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L85](../../dist/ml.js#L85) |
-| Function | `mlChart.<callback: [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].filter>(v)` | — | [L85](../../dist/ml.js#L85) |
-| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L85](../../dist/ml.js#L85) |
-| Function | `mlChart.<callback: ticksY.map>(v)` | — | [L87](../../dist/ml.js#L87) |
-| Function | `mlChart.<callback: ticksX.map>(v)` | — | [L88](../../dist/ml.js#L88) |
-| Function | `mlChart.<callback: hlines.map>(h)` | — | [L91](../../dist/ml.js#L91) |
-| Function | `mlChart.<callback: series.map>(s)` | — | [L93](../../dist/ml.js#L93) |
-| Function | `mlChart.<callback: series.map>.<callback: s.points.map>(p)` | — | [L93](../../dist/ml.js#L93) |
-| Function | `mlLegend(items)` | — | [L97](../../dist/ml.js#L97) |
-| Function | `mlLegend.<callback: items.map>([cls, text])` | — | [L98](../../dist/ml.js#L98) |
-| Function | `mlOverview()` | — | [L112](../../dist/ml.js#L112) |
-| Function | `mlOverview.<callback: Object.keys(mlStatus).map>(k)` | — | [L114](../../dist/ml.js#L114) |
-| Function | `mlOverview.<callback: mlMap.map>([topic, ic, title, status, text, where])` | — | [L115](../../dist/ml.js#L115) |
+| Function | `<callback: mlTopics.map>(t)` | — | [L45](../../dist/ml.js#L45) |
+| Function | `mlChip(status)` | — | [L47](../../dist/ml.js#L47) |
+| Function | `mlRng(seed)` | — | [L54](../../dist/ml.js#L54) |
+| Function | `mlRng.uniform()` | — | [L56](../../dist/ml.js#L56) |
+| Function | `mlRng.normal()` | — | [L57](../../dist/ml.js#L57) |
+| Function | `mlRng.range(lo, hi)` | — | [L58](../../dist/ml.js#L58) |
+| Function | `mlRng.int(n)` | — | [L58](../../dist/ml.js#L58) |
+| Function | `mlButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L74](../../dist/ml.js#L74) |
+| Function | `mlSelect(name, label, options, value)` | — | [L78](../../dist/ml.js#L78) |
+| Function | `mlSelect.<callback: options.map>([v, l])` | — | [L79](../../dist/ml.js#L79) |
+| Function | `mlRange(name, label, min, max, step, value, shown)` | — | [L82](../../dist/ml.js#L82) |
+| Function | `mlChart(series, { logX = false, logY = false, xLabel = "", yLabel = "", height = 170, hlines = [], vline = null } = {})` | — | [L87](../../dist/ml.js#L87) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L89](../../dist/ml.js#L89) |
+| Function | `mlChart.<callback: hlines.map>(h)` | — | [L89](../../dist/ml.js#L89) |
+| Function | `mlChart.fx(x)` | — | [L90](../../dist/ml.js#L90) |
+| Function | `mlChart.fy(y)` | — | [L90](../../dist/ml.js#L90) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L91](../../dist/ml.js#L91) |
+| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L91](../../dist/ml.js#L91) |
+| Function | `mlChart.<callback: all.map>(p)` | — | [L91](../../dist/ml.js#L91) |
+| Function | `mlChart.sx(x)` | — | [L95](../../dist/ml.js#L95) |
+| Function | `mlChart.sy(y)` | — | [L96](../../dist/ml.js#L96) |
+| Function | `mlChart.fmt(v)` | — | [L97](../../dist/ml.js#L97) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L98](../../dist/ml.js#L98) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map((f) => y0 + pad + f * (y1 - y0 - 2 * pad)).map>(v)` | — | [L98](../../dist/ml.js#L98) |
+| Function | `mlChart.<callback: series.flatMap>(s)` | — | [L99](../../dist/ml.js#L99) |
+| Function | `mlChart.<callback: series.flatMap>.<callback: s.points.map>(p)` | — | [L99](../../dist/ml.js#L99) |
+| Function | `mlChart.<callback: [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].filter>(v)` | — | [L99](../../dist/ml.js#L99) |
+| Function | `mlChart.<callback: [0, 0.25, 0.5, 0.75, 1].map>(f)` | — | [L99](../../dist/ml.js#L99) |
+| Function | `mlChart.<callback: ticksY.map>(v)` | — | [L101](../../dist/ml.js#L101) |
+| Function | `mlChart.<callback: ticksX.map>(v)` | — | [L102](../../dist/ml.js#L102) |
+| Function | `mlChart.<callback: hlines.map>(h)` | — | [L105](../../dist/ml.js#L105) |
+| Function | `mlChart.<callback: series.map>(s)` | — | [L107](../../dist/ml.js#L107) |
+| Function | `mlChart.<callback: series.map>.<callback: s.points.map>(p)` | — | [L107](../../dist/ml.js#L107) |
+| Function | `mlLegend(items)` | — | [L111](../../dist/ml.js#L111) |
+| Function | `mlLegend.<callback: items.map>([cls, text])` | — | [L112](../../dist/ml.js#L112) |
+| Function | `mlOverview()` | — | [L130](../../dist/ml.js#L130) |
+| Function | `mlOverview.<callback: Object.keys(mlStatus).map>(k)` | — | [L132](../../dist/ml.js#L132) |
+| Function | `mlOverview.<callback: mlMap.map>([topic, ic, title, status, text, where])` | — | [L133](../../dist/ml.js#L133) |
 | Function | `mlOverview.<callback: [
       ["Forecast", "λ* = max(load, LSTM 5-min forecast)", "Plan for the load that is coming"],
       ["Score", "Isolation Forest on telemetry", "Blame the module whose demand deviates most"],
@@ -3139,105 +3612,113 @@ This file declares no functions.
       ["Override", "score ≥ 0.9 → all loose; ≥ 0.7 → isolate blamed module", "Safety rules around the optimiser"],
       ["Hysteresis", "merge back only after 300 s", "Stop the optimiser oscillating"],
       ["Apply", "dual-run while pods start (8–30 s)", "40 ms state hand-over, measured in the prototype"],
-    ].map>([t, c, s], i)` | — | [L123](../../dist/ml.js#L123) |
-| Function | `mlEvalConfig(c, lam, pCrash)` | — | [L147](../../dist/ml.js#L147) |
-| Function | `mlEvalConfig.<callback: c.map>(x)` | — | [L149](../../dist/ml.js#L149) |
-| Function | `mlEvalConfig.<callback: v.map>(vi, i)` | — | [L155](../../dist/ml.js#L155) |
-| Function | `mlEvalConfig.<callback: reps.reduce>(s, r)` | — | [L157](../../dist/ml.js#L157) |
-| Function | `mlEvalConfig.<callback: c.reduce>(s, x)` | — | [L157](../../dist/ml.js#L157) |
-| Function | `mlEvalConfig.<callback: v.filter>(_, i)` | — | [L158](../../dist/ml.js#L158) |
-| Function | `mlBipSolve(lam, a, anomModule, now, hybrid = true)` | — | [L169](../../dist/ml.js#L169) |
-| Function | `mlBipSolve.<callback: Array.from>(_, i)` | — | [L176](../../dist/ml.js#L176) |
-| Function | `mlBipSolve.<callback: c.reduce>(x, y)` | — | [L177](../../dist/ml.js#L177) |
-| Function | `mlBipSolve.<callback: c.reduce>(x, ci, i)` | — | [L180](../../dist/ml.js#L180) |
-| Function | `mlBipSolve.<callback: m.reps.some>(r)` | — | [L183](../../dist/ml.js#L183) |
-| Function | `mlBipSolve.<callback: rows.filter>(r)` | — | [L188](../../dist/ml.js#L188) |
-| Function | `mlAfterOverrides(choice, a, anomModule)` | — | [L191](../../dist/ml.js#L191) |
-| Function | `mlShape(c)` | — | [L197](../../dist/ml.js#L197) |
-| Function | `mlShape.<callback: c.reduce>(x, y)` | — | [L197](../../dist/ml.js#L197) |
-| Function | `mlConfigChips(c, now = null)` | — | [L199](../../dist/ml.js#L199) |
-| Function | `mlConfigChips.<callback: ML_SERVICES.map>(name, i)` | — | [L200](../../dist/ml.js#L200) |
-| Function | `mlOptimizer()` | — | [L203](../../dist/ml.js#L203) |
-| Function | `mlOptimizer.<callback: res.rows.filter>(r)` | — | [L208](../../dist/ml.js#L208) |
-| Function | `mlOptimizer.<callback: res.rows.filter((r) => r.ok).sort>(x, y)` | — | [L208](../../dist/ml.js#L208) |
-| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L209](../../dist/ml.js#L209) |
-| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L209](../../dist/ml.js#L209) |
-| Function | `mlOptimizer.fmtRow(r)` | — | [L210](../../dist/ml.js#L210) |
-| Function | `mlOptimizer.<callback: Array.from>(_, i)` | — | [L212](../../dist/ml.js#L212) |
-| Function | `mlOptimizer.<callback: loads.map>(lam)` | — | [L213](../../dist/ml.js#L213) |
-| Function | `mlOptimizer.<callback: ML_SERVICES.map>(name, i)` | — | [L216](../../dist/ml.js#L216) |
-| Function | `mlOptimizer.<callback: ML_SERVICES.map>.<callback: sweep.map>(c, j)` | — | [L216](../../dist/ml.js#L216) |
-| Function | `mlOptimizer.<callback: [1000, 2500, 5000, 7500, 10000].map>(l)` | — | [L217](../../dist/ml.js#L217) |
-| Function | `mlOptimizer.<callback: ML_SERVICES.map>(s, i)` | — | [L230](../../dist/ml.js#L230) |
-| Function | `mlOptimizer.<callback: [["latency", best.parts.lat], ["cost", best.parts.cost], ["risk", best.parts.risk], ["switching", best.parts.sw]].map>([k, v])` | — | [L235](../../dist/ml.js#L235) |
-| Function | `mlOptimizer.<callback: extremes.filter>(r)` | — | [L237](../../dist/ml.js#L237) |
-| Function | `mlEnumerateTiming(n, seed = n)` | — | [L248](../../dist/ml.js#L248) |
-| Function | `mlEnumerateTiming.u(lo, hi)` | — | [L249](../../dist/ml.js#L249) |
-| Function | `mlEnumerateTiming.<callback: lm.map>(_, i)` | — | [L252](../../dist/ml.js#L252) |
-| Function | `mlEnumerateTiming.<callback: ln.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
-| Function | `mlEnumerateTiming.<callback: kp.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
-| Function | `mlEnumerateTiming.<callback: pr.map>(x, i)` | — | [L253](../../dist/ml.js#L253) |
-| Function | `mlEnumerateTiming.<callback: A[0].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
-| Function | `mlEnumerateTiming.<callback: A[1].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
-| Function | `mlEnumerateTiming.<callback: A[2].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
-| Function | `mlEnumerateTiming.<callback: A[3].reduce>(s, x)` | — | [L254](../../dist/ml.js#L254) |
-| Function | `mlEnumerateTiming.<callback: bestK.toString(2).split("").filter>(x)` | — | [L262](../../dist/ml.js#L262) |
-| Function | `mlSolvers()` | — | [L265](../../dist/ml.js#L265) |
-| Function | `mlSolvers.<callback: ML_TIMING.filter>(r)` | — | [L267](../../dist/ml.js#L267) |
-| Function | `mlSolvers.<callback: ML_TIMING.filter((r) => r[1] != null).map>(r)` | — | [L267](../../dist/ml.js#L267) |
-| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L268](../../dist/ml.js#L268) |
-| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L269](../../dist/ml.js#L269) |
-| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L281](../../dist/ml.js#L281) |
-| Function | `mlSolvers.<callback: [6, 10, 14, 18, 20].map>(n)` | — | [L284](../../dist/ml.js#L284) |
-| Function | `mlSolvers.<callback: ml.enum.map>(e)` | — | [L286](../../dist/ml.js#L286) |
-| Function | `mlTrace(days, seed = 2026)` | — | [L291](../../dist/ml.js#L291) |
-| Function | `mlTrainForecaster(optimiser, lr, { lags = 30, days = 21, maxEpochs = 120, patience = 10 } = {})` | — | [L306](../../dist/ml.js#L306) |
-| Function | `mlTrainForecaster.<callback: Array.from>(x)` | — | [L308](../../dist/ml.js#L308) |
-| Function | `mlTrainForecaster.<callback: y.map>(x)` | — | [L311](../../dist/ml.js#L311) |
-| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
-| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
-| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L313](../../dist/ml.js#L313) |
-| Function | `mlTrainForecaster.predict(w, t)` | — | [L314](../../dist/ml.js#L314) |
-| Function | `mlTrainForecaster.mse(w, set)` | — | [L315](../../dist/ml.js#L315) |
-| Function | `mlTrainForecaster.mse.<callback: set.reduce>(s, t)` | — | [L315](../../dist/ml.js#L315) |
-| Function | `mlTrainForecaster.back(x)` | — | [L335](../../dist/ml.js#L335) |
-| Function | `mlTrainForecaster.mae(fn)` | — | [L337](../../dist/ml.js#L337) |
-| Function | `mlTrainForecaster.mae.<callback: te.reduce>(s, t)` | — | [L337](../../dist/ml.js#L337) |
-| Function | `mlTrainForecaster.<callback: te.slice(-1440).filter>(_, i)` | — | [L338](../../dist/ml.js#L338) |
-| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
-| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
-| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L341](../../dist/ml.js#L341) |
-| Function | `mlTrainForecaster.<callback: day.map>(t)` | — | [L342](../../dist/ml.js#L342) |
-| Function | `mlForecasting()` | — | [L346](../../dist/ml.js#L346) |
-| Function | `mlForecasting.<callback: fc.gd.curve.filter>(p)` | — | [L357](../../dist/ml.js#L357) |
-| Function | `mlForecasting.<callback: fc.adam.curve.filter>(p)` | — | [L357](../../dist/ml.js#L357) |
-| Function | `mlForecasting.<callback: [{ points: fc.gd.curve.filter((p) => p[1] < 5), cls: "s1" }, { points: fc.adam.curve.filter((p) => p[1] < 5), cls: "s3" }].filter>(x)` | — | [L357](../../dist/ml.js#L357) |
-| Function | `mlForecasting.<callback: [["gradient descent", fc.gd], ["Adam", fc.adam]].map>([name, r])` | — | [L359](../../dist/ml.js#L359) |
-| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L362](../../dist/ml.js#L362) |
-| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L362](../../dist/ml.js#L362) |
-| Function | `mlForecasting.<callback: [{ points: fc.adam.day.map((p) => [p[0], p[1]]), cls: "s0" }, { points: fc.adam.day.map((p) => [p[0], p[2]]), cls: "s3" }].filter>()` | — | [L362](../../dist/ml.js#L362) |
-| Function | `mlDrivers(subtle = false, seed = 11)` | — | [L372](../../dist/ml.js#L372) |
-| Function | `mlC(n)` | — | [L379](../../dist/ml.js#L379) |
-| Function | `mlTree(points, depth, maxDepth, g)` | — | [L381](../../dist/ml.js#L381) |
-| Function | `mlTree.<callback: points.map>(p)` | — | [L383](../../dist/ml.js#L383) |
-| Function | `mlTree.<callback: points.filter>(p)` | — | [L386](../../dist/ml.js#L386) |
-| Function | `mlTree.<callback: points.filter>(p)` | — | [L386](../../dist/ml.js#L386) |
-| Function | `mlPath(node, x, depth = 0)` | — | [L389](../../dist/ml.js#L389) |
-| Function | `mlForestGrow(nTrees, subtle = false)` | — | [L392](../../dist/ml.js#L392) |
-| Function | `mlForestGrow.score(x)` | — | [L399](../../dist/ml.js#L399) |
-| Function | `mlForestGrow.score.<callback: trees.reduce>(s, tr)` | — | [L399](../../dist/ml.js#L399) |
-| Function | `mlForestGrow.<callback: data.train.map(score).sort>(a, b)` | — | [L400](../../dist/ml.js#L400) |
-| Function | `mlForestGrow.<callback: data.test.map>(x)` | — | [L402](../../dist/ml.js#L402) |
-| Function | `mlForestGrow.<callback: data.odd.map>(x)` | — | [L402](../../dist/ml.js#L402) |
-| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L403](../../dist/ml.js#L403) |
-| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L403](../../dist/ml.js#L403) |
-| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L405](../../dist/ml.js#L405) |
-| Function | `mlForestGrow.depthOf(x)` | — | [L406](../../dist/ml.js#L406) |
-| Function | `mlForestGrow.depthOf.<callback: trees.reduce>(s, tr)` | — | [L406](../../dist/ml.js#L406) |
-| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
-| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
-| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L407](../../dist/ml.js#L407) |
-| Function | `mlAnomaly()` | — | [L410](../../dist/ml.js#L410) |
+    ].map>([t, c, s], i)` | — | [L141](../../dist/ml.js#L141) |
+| Function | `mlOverview.<callback: [
+      ["Layer 1 forecasts", "Loop.forecast (LSTM, every hour)", "Demand ÷ ordinary for the next 1–6 h"],
+      ["Layer 1 acts", "Loop.choose · intelligence.choose", "Extra drivers; dispatch by policy v1.4 (live surge feature)"],
+      ["Layer 1 learns", "Loop.step · Loop.daily_update", "Outcomes logged; nightly champion / challenger"],
+      ["Layer 2 mirrors", "twin.mirror · foresee", "The city now and in 30 minutes"],
+      ["Layer 2 rehearses", "twin.agent1 · agent2", "Best of Layer 1's top 3; capped surge and moves"],
+      ["Layer 2 guards", "twin.check_dispatch · check_price", "Anything out of bounds → Layer 1's answer"],
+    ].map>([t, c, s], i)` | — | [L168](../../dist/ml.js#L168) |
+| Function | `mlEvalConfig(c, lam, pCrash)` | — | [L181](../../dist/ml.js#L181) |
+| Function | `mlEvalConfig.<callback: c.map>(x)` | — | [L183](../../dist/ml.js#L183) |
+| Function | `mlEvalConfig.<callback: v.map>(vi, i)` | — | [L189](../../dist/ml.js#L189) |
+| Function | `mlEvalConfig.<callback: reps.reduce>(s, r)` | — | [L191](../../dist/ml.js#L191) |
+| Function | `mlEvalConfig.<callback: c.reduce>(s, x)` | — | [L191](../../dist/ml.js#L191) |
+| Function | `mlEvalConfig.<callback: v.filter>(_, i)` | — | [L192](../../dist/ml.js#L192) |
+| Function | `mlBipSolve(lam, a, anomModule, now, hybrid = true)` | — | [L203](../../dist/ml.js#L203) |
+| Function | `mlBipSolve.<callback: Array.from>(_, i)` | — | [L210](../../dist/ml.js#L210) |
+| Function | `mlBipSolve.<callback: c.reduce>(x, y)` | — | [L211](../../dist/ml.js#L211) |
+| Function | `mlBipSolve.<callback: c.reduce>(x, ci, i)` | — | [L214](../../dist/ml.js#L214) |
+| Function | `mlBipSolve.<callback: m.reps.some>(r)` | — | [L217](../../dist/ml.js#L217) |
+| Function | `mlBipSolve.<callback: rows.filter>(r)` | — | [L222](../../dist/ml.js#L222) |
+| Function | `mlAfterOverrides(choice, a, anomModule)` | — | [L225](../../dist/ml.js#L225) |
+| Function | `mlShape(c)` | — | [L231](../../dist/ml.js#L231) |
+| Function | `mlShape.<callback: c.reduce>(x, y)` | — | [L231](../../dist/ml.js#L231) |
+| Function | `mlConfigChips(c, now = null)` | — | [L233](../../dist/ml.js#L233) |
+| Function | `mlConfigChips.<callback: ML_SERVICES.map>(name, i)` | — | [L234](../../dist/ml.js#L234) |
+| Function | `mlOptimizer()` | — | [L237](../../dist/ml.js#L237) |
+| Function | `mlOptimizer.<callback: res.rows.filter>(r)` | — | [L242](../../dist/ml.js#L242) |
+| Function | `mlOptimizer.<callback: res.rows.filter((r) => r.ok).sort>(x, y)` | — | [L242](../../dist/ml.js#L242) |
+| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L243](../../dist/ml.js#L243) |
+| Function | `mlOptimizer.<callback: res.rows.find>(r)` | — | [L243](../../dist/ml.js#L243) |
+| Function | `mlOptimizer.fmtRow(r)` | — | [L244](../../dist/ml.js#L244) |
+| Function | `mlOptimizer.<callback: Array.from>(_, i)` | — | [L246](../../dist/ml.js#L246) |
+| Function | `mlOptimizer.<callback: loads.map>(lam)` | — | [L247](../../dist/ml.js#L247) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>(name, i)` | — | [L250](../../dist/ml.js#L250) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>.<callback: sweep.map>(c, j)` | — | [L250](../../dist/ml.js#L250) |
+| Function | `mlOptimizer.<callback: [1000, 2500, 5000, 7500, 10000].map>(l)` | — | [L251](../../dist/ml.js#L251) |
+| Function | `mlOptimizer.<callback: ML_SERVICES.map>(s, i)` | — | [L264](../../dist/ml.js#L264) |
+| Function | `mlOptimizer.<callback: [["latency", best.parts.lat], ["cost", best.parts.cost], ["risk", best.parts.risk], ["switching", best.parts.sw]].map>([k, v])` | — | [L269](../../dist/ml.js#L269) |
+| Function | `mlOptimizer.<callback: extremes.filter>(r)` | — | [L271](../../dist/ml.js#L271) |
+| Function | `mlEnumerateTiming(n, seed = n)` | — | [L282](../../dist/ml.js#L282) |
+| Function | `mlEnumerateTiming.u(lo, hi)` | — | [L283](../../dist/ml.js#L283) |
+| Function | `mlEnumerateTiming.<callback: lm.map>(_, i)` | — | [L286](../../dist/ml.js#L286) |
+| Function | `mlEnumerateTiming.<callback: ln.map>(x, i)` | — | [L287](../../dist/ml.js#L287) |
+| Function | `mlEnumerateTiming.<callback: kp.map>(x, i)` | — | [L287](../../dist/ml.js#L287) |
+| Function | `mlEnumerateTiming.<callback: pr.map>(x, i)` | — | [L287](../../dist/ml.js#L287) |
+| Function | `mlEnumerateTiming.<callback: A[0].reduce>(s, x)` | — | [L288](../../dist/ml.js#L288) |
+| Function | `mlEnumerateTiming.<callback: A[1].reduce>(s, x)` | — | [L288](../../dist/ml.js#L288) |
+| Function | `mlEnumerateTiming.<callback: A[2].reduce>(s, x)` | — | [L288](../../dist/ml.js#L288) |
+| Function | `mlEnumerateTiming.<callback: A[3].reduce>(s, x)` | — | [L288](../../dist/ml.js#L288) |
+| Function | `mlEnumerateTiming.<callback: bestK.toString(2).split("").filter>(x)` | — | [L296](../../dist/ml.js#L296) |
+| Function | `mlSolvers()` | — | [L299](../../dist/ml.js#L299) |
+| Function | `mlSolvers.<callback: ML_TIMING.filter>(r)` | — | [L301](../../dist/ml.js#L301) |
+| Function | `mlSolvers.<callback: ML_TIMING.filter((r) => r[1] != null).map>(r)` | — | [L301](../../dist/ml.js#L301) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L302](../../dist/ml.js#L302) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L303](../../dist/ml.js#L303) |
+| Function | `mlSolvers.<callback: ML_TIMING.map>(r)` | — | [L315](../../dist/ml.js#L315) |
+| Function | `mlSolvers.<callback: [6, 10, 14, 18, 20].map>(n)` | — | [L318](../../dist/ml.js#L318) |
+| Function | `mlSolvers.<callback: ml.enum.map>(e)` | — | [L320](../../dist/ml.js#L320) |
+| Function | `mlTrace(days, seed = 2026)` | — | [L325](../../dist/ml.js#L325) |
+| Function | `mlTrainForecaster(optimiser, lr, { lags = 30, days = 21, maxEpochs = 120, patience = 10 } = {})` | — | [L340](../../dist/ml.js#L340) |
+| Function | `mlTrainForecaster.<callback: Array.from>(x)` | — | [L342](../../dist/ml.js#L342) |
+| Function | `mlTrainForecaster.<callback: y.map>(x)` | — | [L345](../../dist/ml.js#L345) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L347](../../dist/ml.js#L347) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L347](../../dist/ml.js#L347) |
+| Function | `mlTrainForecaster.<callback: idx.filter>(t)` | — | [L347](../../dist/ml.js#L347) |
+| Function | `mlTrainForecaster.predict(w, t)` | — | [L348](../../dist/ml.js#L348) |
+| Function | `mlTrainForecaster.mse(w, set)` | — | [L349](../../dist/ml.js#L349) |
+| Function | `mlTrainForecaster.mse.<callback: set.reduce>(s, t)` | — | [L349](../../dist/ml.js#L349) |
+| Function | `mlTrainForecaster.back(x)` | — | [L369](../../dist/ml.js#L369) |
+| Function | `mlTrainForecaster.mae(fn)` | — | [L371](../../dist/ml.js#L371) |
+| Function | `mlTrainForecaster.mae.<callback: te.reduce>(s, t)` | — | [L371](../../dist/ml.js#L371) |
+| Function | `mlTrainForecaster.<callback: te.slice(-1440).filter>(_, i)` | — | [L372](../../dist/ml.js#L372) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L375](../../dist/ml.js#L375) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L375](../../dist/ml.js#L375) |
+| Function | `mlTrainForecaster.<callback: mae>(t)` | — | [L375](../../dist/ml.js#L375) |
+| Function | `mlTrainForecaster.<callback: day.map>(t)` | — | [L376](../../dist/ml.js#L376) |
+| Function | `mlForecasting()` | — | [L380](../../dist/ml.js#L380) |
+| Function | `mlForecasting.<callback: fc.gd.curve.filter>(p)` | — | [L391](../../dist/ml.js#L391) |
+| Function | `mlForecasting.<callback: fc.adam.curve.filter>(p)` | — | [L391](../../dist/ml.js#L391) |
+| Function | `mlForecasting.<callback: [{ points: fc.gd.curve.filter((p) => p[1] < 5), cls: "s1" }, { points: fc.adam.curve.filter((p) => p[1] < 5), cls: "s3" }].filter>(x)` | — | [L391](../../dist/ml.js#L391) |
+| Function | `mlForecasting.<callback: [["gradient descent", fc.gd], ["Adam", fc.adam]].map>([name, r])` | — | [L393](../../dist/ml.js#L393) |
+| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L396](../../dist/ml.js#L396) |
+| Function | `mlForecasting.<callback: fc.adam.day.map>(p)` | — | [L396](../../dist/ml.js#L396) |
+| Function | `mlForecasting.<callback: [{ points: fc.adam.day.map((p) => [p[0], p[1]]), cls: "s0" }, { points: fc.adam.day.map((p) => [p[0], p[2]]), cls: "s3" }].filter>()` | — | [L396](../../dist/ml.js#L396) |
+| Function | `mlDrivers(subtle = false, seed = 11)` | — | [L407](../../dist/ml.js#L407) |
+| Function | `mlC(n)` | — | [L414](../../dist/ml.js#L414) |
+| Function | `mlTree(points, depth, maxDepth, g)` | — | [L416](../../dist/ml.js#L416) |
+| Function | `mlTree.<callback: points.map>(p)` | — | [L418](../../dist/ml.js#L418) |
+| Function | `mlTree.<callback: points.filter>(p)` | — | [L421](../../dist/ml.js#L421) |
+| Function | `mlTree.<callback: points.filter>(p)` | — | [L421](../../dist/ml.js#L421) |
+| Function | `mlPath(node, x, depth = 0)` | — | [L424](../../dist/ml.js#L424) |
+| Function | `mlForestGrow(nTrees, subtle = false)` | — | [L427](../../dist/ml.js#L427) |
+| Function | `mlForestGrow.score(x)` | — | [L434](../../dist/ml.js#L434) |
+| Function | `mlForestGrow.score.<callback: trees.reduce>(s, tr)` | — | [L434](../../dist/ml.js#L434) |
+| Function | `mlForestGrow.<callback: data.train.map(score).sort>(a, b)` | — | [L435](../../dist/ml.js#L435) |
+| Function | `mlForestGrow.<callback: data.test.map>(x)` | — | [L437](../../dist/ml.js#L437) |
+| Function | `mlForestGrow.<callback: data.odd.map>(x)` | — | [L437](../../dist/ml.js#L437) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L438](../../dist/ml.js#L438) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L438](../../dist/ml.js#L438) |
+| Function | `mlForestGrow.<callback: pts.filter>(p)` | — | [L440](../../dist/ml.js#L440) |
+| Function | `mlForestGrow.depthOf(x)` | — | [L441](../../dist/ml.js#L441) |
+| Function | `mlForestGrow.depthOf.<callback: trees.reduce>(s, tr)` | — | [L441](../../dist/ml.js#L441) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L442](../../dist/ml.js#L442) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L442](../../dist/ml.js#L442) |
+| Function | `mlForestGrow.<callback: flagged.filter>(p)` | — | [L442](../../dist/ml.js#L442) |
+| Function | `mlAnomaly()` | — | [L445](../../dist/ml.js#L445) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3246,7 +3727,7 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>()` | — | [L412](../../dist/ml.js#L412) |
+  }>()` | — | [L447](../../dist/ml.js#L447) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3255,7 +3736,7 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>.sx(v)` | — | [L413](../../dist/ml.js#L413) |
+  }>.sx(v)` | — | [L448](../../dist/ml.js#L448) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3264,7 +3745,7 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>.sy(v)` | — | [L413](../../dist/ml.js#L413) |
+  }>.sy(v)` | — | [L448](../../dist/ml.js#L448) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3273,7 +3754,7 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>.<callback: [0, 50, 100, 150, 200].map>(v)` | — | [L415](../../dist/ml.js#L415) |
+  }>.<callback: [0, 50, 100, 150, 200].map>(v)` | — | [L450](../../dist/ml.js#L450) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3282,7 +3763,7 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>.<callback: [0, 10, 20, 30].map>(v)` | — | [L416](../../dist/ml.js#L416) |
+  }>.<callback: [0, 10, 20, 30].map>(v)` | — | [L451](../../dist/ml.js#L451) |
 | Function | `mlAnomaly.<callback: () => {
     const W = 560, H = 230, P = { l: 46, r: 12, t: 10, b: 30 }, sx = (v) => P.l + (v / 36) * (W - P.l - P.r), sy = (v) => H - P.b - (v / 210) * (H - P.t - P.b);
     return `<svg class="ml-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Driver telemetry coloured by anomaly score">
@@ -3291,60 +3772,308 @@ This file declares no functions.
       <text class="axis" x="${(W + P.l) / 2}" y="${H - 3}" text-anchor="middle">distance to pickup (km)</text><text class="axis" x="10" y="${(H - P.b) / 2}" transform="rotate(-90 10 ${(H - P.b) / 2})" text-anchor="middle">speed (km/h)</text>
       ${F.pts.map((p) => `<circle cx="${sx(p.x[0]).toFixed(1)}" cy="${sy(p.x[1]).toFixed(1)}" r="${p.y ? 3.4 : 2.6}" class="${p.s > F.threshold ? "flag" : "ok"}${p.y ? " odd" : ""}" style="opacity:${(0.35 + 0.65 * Math.min(1, Math.max(0, (p.s - 0.35) / 0.4))).toFixed(2)}"><title>${p.x[0].toFixed(1)} km, ${p.x[1].toFixed(0)} km/h: score ${p.s.toFixed(3)}</title></circle>`).join("")}
     </svg>`;
-  }>.<callback: F.pts.map>(p)` | — | [L418](../../dist/ml.js#L418) |
-| Function | `mlFeatures(c)` | — | [L441](../../dist/ml.js#L441) |
-| Function | `mlScore(c, w)` | — | [L442](../../dist/ml.js#L442) |
-| Function | `mlScore.<callback: mlFeatures(c).reduce>(s, f, i)` | — | [L442](../../dist/ml.js#L442) |
-| Function | `mlExpectedCost(c)` | — | [L443](../../dist/ml.js#L443) |
-| Function | `mlCandidates(g)` | — | [L449](../../dist/ml.js#L449) |
-| Function | `mlCandidates.<callback: Array.from>()` | — | [L449](../../dist/ml.js#L449) |
-| Function | `mlSoftmax(scores)` | — | [L450](../../dist/ml.js#L450) |
-| Function | `mlSoftmax.<callback: scores.map>(s)` | — | [L450](../../dist/ml.js#L450) |
-| Function | `mlSoftmax.<callback: ex.reduce>(a, b)` | — | [L450](../../dist/ml.js#L450) |
-| Function | `mlSoftmax.<callback: ex.map>(e)` | — | [L450](../../dist/ml.js#L450) |
-| Function | `mlRlNew()` | — | [L452](../../dist/ml.js#L452) |
-| Function | `mlRlNew.<callback: Array.from>()` | — | [L453](../../dist/ml.js#L453) |
-| Function | `mlRlNew.evalPolicy(w, greedy)` | — | [L454](../../dist/ml.js#L454) |
-| Function | `mlRlNew.evalPolicy.<callback: test.reduce>(s, cs)` | — | [L454](../../dist/ml.js#L454) |
-| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.map>(c)` | — | [L454](../../dist/ml.js#L454) |
-| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.reduce>(t, c, i)` | — | [L454](../../dist/ml.js#L454) |
-| Function | `mlRlNew.<callback: test.reduce>(s, cs)` | — | [L455](../../dist/ml.js#L455) |
-| Function | `mlRlNew.<callback: test.reduce>.<callback: cs.reduce>(b, c)` | — | [L455](../../dist/ml.js#L455) |
-| Function | `mlRlTrain(state, episodes, lr = 0.004)` | — | [L460](../../dist/ml.js#L460) |
-| Function | `mlRlTrain.<callback: phi.map>(f)` | — | [L464](../../dist/ml.js#L464) |
-| Function | `mlRlTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)` | — | [L464](../../dist/ml.js#L464) |
-| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>(k)` | — | [L469](../../dist/ml.js#L469) |
-| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)` | — | [L469](../../dist/ml.js#L469) |
-| Function | `mlRl()` | — | [L477](../../dist/ml.js#L477) |
-| Function | `mlRl.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])` | — | [L480](../../dist/ml.js#L480) |
-| Function | `mlRl.<callback: pool.map>(c)` | — | [L481](../../dist/ml.js#L481) |
-| Function | `mlRl.<callback: pool.map>(c)` | — | [L481](../../dist/ml.js#L481) |
-| Function | `mlRl.<callback: S.w.map>(x)` | — | [L491](../../dist/ml.js#L491) |
-| Function | `mlRl.<callback: pool.map>(c, i)` | — | [L496](../../dist/ml.js#L496) |
-| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort>(a, b)` | — | [L499](../../dist/ml.js#L499) |
-| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort((a, b) => a[0] - b[0]).map>([s, d])` | — | [L499](../../dist/ml.js#L499) |
-| Function | `mlEvaluation()` | — | [L512](../../dist/ml.js#L512) |
-| Function | `mlEvaluation.<callback: ML_ABLATION.map>([n, p99, sla, cost, tr], i)` | — | [L520](../../dist/ml.js#L520) |
-| Function | `mlGaps()` | — | [L532](../../dist/ml.js#L532) |
-| Function | `mlInspector()` | — | [L564](../../dist/ml.js#L564) |
-| Function | `mlInspector.<callback: info.facts.map>([k, v])` | — | [L569](../../dist/ml.js#L569) |
-| Function | `mlInspector.<callback: info.files.map>([l, u])` | — | [L570](../../dist/ml.js#L570) |
-| Function | `mlInspector.<callback: info.questions.map>(q)` | — | [L572](../../dist/ml.js#L572) |
-| Function | `mlView()` | — | [L579](../../dist/ml.js#L579) |
-| Function | `mlView.<callback: mlTopics.map>(x)` | — | [L582](../../dist/ml.js#L582) |
-| Function | `mlOpen(topic)` | — | [L586](../../dist/ml.js#L586) |
-| Function | `mlSetHash()` | — | [L591](../../dist/ml.js#L591) |
-| Function | `mlRun(busy, task)` | — | [L595](../../dist/ml.js#L595) |
-| Function | `mlRun.<callback: setTimeout>()` | — | [L598](../../dist/ml.js#L598) |
-| Function | `mlClick(button)` | — | [L605](../../dist/ml.js#L605) |
-| Function | `mlClick.<callback: mlRun, "enum">()` | — | [L622](../../dist/ml.js#L622) |
-| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter>(e)` | — | [L622](../../dist/ml.js#L622) |
-| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter((e) => e.n !== n).concat(mlEnumerateTiming(n)).sort>(x, y)` | — | [L622](../../dist/ml.js#L622) |
-| Function | `mlClick.<callback: mlRun, "fc">()` | — | [L623](../../dist/ml.js#L623) |
-| Function | `mlClick.<callback: mlRun, "forest">()` | — | [L624](../../dist/ml.js#L624) |
-| Function | `mlClick.<callback: mlRun, "rl">()` | — | [L626](../../dist/ml.js#L626) |
-| Function | `<callback: document.addEventListener, "input">(event)` | — | [L631](../../dist/ml.js#L631) |
-| Function | `<callback: document.addEventListener, "change">(event)` | — | [L638](../../dist/ml.js#L638) |
+  }>.<callback: F.pts.map>(p)` | — | [L453](../../dist/ml.js#L453) |
+| Function | `mlFeatures(c)` | — | [L476](../../dist/ml.js#L476) |
+| Function | `mlScore(c, w)` | — | [L477](../../dist/ml.js#L477) |
+| Function | `mlScore.<callback: mlFeatures(c).reduce>(s, f, i)` | — | [L477](../../dist/ml.js#L477) |
+| Function | `mlExpectedCost(c)` | — | [L478](../../dist/ml.js#L478) |
+| Function | `mlCandidates(g)` | — | [L484](../../dist/ml.js#L484) |
+| Function | `mlCandidates.<callback: Array.from>()` | — | [L484](../../dist/ml.js#L484) |
+| Function | `mlSoftmax(scores)` | — | [L485](../../dist/ml.js#L485) |
+| Function | `mlSoftmax.<callback: scores.map>(s)` | — | [L485](../../dist/ml.js#L485) |
+| Function | `mlSoftmax.<callback: ex.reduce>(a, b)` | — | [L485](../../dist/ml.js#L485) |
+| Function | `mlSoftmax.<callback: ex.map>(e)` | — | [L485](../../dist/ml.js#L485) |
+| Function | `mlRlNew()` | — | [L487](../../dist/ml.js#L487) |
+| Function | `mlRlNew.<callback: Array.from>()` | — | [L488](../../dist/ml.js#L488) |
+| Function | `mlRlNew.evalPolicy(w, greedy)` | — | [L489](../../dist/ml.js#L489) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>(s, cs)` | — | [L489](../../dist/ml.js#L489) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.map>(c)` | — | [L489](../../dist/ml.js#L489) |
+| Function | `mlRlNew.evalPolicy.<callback: test.reduce>.<callback: cs.reduce>(t, c, i)` | — | [L489](../../dist/ml.js#L489) |
+| Function | `mlRlNew.<callback: test.reduce>(s, cs)` | — | [L490](../../dist/ml.js#L490) |
+| Function | `mlRlNew.<callback: test.reduce>.<callback: cs.reduce>(b, c)` | — | [L490](../../dist/ml.js#L490) |
+| Function | `mlRlTrain(state, episodes, lr = 0.004)` | — | [L495](../../dist/ml.js#L495) |
+| Function | `mlRlTrain.<callback: phi.map>(f)` | — | [L499](../../dist/ml.js#L499) |
+| Function | `mlRlTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)` | — | [L499](../../dist/ml.js#L499) |
+| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>(k)` | — | [L504](../../dist/ml.js#L504) |
+| Function | `mlRlTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)` | — | [L504](../../dist/ml.js#L504) |
+| Function | `mlRl()` | — | [L512](../../dist/ml.js#L512) |
+| Function | `mlRl.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])` | — | [L515](../../dist/ml.js#L515) |
+| Function | `mlRl.<callback: pool.map>(c)` | — | [L516](../../dist/ml.js#L516) |
+| Function | `mlRl.<callback: pool.map>(c)` | — | [L516](../../dist/ml.js#L516) |
+| Function | `mlRl.<callback: S.w.map>(x)` | — | [L526](../../dist/ml.js#L526) |
+| Function | `mlRl.<callback: pool.map>(c, i)` | — | [L531](../../dist/ml.js#L531) |
+| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort>(a, b)` | — | [L534](../../dist/ml.js#L534) |
+| Function | `mlRl.<callback: Object.entries(ML_COURIER).sort((a, b) => a[0] - b[0]).map>([s, d])` | — | [L534](../../dist/ml.js#L534) |
+| Function | `mlPoisson(g, lam)` | — | [L551](../../dist/ml.js#L551) |
+| Function | `mlRehearse(c, ratio, g, rollouts = ML_TWIN.rollouts)` | — | [L559](../../dist/ml.js#L559) |
+| Function | `mlTwinPool()` | — | [L572](../../dist/ml.js#L572) |
+| Function | `mlTwinPool.<callback: ML_POOL.map>([name, zone, eta, accept, surge, last])` | — | [L572](../../dist/ml.js#L572) |
+| Function | `mlAgent1(ratio, rollouts, seed)` | — | [L575](../../dist/ml.js#L575) |
+| Function | `mlAgent1.<callback: pool.map>(c)` | — | [L577](../../dist/ml.js#L577) |
+| Function | `mlAgent1.<callback: pool.map>(c, i)` | — | [L578](../../dist/ml.js#L578) |
+| Function | `mlAgent1.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>(a, b)` | — | [L578](../../dist/ml.js#L578) |
+| Function | `mlAgent1.<callback: ranked.slice(0, ML_TWIN.topK).map>(x)` | — | [L579](../../dist/ml.js#L579) |
+| Function | `mlAgent1.<callback: top.map>(c)` | — | [L580](../../dist/ml.js#L580) |
+| Function | `mlAgent1.<callback: waits.forEach>(w, i)` | — | [L582](../../dist/ml.js#L582) |
+| Function | `mlTwinStability(ratio)` | — | [L587](../../dist/ml.js#L587) |
+| Function | `mlTwinStability.<callback: [5, 20, 50, 200, 1000].map>(n)` | — | [L589](../../dist/ml.js#L589) |
+| Function | `mlSurgeOnly(r)` | — | [L597](../../dist/ml.js#L597) |
+| Function | `mlSmallSurge(r)` | — | [L598](../../dist/ml.js#L598) |
+| Function | `mlAreaWait(demand, free, m)` | — | [L599](../../dist/ml.js#L599) |
+| Function | `mlAgent2(ratio, free, movable = 2)` | — | [L603](../../dist/ml.js#L603) |
+| Function | `mlAgent2.<callback: [["Keep prices, no moves", 1, 0], ["Surge only", mlSurgeOnly(ratio), 0], ["Small surge + move idle cars", mlSmallSurge(ratio), movable]]
+    .map>([name, m, moved])` | — | [L606](../../dist/ml.js#L606) |
+| Function | `mlAgent2.<callback: plans.reduce>(a, b)` | — | [L607](../../dist/ml.js#L607) |
+| Function | `mlCheckDispatch(d)` | — | [L613](../../dist/ml.js#L613) |
+| Function | `mlCheckPrice(m, expected, elapsed = 0)` | — | [L621](../../dist/ml.js#L621) |
+| Function | `mlRetest(seed = 7, rollouts = ML_TWIN.retest)` | — | [L631](../../dist/ml.js#L631) |
+| Function | `mlFaultDrill(seed = 3)` | — | [L642](../../dist/ml.js#L642) |
+| Function | `mlFaultDrill.<callback: pool.map>(c)` | — | [L643](../../dist/ml.js#L643) |
+| Function | `mlFaultDrill.<callback: pool.map>(c, i)` | — | [L644](../../dist/ml.js#L644) |
+| Function | `mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort>(a, b)` | — | [L644](../../dist/ml.js#L644) |
+| Function | `mlFaultDrill.<callback: pool.map((c, i) => ({ c, p: p[i] })).sort((a, b) => b.p - a.p).map>(x)` | — | [L644](../../dist/ml.js#L644) |
+| Function | `mlFaultDrill.dispatch(extra = {})` | — | [L646](../../dist/ml.js#L646) |
+| Function | `mlFaultDrill.price()` | — | [L647](../../dist/ml.js#L647) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L649](../../dist/ml.js#L649) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L650](../../dist/ml.js#L650) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L651](../../dist/ml.js#L651) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L652](../../dist/ml.js#L652) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L653](../../dist/ml.js#L653) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L654](../../dist/ml.js#L654) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L655](../../dist/ml.js#L655) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L656](../../dist/ml.js#L656) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L657](../../dist/ml.js#L657) |
+| Function | `mlFaultDrill.<anonymous>()` | — | [L658](../../dist/ml.js#L658) |
+| Function | `mlFaultDrill.<callback: [
+    ["Dispatch: driver outside Layer 1's top 3", () => mlCheckDispatch(dispatch({ choice: outside }))],
+    ["Dispatch: driver who already declined", () => { const d = dispatch(); d.declined = [d.choice.name]; return mlCheckDispatch(d); }],
+    ["Dispatch: driver gone offline", () => { const d = dispatch(); d.offline = [d.choice.name]; return mlCheckDispatch(d); }],
+    ["Dispatch: pickup 9–20 min beyond Layer 1", () => { const far = { ...top[1], eta: top[0].eta + 9 + g.int(12) }, t = [top[0], far, top[2]]; return mlCheckDispatch({ top: t, layer1: t[0], choice: far, elapsed: 5 }); }],
+    ["Dispatch: no answer within 250 ms", () => mlCheckDispatch(dispatch({ elapsed: g.range(251, 2000) }))],
+    ["Price: not a number", () => mlCheckPrice(NaN, 1.2)],
+    ["Price: below the base fare", () => mlCheckPrice(Math.round(g.range(0.3, 0.99) * 100) / 100, 1.0)],
+    ["Price: above the ×2.0 cap", () => mlCheckPrice(Math.round(g.range(2.05, 5) * 10) / 10, 2.0)],
+    ["Price: jump > 0.5 above the twin", () => { const e = 1 + Math.round(g.range(0, 0.4) * 10) / 10; return mlCheckPrice(Math.min(2, e + 0.6 + g.int(3) / 10), e); }],
+    ["Price: no answer within 250 ms", () => { const [m, e] = price(); return mlCheckPrice(m, e, g.range(251, 2000)); }],
+  ].map>([name, fn])` | — | [L659](../../dist/ml.js#L659) |
+| Function | `mlFaultDrill.<callback: faults.reduce>(s, f)` | — | [L662](../../dist/ml.js#L662) |
+| Function | `mlTwin()` | — | [L665](../../dist/ml.js#L665) |
+| Function | `mlTwin.<callback: [
+      ["Layer 1 ranks", "intelligence.rank → policy v1.4 softmax", "Unchanged since 1.2.0 (SHA-256 checked by a unit test)"],
+      ["Mirror", "twin.mirror → fidelity 0–1", "Registered drivers with only a home area count 0.6"],
+      ["Foresee", "twin.ratio_30, foresee, extra_requests", "Demand ÷ ordinary, per place, next 30 min"],
+      ["Agent 1 rehearses", "twin.rehearse × 200 for the top 3", "Rider wait + declines + riders left waiting"],
+      ["Agent 2 plans", "twin.agent2 every 5 min per area", "Keep · surge only · small surge + move idle cars"],
+      ["Guardian checks", "twin.check_dispatch, check_price", "Block → Layer 1's answer; re-test 500× before handing back"],
+    ].map>([t, c, s], i)` | — | [L677](../../dist/ml.js#L677) |
+| Function | `mlTwin.<callback: a1.ranked.map>(x, i)` | — | [L680](../../dist/ml.js#L680) |
+| Function | `mlTwin.<callback: T.stab.filter>(r)` | — | [L686](../../dist/ml.js#L686) |
+| Function | `mlTwin.<callback: T.stab.filter((r) => r[0] !== "ref").map>([n, a])` | — | [L686](../../dist/ml.js#L686) |
+| Function | `mlTwin.<callback: T.stab.find>(r)` | — | [L686](../../dist/ml.js#L686) |
+| Function | `mlTwin.<callback: a2.plans.map>(pl)` | — | [L688](../../dist/ml.js#L688) |
+| Function | `mlTwin.<callback: T.drill.faults.map>([n, c])` | — | [L696](../../dist/ml.js#L696) |
+| Function | `mlAcNew()` | — | [L707](../../dist/ml.js#L707) |
+| Function | `mlAcNew.<callback: Array.from>()` | — | [L708](../../dist/ml.js#L708) |
+| Function | `mlAcNew.cost(pick)` | — | [L709](../../dist/ml.js#L709) |
+| Function | `mlAcNew.cost.<callback: test.reduce>(s, cs)` | — | [L709](../../dist/ml.js#L709) |
+| Function | `mlAcNew.argmax(xs)` | — | [L710](../../dist/ml.js#L710) |
+| Function | `mlAcNew.init(n, sd)` | — | [L711](../../dist/ml.js#L711) |
+| Function | `mlAcNew.init.<callback: Array.from>()` | — | [L711](../../dist/ml.js#L711) |
+| Function | `mlAcNew.<callback: Array.from>()` | — | [L715](../../dist/ml.js#L715) |
+| Function | `mlAcNew.<callback: Array.from>()` | — | [L716](../../dist/ml.js#L716) |
+| Function | `mlAcNew.<callback: cost>(cs)` | — | [L718](../../dist/ml.js#L718) |
+| Function | `mlAcNew.<callback: cost>.<callback: cs.map>(c)` | — | [L718](../../dist/ml.js#L718) |
+| Function | `mlAcNew.<callback: cost>(cs)` | — | [L718](../../dist/ml.js#L718) |
+| Function | `mlAcNew.<callback: cost>.<callback: cs.map>(c)` | — | [L718](../../dist/ml.js#L718) |
+| Function | `mlAcNew.S.evalR()` | — | [L720](../../dist/ml.js#L720) |
+| Function | `mlAcNew.S.evalR.<callback: cost>(cs)` | — | [L720](../../dist/ml.js#L720) |
+| Function | `mlAcNew.S.evalR.<callback: cost>.<callback: cs.map>(c)` | — | [L720](../../dist/ml.js#L720) |
+| Function | `mlAcNew.S.evalA()` | — | [L721](../../dist/ml.js#L721) |
+| Function | `mlAcNew.S.evalA.<callback: cost>(cs)` | — | [L721](../../dist/ml.js#L721) |
+| Function | `mlActorScores(A, phi)` | — | [L726](../../dist/ml.js#L726) |
+| Function | `mlActorScores.<callback: phi.map>(f)` | — | [L727](../../dist/ml.js#L727) |
+| Function | `mlActorScores.<callback: phi.map>.<callback: A.b.map>(bj, j)` | — | [L727](../../dist/ml.js#L727) |
+| Function | `mlActorScores.<callback: phi.map>.<callback: A.b.map>.<callback: f.reduce>(s, x, k)` | — | [L727](../../dist/ml.js#L727) |
+| Function | `mlActorScores.<callback: h.map>(hi)` | — | [L728](../../dist/ml.js#L728) |
+| Function | `mlActorScores.<callback: h.map>.<callback: hi.reduce>(s, x, j)` | — | [L728](../../dist/ml.js#L728) |
+| Function | `mlCriticValue(C, phi)` | — | [L730](../../dist/ml.js#L730) |
+| Function | `mlCriticValue.<callback: C.b.map>(bj, j)` | — | [L731](../../dist/ml.js#L731) |
+| Function | `mlCriticValue.<callback: C.b.map>.<callback: x.reduce>(s, xi, k)` | — | [L731](../../dist/ml.js#L731) |
+| Function | `mlCriticValue.<callback: h.reduce>(s, hj, j)` | — | [L732](../../dist/ml.js#L732) |
+| Function | `mlWelford(w, x)` | — | [L734](../../dist/ml.js#L734) |
+| Function | `mlRideReward(c, g)` | — | [L736](../../dist/ml.js#L736) |
+| Function | `mlSample(p, g)` | — | [L741](../../dist/ml.js#L741) |
+| Function | `mlAcTrain(S, rides)` | — | [L743](../../dist/ml.js#L743) |
+| Function | `mlAcTrain.<callback: phi.map>(f)` | — | [L747](../../dist/ml.js#L747) |
+| Function | `mlAcTrain.<callback: phi.map>.<callback: f.reduce>(s, x, i)` | — | [L747](../../dist/ml.js#L747) |
+| Function | `mlAcTrain.<callback: [0, 1, 2, 3].map>(k)` | — | [L748](../../dist/ml.js#L748) |
+| Function | `mlAcTrain.<callback: [0, 1, 2, 3].map>.<callback: p.reduce>(s, pi, i)` | — | [L748](../../dist/ml.js#L748) |
+| Function | `mlAcTrain.<callback: cv.h.map>(hj, j)` | — | [L757](../../dist/ml.js#L757) |
+| Function | `mlAcTrain.<callback: cv.h.forEach>(hj, j)` | — | [L758](../../dist/ml.js#L758) |
+| Function | `mlAcTrain.<callback: cv.x.forEach>(xi, k)` | — | [L760](../../dist/ml.js#L760) |
+| Function | `mlAcTrain.<callback: gc.forEach>(gj, j)` | — | [L761](../../dist/ml.js#L761) |
+| Function | `mlAcTrain.<callback: p.map>(pi, i)` | — | [L762](../../dist/ml.js#L762) |
+| Function | `mlAcTrain.<callback: A.v.map>(_, j)` | — | [L763](../../dist/ml.js#L763) |
+| Function | `mlAcTrain.<callback: A.v.map>.<callback: gs.reduce>(t, gi, i)` | — | [L763](../../dist/ml.js#L763) |
+| Function | `mlAcTrain.<callback: h.map>(hi, i)` | — | [L764](../../dist/ml.js#L764) |
+| Function | `mlAcTrain.<callback: h.map>.<callback: hi.map>(hij, j)` | — | [L764](../../dist/ml.js#L764) |
+| Function | `mlAcTrain.<callback: gv.forEach>(x, j)` | — | [L765](../../dist/ml.js#L765) |
+| Function | `mlAcTrain.<callback: phi.reduce>(t, f, i)` | — | [L766](../../dist/ml.js#L766) |
+| Function | `mlAcTrain.<callback: gpre.reduce>(t, gi)` | — | [L767](../../dist/ml.js#L767) |
+| Function | `mlActorCritic()` | — | [L773](../../dist/ml.js#L773) |
+| Function | `mlActorCritic.first(curve)` | — | [L776](../../dist/ml.js#L776) |
+| Function | `mlActorCritic.first.<callback: curve.find>(p)` | — | [L776](../../dist/ml.js#L776) |
+| Function | `mlActorCritic.<callback: pool.map>(c)` | — | [L778](../../dist/ml.js#L778) |
+| Function | `mlActorCritic.<callback: [
+    ["Three cheap, willing drivers nearby", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],
+    ["The Mardyke pool (ML_POOL)", pool],
+    ["Only far or reluctant drivers", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],
+  ].map>([name, cs])` | — | [L783](../../dist/ml.js#L783) |
+| Function | `mlActorCritic.<callback: [
+    ["Three cheap, willing drivers nearby", [{ eta: 1.5, accept: 0.95, surge: 0.05, last: false }, { eta: 2, accept: 0.93, surge: 0.1, last: false }, { eta: 2.5, accept: 0.9, surge: 0.05, last: false }, { eta: 7, accept: 0.6, surge: 0.4, last: false }]],
+    ["The Mardyke pool (ML_POOL)", pool],
+    ["Only far or reluctant drivers", [{ eta: 8, accept: 0.45, surge: 0.6, last: true }, { eta: 8.5, accept: 0.5, surge: 0.5, last: false }, { eta: 7.5, accept: 0.4, surge: 0.8, last: true }, { eta: 9, accept: 0.55, surge: 0.3, last: false }]],
+  ].map>.<callback: cs.reduce>(t, c, i)` | — | [L783](../../dist/ml.js#L783) |
+| Function | `mlActorCritic.<callback: pool.map>(c, i)` | — | [L803](../../dist/ml.js#L803) |
+| Function | `mlCity(g)` | — | [L813](../../dist/ml.js#L813) |
+| Function | `mlCity.E.reset()` | — | [L815](../../dist/ml.js#L815) |
+| Function | `mlCity.E.forecast(t = E.t)` | — | [L816](../../dist/ml.js#L816) |
+| Function | `mlCity.E.obs1()` | — | [L817](../../dist/ml.js#L817) |
+| Function | `mlCity.E.obs2()` | — | [L818](../../dist/ml.js#L818) |
+| Function | `mlCity.E.state()` | — | [L819](../../dist/ml.js#L819) |
+| Function | `mlCity.E.avail1()` | — | [L820](../../dist/ml.js#L820) |
+| Function | `mlCity.E.mask1()` | — | [L821](../../dist/ml.js#L821) |
+| Function | `mlCity.E.mask2()` | — | [L822](../../dist/ml.js#L822) |
+| Function | `mlCity.E.step(a1, a2)` | — | [L823](../../dist/ml.js#L823) |
+| Function | `mlCity.E.step.<callback: E.busy.filter>(b)` | — | [L825](../../dist/ml.js#L825) |
+| Function | `mlCity.E.step.<callback: E.busy.filter((b) => b[0] <= E.t).forEach>(b)` | — | [L825](../../dist/ml.js#L825) |
+| Function | `mlCity.E.step.<callback: E.busy.filter>(b)` | — | [L826](../../dist/ml.js#L826) |
+| Function | `mlMaskedSoftmax(logits, mask)` | — | [L839](../../dist/ml.js#L839) |
+| Function | `mlMaskedSoftmax.<callback: logits.filter>(_, i)` | — | [L840](../../dist/ml.js#L840) |
+| Function | `mlMaskedSoftmax.<callback: logits.map>(z, i)` | — | [L840](../../dist/ml.js#L840) |
+| Function | `mlMaskedSoftmax.<callback: e.reduce>(a, b)` | — | [L840](../../dist/ml.js#L840) |
+| Function | `mlMaskedSoftmax.<callback: e.map>(x)` | — | [L841](../../dist/ml.js#L841) |
+| Function | `mlDot(a, b)` | — | [L843](../../dist/ml.js#L843) |
+| Function | `mlDot.<callback: a.reduce>(s, x, i)` | — | [L843](../../dist/ml.js#L843) |
+| Function | `mlRidge(X, y, lam = 1e-2)` | — | [L844](../../dist/ml.js#L844) |
+| Function | `mlRidge.<callback: Array.from>(_, i)` | — | [L845](../../dist/ml.js#L845) |
+| Function | `mlRidge.<callback: Array.from>.<callback: Array.from>(_, j)` | — | [L845](../../dist/ml.js#L845) |
+| Function | `mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>(s, x, r)` | — | [L845](../../dist/ml.js#L845) |
+| Function | `mlRidge.<callback: Array.from>.<callback: Array.from>.<callback: X.reduce>(s, x)` | — | [L845](../../dist/ml.js#L845) |
+| Function | `mlRidge.<callback: A.map>(row, i)` | — | [L851](../../dist/ml.js#L851) |
+| Function | `mlPpo(W, batch, lr = 0.05, clip = 0.2, epochs = 4)` | — | [L853](../../dist/ml.js#L853) |
+| Function | `mlPpo.<callback: W.map>(row)` | — | [L855](../../dist/ml.js#L855) |
+| Function | `mlPpo.<callback: p.forEach>(pi, i)` | — | [L857](../../dist/ml.js#L857) |
+| Function | `mlMarlLearner(method, seed)` | — | [L861](../../dist/ml.js#L861) |
+| Function | `mlMarlLearner.init(r, c)` | — | [L862](../../dist/ml.js#L862) |
+| Function | `mlMarlLearner.init.<callback: Array.from>()` | — | [L862](../../dist/ml.js#L862) |
+| Function | `mlMarlLearner.init.<callback: Array.from>.<callback: Array.from>()` | — | [L862](../../dist/ml.js#L862) |
+| Function | `mlMarlEpisode(env, act1, act2, record)` | — | [L865](../../dist/ml.js#L865) |
+| Function | `mlMarlIterate(L, batch = 16)` | — | [L878](../../dist/ml.js#L878) |
+| Function | `mlMarlIterate.sample(W)` | — | [L879](../../dist/ml.js#L879) |
+| Function | `mlMarlIterate.sample.<anonymous>(o, m)` | — | [L879](../../dist/ml.js#L879) |
+| Function | `mlMarlIterate.sample.<anonymous>.<callback: W.map>(row)` | — | [L879](../../dist/ml.js#L879) |
+| Function | `mlMarlIterate.<callback: totals.reduce>(a, b)` | — | [L888](../../dist/ml.js#L888) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L889](../../dist/ml.js#L889) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L891](../../dist/ml.js#L891) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L891](../../dist/ml.js#L891) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L892](../../dist/ml.js#L892) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L892](../../dist/ml.js#L892) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L892](../../dist/ml.js#L892) |
+| Function | `mlMarlIterate.<callback: data.map>(d)` | — | [L892](../../dist/ml.js#L892) |
+| Function | `mlMarlIterate.sd(xs)` | — | [L893](../../dist/ml.js#L893) |
+| Function | `mlMarlIterate.sd.<callback: xs.reduce>(a, b)` | — | [L893](../../dist/ml.js#L893) |
+| Function | `mlMarlIterate.sd.<callback: xs.reduce>(s, x)` | — | [L893](../../dist/ml.js#L893) |
+| Function | `mlMarlIterate.<callback: data.map>(d, i)` | — | [L896](../../dist/ml.js#L896) |
+| Function | `mlMarlIterate.<callback: data.map>(d, i)` | — | [L897](../../dist/ml.js#L897) |
+| Function | `mlGreedy(W)` | — | [L899](../../dist/ml.js#L899) |
+| Function | `mlGreedy.<anonymous>(o, m)` | — | [L899](../../dist/ml.js#L899) |
+| Function | `mlGreedy.<anonymous>.<callback: W.map>(row, i)` | — | [L899](../../dist/ml.js#L899) |
+| Function | `mlMarlEvaluate(act1, act2, n = 300)` | — | [L900](../../dist/ml.js#L900) |
+| Function | `mlMarlNew(seed = 1)` | — | [L907](../../dist/ml.js#L907) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>(o, m)` | — | [L911](../../dist/ml.js#L911) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>()` | — | [L911](../../dist/ml.js#L911) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>(o, m)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>(x, i)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>(i)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>(o, m)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map>(x, i)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlNew.<callback: mlMarlEvaluate>.<callback: m.map((x, i) => (x ? i : -1)).filter>(i)` | — | [L912](../../dist/ml.js#L912) |
+| Function | `mlMarlTrain(S, iterations)` | — | [L915](../../dist/ml.js#L915) |
+| Function | `mlMarl()` | — | [L920](../../dist/ml.js#L920) |
+| Function | `mlMarl.half(L)` | — | [L923](../../dist/ml.js#L923) |
+| Function | `mlMarl.half.<callback: [0, 1].map>(k)` | — | [L923](../../dist/ml.js#L923) |
+| Function | `mlMarl.half.<callback: [0, 1].map>.<callback: xs.reduce>(s, x)` | — | [L923](../../dist/ml.js#L923) |
+| Function | `mlMarl.smooth(c)` | — | [L924](../../dist/ml.js#L924) |
+| Function | `mlMarl.smooth.<callback: c.map>([x], i)` | — | [L924](../../dist/ml.js#L924) |
+| Function | `mlMarl.smooth.<callback: c.map>.<callback: w.reduce>(s, p)` | — | [L924](../../dist/ml.js#L924) |
+| Function | `mlMarl.<callback: ML_A1.map>(a)` | — | [L939](../../dist/ml.js#L939) |
+| Function | `mlSig(x)` | — | [L960](../../dist/ml.js#L960) |
+| Function | `mlLstmHidden(X)` | — | [L961](../../dist/ml.js#L961) |
+| Function | `mlLstmHidden.<callback: z.forEach>(zi, i)` | — | [L966](../../dist/ml.js#L966) |
+| Function | `mlLstmHidden.<callback: c.map>(cj, j)` | — | [L967](../../dist/ml.js#L967) |
+| Function | `mlLstmHidden.<callback: c.map>(cj, j)` | — | [L968](../../dist/ml.js#L968) |
+| Function | `mlLstmHead(h, V = ML_LSTM.V, C = ML_LSTM.C)` | — | [L972](../../dist/ml.js#L972) |
+| Function | `mlLstmHead.<callback: C.map>(ck, k)` | — | [L972](../../dist/ml.js#L972) |
+| Function | `mlLstmHead.<callback: C.map>.<callback: h.reduce>(s, hj, j)` | — | [L972](../../dist/ml.js#L972) |
+| Function | `mlLoopTime(k)` | — | [L974](../../dist/ml.js#L974) |
+| Function | `mlLoopWhatIf(tagName, shock)` | — | [L979](../../dist/ml.js#L979) |
+| Function | `mlLoopWhatIf.<callback: ML_LSTM.REF_X.map>(r)` | — | [L980](../../dist/ml.js#L980) |
+| Function | `mlLoopWhatIf.<callback: mlLstmHead(mlLstmHidden(X)).map>(y)` | — | [L985](../../dist/ml.js#L985) |
+| Function | `mlLoop()` | — | [L988](../../dist/ml.js#L988) |
+| Function | `mlLoop.<callback: y.map>(v, i)` | — | [L990](../../dist/ml.js#L990) |
+| Function | `mlLoop.sum(i, upto)` | — | [L992](../../dist/ml.js#L992) |
+| Function | `mlLoop.sum.<callback: rows.slice(0, upto + 1).reduce>(s, r)` | — | [L992](../../dist/ml.js#L992) |
+| Function | `mlLoop.<callback: Array.from>(_, j)` | — | [L994](../../dist/ml.js#L994) |
+| Function | `mlLoop.<callback: [
+      ["Forecast", "Loop.forecast → lstm_hidden, head", "24 h in (5 measured + 30 calendar inputs) → 16 hidden → next 1–6 h ÷ ordinary"],
+      ["Act", "Loop.choose(key)", "State = calendar context + LSTM level (8 buckets); action = extra drivers 0–150 %"],
+      ["Record", "Loop._record → loop.json", "Served, unserved, idle, forecast, hidden state; 14 days kept"],
+      ["Learn online", "Loop.step", "Challenger Q-table: hindsight update of every action from the logged demand"],
+      ["Update nightly", "Loop.daily_update", "SGD on the LSTM's output layer (surge hours × 4); challenger agent"],
+      ["Validate", "champion vs challenger", "LSTM: error on the last 24 h must fall ≥ 1 %; agent: replay of the last 7 days must not cost more"],
+    ].map>([t, c, s], i)` | — | [L1005](../../dist/ml.js#L1005) |
+| Function | `mlLoop.<callback: ML_LSTM.REF_Y.map>(v)` | — | [L1007](../../dist/ml.js#L1007) |
+| Function | `mlLoop.<callback: base.map>(v)` | — | [L1007](../../dist/ml.js#L1007) |
+| Function | `mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? "ordinary" : ML_LSTM.TAGS[k + 1]; }>()` | — | [L1009](../../dist/ml.js#L1009) |
+| Function | `mlLoop.<callback: () => { const r = ML_LSTM.REF_X[ML_LSTM.REF_X.length - 1], k = ML_LSTM.TAGS.slice(1).findIndex((_, j) => r[24 + j] === 1); return k < 0 ? "ordinary" : ML_LSTM.TAGS[k + 1]; }>.<callback: ML_LSTM.TAGS.slice(1).findIndex>(_, j)` | — | [L1009](../../dist/ml.js#L1009) |
+| Function | `mlLoop.<callback: ML_LSTM.TAGS.slice(1).map>(t)` | — | [L1009](../../dist/ml.js#L1009) |
+| Function | `mlLoop.<callback: base.map>(v, i)` | — | [L1010](../../dist/ml.js#L1010) |
+| Function | `mlLoop.<callback: whatIf.map>(v, i)` | — | [L1010](../../dist/ml.js#L1010) |
+| Function | `mlLoop.<callback: ML_LSTM.BUCKETS.filter>(b)` | — | [L1011](../../dist/ml.js#L1011) |
+| Function | `mlLoop.<callback: rows.map>(r, i)` | — | [L1014](../../dist/ml.js#L1014) |
+| Function | `mlLoop.<callback: rows.map>(r, i)` | — | [L1014](../../dist/ml.js#L1014) |
+| Function | `mlLoop.<callback: rows.map>(r, i)` | — | [L1015](../../dist/ml.js#L1015) |
+| Function | `mlLoop.<callback: rows.map>(r, i)` | — | [L1015](../../dist/ml.js#L1015) |
+| Function | `mlLoop.<callback: row[2].map>(v)` | — | [L1017](../../dist/ml.js#L1017) |
+| Function | `mlLoop.<callback: actual.map>(v)` | — | [L1017](../../dist/ml.js#L1017) |
+| Function | `mlLoop.<callback: nights.map>(u)` | — | [L1019](../../dist/ml.js#L1019) |
+| Function | `mlEvaluation()` | — | [L1033](../../dist/ml.js#L1033) |
+| Function | `mlEvaluation.<callback: ML_ABLATION.map>([n, p99, sla, cost, tr], i)` | — | [L1041](../../dist/ml.js#L1041) |
+| Function | `mlGaps()` | — | [L1053](../../dist/ml.js#L1053) |
+| Function | `mlInspector()` | — | [L1095](../../dist/ml.js#L1095) |
+| Function | `mlInspector.<callback: info.facts.map>([k, v])` | — | [L1100](../../dist/ml.js#L1100) |
+| Function | `mlInspector.<callback: info.files.map>([l, u])` | — | [L1101](../../dist/ml.js#L1101) |
+| Function | `mlInspector.<callback: info.questions.map>(q)` | — | [L1103](../../dist/ml.js#L1103) |
+| Function | `mlView()` | — | [L1110](../../dist/ml.js#L1110) |
+| Function | `mlView.<callback: mlTopics.map>(x)` | — | [L1113](../../dist/ml.js#L1113) |
+| Function | `mlOpen(topic)` | — | [L1117](../../dist/ml.js#L1117) |
+| Function | `mlSetHash()` | — | [L1122](../../dist/ml.js#L1122) |
+| Function | `mlRun(busy, task)` | — | [L1126](../../dist/ml.js#L1126) |
+| Function | `mlRun.<callback: setTimeout>()` | — | [L1129](../../dist/ml.js#L1129) |
+| Function | `mlClick(button)` | — | [L1136](../../dist/ml.js#L1136) |
+| Function | `mlClick.<callback: mlRun, "enum">()` | — | [L1153](../../dist/ml.js#L1153) |
+| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter>(e)` | — | [L1153](../../dist/ml.js#L1153) |
+| Function | `mlClick.<callback: mlRun, "enum">.<callback: ml.enum.filter((e) => e.n !== n).concat(mlEnumerateTiming(n)).sort>(x, y)` | — | [L1153](../../dist/ml.js#L1153) |
+| Function | `mlClick.<callback: mlRun, "fc">()` | — | [L1154](../../dist/ml.js#L1154) |
+| Function | `mlClick.<callback: mlRun, "forest">()` | — | [L1155](../../dist/ml.js#L1155) |
+| Function | `mlClick.<callback: mlRun, "rl">()` | — | [L1157](../../dist/ml.js#L1157) |
+| Function | `mlClick.<callback: mlRun, "tw">()` | — | [L1159](../../dist/ml.js#L1159) |
+| Function | `mlClick.<callback: mlRun, "tw">()` | — | [L1160](../../dist/ml.js#L1160) |
+| Function | `mlClick.<callback: mlRun, "ac">()` | — | [L1163](../../dist/ml.js#L1163) |
+| Function | `mlClick.<callback: mlRun, "marl">()` | — | [L1165](../../dist/ml.js#L1165) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L1172](../../dist/ml.js#L1172) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L1179](../../dist/ml.js#L1179) |
 
 ### `dist/security.js`
 

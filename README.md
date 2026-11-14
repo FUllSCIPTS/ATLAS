@@ -91,7 +91,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Foundations: RSA, Diffie–Hellman, ECDSA, ML-KEM, ML-DSA, SLH-DSA with live labs](https://fullscipts.github.io/ATLAS/#crypto-learn) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
-4) [📈 Machine learning and Optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [Lab manual — 40 experiments (20 ML + 20 optimisation)](ml_lab/README.md)
+4) [📈 Machine learning and Optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Digital twin with three agents](https://fullscipts.github.io/ATLAS/#ml-twin) · [Actor and critic networks](https://fullscipts.github.io/ATLAS/#ml-actorcritic) · [Two agents sharing one critic (MAPPO)](https://fullscipts.github.io/ATLAS/#ml-marl) · [LSTM + RL live loop](https://fullscipts.github.io/ATLAS/#ml-loop) · [ATLAS Go 1.4 two learning layers](https://fullscipts.github.io/ATLAS/#golayers) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [Lab manual — 44 experiments (24 ML + 20 optimisation)](ml_lab/README.md) · [UML: two learning layers](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#atlas-go-1-4-two-learning-layers)
 
 5) [📚 Data Structures and Algorithms — 24 illustrated lessons from O/Ω/Θ to graphs, incl. singly, doubly and circular linked lists; 30 Colab experiments with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md) · [Live Data Structures view in the explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
@@ -154,13 +154,13 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 | `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography; 19 standalone units (C1–C10.5: what, why, how) including AES/ChaCha20, RSA, Diffie–Hellman/X25519, ECDSA/Ed25519, ML-KEM, ML-DSA/FN-DSA, SLH-DSA/LMS/XMSS, HQC and post-quantum migration |
 | `security_lab/crypto_a_hashing.py` … `crypto_e_post_quantum.py` | Cryptography lab in five categories (A hashing 1–7, B MACs/KDF/randomness 8–10, C PKI 11–14, D signatures 15–17, E post-quantum 18–20), each runnable on its own |
 | `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
-| `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, evaluation |
+| `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, the digital twin and its Guardian, actor-critic, multi-agent RL with a shared critic, the LSTM + RL loop, evaluation |
 | `docs/WEB_TECHNOLOGY_2.md` | Web Technology 2 — Kivy front-end teaching guide: how ATLAS Go's screens, map and Android integration are built, from `App` and layouts to the canvas, Clock, touch, threads, pyjnius and Buildozer |
 | `kivy_lab/experiments.py` | 11 Kivy experiments (K01–K11) run against the real ATLAS Go widgets; `kivy_lab/README.md` is the lab manual |
 | `kivy_lab/Kivy_Colab_Labs.ipynb` | Colab notebook for Web Technology 2: every lesson's Try-it program and all 11 labs on a virtual display |
 | `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
-| `ml_lab/README.md` | Index of the 40 ML and optimisation experiments, their ATLAS data sources and study paths |
-| `ml_lab/machine_learning/ml01_*.py` … `ml20_*.py` | 20 machine-learning experiments, one file each: regression to reinforcement learning (`run_ml.py` runs them) |
+| `ml_lab/README.md` | Index of the 44 ML and optimisation experiments, their ATLAS data sources and study paths |
+| `ml_lab/machine_learning/ml01_*.py` … `ml24_*.py` | 24 machine-learning experiments, one file each: regression to reinforcement learning, the digital twin (ML 21), actor-critic (ML 22), MAPPO with a shared critic (ML 23) and the LSTM + RL loop (ML 24) (`run_ml.py` runs them) |
 | `ml_lab/optimisation/opt01_*.py` … `opt20_*.py` | 20 optimisation experiments, one file each: gradient methods, LP/MILP, graphs, DP, metaheuristics, evolutionary, Bayesian, multi-objective (`run_optimisation.py`) |
 
 ## Experiment → script → result file

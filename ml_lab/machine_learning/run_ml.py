@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Run the 20 ATLAS machine-learning experiments: all, a few, or a study path.
+"""Run the 24 ATLAS machine-learning experiments: all, a few, or a study path.
 
-    python3 ml_lab/machine_learning/run_ml.py                  # all 20 (about a minute)
+    python3 ml_lab/machine_learning/run_ml.py                  # all 24 (about two minutes)
     python3 ml_lab/machine_learning/run_ml.py --list           # experiments and study paths
     python3 ml_lab/machine_learning/run_ml.py --path unsupervised
     python3 ml_lab/machine_learning/run_ml.py -e 3 -e 7
@@ -24,8 +24,12 @@ STUDY_PATHS = {
     'unsupervised': ('Structure and outliers without labels', [12, 13, 14, 15]),
     'time-series': ('Forecasting, honest validation and drift', [11, 16, 17]),
     'decisions': ('Ranking, bandits and reinforcement learning', [18, 19, 20]),
+    'reinforcement-learning': ('From bandits to actor-critic and two agents with one critic', [19, 20, 22, 23]),
+    'digital-twin': ('Mirror, foresee, rehearse, guard - then learn as a closed loop (ATLAS Go 1.3-1.4)', [21, 16, 24]),
+    'multi-agent': ('Actor and critic networks, then two agents sharing one critic (MAPPO)', [22, 23]),
+    'lstm-and-rl': ('Forecast, act, record, update and validate: LSTM + RL as one loop', [16, 17, 20, 24]),
     'trustworthy-ml': ('Overfitting, imbalance, leakage and drift', [2, 10, 11, 17]),
-    'full': ('Every experiment in order', list(range(1, 21))),
+    'full': ('Every experiment in order', list(range(1, 25))),
 }
 
 

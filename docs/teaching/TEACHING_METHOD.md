@@ -155,7 +155,7 @@ Each teaching guide maps the BCTP stages onto the same recurring elements, so a 
 |---|---|---|
 | Information Security | [INFORMATION_SECURITY.md](../INFORMATION_SECURITY.md) | [lab manual](../../security_lab/README.md) |
 | Cryptography | [CRYPTOGRAPHY.md](../CRYPTOGRAPHY.md) | [lab manual](../../security_lab/README.md) |
-| Machine Learning and Optimisation | [MACHINE_LEARNING_OPTIMISATION.md](../MACHINE_LEARNING_OPTIMISATION.md) | [40 experiments](../../ml_lab/README.md) |
+| Machine Learning and Optimisation | [MACHINE_LEARNING_OPTIMISATION.md](../MACHINE_LEARNING_OPTIMISATION.md) | [44 experiments](../../ml_lab/README.md) |
 | Data Structures and Algorithms | [DATA_STRUCTURES_ALGORITHMS.md](../DATA_STRUCTURES_ALGORITHMS.md) | [30 experiments](../../dsa_lab/README.md) |
 | Python Programming | [PYTHON_PROGRAMMING.md](../PYTHON_PROGRAMMING.md) | [lab manual](../../python_lab/README.md) |
 | Web Technology | [WEB_TECHNOLOGY.md](../WEB_TECHNOLOGY.md) | [full-stack lab](../../web_lab/README.md) |

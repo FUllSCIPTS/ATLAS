@@ -1,7 +1,10 @@
 # Machine-learning and optimisation labs
 
-Forty experiments, one Python file each, kept in two tracks: **20 machine-learning experiments** in
+Forty-four experiments, one Python file each, kept in two tracks: **24 machine-learning experiments** in
 [`machine_learning/`](machine_learning) and **20 optimisation experiments** in [`optimisation/`](optimisation).
+New with ATLAS Go 1.3–1.4: **ML 21** digital twin (mirror, foresee, rehearse, guard), **ML 22** actor and
+critic networks (A2C), **ML 23** two agents sharing one critic (MAPPO) and **ML 24** LSTM + RL as one
+closed loop with validated retraining.
 Every experiment runs on its own, uses ATLAS's own data or code wherever it can, prints its results with a
 short explanation, and ends with an exercise in its docstring. The original seven-section lab on the
 paper's optimiser stays in [`ml_optimisation_lab.py`](ml_optimisation_lab.py). Teaching guide:
@@ -11,7 +14,8 @@ Requirements: numpy, scipy and scikit-learn (`requirements.txt`); PyTorch is not
 
 ```bash
 python3 ml_lab/machine_learning/ml07_ensembles.py               # one experiment
-python3 ml_lab/machine_learning/run_ml.py                       # all 20 ML experiments (about 25 s)
+python3 ml_lab/machine_learning/run_ml.py                       # all 24 ML experiments (about 1.5 min)
+python3 ml_lab/machine_learning/run_ml.py --path multi-agent    # actor-critic, then MAPPO
 python3 ml_lab/machine_learning/run_ml.py --path unsupervised   # a study path
 python3 ml_lab/optimisation/run_optimisation.py --list          # optimisation experiments and paths
 python3 ml_lab/optimisation/run_optimisation.py -e 8 -e 17      # chosen experiments
@@ -27,6 +31,10 @@ python3 ml_lab/optimisation/run_optimisation.py -e 8 -e 17      # chosen experim
 | `run_bip_timing.py`: the linearised coupling BIP instances | OPT 08, 15, 17 |
 | `android-app/atlas_go`: Cork geography, driver pools, dispatch scoring and cost model, learned weights | ML 05, 13, 18, 19; OPT 05, 06, 09-11, 13, 16, 18 |
 | `android-app/training/rl_sim.py`: the courier-timing environment | ML 20 |
+| `android-app/atlas_go/twin.py`: the digital twin, Agents 1-2 and the Guardian (Layer 2, 1.3.0) | ML 21 |
+| `android-app/atlas_go/intelligence.py`: dispatch candidates, reward and cost model, policy v1.4 | ML 22 |
+| The proposal's two-agent twin (dispatch + pricing, one team reward) | ML 23 |
+| `android-app/atlas_go/loop.py`, `lstm_weights.py`: the live LSTM -> RL loop (Layer 1, 1.4.0) | ML 21, 24 |
 
 ## Machine learning (`machine_learning/`)
 
@@ -52,6 +60,10 @@ python3 ml_lab/optimisation/run_optimisation.py -e 8 -e 17      # chosen experim
 | 18 | [`ml18_learning_to_rank.py`](machine_learning/ml18_learning_to_rank.py) | Learning to rank: recovering a dispatch policy from pairwise preferences | search results, recommendations, feeds, hiring shortlists - anything shown as a ranked list |
 | 19 | [`ml19_bandits.py`](machine_learning/ml19_bandits.py) | Multi-armed bandits: explore or exploit? epsilon-greedy, UCB1 and Thompson sampling | A/B testing, ad and news selection, clinical trials, recommender exploration, pricing |
 | 20 | [`ml20_q_learning_courier.py`](machine_learning/ml20_q_learning_courier.py) | Reinforcement learning with tabular Q-learning: when should the courier leave? | robotics, games, inventory control, traffic signals, recommendation sequences |
+| 21 | [`ml21_digital_twin.py`](machine_learning/ml21_digital_twin.py) | Digital twin: foresight vs reacting, how many rehearsals a stable choice needs, Agent 2's plans on St Patrick's Day, 3,000 injected faults against the Guardian | factories, power grids, logistics and hospitals - simulate before you act, and shield what you deploy |
+| 22 | [`ml22_actor_critic.py`](machine_learning/ml22_actor_critic.py) | Actor and critic networks: an advantage actor-critic (A2C) learns dispatch against REINFORCE, v1.4 and nearest-driver | robotics, recommendation, logistics - RL with noisy, delayed rewards |
+| 23 | [`ml23_mappo_shared_critic.py`](machine_learning/ml23_mappo_shared_critic.py) | Multi-agent RL: dispatch and pricing agents with independent critics (IPPO) vs one shared centralised critic (MAPPO) | fleets, warehouses, traffic signals, power grids - teams of agents with one goal |
+| 24 | [`ml24_lstm_rl_loop.py`](machine_learning/ml24_lstm_rl_loop.py) | LSTM + RL as one loop: forecast, act, record, update, validate; frozen vs learning over eight weeks | demand planning, energy dispatch, inventory - forecast-then-decide systems that keep learning safely |
 
 ### Study paths (`run_ml.py --path NAME`)
 
@@ -64,6 +76,10 @@ python3 ml_lab/optimisation/run_optimisation.py -e 8 -e 17      # chosen experim
 | `time-series` | 11, 16, 17 | Forecasting, honest validation and drift |
 | `decisions` | 18, 19, 20 | Ranking, bandits and reinforcement learning |
 | `trustworthy-ml` | 2, 10, 11, 17 | Overfitting, imbalance, leakage and drift |
+| `reinforcement-learning` | 19, 20, 22, 23 | From bandits to actor-critic and two agents with one critic |
+| `digital-twin` | 21, 16, 24 | Mirror, foresee, rehearse, guard - then learn as a closed loop |
+| `multi-agent` | 22, 23 | Actor and critic networks, then two agents sharing one critic (MAPPO) |
+| `lstm-and-rl` | 16, 17, 20, 24 | Forecast, act, record, update and validate: LSTM + RL as one loop |
 
 ## Optimisation (`optimisation/`)
 
@@ -116,6 +132,15 @@ evolutionary (15-18), black-box and multi-objective (19-20).
 - **ML 16:** the weekly seasonal-naive forecast beats every fitted model on the 3-day test.
 - **ML 18, OPT 18:** weights learned from pairwise preferences, or tuned by differential evolution or PSO,
   match or slightly beat ATLAS Go's REINFORCE weights on the app's own cost model, and beat the nearest-driver rule.
+- **ML 21:** in festival and holiday weeks the twin's calendar-aware foresight cuts the 30-minute demand-ratio
+  error from 0.43-0.65 ("last hour again") to 0.12-0.16; the Guardian catches 3,000 of 3,000 injected faults with
+  no false alarms on 6,000 normal decisions.
+- **ML 22:** with a learned critic the actor reaches within 0.1 min of policy v1.4 after 2,000 rides; REINFORCE
+  with a running baseline needs 8,000. The critic lowers the variance of the learning signal by about 20 %.
+- **ML 23:** both multi-agent methods beat "nearest car" by about 20 %; the shared critic cuts the noise in the
+  dispatch agent's advantages by about 40 % and learns faster in mid-training, but ends at a similar policy.
+- **ML 24:** the LSTM-informed agent costs 10.5 % less than the 1.2 calendar agent over four periods (not in
+  every period); over eight weeks validated nightly learning lowers cost by 1.5-16 % against frozen models.
 - **OPT 17:** with six modules enumeration (64 evaluations, exact) is the right choice, as the paper does; a
   genetic algorithm pays off only at 60 modules.
 - **OPT 20:** the paper's chosen coupling at 6,000 req/s is Pareto-optimal for latency and cost; weighted sums
