@@ -1169,3 +1169,304 @@ Consider **forecasting and repositioning drivers**:
 5. **What protects deployment?** A Guardian and rollback policy. **Why?** A high average reward can hide unacceptable rare failures. **How?** Enforce hard constraints at decision time, record violations, and keep a verified baseline available.
 
 **The central conceptual distinction:** *machine learning estimates patterns; optimisation chooses feasible actions; reinforcement learning learns sequential action policies; simulation tests hypotheses; statistical evaluation measures uncertainty; and operational safety checks protect real-world execution.*
+
+
+---
+
+## T16. Equation-by-equation explanations: What, Why and How
+
+Use this chapter alongside the equations in Parts I–II. For every formula: identify inputs, interpret the output, substitute numbers, check units, and ask whether it applies to prediction, learning or a constrained decision. Equations shown as standalone blocks use GitHub's `math` fences.
+
+### E1. Dot product and vector length
+
+**What:** A dot product is a weighted sum of features; Euclidean norm measures length. **Why:** Linear regression, driver scores and optimisation use weighted contributions. **How:** weights (2, −1) and features (3, 4) give score 2×3 − 1×4 = 2; feature-vector norm is 5.
+
+```math
+w^\top x=\sum_{j=1}^{p}w_jx_j,\qquad \|x\|_2=\sqrt{\sum_{j=1}^{p}x_j^2}
+```
+
+Here p counts features, and j indexes each feature.
+
+### E2. Bayes' rule and acceptance updates
+
+**What:** Bayes' rule updates a prior belief after evidence. **Why:** Driver acceptance history is limited and uncertain. **How:** a Beta(2,2) prior with 3 accepts and 1 decline becomes Beta(5,3), mean 5/8 = 0.625.
+
+```math
+P(H\mid E)=\frac{P(E\mid H)P(H)}{P(E)}
+```
+
+```math
+\mathbb E[p\mid s,f]=\frac{\alpha+s}{\alpha+\beta+s+f}
+```
+
+H means hypothesis, E evidence, p unknown success probability, alpha/beta prior parameters, s successes and f failures.
+
+### E3. Chain rule and gradient descent
+
+**What:** The chain rule measures how a parameter influences the final loss. Gradient descent changes that parameter opposite the derivative. **Why:** This is the mechanism of model training. **How:** for loss (w−3)² at w=1, derivative is −4; learning rate 0.1 changes w to 1.4.
+
+```math
+\frac{dL}{dw}=\frac{dL}{d\widehat y}\frac{d\widehat y}{dw},\qquad w_{t+1}=w_t-\eta\frac{dL}{dw}
+```
+
+L is error, y-hat is prediction, w learnable parameter, eta learning rate.
+
+### E4. Standardisation
+
+**What:** Transforms an input relative to the training mean and standard deviation. **Why:** Features on incompatible numerical scales can distort distance and optimisation. **How:** a distance of 8 km, training mean 5 and SD 2, becomes (8−5)/2 = 1.5.
+
+```math
+z=\frac{x-\mu_{\mathrm{train}}}{\sigma_{\mathrm{train}}}
+```
+
+x is the original feature and z its standardised form. Handle zero-variance columns explicitly; fit statistics on training data only.
+
+### E5. Regression and squared-error loss
+
+**What:** A linear model predicts a continuous quantity; the loss scores differences against actual outcomes. **Why:** It provides a transparent demand-forecasting baseline. **How:** prediction 7 against actual 9 gives half-squared error (7−9)²/2 = 2.
+
+```math
+\widehat y=w^\top x+b,\qquad J=\frac{1}{2n}\sum_{i=1}^{n}(\widehat y_i-y_i)^2
+```
+
+b is intercept; n is number of samples; the sum averages their errors.
+
+### E6. Ridge and Lasso
+
+**What:** Add penalties on model weights. **Why:** Very large coefficients can lead to overfitting. **How:** weights (3,4) have an L2-squared penalty of 25 and an L1 penalty of 7 before multiplying by lambda.
+
+```math
+J_{\mathrm{ridge}}=J_{\mathrm{data}}+\lambda\sum_jw_j^2,\qquad J_{\mathrm{lasso}}=J_{\mathrm{data}}+\lambda\sum_j|w_j|
+```
+
+Lambda is a nonnegative validation-selected penalty weight; usually exclude the intercept.
+
+### E7. Logistic regression and probabilistic losses
+
+**What:** A sigmoid converts a score into probability, cross-entropy measures classification loss, and Brier score measures squared probability error. **Why:** An acceptance prediction should represent uncertainty, not just yes/no. **How:** score 0 gives probability 0.5; if acceptance occurs, cross-entropy is about 0.693.
+
+```math
+p=\frac{1}{1+e^{-z}},\qquad z=w^\top x+b
+```
+
+```math
+L_{\mathrm{CE}}=-\frac{1}{n}\sum_i\left[y_i\log p_i+(1-y_i)\log(1-p_i)\right]
+```
+
+```math
+\mathrm{Brier}=\frac{1}{n}\sum_i(p_i-y_i)^2
+```
+
+p_i is forecast probability and y_i is observed binary result; clip exact zero/one probabilities numerically before logarithms.
+
+### E8. Classification and forecasting metrics
+
+**What:** Precision is the proportion of alarms that are real, recall the proportion of real anomalies found; F1 balances both. MAE/RMSE measure numerical errors. **Why:** Accuracy alone hides rare-event failures. **How:** 8 true positives, 2 false positives, 2 missed positives yield precision=recall=F1=0.8.
+
+```math
+P=\frac{TP}{TP+FP},\quad R=\frac{TP}{TP+FN},\quad F_1=\frac{2PR}{P+R}
+```
+
+```math
+\mathrm{MAE}=\frac{1}{n}\sum_i|y_i-\widehat y_i|,\qquad\mathrm{RMSE}=\sqrt{\frac{1}{n}\sum_i(y_i-\widehat y_i)^2}
+```
+
+TP/FP/FN count true positives, false positives and false negatives. Specify conventions for any zero denominator.
+
+### E9. Trees, clustering and principal components
+
+**What:** Gini measures class impurity, k-means minimises distances to cluster centres, PCA compresses correlated inputs. **Why:** They handle distinct classification, grouping and representation tasks. **How:** a 50/50 binary tree node has Gini impurity 0.5, while a pure node has zero.
+
+```math
+G=1-\sum_{k=1}^{K}p_k^2
+```
+
+```math
+J_{\mathrm{kmeans}}=\sum_i\min_j\|x_i-\mu_j\|_2^2
+```
+
+```math
+z=W_K^\top(x-\mu)
+```
+
+p_k is class fraction, mu_j a cluster centre, W_K the principal-component directions; K is context-dependent.
+
+### E10. Isolation Forest
+
+**What:** Scores unusual samples by average isolation-tree path length. **Why:** Rare faults may be easier to isolate than ordinary operating points. **How:** a point with path length 2 is scored more anomalous than a point of path length 8 with the same normaliser.
+
+```math
+s(x)=2^{-\mathbb E[h(x)]/c(n)}
+```
+
+h(x) is path length; c(n) normalises it for sample size. An anomaly score is not automatically a calibrated failure probability.
+
+### E11. Softmax driver selection
+
+**What:** Softmax converts driver scores into probabilities. **Why:** It can balance preferences among multiple feasible drivers. **How:** scores 2 and 1 become approximately 73.1% and 26.9%.
+
+```math
+z_a=w^\top\phi_a,\qquad\pi(a)=\frac{e^{z_a}}{\sum_{j=1}^{K}e^{z_j}}
+```
+
+w are learned weights, phi_a driver features, K candidate count, pi(a) probability of choosing driver a. The probabilities sum to 1.
+
+### E12. SGD and Adam
+
+**What:** SGD follows current gradients; Adam maintains moving estimates of gradients and squared gradients. **Why:** Gradient directions and scales vary during training. **How:** current weight 5, gradient 2, learning rate 0.1 gives an SGD update to 4.8.
+
+```math
+\theta_{t+1}=\theta_t-\eta g_t
+```
+
+```math
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\qquad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2
+```
+
+```math
+\widehat m_t=\frac{m_t}{1-\beta_1^t},\quad\widehat v_t=\frac{v_t}{1-\beta_2^t},\quad\theta_{t+1}=\theta_t-\eta\frac{\widehat m_t}{\sqrt{\widehat v_t}+\varepsilon}
+```
+
+Theta means trainable parameters, g gradient, m momentum-like estimate, v squared-gradient estimate, beta decay rates, epsilon numerical stabiliser.
+
+### E13. LSTM gates
+
+**What:** Forget, input and output gates respectively retain, write and expose memory. **Why:** Forecasts may depend on hours of past context. **How:** old cell 0.8, forget gate 0.5, input 0.25, candidate memory 0.6 gives new cell 0.55.
+
+```math
+f_t=\sigma(W_f[h_{t-1},x_t]+b_f),\qquad i_t=\sigma(W_i[h_{t-1},x_t]+b_i)
+```
+
+```math
+\widetilde c_t=\tanh(W_c[h_{t-1},x_t]+b_c),\qquad c_t=f_t\odot c_{t-1}+i_t\odot\widetilde c_t
+```
+
+```math
+o_t=\sigma(W_o[h_{t-1},x_t]+b_o),\qquad h_t=o_t\odot\tanh(c_t)
+```
+
+x_t is input, h_t hidden state, c_t memory, W/b gate weights/biases and ⊙ elementwise multiplication.
+
+### E14. Forecasting baselines
+
+**What:** Persistence copies the latest observation; seasonal naive copies an equivalent earlier seasonal observation. **Why:** A complex LSTM must justify its extra complexity against strong simple forecasts. **How:** if demand at the same hour last week was 120, weekly seasonal naive predicts 120.
+
+```math
+\widehat y_{t+h}^{\mathrm{persist}}=y_t,\qquad\widehat y_{t+h}^{\mathrm{season}}=y_{t+h-s}
+```
+
+h is horizon, s seasonal period. The historical index must be available at forecast time.
+
+### E15. Bellman return and Q-learning
+
+**What:** Discounted return sums future rewards; Q-learning updates predicted action quality based on a transition. **Why:** Dispatch actions affect future supply. **How:** Q=5, reward 2, discount 0.9, best next Q=8, step size 0.1 yield updated Q=5.42.
+
+```math
+G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k}
+```
+
+```math
+Q(s,a)\leftarrow Q(s,a)+\alpha\left[r+\gamma\max_{a'}Q(s',a')-Q(s,a)\right]
+```
+
+Gamma discounts later rewards, alpha controls learning rate, s and s-prime are current/next state. Use zero continuation at terminal states.
+
+### E16. Policy gradients and actor–critic
+
+**What:** REINFORCE adjusts action probabilities using return; a critic provides a state-specific baseline. **Why:** A good outcome can reflect an easy state rather than a good action. **How:** return 8 versus critic estimate 6 gives positive advantage 2; an outcome of 4 gives negative advantage −2.
+
+```math
+\nabla_\theta J\approx\sum_t(G_t-b(s_t))\nabla_\theta\log\pi_\theta(a_t\mid s_t)
+```
+
+```math
+A_t=G_t-V_\phi(s_t)
+```
+
+Theta parameterises actor, phi critic, b baseline and A advantage. Positive advantage reinforces the sampled action relative to alternatives.
+
+### E17. PPO and MAPPO clipping
+
+**What:** PPO compares action probabilities before/after a policy update and clips the surrogate improvement; MAPPO uses a centralised value critic across agents. **Why:** Unbounded updates can destabilise learning. **How:** old/new probabilities .4/.6 give ratio 1.5; with advantage 2 and epsilon .2, clipped benefit is min(3,2.4)=2.4.
+
+```math
+q_t=\frac{\pi_{\mathrm{new}}(a_t\mid o_t)}{\pi_{\mathrm{old}}(a_t\mid o_t)}
+```
+
+```math
+u_t=\min\left(q_t\widehat A_t,\operatorname{clip}(q_t,1-\epsilon,1+\epsilon)\widehat A_t\right)
+```
+
+```math
+\mathcal L_{\mathrm{PPO}}=-\frac{1}{N}\sum_{t=1}^{N}u_t
+```
+
+Here epsilon is clipping width, N batch size and advantage compares return with value estimate. Clipping is an objective heuristic, not a hard safety guarantee.
+
+### E18. Binary deployment optimisation
+
+**What:** Select the lowest-cost feasible configuration of coupled or separate modules. **Why:** Latency, cost, reliability and switching conflicts must be balanced. **How:** of two feasible configurations costing 5.16 and 6.06 in objective units, select 5.16; reject any candidate violating SLA regardless of lower cost.
+
+```math
+\min_{c\in\{0,1\}^{n}}J(c)
+```
+
+```math
+J(c)=\alpha\frac{L(c)}{L_0}+\beta\frac{C(c)}{C_0}+\gamma\gamma_s\frac{R(c)}{R_0}+\kappa\|c-c_{\mathrm{now}}\|_1
+```
+
+c is deployment vector; L/C/R are latency/cost/risk; denominators are reference scales; alpha/beta/gamma/kappa weight trade-offs; L1 counts binary flips.
+
+### E19. Newton and convex optimisation
+
+**What:** Gradient descent uses slope; Newton also uses curvature. **Why:** Curvature can help continuous optimisers converge faster near a well-behaved minimum. **How:** for (x−3)²+1 at x=0, gradient −6 and curvature 2 give full Newton step to 3.
+
+```math
+x_{t+1}=x_t-\eta\nabla f(x_t)
+```
+
+```math
+x_{t+1}=x_t-[\nabla^2f(x_t)]^{-1}\nabla f(x_t)
+```
+
+A Hessian must be handled with a linear solver and safeguarded when singular/indefinite; a full step is not always safe.
+
+### E20. Lagrangian and KKT
+
+**What:** Lagrange multipliers attach resource prices to constraints; KKT conditions describe stationary constrained optima. **Why:** We need to understand scarce-capacity limits. **How:** minimising (x−5)² with cap x≤3 gives optimum x=3 and multiplier 4, under standard conditions.
+
+```math
+\mathcal L(x,\lambda)=f(x)+\lambda g(x),\quad\lambda\ge0
+```
+
+```math
+\nabla_x\mathcal L=0,\quad g(x)\le0,\quad\lambda g(x)=0
+```
+
+The formula illustrates one inequality; full KKT includes all equalities/inequalities and regularity assumptions.
+
+### E21. Bellman dynamic programming
+
+**What:** Express total future minimum cost as immediate cost plus optimal remaining cost. **Why:** Repositioning has consequences over multiple hours. **How:** enumerate legal actions from each state, add immediate cost to next-state value, then choose the smallest.
+
+```math
+V_t(s)=\min_{a\in\mathcal A(s)}\left[c_t(s,a)+V_{t+1}(T(s,a))\right]
+```
+
+V is cost-to-go, c immediate cost, T transition, A(s) feasible actions, t time index. Choose an appropriate terminal cost at horizon end.
+
+### E22. Robust optimisation and confidence intervals
+
+**What:** Robust optimisation minimises the worst plausible cost, and confidence intervals quantify sampling uncertainty. **Why:** Mean scores may hide severe unusual loads or evaluation noise. **How:** compare each configuration under uncertainty scenarios and report paired-run differences with a confidence interval.
+
+```math
+\min_{x\in\mathcal F}\max_{\xi\in\mathcal U}f(x,\xi)
+```
+
+```math
+\overline d\ \pm\ t_{n-1,0.975}\frac{s_d}{\sqrt n}
+```
+
+F is feasible set, U uncertainty set, d mean paired difference, s_d its sample SD. The t interval assumes appropriate sampling independence and distributional conditions.
+
+**Learning routine:** For each equation, say aloud what it predicts or selects, why that goal matters, define every symbol, substitute a two-input toy example, verify the units and feasibility conditions, and then locate the corresponding ATLAS lab.
