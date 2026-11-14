@@ -1,5 +1,5 @@
-# PRESENT WORK on ATLAS Go --- The Artefact!
-## ATLAS Go
+# PRESENT WORK:
+## ATLAS Go --- The Artefact!
 
 **[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
 
@@ -47,8 +47,9 @@ Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cos
 
 **Tested (1.4.0):** 173 Python unit tests; 314 UI assertions in each of two desktop screen configurations; the Buildozer APK/AAB build and **373 assertions with 29 screenshots on an Android 16 emulator**, no crash; the non-debuggable release build launches; bundle validation, release manifest (1.4.0 / code 5) and 16 KB native alignment pass ([evidence](android-app/releases/1.4.0/VALIDATION.md)).
 
-# PAST WORK on ATLAS --- The Theoretical Ground!
-# ATLAS — Supplementary Code and Data
+# PAST WORK: 
+## ATLAS --- The Theoretical Ground!
+## ATLAS — Supplementary Code and Data
 Code, data, trained models and raw results for the article
 
 > **ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems**
