@@ -1,17 +1,34 @@
-# ATLAS Go — Android app (version 1.3.0)
+# ATLAS Go — Android app (version 1.4.0)
 
-**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab) and, new in 1.3.0, **a digital twin of Cork with three agents on top (Layer 2)**.
+**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab) a **live LSTM → RL loop** that forecasts, acts, records outcomes and retrains on the phone (new in 1.4.0), and **a digital twin of Cork with three agents on top (Layer 2, 1.3.0)**.
 
-ATLAS Go 1.3.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
+ATLAS Go 1.4.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
 
-- [Installable APK 1.3.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Uninstall 1.2.0 first (different signing key). SHA-256 `e3c92bd67f667c14bdaaf6fff56b7dd74307637dc6e264b0b9bad318a1c87371`
-- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.3.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.3.0/atlas-go-1.3.0-source.zip) (SHA-256 `4e085a2f61304859e3f1a9e3fc521fe1317791eb45956036c2cb884e985d70f8`)
-- [1.3.0 release page: SHA256SUMS, release notes and validation](releases/1.3.0/README.md) · [1.2.0 release page](releases/1.2.0/README.md)
+- [Installable APK 1.4.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Installs over 1.3.0 (same signing key); uninstall 1.2.0 first. SHA-256 `@@APK14_SHA@@`
+- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.4.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) (SHA-256 `@@SRC14_SHA@@`)
+- [1.4.0 release page: SHA256SUMS, release notes and validation](releases/1.4.0/README.md) · earlier: [1.3.0](releases/1.3.0/README.md) · [1.2.0](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
-- [What changed in 1.3.0](CHANGELOG.md)
+- [What changed in 1.4.0](CHANGELOG.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md) · [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
 - [Privacy notice](docs/PRIVACY.md) · [Testing](docs/TESTING.md) · [Build, signing and Google Play](docs/GOOGLE_PLAY.md)
 - [▶ Demo video with the digital twin and multi-agent layer (7 min 39 s)](docs/video/atlas-go-demo-v1.3-twin.mp4) · [demo of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+
+## What's new in 1.4.0 — the Layer 1 live loop
+
+**LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated** — now running on the phone (`atlas_go/loop.py`, pure Python).
+
+| Component | 1.3.0 | 1.4.0 |
+|---|---|---|
+| LSTM training implementation | Present (`training/city_sim.py`) | Present; plus `training/export_lstm.py` for the on-device LSTM |
+| RL agent training implementation | Present (`training/city_sim.py`, `training/rl_sim.py`) | Present; plus the forecast-aware supply agent |
+| RL experience used to train the LSTM | Connected (simulation) | Connected, offline **and** on the phone |
+| LSTM forecast feature in dispatch | Represented (fixed hourly tables) | **Live**: the LSTM's next-hour forecast is the dispatch surge feature |
+| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented**: every city hour, 24 h window → 6 h forecast → agent's state |
+| Continuous online LSTM–RL retraining | Not implemented | **Implemented**: agent hourly (challenger), LSTM output layer nightly; champion/challenger validation on held-out hours |
+
+Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent. Intelligence → **Live loop** shows the forecast, the agent's decision, the model versions and each night's accept/reject; **Run 7 city days** runs a week of the loop.
+
+<img src="docs/screenshots/30-live-loop.png" width="200" alt="Live loop card">
 
 ## What's new in 1.3.0
 
@@ -51,7 +68,7 @@ ATLAS Go 1.3.0 runs entirely on the phone. Accounts, rides, orders and kitchens 
 | Courier timing | Q-learning table from kitchen slack to dispatch delay (extrapolated beyond the trained range for slow kitchens) | Basket, order and seller screens; saved with each order |
 | Learning lab | On-device REINFORCE retraining from zero (sandbox) | Intelligence screen; never dispatches |
 
-`python training/export_learned.py` (development only, needs numpy) retrains the dispatch and courier policies and the two-year city simulation and rewrites `atlas_go/learned.py`. For 1.2.0 this was re-run and reproduced the bundled file byte for byte. The training data is synthetic; the models are illustrative, not measurements of real riders, drivers or kitchens.
+`python training/export_lstm.py` (development only, needs numpy) trains the on-device LSTM and the forecast-aware supply agent and rewrites `atlas_go/lstm_weights.py` (reproducible byte for byte). `python training/export_learned.py` (development only, needs numpy) retrains the dispatch and courier policies and the two-year city simulation and rewrites `atlas_go/learned.py`. For 1.2.0 this was re-run and reproduced the bundled file byte for byte. The training data is synthetic; the models are illustrative, not measurements of real riders, drivers or kitchens.
 
 ## Try the three roles on one phone
 
@@ -80,7 +97,7 @@ Desktop preview needs Python 3.12+; Android packaging uses Buildozer and python-
 cd android-app
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest tests                       # 158 tests
+python -m pytest tests                       # 173 tests (one needs a display: xvfb-run)
 python main.py                               # desktop preview
 ATLAS_FAKE_GPS=51.8990,-8.4700 python main.py  # preview with a simulated location
 ATLAS_CLOCK=2027-03-17T13:00 python main.py     # preview the twin at a busy time (St Patrick's Day)

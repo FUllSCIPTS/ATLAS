@@ -1,5 +1,25 @@
 # ATLAS Go changelog
 
+## 1.4.0 (versionCode 5) — 14 November 2026
+
+### Added
+- **Layer 1 live loop** (`atlas_go/loop.py`): *LSTM predicts demand → RL supply agent acts → outcomes are recorded → both models are updated and validated*, running on the phone in pure Python.
+  - **Live LSTM inference.** A compact LSTM (24 hours in, 16 hidden units, 1–6 hours out) runs every city hour on the last 24 hours of served trips, unserved requests, supply boosts and the calendar. Its pure-Python forecast matches the training model to within 2 × 10⁻⁶.
+  - **The RL agent acts on the forecast.** The supply agent's state is the calendar context *and the LSTM's forecast level* for the coming hour (8 levels); it chooses how many extra drivers to add (0–150 %).
+  - **Outcomes are recorded** in an experience log on the phone (14 days): demand, served, unserved, idle drivers, the forecast that was made and the LSTM's hidden state.
+  - **Continuous, validated retraining.** Every hour the agent's challenger Q-table learns with hindsight from the log; every night the LSTM's output layer is refitted on the logged hidden states and the demand that followed. Each challenger replaces the champion only if it does better on held-out data (LSTM: weighted error on the last 24 hours; agent: cost replayed over the last 7 days). Versions and every accept/reject are shown.
+  - The live LSTM forecast now feeds the dispatch policy's *area surge* feature for registered drivers (previously the fixed hourly outlook), the driver's *When to drive* card and the Twin tab.
+- `training/export_lstm.py` trains the compact LSTM on the 1.2 agent's experience log (city_sim "model B": RL experience → LSTM training data) and the forecast-aware supply agent, evaluates both on the held-out second half of 2026 and writes `atlas_go/lstm_weights.py`. Re-running it reproduces the file byte for byte.
+- Intelligence screen: **Live loop** card (next-hour and 6-hour forecast, the agent's decision, model versions, nightly update results), **Run 7 city days** and **Check the loop** (2 self-checks).
+
+### Results (simulation)
+- Held-out Jul–Dec 2026: LSTM next-hour error 9.3 % (surge recall 0.81, precision 0.65); supply cost (unserved + 0.25 × idle) 29,896 for the LSTM-informed agent vs 36,343 for the 1.2 calendar agent (−18 %) and 52,965 with no boost; unserved requests −18 %.
+- On the phone, over four simulated periods (Jazz weekend, St Patrick's Day, Christmas, February), the running loop's cost is lower than the 1.2 calendar agent's (a unit test checks it).
+
+### Unchanged
+- `intelligence.py` and `learned.py` (the 1.2 learned tables) are still byte-identical; the loop is new code that reads them. Layer 2 is unchanged.
+- The full LSTM (recurrent weights) is retrained offline with `training/export_lstm.py`; on the phone only its output layer is retrained.
+
 ## 1.3.0 (versionCode 4) — 14 November 2026
 
 ### Added

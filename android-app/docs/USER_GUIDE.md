@@ -1,4 +1,4 @@
-# ATLAS Go user guide (1.3.0)
+# ATLAS Go user guide (1.4.0)
 
 The screenshots are captured from the running Python/Kivy app by the automated acceptance run (desktop preview at 440 × 940; the Android workflow replaces them with Android 16 emulator captures of the same screens). They show illustrative Cork data and test accounts, not real customers, drivers or kitchens.
 
@@ -93,6 +93,12 @@ The Kitchen tab opens or closes the kitchen, sets the preparation time (courier 
 | Models and outlook | Learning lab |
 |---|---|
 | ![Intelligence](screenshots/14-intelligence.png) | ![Learning lab](screenshots/15-learning-lab.png) |
+
+## 12. Live loop (Layer 1, new in 1.4)
+
+In **How ATLAS learns**, the **Live loop** card shows the learning agents working together on the phone. Every city hour the LSTM forecasts demand for the next six hours from the last 24 hours of trips, unserved requests and extra drivers; the supply agent decides how many extra drivers to add, using the calendar and the LSTM's forecast; and the outcome is recorded. Each night both models are retrained on that experience and kept only if they do better on recent hours they have not seen. **Run 7 city days** runs a week of the loop; **Check the loop** runs two self-checks. Drivers see the live forecast in *When to drive*.
+
+![Live loop](screenshots/30-live-loop.png)
 
 ## 11. City twin (Layer 2, new in 1.3)
 

@@ -12,6 +12,7 @@ from kivy.utils import platform
 from .store import LocalStore
 from . import intelligence as ai
 from . import twin as layer2
+from . import loop as live
 
 ORDINARY = dt.datetime(2026, 11, 4, 10, 0)     # an ordinary Wednesday morning: no surge, base prices
 BUSY = dt.datetime(2027, 3, 17, 13, 0)         # St Patrick's Day lunchtime: Layer 1 forecasts a surge
@@ -186,6 +187,21 @@ class Acceptance:
             lambda:self.click('models_check'),
             lambda:self.check(a.models and all(ok for _, ok, _ in a.models) and len(a.models)==6,'All six models pass the on-device check'),
             lambda:self.capture('14-intelligence'),
+            # ---- Layer 1 live loop: LSTM forecasts -> supply agent acts -> outcomes -> nightly update + validation
+            lambda:self.check(a.shown.get('loop') and len(a.shown['loop']['forecast']['requests'])==6,
+                              'Live LSTM forecasts the next six hours on the phone'),
+            lambda:self.check(a.loop.state['cursor'] is not None and len(a.loop.state['log'])>=24,
+                              'Experience log covers the LSTM input window'),
+            lambda:self.click('loop_week'),
+            lambda:self.check(a.loop.state['hours']>=168 and len(a.loop.state['updates'])>=7,
+                              'Seven city days: 168 hours forecast, acted on and recorded; 7 nightly updates'),
+            lambda:self.check(all(u['agent'] is not None for u in a.loop.state['updates'][-6:]) and
+                              any((u['lstm'] or {}).get('samples') for u in a.loop.state['updates']),
+                              'Both models were retrained and validated against held-out hours'),
+            lambda:self.check(live.Loop(a.loop.path).state['hours']==a.loop.state['hours'],'Loop state persists'),
+            lambda:self.click('loop_check'),
+            lambda:self.check(len(a.loop_checks)==2 and all(ok for _, ok, _ in a.loop_checks),'Loop self-checks pass'),
+            lambda:setattr(a.scroll,'scroll_y',0.83),lambda:self.capture('30-live-loop'),
             lambda:self.click('outlook_next'),lambda:self.check(a.outlook_day==1,'Outlook moves to the next day'),
             lambda:self.click('outlook_today'),lambda:self.check(a.outlook_day==0,'Outlook returns to today'),
             lambda:self.click('lab_train'),self.lab_finished,

@@ -28,6 +28,7 @@ from . import intelligence as ai
 from . import livemap
 from . import learned
 from . import twin as layer2
+from . import loop as live
 from . import __version__
 
 GREEN = color('#075E4A')
@@ -214,6 +215,9 @@ class AtlasGoApp(App):
         self.data_dir = Path(data_dir)
         self.store = LocalStore(self.data_dir / 'state.json')
         self.tiles = livemap.loader(self.data_dir / 'tiles')
+        self.loop = live.Loop(self.data_dir / 'loop.json')     # Layer 1 live loop: LSTM -> RL -> outcomes -> update
+        self._loop_view = None
+        self.loop_checks = None
         self.gps = DeviceLocation(self.on_location, self.on_location_status)
         self.gps_status = ''
         ui = self.store.ui
@@ -819,7 +823,7 @@ class AtlasGoApp(App):
             price = self.store_price(base, decision['multiplier'])
             self.label(preview,f'Pickup in about {chosen.eta} min · {distance(self.pickup,self.destination)} km route',12,MUTED)
             self.label(preview,money(price),31,GREEN,True)
-            surge = ai.surge_level(self.today(), self.now_dt().hour)
+            surge = self.live_surge()
             self.label(preview,'Estimated total · simulated payment' + (f' · busy period ({round(surge*100)}% surge forecast)' if surge >= .2 else ''),12,MUTED)
             self.button(preview,'Book ride','book_ride',self.book_solo)
             self.price_card(decision, base)
@@ -856,9 +860,59 @@ class AtlasGoApp(App):
         self.render()
         self.message('Pickup set', f'Nearest pickup point: {PLACES[place]} ({km:.1f} km from you).')
 
+    # ------------------------------------------------------------------ Layer 1 live loop
+    def loop_now(self):
+        """Advance the LSTM -> RL loop to the city clock and return this hour's forecast and decision."""
+        now = self.now_dt()
+        key = live.hour_index(now)
+        if self._loop_view is None or self._loop_view[0] != key:
+            try:
+                if self.loop.advance_to(now):
+                    self.loop.save()
+                elif self.loop.state['cursor'] is not None and not self.loop.path.exists():
+                    self.loop.save()
+                self._loop_view = (key, self.loop.now(now))
+            except (OSError, LookupError, ValueError, OverflowError):
+                self._loop_view = (key, None)
+        return self._loop_view[1]
+
+    def live_surge(self):
+        """Surge feature for dispatch (0-1) from the live LSTM forecast; the 1.2 outlook if the loop is unavailable."""
+        view = self.loop_now()
+        return view['surge'] if view else ai.surge_level(self.today(), self.now_dt().hour)
+
+    def loop_week(self):
+        now = self.now_dt()
+        start = live.hour_index(now) - 7 * 24
+        self.loop.warm_up(start)
+        while self.loop.state['cursor'] < live.hour_index(now) - 1:
+            self.loop.step()
+        self.loop.save()
+        self._loop_view = None
+        self.render()
+
+    def check_loop(self):
+        self.loop_checks = live.self_test()
+        self.render()
+
+    def loop_card(self, parent=None):
+        view = self.loop_now()
+        card = self.box(parent or self.body,LILAC)
+        self.label(card,'LIVE LOOP · LSTM > RL > OUTCOMES > UPDATE',10,VIOLET,True)
+        if not view:
+            self.label(card,'The live loop is starting.',13,MUTED)
+            return card
+        fc = view['forecast']
+        self.label(card,f"Next hour: about {round(fc['requests'][0])} requests ({ai.ratio_text(view['ratio']) if view['ratio'] >= 1.005 else 'as usual'})",17,INK,True)
+        self.label(card,'LSTM forecast, next 6 hours: '+' · '.join(f"{t.strftime('%H')}h {round(r)}" for t, r in zip(fc['hours'], fc['requests'])),12,MUTED)
+        self.label(card,f"Supply agent adds {round(view['boost']*100)}% drivers this hour (state: calendar + LSTM level {fc['level']})",13,VIOLET,True)
+        err = f" · forecast error last 24 h {view['mape_24h']*100:.0f}%" if view['mape_24h'] is not None else ''
+        self.label(card,f"Models {view['lstm']} · {view['agent']} · {view['hours']} hours learned on this phone{err}",11,MUTED)
+        self.shown['loop'] = view
+        return card
+
     def registered_candidates(self, pickup):
-        hour = self.now_dt().hour
-        surge = ai.surge_level(self.today(), hour)
+        surge = self.live_surge()
         online = self.store.online_drivers()
         point = geo.PLACE_COORDS[pickup]
         return [ai.registered_candidate(a, self.store.driver_position(a), point, surge, len(online) == 1 and surge >= .5)
@@ -1089,6 +1143,10 @@ class AtlasGoApp(App):
         self.label(smart,today['title'],17,INK,True)
         self.label(smart,today['text'],13,MUTED)
         self.label(smart,today['agent'],13,VIOLET)
+        view = self.loop_now()
+        if view:
+            self.label(smart,f"Live LSTM: about {round(view['forecast']['requests'][0])} requests next hour · "
+                             f"the supply agent adds {round(view['boost']*100)}% drivers",13,VIOLET,True)
 
     def job_accept(self):
         self.store.driver_respond(True)
@@ -1350,6 +1408,8 @@ class AtlasGoApp(App):
     def reset(self):
         self.gps.stop()
         self.store.reset()
+        self.loop.reset()
+        self._loop_view, self.loop_checks = None, None
         self.pickup,self.destination,self.party,self.restaurant,self.address,self.comfort = 0,1,1,0,0,False
         self.outlook_day, self.lab, self.models, self.form, self.reg_role = 0, None, None, {}, 'passenger'
         self.layer2_checks = None
@@ -1409,9 +1469,13 @@ class AtlasGoApp(App):
             self.label(fore,f"{row['name']} · demand {ai.ratio_text(row['ratio']) if row['ratio'] >= 1.005 else 'as usual'}",14,INK,True)
             self.label(fore,f"{row['free']} cars free · Agent 2: ×{plan['multiplier']:.1f}{move}",12,MUTED)
         layers = self.box(self.body)
-        self.label(layers,'LAYER 1 · EXISTING · UNCHANGED',10,VIOLET,True)
+        self.label(layers,'LAYER 1 · LEARNED MODELS + LIVE LOOP',10,VIOLET,True)
         for name, method in ai.MODELS:
             self.label(layers,name+' · running',13,INK,True)
+        view = self.loop_now()
+        if view:
+            self.label(layers,f"Live LSTM {view['lstm']} > supply agent {view['agent']} · running",13,INK,True)
+            self.label(layers,'Forecasts every hour, acts, records the outcome, retrains and validates nightly',11,MUTED)
         self.label(layers,'LAYER 2 · TWIN AGENTS',10,CYAN,True)
         for key, name, what in layer2.AGENTS:
             st = 'off' if not on else state['status'].get(key, 'watching' if key == 'guardian' else 'active')
@@ -1483,6 +1547,26 @@ class AtlasGoApp(App):
             self.label(models,mark+name,15,INK if state is None or state[0] else SURGE,True)
             self.label(models,state[1] if state else method,12,MUTED)
         self.button(models,'Check all models' if self.models is None else 'Check again','models_check',self.check_models,False)
+        loop_box = self.loop_card()
+        self.label(loop_box,'Every city hour the LSTM forecasts demand from the last 24 hours of trips, unserved requests '
+                            'and boosts; the supply agent acts on that forecast; the outcome is recorded. Each night both '
+                            'models are retrained on this experience and kept only if they beat the current model on '
+                            'held-out recent hours.',11,MUTED)
+        for u in reversed(self.loop.state['updates'][-3:]):
+            parts = []
+            if u.get('lstm'):
+                x = u['lstm']
+                parts.append(f"LSTM {'kept new' if x['accepted'] else 'kept old'} ({x['before']:.3f} to {x['after']:.3f})")
+            if u.get('agent'):
+                x = u['agent']
+                parts.append(f"agent {'improved' if x.get('improved') else 'kept'} ({x['champion']:.0f} vs {x['challenger']:.0f})")
+            self.label(loop_box,u['t'][:10]+' · '+(' · '.join(parts) or 'collecting experience'),11,INK)
+        for name, ok, detail in self.loop_checks or []:
+            self.label(loop_box,('PASS · ' if ok else 'FAIL · ')+name,13,INK if ok else SURGE,True)
+            self.label(loop_box,detail,11,MUTED)
+        row = self.row(loop_box,48)
+        self.button(row,'Run 7 city days','loop_week',self.loop_week,False)
+        self.button(row,'Check the loop','loop_check',self.check_loop,False)
         day = today + dt.timedelta(days=self.outlook_day)
         summary = ai.day_summary(day)
         card = self.box(self.body)
