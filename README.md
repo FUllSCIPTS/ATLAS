@@ -1,10 +1,10 @@
-# ATLAS Go
+# ATLAS — Supplementary Code and Data
+
+## ATLAS Go
 
 <!-- ATLAS Go contents will be added here. -->
 
 ---
-
-# ATLAS — Supplementary Code and Data
 
 Code, data, trained models and raw results for the article
 
