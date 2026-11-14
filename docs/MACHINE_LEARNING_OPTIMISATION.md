@@ -114,14 +114,11 @@ The evaluated application has six modules (`atlas_sim/traffic.py`):
 | Visit ratio *v<sub>i</sub>* | 1.00 | 1.00 | 0.45 | 0.35 | 0.18 | 0.15 |
 | Demand *d<sub>i</sub>* (core-ms per visit) | 0.5 | 2.0 | 1.5 | 1.5 | 4.0 | 3.0 |
 
-The decision is a vector **c ∈ {0,1}<sup>6</sup>**: *c<sub>i</sub>* = 0 keeps module *i* inside the
-monolith process (tight), *c<sub>i</sub>* = 1 runs it as its own autoscaled service (loose). All zeros
-is a monolith, all ones is microservices, anything else is **hybrid**. There are 2<sup>6</sup> = 64
-candidates.
+The decision is a binary vector $\mathbf c\in\{0,1\}^{6}$: $c_i=0$ keeps module $i$ inside the monolith process (tight), whereas $c_i=1$ runs it as an autoscaled service (loose). All zeros is a monolith, all ones is microservices, and a mixture is **hybrid**. Six binary choices have $2^6=64$ possible configurations.
 
 ### 2.2 Objective and constraints
 
-`Sim.eval_all` predicts four quantities for every candidate at the forecast load λ\*:
+`Sim.eval_all` predicts four quantities for every candidate at the forecast load $\lambda^*$:
 
 | Quantity | Model (in `eval_all`) | Meaning |
 |---|---|---|
@@ -130,11 +127,21 @@ candidates.
 | Cost *C* | 16 monolith cores (if any module is tight) + replicas × (pod + sidecar) + fixed cost per service + network cost per remote call | Cores used |
 | Risk *R* and availability *A* | Crash probability × **blast radius**: a crash in the monolith takes down the biggest tight module's traffic; a loose module only its own | Expected failed requests |
 
-`Sim.bip` then solves
+`Sim.bip` solves the following constrained multi-objective binary optimisation problem (the coefficients and reference scales are defined immediately below):
 
-> **minimise** J(**c**) = α·L/L₀ + β·C/C₀ + γ·γ<sub>s</sub>·R/R₀ + κ·‖**c** − **c**<sub>now</sub>‖₁
->
-> **subject to** ρ<sub>m</sub> ≤ ρ<sub>max</sub> = 0.85, L ≤ 200 ms SLA, replicas ≤ 40 per service, A ≥ 0.99
+```math
+\begin{aligned}
+\min_{\mathbf c\in\{0,1\}^{n}}\quad J(\mathbf c)
+&=\alpha\frac{L(\mathbf c)}{L_0}+\beta\frac{C(\mathbf c)}{C_0}
++\gamma\gamma_s\frac{R(\mathbf c)}{R_0}
++\kappa\|\mathbf c-\mathbf c_{\mathrm{now}}\|_1,\\
+\text{subject to}\quad &\rho_m(\mathbf c)\le 0.85,\\
+&L(\mathbf c)\le 200\,\mathrm{ms},\\
+&n_{\mathrm{replicas},i}(\mathbf c)\le40\quad\forall i,\\
+&A(\mathbf c)\ge 0.99.
+\end{aligned}
+```
+
 
 L₀, C₀, R₀ are the all-monolith values at a reference load (650 req/s), so the three terms are
 comparable. The last term is a **switching cost** (κ = `switch_pen`, tuned to 0.02): moving a
@@ -159,7 +166,7 @@ of the time tight, 18 % hybrid and 0.5 % fully loose (`results/cluster.json`, `a
 
 ### 2.3 How one decision runs (`Sim.run`, every 5 s)
 
-1. **Forecast** — λ\* = max(current load, LSTM 5-min forecast). Planning for the forecast is what lets
+1. **Forecast** — $\lambda^*=\max(\lambda_{\mathrm{current}},\hat\lambda_{\mathrm{LSTM},5\mathrm{min}})$. Planning for the forecast is what lets
    pods start before a flash sale arrives (§4).
 2. **Anomaly score** — `Sim.score` runs the Isolation Forest on telemetry and attributes the anomaly to
    the module whose measured demand deviates most.
@@ -322,9 +329,9 @@ a crash of the same module.
 
 **Ride dispatch — REINFORCE (✅ 🧪, `intelligence.py`, `training/rl_sim.py`).** For each ride, four
 candidate drivers; features φ = [−ETA/5, acceptance, −surge·last-free-driver, −surge]; policy
-π(a) = softmax(w·φ<sub>a</sub>). Reward (arrives after the decision): −pickup minutes − 10·cancelled −
+$\pi(a)=\operatorname{softmax}(\mathbf w^\top\boldsymbol\phi_a)$. Reward (arrives after the decision): −pickup minutes − 10·cancelled −
 shortage caused by pulling the last driver out of a zone about to surge. Update:
-w ← w + η (r − b)(φ<sub>a</sub> − E<sub>π</sub>[φ]) with a running-average baseline b (variance reduction).
+$\mathbf w\leftarrow\mathbf w+\eta(r-b)(\boldsymbol\phi_a-\mathbb E_{a'\sim\pi}[\boldsymbol\phi_{a'}])$ with a running-average baseline $b$ (variance reduction).
 After 30 000 episodes the bundled policy v1.4 costs 5.38 expected minutes against 6.42 for "send the
 nearest driver"; `LearningLab` retrains it from zero on the phone and compares, but never dispatches
 with the candidate.
@@ -381,14 +388,16 @@ UML: [ML catalogue → Digital twin](https://github.com/FUllSCIPTS/ATLAS/blob/ar
 
 ## 9. Actor and critic networks
 
-**What.** An **actor** is a network that outputs the policy π(a | s); a **critic** is a second network that
-predicts the value V(s) of a situation. The actor is trained with the **advantage** A = r − V(s)
-(one-step) or A = G<sub>t</sub> − V(s<sub>t</sub>) (return to go):
+**What.** An **actor** is a network that outputs $\pi_\theta(a\mid s)$; a **critic** estimates $V_\phi(s)$, the expected future return for a state. For a terminal one-step action the advantage may be $A=r-V_\phi(s)$; for a sampled episode, $A_t=G_t-V_\phi(s_t)$. A basic actor–critic step is:
 
-```text
-actor   θ ← θ + η_a · A · ∇θ log π_θ(a | s)          "do more of choices that beat the critic's expectation"
-critic  φ ← φ + η_c · (G − V_φ(s)) · ∇φ V_φ(s)       "predict how good this situation is, before choosing"
+```math
+\begin{aligned}
+\theta&\leftarrow\theta+\eta_a A_t\nabla_\theta\log\pi_\theta(a_t\mid s_t),\\
+\phi&\leftarrow\phi+\eta_c(G_t-V_\phi(s_t))\nabla_\phi V_\phi(s_t).
+\end{aligned}
 ```
+
+The actor reinforces actions that beat the critic's prediction; the critic learns to predict the return. For a nonterminal one-step temporal-difference update, use $A_t\approx r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t)$ instead.
 
 **Why.** REINFORCE (§7) uses one running average b as the baseline. It cannot tell an easy situation
 (three cheap, willing drivers) from a hard one (only far, reluctant drivers), so most of r − b is about the
@@ -425,9 +434,12 @@ critic** V(s<sub>global</sub>) sees the whole city; at run time each actor acts 
 **MAPPO** (multi-agent PPO) trains every actor with advantages from that shared critic and PPO's clipped
 objective:
 
-```text
-ratio   ρ = π_new(a | o_i) / π_old(a | o_i)
-loss_i  = −E[ min( ρ · A,  clip(ρ, 1 − ε, 1 + ε) · A ) ],   A = G_t − V_shared(s_t),  ε = 0.2
+```math
+\begin{aligned}
+r_t&=\frac{\pi_{\theta}(a_t\mid o_{i,t})}{\pi_{\theta_{\mathrm{old}}}(a_t\mid o_{i,t})},\\
+\mathcal L_i^{\mathrm{clip}}&=-\mathbb E\!\left[\min\left(r_t\hat A_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\\
+\hat A_t&=G_t-V_{\mathrm{shared}}(s_t),\qquad\epsilon=0.2.
+\end{aligned}
 ```
 
 **IPPO** is the same but each agent fits its own critic on its own observation.
@@ -578,15 +590,19 @@ UML: [ML catalogue → LSTM + RL loop](https://github.com/FUllSCIPTS/ATLAS/blob/
 **Linear algebra.** The dot product $w^\top x=\sum_jw_jx_j$ scores a candidate; $\|x\|_2=\sqrt{\sum_jx_j^2}$ is Euclidean length; matrix multiplication $Xw$ produces all linear predictions. The transpose flips row/column orientation. A positive-semidefinite matrix $H$ obeys $z^\top Hz\ge0$, a key condition in convex optimisation.
 
 **Probability.** $P(A|B)=P(A\cap B)/P(B)$ is conditional probability. Bayes' rule is
-$$
-P(H|E)=\frac{P(E|H)P(H)}{P(E)}.
-$$
+
+```math
+P(H|E)=\frac{P(E|H)P(H)}{P(E)}
+```
+
 A random variable has expectation $E[X]=\sum_x xP(X=x)$ (or an integral for continuous $X$); variance is $E[(X-E[X])^2]$. Covariance tracks two variables changing together, but correlation does not prove causation.
 
 **Derivatives.** A derivative is the local slope: for $f(w)=(w-3)^2$, $f'(w)=2(w-3)$. The gradient $\nabla f$ is the vector of slopes; the Hessian $\nabla^2f$ contains second partial derivatives. The chain rule makes neural-network backpropagation possible:
-$$
-\frac{dL}{dw}=\frac{dL}{d\hat y}\frac{d\hat y}{dw}.
-$$
+
+```math
+\frac{dL}{dw}=\frac{dL}{d\hat y}\frac{d\hat y}{dw}
+```
+
 For $L=(wx-y)^2/2$, the gradient is $(wx-y)x$.
 
 **Useful distributions.** Bernoulli models yes/no; binomial counts successes; Poisson models arrival counts in a fixed interval when assumptions fit; Gaussian models many continuous noise patterns; beta represents uncertainty about a Bernoulli success probability. If $p\sim\mathrm{Beta}(\alpha,\beta)$ and we see $s$ successes and $f$ failures, then $p|\mathcal D\sim\mathrm{Beta}(\alpha+s,\beta+f)$, with posterior mean $(\alpha+s)/(\alpha+\beta+s+f)$.
@@ -623,9 +639,11 @@ A **model** is a parameterised function $f_\theta(x)$ mapping inputs to outputs.
 ### T3.1 Linear regression
 
 For $x\in\mathbb R^p$, predict $\hat y=w^\top x+b$ and minimise
-$$
-J(w,b)=\frac1{2n}\sum_{i=1}^n(\hat y_i-y_i)^2.
-$$
+
+```math
+J(w,b)=\frac1{2n}\sum_{i=1}^n(\hat y_i-y_i)^2
+```
+
 Gradient descent takes $w\leftarrow w-\eta\nabla_wJ$, $b\leftarrow b-\eta\partial J/\partial b$. With a full-rank design matrix, ordinary least squares has $\hat w=(X^\top X)^{-1}X^\top y$; in practice prefer QR/SVD rather than explicitly inverting a matrix.
 
 **Worked step:** one observation $x=2,y=6$, model $\hat y=wx$, start $w=1$, learning rate $\eta=0.1$. Loss $L=(2-6)^2/2=8$; gradient $(2-6)2=-8$; new weight $w=1.8$, new prediction $3.6$. The update moves toward 6.
@@ -635,9 +653,11 @@ Gradient descent takes $w\leftarrow w-\eta\nabla_wJ$, $b\leftarrow b-\eta\partia
 ### T3.2 Logistic regression and calibration
 
 Logistic regression predicts $p=P(y=1|x)=\sigma(w^\top x+b)$, with sigmoid $\sigma(z)=1/(1+e^{-z})$. Learn by binary cross-entropy:
-$$
-L=-\frac1n\sum_i[y_i\log p_i+(1-y_i)\log(1-p_i)].
-$$
+
+```math
+L=-\frac1n\sum_i[y_i\log p_i+(1-y_i)\log(1-p_i)]
+```
+
 A 0.5 threshold is not mandatory. If a missed acceptance and a false acceptance have different costs, tune the decision threshold on validation data. **Calibration** means that of all predictions around 0.8, roughly 80% should succeed; the Brier score $\frac1n\sum_i(p_i-y_i)^2$ assesses probability quality.
 
 **Example:** with logit $z=\ln 3$, $\sigma(z)=0.75$. If the driver declines ($y=0$), example cross-entropy is $-\ln(0.25)=1.386$; being confidently wrong is penalised.
@@ -663,10 +683,14 @@ For regression, $MAE=\frac1n\sum|y_i-\hat y_i|$, $RMSE=\sqrt{\frac1n\sum(y_i-\ha
 **Boosting.** Build an additive model $F_m(x)=F_{m-1}(x)+\eta h_m(x)$ in which each weak learner addresses the current loss/gradient. Gradient boosting can fit tabular data strongly; tune depth, learning rate and number of estimators, and use early stopping.
 
 **Support vector machines.** A linear soft-margin classifier seeks a wide margin:
-$$
-\min_{w,b,\xi}\tfrac12\|w\|^2+C\sum_i\xi_i,\quad
-y_i(w^\top x_i+b)\ge1-\xi_i,\;\xi_i\ge0.
-$$
+
+```math
+\begin{aligned}
+\min_{w,b,\xi}\tfrac12\|w\|^2+C\sum_i\xi_i,\quad \\
+y_i(w^\top x_i+b)\ge1-\xi_i,\;\xi_i\ge0 
+\end{aligned}
+```
+
 Kernel functions $K(x,z)$ implicitly compare nonlinear features (e.g. the RBF kernel $\exp[-\gamma\|x-z\|^2]$). Scale features and validate $C,\gamma$.
 
 **Probabilistic estimation.** A frequentist point estimate gives one parameter value; a Bayesian posterior represents uncertainty given a prior and observed data. With a Beta(9,1) prior, 3 accepts and 2 declines give Beta(12,3) and mean $12/15=0.8$. This is the theory behind the app's acceptance updater.
@@ -694,35 +718,55 @@ A dense layer is $h=\phi(Wx+b)$. Multi-layer networks compose layers: $\hat y=f_
 **Training loop:** initialise weights → take a mini-batch → forward pass → compute loss → backpropagate gradients → update parameters → validate → stop/checkpoint. Epoch = one pass over all training examples; batch size controls examples per update; learning rate controls update step.
 
 **Optimisers.** Plain SGD: $\theta_{t+1}=\theta_t-\eta g_t$. Momentum: $v_t=\beta v_{t-1}+g_t,\;\theta_{t+1}=\theta_t-\eta v_t$. Adam:
-$$
-m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\quad
-v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,
-$$
-$$
-\hat m_t=m_t/(1-\beta_1^t),\quad
-\hat v_t=v_t/(1-\beta_2^t),\quad
-\theta_{t+1}=\theta_t-\eta\hat m_t/(\sqrt{\hat v_t}+\epsilon).
-$$
+
+```math
+\begin{aligned}
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\quad \\
+v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2 
+\end{aligned}
+```
+
+
+```math
+\begin{aligned}
+\hat m_t=m_t/(1-\beta_1^t),\quad \\
+\hat v_t=v_t/(1-\beta_2^t),\quad \\
+\theta_{t+1}=\theta_t-\eta\hat m_t/(\sqrt{\hat v_t}+\epsilon) 
+\end{aligned}
+```
+
 Operations involving vector parameters are elementwise. Adam uses gradient-history estimates, not a guaranteed optimal step. Gradient clipping helps limit exploding gradients; dropout and weight decay regularise; early stopping limits overfitting.
 
 **Why a recurrent model?** A feed-forward model sees the current snapshot; a recurrent network carries a hidden state encoding earlier observations. A vanilla RNN updates $h_t=\tanh(W_xx_t+W_hh_{t-1}+b)$, but repeated multiplication through time can cause vanishing/exploding gradients.
 
 **LSTM equations.** For input $x_t$, previous hidden $h_{t-1}$, previous cell $c_{t-1}$, with concatenation $[h_{t-1},x_t]$:
-$$
-f_t=\sigma(W_f[h_{t-1},x_t]+b_f),\quad
-i_t=\sigma(W_i[h_{t-1},x_t]+b_i),
-$$
-$$
-\tilde c_t=\tanh(W_c[h_{t-1},x_t]+b_c),\quad
-c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t,
-$$
-$$
-o_t=\sigma(W_o[h_{t-1},x_t]+b_o),\quad
-h_t=o_t\odot\tanh(c_t).
-$$
+
+```math
+\begin{aligned}
+f_t=\sigma(W_f[h_{t-1},x_t]+b_f),\quad \\
+i_t=\sigma(W_i[h_{t-1},x_t]+b_i) 
+\end{aligned}
+```
+
+
+```math
+\begin{aligned}
+\tilde c_t=\tanh(W_c[h_{t-1},x_t]+b_c),\quad \\
+c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t 
+\end{aligned}
+```
+
+
+```math
+\begin{aligned}
+o_t=\sigma(W_o[h_{t-1},x_t]+b_o),\quad \\
+h_t=o_t\odot\tanh(c_t) 
+\end{aligned}
+```
+
 The **forget gate** controls retained memory; the **input gate** controls newly written information; the **output gate** controls exposed information. Think of the cell as a notebook with erase, write and read controls.
 
-**Toy gate step:** let old cell be 4, forget gate 0.5, input gate 0.25, candidate update 2 (an arithmetic illustration, not a literal tanh output). Then new cell $0.5(4)+0.25(2)=2.5$. In a real LSTM, $\tilde c_t\in[-1,1]$.
+**Worked LSTM gate step:** let old cell be 0.8, forget gate 0.5, input gate 0.25, candidate update 0.6. Then the new cell is $c_t=0.5(0.8)+0.25(0.6)=0.55$. This is a valid illustrative cell update because the candidate lies in $[-1,1]$.
 
 **Sequence design:** a sliding input window of past 24 hours can predict next six hours; an encoder produces representations and an output head yields a multi-horizon forecast. Fit scalers and transforms on training history only; prevent overlapping future labels from leaking into the earlier split; choose between direct multi-step and recursive prediction. Bidirectional LSTMs are acceptable when the *whole input window* is already observed, but must never use data beyond the prediction time.
 
@@ -743,28 +787,36 @@ The **forget gate** controls retained memory; the **input gate** controls newly 
 **Markov decision process (MDP):** $(\mathcal S,\mathcal A,P,r,\gamma)$ contains states, actions, transition probabilities, rewards and discount factor $0\le\gamma<1$. At time $t$, observe $s_t$, choose $a_t$, receive $r_t$ and next state $s_{t+1}$. A policy $\pi(a|s)$ maps states to action probabilities. The objective is expected discounted return $E[\sum_{t\ge0}\gamma^tr_t]$.
 
 **Bellman relationships:**
-$$
-V^\pi(s)=E_\pi[r_t+\gamma V^\pi(s_{t+1})|s_t=s],
-$$
-$$
-Q^*(s,a)=E[r_t+\gamma\max_{a'}Q^*(s_{t+1},a')|s,a].
-$$
+
+```math
+V^\pi(s)=E_\pi[r_t+\gamma V^\pi(s_{t+1})|s_t=s]
+```
+
+
+```math
+Q^*(s,a)=E[r_t+\gamma\max_{a'}Q^*(s_{t+1},a')|s,a]
+```
+
 The value $V$ concerns a state; $Q$ concerns taking a particular action in a state.
 
 **Exploration versus exploitation:** an $\epsilon$-greedy agent chooses a random action with probability $\epsilon$, otherwise the best known action. Exploration is appropriate in a simulator but may be unsafe on paying customers. Contextual bandits have immediate consequences without explicitly modelling future transitions; full RL models delayed consequences.
 
 **Tabular Q-learning:**
-$$
-Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma\max_{a'}Q(s',a')-Q(s,a)].
-$$
+
+```math
+Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma\max_{a'}Q(s',a')-Q(s,a)]
+```
+
 **Toy calculation:** $Q(s,a)=5,\;r=2,\;\gamma=0.9,\;\max Q(s',\cdot)=8,\;\alpha=0.1$. Target $=2+0.9(8)=9.2$; updated $Q=5+0.1(9.2-5)=5.42$. For a terminal next state, continuation value is zero.
 
 **Deep Q-network (DQN):** approximate Q with a neural network, use replay memory to break correlations and a target network for more stable bootstrapping. Double DQN decouples action selection from target evaluation to reduce maximisation bias. DQN is natural for discrete action spaces.
 
 **Policy gradients:** for a differentiable stochastic policy, REINFORCE updates in the direction
-$$
-\nabla_\theta J\approx\sum_t(G_t-b(s_t))\nabla_\theta\log\pi_\theta(a_t|s_t).
-$$
+
+```math
+\nabla_\theta J\approx\sum_t(G_t-b(s_t))\nabla_\theta\log\pi_\theta(a_t|s_t)
+```
+
 A baseline independent of the sampled action can reduce variance without introducing policy-gradient bias. An actor selects actions; a critic estimates values. For a one-step terminal transition, advantage may be $r-V(s)$; for nonterminal one-step TD, use $A_t\approx r_t+\gamma V(s_{t+1})-V(s_t)$.
 
 **Generalised advantage estimation (GAE):** define $\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)$ and $\hat A_t=\sum_{l\ge0}(\gamma\lambda)^l\delta_{t+l}$. The parameter $\lambda$ trades bias against variance.
@@ -794,9 +846,11 @@ An optimisation problem has **decision variables** $x$, an **objective** $f(x)$,
 **Linear programming (LP):** minimise $c^\top x$ subject to $Ax\le b$, $Ex=d$, and bounds. Continuous LPs admit efficient methods such as simplex and interior-point algorithms. A **binary integer program (BIP)** requires some or all $x_i\in\{0,1\}$; combinatorial choice makes it harder.
 
 **Lagrangian:** for $\min f(x)$ with $g_i(x)\le0$ and $h_j(x)=0$,
-$$
-\mathcal L(x,\lambda,\nu)=f(x)+\sum_i\lambda_i g_i(x)+\sum_j\nu_jh_j(x),\qquad\lambda_i\ge0.
-$$
+
+```math
+\mathcal L(x,\lambda,\nu)=f(x)+\sum_i\lambda_i g_i(x)+\sum_j\nu_jh_j(x),\qquad\lambda_i\ge0
+```
+
 Under appropriate convexity and constraint qualification, KKT conditions characterise optimality: primal feasibility, dual feasibility, stationarity $\nabla_x\mathcal L=0$, and complementary slackness $\lambda_ig_i(x)=0$. The multipliers are *shadow prices*: roughly, the marginal change in optimal objective when relaxing a constraint, with sign interpreted using the chosen constraint convention.
 
 **Worked constrained allocation:** allocate $x$ workers, minimise $(x-5)^2$ subject to $x\le3$. The constrained optimum is $x=3$ with loss 4. Set $g(x)=x-3$; stationarity $2(x-5)+\lambda=0$ implies $\lambda=4$, with active constraint and positive multiplier. Relaxing the cap slightly improves the loss at roughly four units per worker near that cap.
@@ -860,9 +914,11 @@ Under appropriate convexity and constraint qualification, KKT conditions charact
 ### T14.1 One small ride-hailing decision, end-to-end
 
 Assume an hourly demand forecaster predicts **12 requests** in Zone A, with current **9 available drivers**. Available boost actions bring **0, 2 or 4** drivers, at operating costs **0, 3 or 7** units respectively. Define simplified one-hour loss
-$$
-J(a)=5\max(0,12-(9+a))+\text{cost}(a).
-$$
+
+```math
+J(a)=5\max(0,12-(9+a))+\text{cost}(a)
+```
+
 Compute: action 0 → shortage 3, loss 15; action 2 → shortage 1, loss $5+3=8$; action 4 → shortage 0, loss 7. The feasible best of these three actions is **bring 4 drivers**, loss 7. If there is a hard policy limit of at most 2 relocations, action 4 is infeasible and action 2 wins with loss 8.
 
 Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recompute each action for each outcome; compare expected loss (if scenario probabilities are justified) with worst-case loss (robust decision). This illustrates the difference between an LSTM *prediction*, an optimiser *choice*, and a Guardian *feasibility check*. Finally, log realised demand, relocation decision and true outcome so the predictive and decision layers can be evaluated separately.
@@ -942,3 +998,140 @@ Now introduce forecast uncertainty: actual demand could be 8, 12 or 16. Recomput
 **Recommended progression:** Mathematical prerequisites → learning tasks and statistical evaluation → supervised/unsupervised models → neural networks and LSTM → online learning → reinforcement learning → continuous and constrained optimisation → deployment safety and fair experimental comparison. A learner can understand this sequence without installing ATLAS; the linked labs then turn theory into practice.
 
 **Further reading:** Bishop, *Pattern Recognition and Machine Learning*; Hastie, Tibshirani & Friedman, *The Elements of Statistical Learning*; Goodfellow, Bengio & Courville, *Deep Learning*; Sutton & Barto, *Reinforcement Learning: An Introduction*; Boyd & Vandenberghe, *Convex Optimization*; Nocedal & Wright, *Numerical Optimization*. These are external references for deeper study, not prerequisites for using this guide.
+
+
+---
+
+## T15. What it is, why it matters, and how it works — concept-by-concept teaching companion
+
+This chapter is designed for **first-time learners**. Each explanation follows the same three questions: **What?** (definition and goal), **Why?** (when or why we need it), and **How?** (the mechanism, including a small example). The methods are general theory; any ATLAS analogy is illustrative unless Part I identifies a specific implemented function.
+
+### T15.1 Data, samples, features, labels and preprocessing
+
+**What?** A sample is a row representing one observation; features are known quantities used to make a prediction; a label is the outcome to predict. A dataset combines many observations. **Why?** Algorithms cannot infer useful relationships unless inputs are meaningful, consistently measured, and available at decision time. **How?** For predicting a ride acceptance, make each row one historical offer, put distance and estimated pickup delay in the feature columns, and acceptance (0/1) in the label column. Separate the test period first, impute missing training values using training-derived statistics, and apply the same transformation to future data.
+
+**What is feature engineering?** Transforming raw facts into informative variables; e.g. pickup time 17:30 becomes time-of-day sine/cosine so 23:59 is close to 00:01. **Why?** Models are sensitive to how information is represented. **How?** Convert hour $h$ to $\sin(2\pi h/24)$ and $\cos(2\pi h/24)$, fit all statistical preprocessing on the training window, and verify each feature is available before the prediction.
+
+### T15.2 Learning paradigms
+
+**Supervised learning — What?** Learning an input–output mapping from labelled examples. **Why?** We want to predict an observed quantity, such as next-hour demand or the likelihood of a driver accepting. **How?** Select a model, define loss between prediction and actual outcome, adjust parameters using training data, and test on unseen examples.
+
+**Unsupervised learning — What?** Finding patterns without explicit outcome labels. **Why?** The system may need to discover natural demand zones or unusual telemetry before manually labelled incidents exist. **How?** Cluster by similarity, compress correlated features (PCA), or compute outlier scores; then check whether the discovered structure is stable and useful.
+
+**Self-supervised learning — What?** Constructing a training objective from the raw data itself. **Why?** Large data streams contain patterns even when manual labels are scarce. **How?** Hide a portion of a sequence and train a model to predict it; use learned representations for a later labelled task. This is a conceptual extension, not a claim that the ATLAS deployment trains a foundation model.
+
+**Reinforcement learning — What?** Learning decisions from observed rewards and future consequences. **Why?** Selecting a driver may help one ride but deplete supply for subsequent rides. **How?** Define state, action, reward and transition, interact with a simulator/controlled environment, estimate expected returns, then validate a frozen policy before allowing operational use.
+
+### T15.3 Loss, training, validation and generalisation
+
+**Loss — What?** A numerical measure of prediction error (e.g. squared error, log loss). **Why?** Without a measurable objective the optimiser has no direction. **How?** For true demand 100 and forecast 90, absolute error is 10, squared error is 100; averaging over many observations gives MAE or MSE.
+
+**Parameter versus hyperparameter — What?** A parameter is learned (a regression weight); a hyperparameter is selected by an external process (learning rate, network width). **Why?** Mixing the two leads to misleading performance and test leakage. **How?** Fit weights on training data; choose hyperparameters using validation; evaluate the locked choice on test once.
+
+**Cross-validation — What?** Repeated fitting on different training/validation subsets. **Why?** A single split can be unrepresentative. **How?** Use K-fold for approximately exchangeable observations, group K-fold for shared-driver identities and rolling-origin folds for time series. Never move future information backward in time.
+
+**Overfitting and regularisation — What?** Overfitting learns training-specific noise; regularisation discourages overly complex solutions. **Why?** A system that performs excellently on recorded routes may fail on new roads. **How?** Compare training and validation curves, constrain complexity using L1/L2 penalties, early stopping or smaller models, and test on truly unseen weeks/events.
+
+### T15.4 How linear and probabilistic models make predictions
+
+**Linear regression — What?** Predicts a continuous value by a weighted sum of features. **Why?** It is fast, interpretable and a strong baseline. **How?** If demand $=10+2(\text{event score})$, an event score 3 predicts 16. Fit the coefficients by minimising squared errors (T3).
+
+**Logistic regression — What?** Converts a linear score into a probability between zero and one. **Why?** Acceptance and cancellation are binary, not unbounded real outcomes. **How?** Compute $z=w^\top x+b$, then $p=1/(1+e^{-z})$; train with cross-entropy and calibrate the resulting probabilities.
+
+**Naive Bayes — What?** A classifier derived from Bayes' rule with a conditional-independence assumption between features. **Why?** It gives a cheap probabilistic baseline with limited training data. **How?** Multiply class prior by feature likelihoods (usually in log space), normalise over the classes, and compare posterior probabilities.
+
+**Bayesian updating — What?** Revises uncertainty about an unknown parameter after new evidence. **Why?** One driver accepting two rides does not justify perfect certainty. **How?** Start with Beta$(\alpha,\beta)$ for acceptance probability, then add successes to $\alpha$ and declines to $\beta$; compute the posterior mean and credible intervals as required.
+
+### T15.5 How nonparametric and ensemble models work
+
+**kNN — What?** Uses nearby historical observations instead of fitting one global formula. **Why?** Similar local contexts may have similar outcomes. **How?** Standardise inputs, compute distances, select the closest $k$ examples, then vote or average. Choose $k$ on validation data.
+
+**Decision tree — What?** Learns nested if/else questions. **Why?** Rules like distance < 3 km and demand > threshold are easy to explain. **How?** At each node select the split that decreases Gini impurity, entropy or squared error; stop or prune to avoid memorising noise.
+
+**Random forest — What?** An average of many decorrelated trees. **Why?** Individual trees can change drastically when data change. **How?** Bootstrap observations, randomise split-feature selection, train each tree, and aggregate predictions.
+
+**Boosting — What?** A sequence of learners correcting remaining prediction errors. **Why?** Many small trees can capture useful nonlinear interactions. **How?** Fit a new tree to a loss gradient/residual, add a shrunken contribution to the ensemble, and stop based on validation performance.
+
+**SVM — What?** A classification method maximising the separation margin while penalising errors. **Why?** Wide-margin separation can generalise well, including in nonlinear feature spaces. **How?** Solve the margin-constrained optimisation problem; use a kernel when a linear boundary is insufficient; tune margin penalty and kernel width.
+
+### T15.6 How clustering, dimension reduction and anomaly detection work
+
+**k-means — What?** Partitions points around $k$ centroids. **Why?** It can summarise rider pickup areas. **How?** Initialise centres, repeatedly assign observations to the nearest centre and recompute the mean; check cluster stability and suitability.
+
+**DBSCAN — What?** A density-connected clustering method with noise points. **Why?** Pickup locations can form irregular dense streets instead of circular groups. **How?** Define a geographic radius and minimum neighbour count; connect core points and identify isolated points as noise.
+
+**PCA — What?** Finds mutually perpendicular directions explaining maximum data variance. **Why?** Many sensor signals may be redundant. **How?** Centre/scale suitably, compute SVD, retain top principal directions, and project each observation. PCA does not prove causation or guarantee predictive importance.
+
+**Isolation Forest — What?** Detects outliers by random partitioning. **Why?** Fault labels may be rare or unavailable. **How?** Build random split trees; shorter average isolation paths mean more unusual points; tune alert thresholds against realistic false-positive costs.
+
+### T15.7 How neural networks and sequence forecasts learn
+
+**Perceptron/dense network — What?** Weighted inputs followed by a nonlinear activation, possibly stacked in layers. **Why?** Nonlinear combinations of location, time and demand can be difficult for a single straight-line model. **How?** Evaluate every layer forward, compute loss, use chain-rule backpropagation for derivatives, update weights, and validate.
+
+**Gradient descent — What?** Moves the model parameters opposite the loss gradient. **Why?** It can improve parameters without enumerating all possibilities. **How?** Starting $w=0$ for $L=(w-2)^2$, gradient is $-4$; a 0.1 step yields $w=0.4$, reducing loss from 4 to 2.56.
+
+**Adam — What?** Adaptive stochastic gradient optimisation using running first/second moments. **Why?** Different neural parameters can have very different gradient scales. **How?** Compute $m_t$, $v_t$, apply bias correction and use the Adam update in T6; still tune learning rate and validate.
+
+**RNN — What?** Reuses hidden state as it processes a sequence. **Why?** Current demand often depends on previous hours. **How?** Repeatedly update $h_t$ from current input and previous hidden state, then predict using $h_t$.
+
+**LSTM — What?** A gated recurrent neural network with a memory cell. **Why?** Ordinary recurrent networks can struggle to preserve signals over long intervals. **How?** Forget, input and output gates control cell memory; T6 gives the exact equations. Train on chronological input windows with only historical information.
+
+**Forecast baseline — What?** A simple reference predictor such as “same as last hour” or “same hour yesterday.” **Why?** Complex forecasting is only justified if it improves upon credible simple models. **How?** Evaluate all forecasts over identical future horizons and on holiday/surge conditions, not only average days.
+
+### T15.8 How sequential and multi-agent decision learning works
+
+**Contextual bandit — What?** Chooses among actions using immediate reward conditioned on context. **Why?** A simple offer-ranking problem may not need a full long-term model. **How?** Track reward estimates per context/action and compare actions, with suitable offline exploration and propensity considerations.
+
+**Q-learning — What?** Learns a value for taking each action in each state. **Why?** Future driver availability changes the value of a current move. **How?** Observe transition and reward, compute Bellman target, and update the state–action table (T8); for large state spaces, approximate with a DQN.
+
+**DQN — What?** A neural approximation of the Q-table. **Why?** Millions of state combinations make explicit tables impractical. **How?** Store replay transitions, train a neural network to predict temporal-difference targets, and periodically update a separate target network.
+
+**REINFORCE — What?** A Monte Carlo policy-gradient method that optimises action probabilities directly. **Why?** Stochastic driver selection can learn from complete ride-level outcomes. **How?** Sample actions, collect returns, increase log-probability for better-than-baseline returns and decrease it for worse outcomes.
+
+**Actor–critic — What?** One model chooses actions; another estimates expected return. **Why?** A state-specific critic helps reduce policy-gradient variance relative to a global baseline. **How?** Predict advantage, update actor using advantage-weighted log-policy gradient, and train critic to approximate returns/TD targets.
+
+**PPO — What?** An actor–critic policy-optimisation technique limiting large updates using a clipped probability ratio. **Why?** Overly aggressive policy changes may destroy a useful policy. **How?** Collect experience with an old policy, calculate advantage, optimise the clipped surrogate for a limited number of epochs, then reevaluate. Clipping is not a hard safety guarantee.
+
+**MAPPO — What?** Multi-agent PPO with a critic that can access combined state during training. **Why?** Dispatch and pricing decisions affect one another; local observations may hide important shared effects. **How?** Train each actor on allowed observations, estimate shared advantages from global state, then run actors without the critic's privileged training-only inputs.
+
+**Digital twin — What?** A simulation updated to match real-system conditions. **Why?** Potential decisions can be rehearsed without experimenting on real riders. **How?** Mirror current state, forecast outcomes, simulate alternatives, evaluate them and apply a Guardian before deployment; continuously verify twin fidelity.
+
+### T15.9 How optimisation chooses among alternatives
+
+**Continuous optimisation — What?** Choose real-valued variables to minimise cost. **Why?** Forecast model parameters or CPU fractions need fine-grained adjustment. **How?** Use gradient descent, Newton/BFGS or constrained solvers depending on differentiability, curvature and constraints.
+
+**Linear programming — What?** Optimise linear objective under linear constraints with continuous variables. **Why?** Capacity allocation can often be expressed efficiently with linear costs/limits. **How?** Define variables, objective and inequalities; solve with simplex/interior point; check primal feasibility and shadow prices.
+
+**Integer programming — What?** Require decisions such as “service separated or not” to be integral. **Why?** A half-migrated service is not a deployable option. **How?** Formulate binary decisions; solve small cases by enumeration and larger ones via branch-and-bound/cuts or validated approximate rounding.
+
+**KKT and duality — What?** Mathematical conditions and auxiliary prices associated with constrained optima. **Why?** They identify active limits and sensitivity to scarce resources. **How?** Form the Lagrangian, check primal/dual feasibility, stationarity and complementary slackness under the appropriate regularity conditions (T10).
+
+**Dynamic programming — What?** Solves a multi-step problem using optimally solved smaller states. **Why?** Moving a driver now changes future availability and switch costs. **How?** Define a state sufficient to describe future consequences, then apply a Bellman recurrence from horizon end backward or learn approximate values.
+
+**Dijkstra / A* — What?** Shortest-path algorithms; A* uses a lower-bound heuristic to guide search. **Why?** Nearby drivers in kilometres are not always nearest in travel time. **How?** Build a road graph with travel-time weights, expand candidate paths and stop when optimality conditions are met.
+
+**Hungarian assignment — What?** Exact minimum-cost one-to-one matching in a bipartite cost matrix. **Why?** Assigning each ride greedily may give a worse overall matching. **How?** Compute every eligible driver–ride cost and solve the full assignment subject to exclusivity.
+
+**Simulated annealing — What?** Local search that sometimes accepts worse candidates. **Why?** Greedy search can get trapped in a local minimum. **How?** Propose a neighbouring choice, always accept improvements, accept deterioration $\Delta>0$ with probability $\exp(-\Delta/T)$, and gradually lower $T$.
+
+**Genetic algorithm — What?** Population-based optimisation inspired by selection and mutation. **Why?** Hard discrete spaces may have complex nonconvex objectives. **How?** Encode candidates, evaluate fitness, select better candidates, recombine/mutate, repair constraints and retain the best feasible result.
+
+**Particle swarm optimisation — What?** A population of candidate particles guided by their own and the swarm's best positions. **Why?** It can search continuous black-box objectives without derivatives. **How?** Update velocities/positions, evaluate objective, and revise personal/global bests. Use bounds and multiple seeds.
+
+**Pareto optimisation — What?** Find alternatives for which no objective can improve without worsening another. **Why?** Speed, cost and rider fairness conflict. **How?** Compute nondominated alternatives, show trade-offs and choose operating points using stakeholder-approved weights or explicit constraints.
+
+**Robust optimisation — What?** Seek decisions that remain acceptable over uncertain future scenarios. **Why?** LSTM forecasts can be wrong during concerts or storms. **How?** Evaluate worst cases or scenario distributions, enforce limits, and report the cost of extra conservatism.
+
+**Runtime Guardian — What?** Deterministic checks on decisions before execution. **Why?** Statistical learning and simulated validation do not guarantee every action is safe. **How?** Reject actions exceeding maximum price, unacceptable pickup delay, capacity or response-time limits; use a tested fallback and log why a proposal was blocked.
+
+### T15.10 One complete What → Why → How learning path
+
+Consider **forecasting and repositioning drivers**:
+
+1. **What is the prediction?** The LSTM outputs expected next-hour requests for each zone. **Why?** Relocation takes time. **How?** Train on past-hour windows with chronological holdout.
+2. **What is the decision?** A policy or optimiser chooses relocations. **Why?** Excess drivers cost money; too few create waiting queues. **How?** Minimise weighted shortage + idle cost with capacity and feasibility constraints.
+3. **What is the feedback?** The next hour reveals actual demand and realised waiting. **Why?** Predictions and actions may fail differently. **How?** Log time-stamped predictions, chosen actions, policy versions and outcomes.
+4. **What improves?** A challenger forecaster and challenger policy are trained on authorised new data. **Why?** Demand patterns drift. **How?** Compare frozen candidates on untouched scenarios, deploy only if prespecified quality and safety gates pass.
+5. **What protects deployment?** A Guardian and rollback policy. **Why?** A high average reward can hide unacceptable rare failures. **How?** Enforce hard constraints at decision time, record violations, and keep a verified baseline available.
+
+**The central conceptual distinction:** *machine learning estimates patterns; optimisation chooses feasible actions; reinforcement learning learns sequential action policies; simulation tests hypotheses; statistical evaluation measures uncertainty; and operational safety checks protect real-world execution.*
