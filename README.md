@@ -69,7 +69,7 @@ second-revision checks (exact vs. linearised optimisation, blast-radius and
 availability assumptions, system-level value of the anomaly detector, and a
 combined-factor stress test).
 
-## Live architecture explorer
+# Live architecture explorer
 
 Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout.  
 
@@ -83,7 +83,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
 
-## Learning path ways
+# Learning path ways
 
 1) [🎓 Teaching Method — Big-Picture Concept–Theory–Practice (BCTP): how every course here is taught: big picture → concept → what, why, how → proof → practice → create → reconnect](docs/teaching/TEACHING_METHOD.md) · [BCTP method (PDF)](docs/teaching/BCTP_Method.pdf) · [Lecture deck: Introduction to Data Structures taught with BCTP (PPT, 61 slides)](docs/teaching/Intro_Data_Structures_BCTP.pptx)
 
