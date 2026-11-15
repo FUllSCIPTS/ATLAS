@@ -35,6 +35,8 @@ function in the [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/archite
 It imports the repository's own code — the BIP from `atlas_sim.zip`, the solvers from
 `run_bip_timing.py`, the learners from `android-app/` — rather than copies.
 
+**[🚀 Launch Google Colab — 44 illustrated runnable experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/ml_lab/ML_Optimisation_Colab_Labs.ipynb)**: all 24 ML and 20 optimisation topics, each with a plot and a self-contained toy demonstration. These visual lessons complement rather than replace the repository's full experiments.
+
 **Forty-four experiments, one file each** ([ml_lab/README.md](../ml_lab/README.md)):
 
 | Track | Folder | Experiments | Study paths (`--path`) |
