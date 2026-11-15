@@ -1,5 +1,9 @@
 # Machine-learning and optimisation labs
 
+**[🚀 Launch all 44 illustrated labs in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/ml_lab/ML_Optimisation_Colab_Labs.ipynb)** · [Notebook source](ML_Optimisation_Colab_Labs.ipynb) · [Teaching guide](../docs/MACHINE_LEARNING_OPTIMISATION.md)
+
+The notebook provides a stand-alone toy example, figure and short activity for each original experiment. Charts in the notebook are educational illustrations, not evaluations of the complete ATLAS implementation.
+
 Forty-four experiments, one Python file each, kept in two tracks: **24 machine-learning experiments** in
 [`machine_learning/`](machine_learning) and **20 optimisation experiments** in [`optimisation/`](optimisation).
 New with ATLAS Go 1.3–1.4: **ML 21** digital twin (mirror, foresee, rehearse, guard), **ML 22** actor and
