@@ -1,4 +1,4 @@
-# ATLAS Go user guide (1.4.0)
+# ATLAS Go user guide (1.5.0)
 
 The screenshots are captured from the running Python/Kivy app by the automated acceptance run (desktop preview at 440 × 940; the Android workflow replaces them with Android 16 emulator captures of the same screens). They show illustrative Cork data and test accounts, not real customers, drivers or kitchens.
 
@@ -64,7 +64,7 @@ Drag to move, **+**/**−** or double tap to zoom, **Cork** to recentre and **Me
 
 ## 7. Activity and You
 
-Activity lists the signed-in account's own rides and orders (a driver sees their trips, a seller their kitchen's orders). You shows the account, **Sign out**, **How ATLAS learns**, the privacy notice, **Delete my account** (asks for the password) and **Erase all data on this phone**.
+Activity lists the signed-in account's own rides and orders (a driver sees their trips, a seller their kitchen's orders). You shows the account, **Sign out**, **Bank & payments** (section 13), **How ATLAS learns**, the privacy notice, **Delete my account** (asks for the password) and **Erase all data on this phone**.
 
 | Activity | You | Privacy |
 |---|---|---|
@@ -116,6 +116,22 @@ Three agents work on top of the learned models, which are unchanged:
 |---|---|---|---|
 | ![Twin](screenshots/26-twin-tab.png) | ![Guardian log](screenshots/27-guardian-log.png) | ![Price](screenshots/28-surge-price.png) | ![Hint](screenshots/29-driver-twin-hint.png) |
 
+## 13. Bank & payments (new in 1.5)
+
+Open **You → Bank & payments** (drivers and sellers can also tap **Bank & payouts** on their home screen). The bank is a **sandbox**: your IBAN is checked for real, but no bank is contacted and no money moves.
+
+**Passengers — pay by bank.** Enter the account holder and the IBAN, read and tick the **SEPA Direct Debit mandate**, type your ATLAS Go password again and tap **Link bank account**. A mistyped IBAN is caught by its check digits. Only the holder, the country and the last four characters are saved (`IE29 •••• 5678`). Booking screens and the basket then show **Pay with**: your bank account, or *Demo · no charge*. Your bank is asked when you book; the money is taken when you arrive or the food is delivered; cancelling a ride releases it. If the bank declines, nothing is booked.
+
+**Drivers and food sellers — get paid.** Link the account you want to be paid to (no mandate is needed). Each bank-paid trip credits the fare minus the 15 % ATLAS fee; each bank-paid order credits the food total minus 10 % (the €2.50 delivery fee stays with ATLAS). When the balance is at least €1.00, tap **Pay out** and enter your password. You cannot delete your account while a balance is waiting.
+
+| Link a bank account | Pay with your bank | Balance and payout |
+|---|---|---|
+| ![Link a bank account](screenshots/31-bank-link.png) | ![Pay by bank](screenshots/32-pay-by-bank.png) | ![Driver payout](screenshots/33-driver-payout.png) |
+
+To try a refusal, use a sandbox test IBAN: one ending `0002` has no funds, one ending `0003` is closed (`IE56 AIBK 9311 5200 0000 02` and `IE29 AIBK 9311 5200 0000 03`).
+
+**ATLAS server (optional).** At the bottom of Bank & payments, enter the address of an ATLAS server (`https://…`), your password, and tap **Connect this account**. Your account is created on the server (or signed in, if the email is already registered there). From then on a bank account is linked on the server first, bank payments are copied to it in the background (**Sync now** sends anything waiting), and payouts are made there. Accounts registered after an address is saved connect automatically. A bank account linked *before* connecting must be removed and linked again, because the phone no longer has the IBAN to send. **Disconnect this phone** stops all sending. Without a server address the app sends nothing.
+
 ## Limits
 
-Rides, deliveries and payments are simulated, and accounts exist only on the phone where they were created. Routes are straight lines at a constant speed. ATLAS Go does not provide emergency transport or live customer support.
+Rides and deliveries are simulated and the bank is a sandbox: no real money moves. Unless you connect an account to a server, it exists only on the phone where it was created; rides and orders always stay on the phone. Routes are straight lines at a constant speed. ATLAS Go does not provide emergency transport or live customer support.

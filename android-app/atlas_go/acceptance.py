@@ -13,6 +13,7 @@ from .store import LocalStore
 from . import intelligence as ai
 from . import twin as layer2
 from . import loop as live
+from . import payments as pay
 
 ORDINARY = dt.datetime(2026, 11, 4, 10, 0)     # an ordinary Wednesday morning: no surge, base prices
 BUSY = dt.datetime(2027, 3, 17, 13, 0)         # St Patrick's Day lunchtime: Layer 1 forecasts a surge
@@ -285,16 +286,36 @@ class Acceptance:
             lambda:self.click('reg_agree'),lambda:self.click('register_submit'),
             lambda:self.check(S.role=='passenger' and a.screen=='home','Passenger account created'),
             lambda:self.check(not S.my_history(),'New passenger sees only their own history'),
-            lambda:self.click('home_ride'),
+            # ---- bank payments (1.5.0): link an IBAN with a Direct Debit mandate, then pay by bank
+            lambda:self.click('nav_profile'),lambda:self.click('profile_wallet'),
+            lambda:self.check(a.screen=='wallet' and 'bank_link' in a.controls,'Bank & payments opens with the link form'),
+            lambda:self.fill(bank_iban='IE29 AIBK 9311 5212 3456 79',bank_password='ride2026x'),
+            lambda:self.click('bank_consent'),lambda:self.click('bank_link'),
+            lambda:self.check('bank' not in S.user and 'dialog_confirm' in a.controls,'IBAN with wrong check digits is rejected'),
+            lambda:self.click('dialog_confirm'),
+            lambda:self.fill(bank_iban='IE29 AIBK 9311 5212 3456 78',bank_password='wrong-pass1'),
+            lambda:self.click('bank_link'),
+            lambda:self.check('bank' not in S.user,'Linking a bank account needs the password again'),
+            lambda:self.click('dialog_confirm'),lambda:self.fill(bank_password='ride2026x'),
+            lambda:self.capture('31-bank-link'),lambda:self.click('bank_link'),
+            lambda:self.check(S.user['bank']['masked']=='IE29 •••• 5678' and S.user['bank']['mandate']['version']==pay.MANDATE_VERSION,
+                              'Bank account linked with a signed Direct Debit mandate'),
+            lambda:self.check('93115212345678' not in S.path.read_text(encoding='utf-8'),'Full IBAN is never written to the phone'),
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),
+            lambda:self.check('pay_with' in a.controls and a.paying_by_bank(),'Booking offers pay by bank'),
+            lambda:setattr(a.scroll,'scroll_y',0.5),lambda:self.capture('32-pay-by-bank'),
             lambda:self.check(any(c.account for c, _ in ai_rank(a)),'Registered online driver competes in dispatch'),
             lambda:self.click('book_ride'),
             lambda:self.check(S.ride['driver_id']==self.account(drv)['id'] and S.ride['pending'],'Policy matches the registered driver'),
+            lambda:self.check(S.payment(S.ride['payment'])['status']=='authorised' and S.payment(S.ride['payment'])['amount']==860,
+                              'Bank payment authorised for the fare; nothing taken yet'),
             lambda:self.capture('20-ride-waiting'),
             lambda:self.click('nav_food'),lambda:self.click('restaurant_3'),
             lambda:self.click('add_'+S.kitchen_of(self.account(sel))['dishes'][0]['id']),lambda:self.click('menu_cart'),
             lambda:self.check(S.cart.total()==1100,'Seller dish in basket with delivery'),
             lambda:self.click('checkout'),
             lambda:self.check(S.order['pending'] and S.order['courier']['prep']==10,'Seller order waits for the kitchen; courier timed to its prep'),
+            lambda:self.check(S.payment(S.order['payment'])['amount']==1100,'Food order authorised on the same mandate'),
             lambda:self.click('nav_profile'),lambda:self.click('logout'),
             # ---- wrong password, then the driver accepts and drives
             lambda:self.click('welcome_login'),lambda:self.fill(login_email=drv,login_password='wrong-pass1'),
@@ -306,6 +327,22 @@ class Acceptance:
             lambda:self.click('job_next'),lambda:self.click('job_next'),lambda:self.click('job_next'),
             lambda:self.check(S.ride is None and self.account(drv)['driver']['earnings']==860
                               and self.account(drv)['driver']['accepted']==1,'Trip completed; earnings and acceptance recorded'),
+            # ---- the driver is paid by bank: capture, 15 % fee, payout to the driver's IBAN
+            lambda:self.check(S.payments[0]['status']=='captured' and S.payments[0]['payee']==self.account(drv)['id'],
+                              'Completing the trip captured the bank payment for the driver'),
+            lambda:self.check(a.shown['wallet']['balance']==731 and S.payments[0]['platform_fee']==129,
+                              'Driver balance is the fare minus the 15% ATLAS fee'),
+            lambda:self.click('open_wallet'),
+            lambda:self.fill(bank_iban='DE89 3704 0044 0532 0130 00',bank_password='drive2026'),lambda:self.click('bank_link'),
+            lambda:self.check(self.account(drv)['bank']['purpose']=='payout' and self.account(drv)['bank'].get('mandate') is None,
+                              'Driver linked a payout account (no debit mandate)'),
+            lambda:self.capture('33-driver-payout'),lambda:self.click('payout'),
+            lambda:setattr(a.controls['dialog_password'],'text','drive2026'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(S.payouts[-1]['status']=='paid' and S.payouts[-1]['amount']==731 and S.wallet()['balance']==0,
+                              'Balance paid out to the driver\'s bank account'),
+            lambda:self.click('dialog_confirm'),
+            lambda:self.check(pay.balanced(pay.entries(S.payments,S.payouts)) and len(LocalStore(S.path).payouts)==1,
+                              'Ledger balances and the payout persists'),
             lambda:self.click('nav_profile'),lambda:self.click('logout'),
             # ---- seller accepts and hands over to the courier
             lambda:self.click('welcome_login'),lambda:self.fill(login_email=sel,login_password='bread2026'),lambda:self.click('login_submit'),
@@ -317,12 +354,16 @@ class Acceptance:
             lambda:self.click('welcome_login'),lambda:self.fill(login_email=pas,login_password='ride2026x'),lambda:self.click('login_submit'),
             lambda:self.click('home_active_order'),lambda:self.click('order_next'),lambda:self.click('order_next'),
             lambda:self.check(S.order is None and S.kitchen_of(self.account(sel))['sales']==850,'Seller sale recorded'),
+            lambda:self.check(pay.wallet(self.account(sel)['id'],S.payments,S.payouts)['balance']==765,
+                              'Seller is owed the food total minus the 10% fee; delivery fee stays with ATLAS'),
             lambda:self.check(len(S.my_history())==2,'Passenger history has their ride and order'),
             # ---- account deletion
             lambda:self.click('nav_profile'),lambda:self.click('delete_account'),
             lambda:setattr(a.controls['dialog_password'],'text','ride2026x'),lambda:self.click('dialog_confirm'),
             lambda:self.check(a.screen=='welcome' and len(S.accounts)==2,'Passenger deleted their account'),
             lambda:self.check(LocalStore(S.path).session is None and len(LocalStore(S.path).accounts)==2,'Deletion persists'),
+            lambda:self.check(all(p['payer']=='deleted' for p in S.payments) and len(S.payments)==2,
+                              'Deleted passenger is removed from the payment records; amounts stay for the ledger'),
         ]
         self.steps += [
             lambda:self.click('welcome_guest'),lambda:self.click('home_ride'),

@@ -11,3 +11,4 @@ private/
 local-data/
 local-data-narrow/
 test-output/
+.env

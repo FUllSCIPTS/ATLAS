@@ -1,5 +1,31 @@
 # ATLAS Go changelog
 
+## 1.5.0 (versionCode 6) — 16 November 2026
+
+### Added
+- **Bank payments** (`atlas_go/payments.py`) for the three kinds of account, with a sandbox bank (IBANs are validated for real; no money moves).
+  - **Passengers** link a bank account in **You → Bank & payments**: account holder, IBAN (country, length and mod-97 check digits verified), a SEPA Direct Debit mandate to tick, and the password again. Rides, shared rides and food orders can then be paid **by bank** or with the demo checkout (*Pay with* on the booking and basket screens). The bank is asked when you book (*authorised*), the money is taken when you arrive or the food is delivered (*captured*), and cancelling releases it (*voided*). A declined payment books nothing.
+  - **Drivers and food sellers** link the account they are paid to, see a **balance** on their home screen and in Bank & payments, and **pay it out** to their bank (password required). A ride pays the driver the fare minus a 15 % ATLAS fee; a food order pays the seller the food total minus 10 % (the €2.50 delivery fee stays with ATLAS).
+  - The full IBAN is used once and never saved: the phone keeps the holder, country, bank and last four characters (`IE29 •••• 5678`) and the mandate reference.
+  - A double-entry ledger is derived from the payment and payout records; `LocalStore.validate` refuses a saved file whose ledger does not balance, whose payouts exceed earnings, or whose bookings and payments disagree.
+- **ATLAS server with PostgreSQL** ([`server/`](server/README.md)): FastAPI + psycopg 3. Registration and sign-in for passengers, drivers and sellers (PBKDF2 at 600,000 iterations, uniform sign-in errors, lockout, hashed session tokens), bank accounts (the IBAN goes to the bank provider and only a token, the last four characters and a keyed fingerprint are stored), payments priced by the server from the booking, an append-only double-entry ledger guarded by database triggers, payouts under a row lock, account erasure, an outbox and an audit log. 59 tests run against a real PostgreSQL.
+- **Connecting the app to the server** (`atlas_go/backend.py`): enter the server address in **You → Bank & payments → ATLAS server** and connect the account with your password (registration connects automatically once an address is saved). Bank accounts are then linked on the server first; captured payments are copied to it in the background with the payment's own id as the `Idempotency-Key`, so a lost reply never charges twice; payouts are made on the server first. Without a server address nothing is sent and the app works exactly as before.
+- Screens: *Bank & payments* (all roles), the *Pay with* card on ride, shared-ride and basket screens, payment status on rides, orders and Activity, and a balance card for drivers and sellers.
+
+### Changed
+- `LocalStore.book` and `LocalStore.checkout` take `pay_by_bank`; completing, cancelling and delivering move the payment through its states. `delete_account` is refused while a balance is waiting to be paid out, and removes the passenger from their payment records.
+- `state.json` adds `payments`, `payouts` and `server_url`; accounts may hold `bank` and `server`.
+- Privacy notice (in the app and in `docs/PRIVACY.md`) covers bank details and the optional server.
+- 244 unit tests (71 new); the desktop acceptance run has 353 assertions and 32 screenshots (39 and 3 new).
+
+### Unchanged
+- `intelligence.py` and `learned.py` are still byte-identical to 1.2.0; Layer 1's loop and Layer 2's twin are untouched. With no bank account linked, booking behaves exactly as in 1.4.0.
+- Android permissions are the same four; payments add none.
+
+### Compatibility
+- 1.4.0, 1.3.0, 1.2.0 and 1.1.0 `state.json` files load unchanged (no payments, no server).
+- Bank payments are a sandbox for the app's own rides and food (physical services), not Google Play billing.
+
 ## 1.4.0 (versionCode 5) — 14 November 2026
 
 ### Added

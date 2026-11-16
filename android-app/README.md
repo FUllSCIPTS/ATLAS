@@ -1,17 +1,43 @@
-# ATLAS Go — Android app (version 1.4.0)
+# ATLAS Go — Android app (version 1.5.0)
 
-**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing and a learning lab) a **live LSTM → RL loop** that forecasts, acts, records outcomes and retrains on the phone (new in 1.4.0), and **a digital twin of Cork with three agents on top (Layer 2, 1.3.0)**.
+**README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, **bank payments and payouts** (new in 1.5.0), an optional **PostgreSQL back end** (new in 1.5.0), on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing, a learning lab and the live LSTM → RL loop) and a digital twin of Cork with three agents on top (Layer 2).
 
-ATLAS Go 1.4.0 runs entirely on the phone. Accounts, rides, orders and kitchens are stored in private app storage. Several accounts can live on one phone, so a passenger can book a ride that a driver account on the same phone accepts, and order from a kitchen that a seller account on the same phone runs. Rides, deliveries and payments are simulated; no operator back end, payment provider or identity check is connected yet (see [What "production ready" covers](#what-production-ready-covers)).
+ATLAS Go works entirely on the phone: accounts, rides, orders, kitchens and payments are stored in private app storage, and several accounts can live on one phone. From 1.5.0 an account can also be **connected to an ATLAS server**, which keeps accounts, bank mandates, payments and payouts in PostgreSQL ([`server/`](server/README.md)). Rides and deliveries are simulated. Bank payments use a **sandbox bank**: IBANs are checked for real, but no bank is contacted and no money moves (see [What "production ready" covers](#what-production-ready-covers)).
 
-- [Installable APK 1.4.0 — ATLAS Go downloads folder on Google Drive, request access](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV): open the link, click **Request access**; the owner approves by email. Installs over 1.3.0 (same signing key); uninstall 1.2.0 first. SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977`
-- **Source code, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) or [download atlas-go-1.4.0-source.zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) (SHA-256 `7f360bc79c49e31ffc7345e58cc537620d79270e47b58a800a7e7903b92bdc76`)
-- [1.4.0 release page: SHA256SUMS, release notes and validation](releases/1.4.0/README.md) · earlier: [1.3.0](releases/1.3.0/README.md) · [1.2.0](releases/1.2.0/README.md)
+- **Source code 1.5.0, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) — app in [`atlas_go/`](atlas_go/), server in [`server/`](server/)
+- **Installable APK:** the latest APK in the [ATLAS Go downloads folder on Google Drive](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) (request access) is **1.4.0** (SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977`). The 1.5.0 APK is built and tested by the [Android workflow](../.github/workflows/atlas-android.yml) on every push; the owner uploads it to Drive after reviewing that run. 1.5.0 reads 1.4.0 data.
+- [1.4.0 release page](releases/1.4.0/README.md) · earlier: [1.3.0](releases/1.3.0/README.md) · [1.2.0](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
-- [What changed in 1.4.0](CHANGELOG.md)
+- [What changed in 1.5.0](CHANGELOG.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md) · [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
 - [Privacy notice](docs/PRIVACY.md) · [Testing](docs/TESTING.md) · [Build, signing and Google Play](docs/GOOGLE_PLAY.md)
-- [▶ Demo video with the digital twin and multi-agent layer (7 min 39 s)](docs/video/atlas-go-demo-v1.3-twin.mp4) · [demo of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+- [▶ Demo video with the digital twin and multi-agent layer (7 min 39 s, version 1.3)](docs/video/atlas-go-demo-v1.3-twin.mp4) · [demo of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+
+## What's new in 1.5.0 — bank payments and a PostgreSQL back end
+
+| Asked of the app | 1.4.0 | 1.5.0 |
+|---|---|---|
+| User registration (passenger, driver, food seller) | On the phone | On the phone **and**, when connected, on the server (`POST /v1/accounts`) |
+| Bank payment option for passengers | Not implemented (payments simulated) | **Implemented (sandbox bank):** link an IBAN with a Direct Debit mandate; pay rides, shared rides and food by bank |
+| Bank payment option for drivers | Not implemented | **Implemented (sandbox bank):** fare minus the 15 % ATLAS fee is credited; balance paid out to the driver's IBAN |
+| Bank payment option for food sellers | Not implemented | **Implemented (sandbox bank):** food total minus 10 % is credited; balance paid out to the seller's IBAN |
+| Back end using PostgreSQL | Not implemented (one `state.json` per phone) | **Implemented:** [`server/`](server/README.md) — accounts, sessions, bank accounts, payments, ledger, payouts, outbox and audit log in PostgreSQL |
+
+**On the phone.** *You → Bank & payments* links a bank account: the IBAN is checked (country, length, mod-97 check digits), the passenger ticks the mandate, and the password is asked again. Booking screens then offer **Pay with: Bank account IE29 •••• 5678 / Demo · no charge**. The payment is *authorised* at booking, *captured* on arrival or delivery, and *voided* on cancel. Drivers and sellers see their balance and **Pay out** to their bank. Only the holder, country and last four characters of the IBAN are saved.
+
+**On the server.** The phone never sends an amount: it sends the booking (route, option, busy-time multiplier, or dishes and quantities) and the server prices it with the same `atlas_go/payments.py` rules. Each payment carries the phone's payment id as its `Idempotency-Key`. PostgreSQL triggers make the ledger append-only and refuse a transaction whose debits and credits differ.
+
+| Link a bank account | Pay by bank | Driver balance and payout |
+|---|---|---|
+| <img src="docs/screenshots/31-bank-link.png" width="180" alt="Bank and payments: link an IBAN with a Direct Debit mandate"> | <img src="docs/screenshots/32-pay-by-bank.png" width="180" alt="Booking a ride with Pay with: bank account"> | <img src="docs/screenshots/33-driver-payout.png" width="180" alt="Driver balance and payout to a bank account"> |
+
+```bash
+# a local server and a phone preview connected to it (two terminals, from android-app/)
+python -m pip install -r server/requirements.txt -r requirements-dev.txt
+DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/atlas ATLAS_BANK_PEPPER=$(python -c "import secrets; print(secrets.token_hex(32))") \
+  python -m uvicorn --factory server.app:from_env --port 8080
+ATLAS_API_URL=http://127.0.0.1:8080 python main.py      # then You → Bank & payments → Connect this account
+```
 
 ## What's new in 1.4.0 — the Layer 1 live loop
 
@@ -79,13 +105,14 @@ Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cos
 
 ## What "production ready" covers
 
-Done in this release: input validation on every form, hashed passwords with lockout, crash-safe atomic storage with validation and quarantine of damaged files, rollback when a write fails, migration of 1.1.0 data, runtime location permission (foreground only), a non-debuggable release build signed with APK Signature Scheme v2/v3, 16 KB native alignment for Android 15+, privacy notice and account deletion, and 117 unit tests plus 247 UI assertions in two screen configurations.
+Done: input validation on every form, hashed passwords with lockout, crash-safe atomic storage with validation and quarantine of damaged files, rollback when a write fails, migration of earlier data, runtime location permission (foreground only), a non-debuggable release build signed with APK Signature Scheme v2/v3, 16 KB native alignment for Android 15+, privacy notice and account deletion; and in 1.5.0 the payment lifecycle, ledger and payout rules on the phone, and a PostgreSQL server for accounts, bank details, payments and payouts with its own tests.
 
 Still needed before carrying real passengers or food — these are business and infrastructure steps, not app code:
 
-- **Operator back end.** Accounts and bookings are per phone. Real matching between different phones needs the ATLAS server (the [`architecture-explorer` starter](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter) has trip, dispatch and model services; food and accounts APIs are proposed in the UML blueprint).
+- **Matching between phones.** The 1.5.0 server holds accounts and money, but rides and orders are still per phone: a passenger on one phone cannot yet be matched to a driver on another. That needs the trip and dispatch services of the [`architecture-explorer` starter](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter) behind the same accounts.
 - **Verification.** SPSV licences, vehicle registrations and food business registrations are format-checked only. A real launch needs NTA licence checks, insurance, and food-business registration with the competent authority.
-- **Payments.** All fares and totals are simulated. A payment provider (PSD2/SCA) is required.
+- **A licensed payment provider.** The bank is a sandbox. Real debits and payouts need a PSD2 provider (SEPA Direct Debit or open-banking payments) behind `server/bank.py`, strong customer authentication at mandate set-up, handling of returned debits and refunds, and reconciliation ([what that involves](server/README.md#before-real-money)).
+- **TLS for the server.** The app refuses plain `http://` except to a local test machine; deploy the server behind HTTPS.
 - **Map tiles.** The default tile server is OpenStreetMap's community server, which suits light use only. A production launch should use a commercial tile provider (`ATLAS_TILE_URL` changes the source).
 - **Store review and physical-device testing.** See [Testing](docs/TESTING.md) and [Google Play](docs/GOOGLE_PLAY.md).
 
@@ -97,7 +124,8 @@ Desktop preview needs Python 3.12+; Android packaging uses Buildozer and python-
 cd android-app
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest tests                       # 173 tests (one needs a display: xvfb-run)
+python -m pytest tests                       # 244 tests (one needs a display: xvfb-run)
+ATLAS_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres python -m pytest server/tests   # 59 server tests on PostgreSQL
 python main.py                               # desktop preview
 ATLAS_FAKE_GPS=51.8990,-8.4700 python main.py  # preview with a simulated location
 ATLAS_CLOCK=2027-03-17T13:00 python main.py     # preview the twin at a busy time (St Patrick's Day)
@@ -106,18 +134,18 @@ buildozer android debug
 buildozer android release
 ```
 
-Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android.yml): unit tests, two desktop UI acceptance runs, Buildozer APK/AAB builds, bundle validation and the Android 16 emulator click-through with screenshots. When the upload-key secrets are configured, the release workflow signs the AAB with the owner's upload key.
+Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android.yml): unit tests, two desktop UI acceptance runs, Buildozer APK/AAB builds, bundle validation and the Android 16 emulator click-through with screenshots. Changes to the server or the shared rules also run the [server workflow](../.github/workflows/atlas-server.yml) against PostgreSQL 16. When the upload-key secrets are configured, the release workflow signs the AAB with the owner's upload key.
 
 ## Validation
 
-| Check | Result (1.4.0) |
-|---|---|
-| Python unit tests | 173 (172 passed + 1 display-only test skipped in CI; all 173 pass under `xvfb-run`) |
-| Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 314 assertions and 29 screenshots in each |
-| **Android 16 emulator (CI)** | 373 assertions, 29 OS screenshots, no crash; the non-debuggable release build launches |
-| Live loop | Pure-Python LSTM equals the training model (2 × 10⁻⁶); seven city days with nightly retraining and held-out validation run on the emulator |
-| Held-out simulation | Next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent |
-| Release bundle | bundletool validation, manifest (1.4.0 / code 5, not debuggable, backup off, foreground-only permissions), 232 native libraries aligned to 16 KB |
-| APK signature | v2 and v3, same key as 1.3.0 |
+| Check | 1.5.0 (run for this change, 16 November 2026) | 1.4.0 release |
+|---|---|---|
+| Python unit tests | 244 (243 passed + 1 display-only test skipped without a display) | 173 |
+| Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 353 assertions and 32 screenshots in each | 314 and 29 |
+| Server tests on PostgreSQL 16 | 59 passed, including a six-way idempotency race, a four-way payout race, the ledger triggers and the least-privilege role | — |
+| Connected mode | The Kivy screens against a live server: 71 assertions; PostgreSQL then holds 2 accounts, 1 captured payment, 1 payout and a balanced ledger | — |
+| **Android 16 emulator (CI)** | Runs in GitHub Actions when this change is pushed; see the workflow run and [releases/VALIDATION.md](releases/VALIDATION.md), which the workflow rewrites | 373 assertions, 29 OS screenshots, no crash |
+| Release bundle, 16 KB alignment, APK signature | As above: produced by the workflow, not on a developer machine | validated ([evidence](releases/1.4.0/VALIDATION.md)) |
+| Live loop and held-out simulation | Unchanged code and results | LSTM parity 2 × 10⁻⁶; forecast error 9.3 %; supply cost −18 % |
 
-Details: [releases/1.4.0/VALIDATION.md](releases/1.4.0/VALIDATION.md).
+The Docker files in `server/` were written but not run for this change (no Docker daemon was available); the server was started from the same file set the image copies and tested against PostgreSQL 16 directly.

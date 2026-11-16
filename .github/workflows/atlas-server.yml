@@ -1,0 +1,59 @@
+name: ATLAS Go server (PostgreSQL)
+on:
+  push:
+    branches: [main]
+    paths: ['android-app/server/**', 'android-app/atlas_go/accounts.py', 'android-app/atlas_go/domain.py', 'android-app/atlas_go/payments.py', 'android-app/atlas_go/backend.py', 'android-app/atlas_go/store.py', 'android-app/scripts/connected-acceptance.py', '.github/workflows/atlas-server.yml']
+  pull_request:
+    paths: ['android-app/server/**', 'android-app/atlas_go/**', '.github/workflows/atlas-server.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 3s --health-timeout 3s --health-retries 20
+    defaults:
+      run:
+        working-directory: android-app
+    env:
+      ATLAS_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri libmtdev1 postgresql-client
+          python -m pip install -r server/requirements-dev.txt -r requirements-dev.txt
+      - name: Server tests on PostgreSQL 16 (API, ledger triggers, row locks, least-privilege role, phone sync)
+        run: |
+          python -m compileall -q server
+          python -m pytest server/tests --junitxml=test-output/server-tests.xml
+      - name: Connected-mode UI acceptance (Kivy app -> HTTP -> server -> PostgreSQL)
+        run: |
+          psql "$ATLAS_TEST_DATABASE_URL" -c "CREATE DATABASE atlas_ui ENCODING 'UTF8' TEMPLATE template0"
+          export DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/atlas_ui
+          export ATLAS_BANK_PEPPER=$(python -c "import secrets; print(secrets.token_hex(32))")
+          python -m uvicorn --factory server.app:from_env --host 127.0.0.1 --port 8080 --log-level warning &
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8080/healthz && break; sleep 1; done
+          ATLAS_API_URL=http://127.0.0.1:8080 ATLAS_DATA_DIR="$PWD/local-data-connected" KIVY_NO_ARGS=1 xvfb-run -a -s '-screen 0 440x940x24' python scripts/connected-acceptance.py
+          python scripts/verify-connected.py local-data-connected/test-output "$DATABASE_URL"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: atlas-go-server-tests
+          path: |
+            android-app/test-output/server-tests.xml
+            android-app/local-data-connected/test-output/
+          if-no-files-found: warn
+          retention-days: 7

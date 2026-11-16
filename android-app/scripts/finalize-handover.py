@@ -77,7 +77,7 @@ or add the CI signing secrets described in [the Google Play guide](../docs/GOOGL
 The private key and password are never in the repository, logs, artifacts or release files. Store listing/account declarations,
 any required closed testing, Play pre-launch checks and Google review remain owner steps.
 
-This is an offline model: no real rides, food deliveries or payments. Its small learned policies run locally from bundled constants.
+No real rides, food deliveries or money: journeys are simulated and bank payments use a sandbox bank. The learned policies run locally from bundled constants; the optional ATLAS server (PostgreSQL) is tested separately by the server workflow.
 Phone hardware, accessibility and production-service checks remain outside the emulator evidence.
 """
 (release/'VALIDATION.md').write_text(text)

@@ -1,0 +1,32 @@
+# Local ATLAS Go server: PostgreSQL 16 + the API on http://127.0.0.1:8080 (run from android-app/server/).
+#   cp .env.example .env   # then put two long random values in it
+#   docker compose up -d --build
+# Development only: put a TLS-terminating reverse proxy in front before any phone outside this machine connects.
+name: atlas-go-server
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atlas
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "atlas", "-d", "atlas"]
+      interval: 3s
+      timeout: 3s
+      retries: 25
+  api:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://atlas:${POSTGRES_PASSWORD}@postgres:5432/atlas
+      ATLAS_BANK_PEPPER: ${ATLAS_BANK_PEPPER:?set ATLAS_BANK_PEPPER in .env}
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata:

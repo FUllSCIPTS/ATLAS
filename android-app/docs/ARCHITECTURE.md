@@ -1,6 +1,8 @@
-# Python Android implementation blueprint (1.4.0)
+# Python Android implementation blueprint (1.5.0)
 
-ATLAS Go uses Python for every application screen, rule, storage operation and test. Kivy provides the UI; Buildozer/python-for-android package it for Android. Version 1.4.0 adds the Layer 1 live loop — LSTM forecast → RL supply agent → recorded outcomes → nightly retraining with validation, on the phone. Version 1.3.0 added Layer 2 — a digital twin of Cork and three agents (dispatch, pricing and repositioning, Guardian) on top of the unchanged 1.2.0 models — and the stop order of a shared car (the rider already on board is dropped first). Version 1.2.0 added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and wires all six on-device models into those flows. The app still has no operator back end: accounts and bookings exist on one phone. The only network traffic is map-tile downloads.
+ATLAS Go uses Python for every application screen, rule, storage operation and test. Kivy provides the UI; Buildozer/python-for-android package it for Android. **Version 1.5.0 adds bank payments and payouts for passengers, drivers and food sellers (`payments.py`, with a sandbox bank) and a PostgreSQL back end (`server/`) that the app can connect to (`backend.py`).** Version 1.4.0 added the Layer 1 live loop — LSTM forecast → RL supply agent → recorded outcomes → nightly retraining with validation, on the phone. Version 1.3.0 added Layer 2 — a digital twin of Cork and three agents (dispatch, pricing and repositioning, Guardian) on top of the unchanged 1.2.0 models — and the stop order of a shared car. Version 1.2.0 added passenger, driver and food-seller accounts, a live map with device location and time-lapse live journeys.
+
+The app works without any server: accounts, bookings and payments exist on one phone, and the only network traffic is map-tile downloads. When the user enters a server address and connects an account, the server becomes the system of record for that account's identity, bank details, payments and payouts; rides and orders stay on the phone.
 
 The full UML blueprint for the app, the web front end, the back end and the databases is in the [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go).
 
@@ -9,7 +11,7 @@ The full UML blueprint for the app, the web front end, the back end and the data
 ```text
 android-app/
   main.py                         Python application entry point
-  buildozer.spec                  Android API, ABIs, permissions and packaging (1.4.0, versionCode 5)
+  buildozer.spec                  Android API, ABIs, permissions and packaging (1.5.0, versionCode 6)
   requirements.txt                Desktop runtime dependencies
   requirements-dev.txt            Testing dependencies
   CHANGELOG.md                    Release history
@@ -18,7 +20,9 @@ android-app/
     accounts.py                   Roles, validation, PBKDF2 password hashing                (1.2.0)
     domain.py                     Places, fares, offers, menu, Kitchen, Catalog and basket
     geo.py                        Cork coordinates, Web-Mercator tiles, live journey positions (1.2.0)
-    store.py                      Atomic JSON persistence: accounts, rides, orders, kitchens, live progress
+    store.py                      Atomic JSON persistence: accounts, rides, orders, kitchens, live progress, payments, payouts
+    payments.py                   IBAN rules, sandbox bank, payment lifecycle, fee split, double-entry ledger (1.5.0)
+    backend.py                    Client for the ATLAS server: connect, link bank, outbox sync, payouts          (1.5.0)
     intelligence.py               Calendar, surge outlook, dispatch, acceptance, courier timing, lab, self-test
     learned.py                    Learned constants exported from the simulations (generated)
     loop.py                       Layer 1 live loop: city feed, pure-Python LSTM, supply agent, log, updates (1.4.0)
@@ -37,12 +41,23 @@ android-app/
     test_shared_ride.py           Rider on board, stop order, drop-first enforcement, live legs   (1.3.0)
     test_twin.py                  Layer 1 unchanged, Agents 1-3, Guardian limits, persistence      (1.3.0)
     test_loop.py                  LSTM parity, forecast->act->record, validation, persistence      (1.4.0)
+    test_payments.py              IBANs, split, lifecycle, ledger, pay by bank, payouts, tampered state  (1.5.0)
+    test_backend.py               Server address rules, error mapping, outbox order and retries           (1.5.0)
+  server/                         ATLAS Go server: FastAPI + PostgreSQL (not packaged in the APK)        (1.5.0)
+    app.py                        Routes, request models, Service: accounts, sessions, bank, payments, payouts
+    db.py                         Database: one connection per transaction; numbered migrations
+    security.py                   PBKDF2 hashes, session tokens (stored as SHA-256), IBAN fingerprint (HMAC)
+    bank.py                       BankProvider protocol and SandboxBank
+    migrations/001_accounts_payments.sql   Tables, constraints, ledger triggers, outbox, audit log
+    roles.sql                     Least-privilege atlas_app role
+    tests/                        59 tests on a real PostgreSQL, including the phone syncing over HTTP
+    Dockerfile, compose.yaml      PostgreSQL 16 + API for local use
   training/                       Development-only simulations and exporter (numpy; not packaged)
     rl_sim.py                     Ride dispatch (REINFORCE) and courier timing (Q-learning)
     city_sim.py                   Two simulated years of Cork demand, holidays, supply agent, LSTM
     export_learned.py             Writes atlas_go/learned.py
     export_lstm.py                Trains the on-device LSTM + forecast-aware agent; writes lstm_weights.py (1.4.0)
-  scripts/                        Emulator acceptance, signing, manifest and alignment checks
+  scripts/                        Emulator acceptance, connected-mode acceptance, signing, manifest and alignment checks
   docs/                           User guide, architecture, privacy, Play handover, screenshots, video
   releases/                       Downloads, checksums and validation evidence (1.2.0/ for this release)
 ```
@@ -143,7 +158,7 @@ classDiagram
 
 ## Complete source method catalog
 
-Generated from the Python AST of `atlas_go/` for 1.4.0 (1.3.0 added `twin.py`; 1.4.0 added `loop.py` and the generated `lstm_weights.py`). Dataclass constructors and equality/representation methods are generated by Python; their field declarations are the constructor contract. The explorer's [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#machine-learning-and-optimisation-catalogue) links the learning functions (`twin.agent1`, `twin.check_price`, `Loop.daily_update`, …) to their teaching labs.
+Generated from the Python AST of `atlas_go/` for 1.5.0 (1.3.0 added `twin.py`; 1.4.0 added `loop.py` and the generated `lstm_weights.py`; 1.5.0 added `payments.py` and `backend.py`, 16 methods on `AtlasGoApp` and 16 on `LocalStore`). Dataclass constructors and equality/representation methods are generated by Python; their field declarations are the constructor contract. The explorer's [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#machine-learning-and-optimisation-catalogue) links the learning functions (`twin.agent1`, `twin.check_price`, `Loop.daily_update`, …) to their teaching labs.
 
 | File / class | Declared functions and methods |
 |---|---|
@@ -156,7 +171,10 @@ Generated from the Python AST of `atlas_go/` for 1.4.0 (1.3.0 added `twin.py`; 1
 | `app.py` / `OutlookChart` | `__init__`, `draw` |
 | `app.py` / `Bar` | `__init__`, `draw` |
 | `app.py` / `LearningCurve` | `__init__`, `update`, `draw` |
-| `app.py` / `AtlasGoApp` | `build`, `on_start`, `configure_system_bars`, `apply_system_insets`, `on_resume`, `save_ui`, `now_dt`, `today`, `on_pause`, `on_stop`, `home_screen`, `on_keyboard`, `box`, `label`, `gap`, `button`, `row`, `field`, `safe`, `message`, `title_block`, `go`, `nav_items`, `render`, `live_tick`, `refresh_live`, `live_text`, `map_layers`, `add_map`, `on_location`, `on_location_status`, `locate`, `welcome`, `guest`, `login`, `submit_login`, `set_reg_role`, `register`, `toggle_agree`, `submit_register`, `logout`, `delete_account`, `home`, `select`, `update_selection`, `map_screen`, `ride`, `pickup_here`, `loop_now`, `live_surge`, `loop_week`, `check_loop`, `loop_card`, `registered_candidates`, `layer2_on`, `decide`, `store_price`, `start_of`, `pick_driver`, `price_card`, `twin_card`, `dispatch_card`, `book_solo`, `book_shared`, `active_ride`, `shared_stops`, `redispatch`, `next_ride`, `cancel_ride`, `driver`, `job_accept`, `job_decline`, `job_next`, `seller`, `seller_menu`, `add_dish`, `food`, `open_menu`, `menu`, `add_food`, `remove_food`, `clear_cart`, `cart`, `checkout`, `active_order`, `next_order`, `activity`, `profile`, `reset`, `privacy`, `twin_screen`, `toggle_layer2`, `fault_drill`, `check_layer2`, `shift_outlook`, `check_models`, `intelligence`, `lab_refresh`, `lab_train`, `lab_step` |
+| `app.py` / `AtlasGoApp` | `build`, `on_start`, `configure_system_bars`, `apply_system_insets`, `on_resume`, `save_ui`, `now_dt`, `today`, `on_pause`, `on_stop`, `home_screen`, `on_keyboard`, `box`, `label`, `gap`, `button`, `row`, `field`, `safe`, `message`, `title_block`, `go`, `nav_items`, `render`, `live_tick`, `refresh_live`, `live_text`, `map_layers`, `add_map`, `on_location`, `on_location_status`, `locate`, `welcome`, `guest`, `login`, `submit_login`, `set_reg_role`, `register`, `toggle_agree`, `submit_register`, `logout`, `delete_account`, `home`, `select`, `update_selection`, `map_screen`, `ride`, `pickup_here`, `loop_now`, `live_surge`, `loop_week`, `check_loop`, `loop_card`, `registered_candidates`, `layer2_on`, `decide`, `store_price`, `start_of`, `pick_driver`, `price_card`, `twin_card`, `dispatch_card`, `book_solo`, `book_shared`, `active_ride`, `shared_stops`, `redispatch`, `next_ride`, `cancel_ride`, `driver`, `job_accept`, `job_decline`, `job_next`, `seller`, `seller_menu`, `add_dish`, `food`, `open_menu`, `menu`, `add_food`, `remove_food`, `clear_cart`, `cart`, `checkout`, `active_order`, `next_order`, `bank`, `paying_by_bank`, `pay_card`, `payment_line`, `balance_card`, `wallet_screen`, `toggle_consent`, `link_of`, `submit_bank`, `remove_bank`, `payout`, `after_payout`, `remote`, `server_card`, `connect_server`, `sync_soon`, `activity`, `profile`, `reset`, `privacy`, `twin_screen`, `toggle_layer2`, `fault_drill`, `check_layer2`, `shift_outlook`, `check_models`, `intelligence`, `lab_refresh`, `lab_train`, `lab_step` |
+| `backend.py` module | `clean_url`, `kitchen_body`, `outbox`, `deliver`, `apply`, `sync` |
+| `backend.py` / `ServerError` | `__init__`, `retryable` |
+| `backend.py` / `Backend` | `__init__`, `call`, `register`, `login`, `connect`, `logout`, `link_bank`, `unlink_bank`, `push_kitchen`, `push_payment`, `balance`, `payout` |
 | `domain.py` module | `distance`, `fare`, `money` |
 | `domain.py` / `Dish` | Dataclass fields: `id`, `name`, `detail`, `restaurant`, `price` |
 | `domain.py` / `Offer` | `matches`, `reserve`, `release` |
@@ -176,9 +194,33 @@ Generated from the Python AST of `atlas_go/` for 1.4.0 (1.3.0 added `twin.py`; 1
 | `loop.py` module | `hour_index`, `hour_time`, `tag`, `weektype`, `ordinary`, `_rng`, `in_term`, `demand`, `calendar`, `_sig`, `lstm_hidden`, `head`, `level`, `_cost`, `_key`, `fresh_state`, `self_test` |
 | `loop.py` / `Loop` | `__init__`, `_validate`, `save`, `reset`, `q`, `counts`, `choose`, `forecast`, `rows`, `window`, `_record`, `warm_up`, `step`, `advance_to`, `_samples`, `_head_error`, `daily_update`, `now` |
 | `lstm_weights.py` module | Generated constants only: `LSTM_VERSION`, `AGENT_VERSION`, `BUCKETS`, `BOOSTS`, `IDLE_COST`, `TAGS`, `W`, `B`, `V`, `C`, `Q`, `NQ`, `QB`, `NB`, `METRICS`, `REF_X`, `REF_Y` |
+| `payments.py` module | `_mod97`, `iban_check_digits`, `make_iban`, `clean_iban`, `mask_iban`, `clean_holder`, `bank_record`, `valid_bank`, `sandbox_outcome`, `priced`, `_share`, `split`, `quote`, `new_payment`, `move`, `valid_payment`, `valid_payout`, `payable`, `entries`, `balanced`, `balance`, `wallet` |
 | `store.py` module | `_priced`, `_is_point` |
-| `store.py` / `LocalStore` | `__init__`, `reset`, `load`, `validate`, `save`, `snapshot`, `commit`, `_refresh_catalog`, `account`, `user`, `role`, `signed_in`, `register`, `_place`, `login`, `continue_as_guest`, `logout`, `delete_account`, `online_drivers`, `driver_position`, `set_online`, `update_location`, `driver_job`, `driver_respond`, `driver_advance`, `book`, `_advance_ride`, `advance_ride`, `_log`, `twin_record`, `set_layer2`, `kitchen_of`, `kitchen_prep`, `_my_kitchen`, `add_dish`, `archive_dish`, `update_kitchen`, `update_cart`, `checkout`, `seller_order`, `seller_accept`, `seller_ready`, `_advance_order`, `advance_order`, `tick`, `my_history` |
+| `store.py` / `LocalStore` | `__init__`, `reset`, `load`, `validate`, `save`, `snapshot`, `commit`, `_refresh_catalog`, `account`, `user`, `role`, `signed_in`, `register`, `_place`, `login`, `continue_as_guest`, `logout`, `delete_account`, `online_drivers`, `driver_position`, `set_online`, `update_location`, `driver_job`, `driver_respond`, `driver_advance`, `book`, `_advance_ride`, `advance_ride`, `_log`, `twin_record`, `set_layer2`, `kitchen_of`, `kitchen_prep`, `_my_kitchen`, `add_dish`, `archive_dish`, `update_kitchen`, `update_cart`, `checkout`, `seller_order`, `seller_accept`, `seller_ready`, `_advance_order`, `advance_order`, `tick`, `payment`, `_step_up`, `_authorise`, `_open_payment`, `link_bank`, `unlink_bank`, `wallet`, `request_payout`, `my_payments`, `my_payouts`, `set_server`, `connect`, `disconnect`, `server_payee`, `unsynced`, `mark_synced`, `my_history` |
 | `twin.py` module | `default_state`, `valid_state`, `entry`, `window`, `_ratio`, `_expected`, `extra_requests`, `ratio_30`, `foresee`, `mirror`, `_seed`, `rehearse`, `_poisson`, `agent1`, `twin_reason`, `_wait`, `surge_only`, `small_surge`, `expected_multiplier`, `agent2`, `driver_hint`, `kitchen_hint`, `check_dispatch`, `check_price`, `retest_pricing`, `decide_ride`, `fault_drill`, `self_test` |
+
+### Server source catalog (`server/`, 1.5.0)
+
+Generated the same way from `server/`. Request models list their fields; unknown fields are rejected.
+
+| File / class | Declared functions, methods or fields |
+|---|---|
+| `app.py` module | `invalid`, `create_app`, `from_env` |
+| `app.py` / `ApiError` | `__init__`, `response` |
+| `app.py` / `DriverIn` | Fields: `vehicle`, `plate`, `licence`, `seats` |
+| `app.py` / `DishIn` | Fields: `id`, `name`, `detail`, `price`, `archived` |
+| `app.py` / `KitchenIn` | Fields: `name`, `cuisine`, `registration`, `place`, `prep`, `open`, `dishes` |
+| `app.py` / `RegisterIn` | Fields: `role`, `name`, `email`, `phone`, `password`, `driver`, `kitchen` |
+| `app.py` / `LoginIn` | Fields: `email`, `password` |
+| `app.py` / `PasswordIn` | Fields: `password` |
+| `app.py` / `BankIn` | Fields: `password`, `holder`, `iban`, `consent` |
+| `app.py` / `PaymentIn` | Fields: `kind`, `reference`, `details`, `payee_account`, `house_payee` |
+| `app.py` / `PayoutIn` | Fields: `password`, `amount_cents` |
+| `app.py` / `Service` | `__init__`, `audit`, `emit`, `account_view`, `bank_view`, `active_bank`, `check_lock`, `record_failure`, `step_up`, `open_session`, `authenticate`, `require`, `register`, `login`, `delete_account`, `clean_kitchen`, `save_kitchen`, `link_bank`, `unlink_bank`, `payment_view`, `replay`, `resolve_payee`, `pay`, `post`, `payments`, `payment`, `balance`, `payout_view`, `payout`, `payouts` |
+| `bank.py` / `BankProvider` | `tokenise`, `debit`, `credit` |
+| `bank.py` / `SandboxBank` | `tokenise`, `debit`, `credit` |
+| `db.py` / `Database` | `__init__`, `transaction`, `migrate` |
+| `security.py` module | `hash_password`, `verify_password`, `new_token`, `token_hash`, `fingerprint` |
 
 ## Persistence and state rules
 
@@ -187,6 +229,29 @@ Generated from the Python AST of `atlas_go/` for 1.4.0 (1.3.0 added `twin.py`; 1
 Money is integer cents. One active ride and one active food order exist per phone. A ride booked with a registered driver is `pending` until that driver accepts; declining hands it to the next-best driver. A seller-kitchen order is `pending` until the seller accepts, and stays in the cooking stage until the seller marks it ready. Completed, cancelled and delivered records go into history with the passenger's account id (or none for guests); deleting an account anonymises its records. Only passengers (or guests) book and order; only drivers go online; only sellers edit menus.
 
 Ride: driver on the way → at pickup → on your way → completed (or cancelled). Shared ride with a rider on board (`ride['co']`): driver on the way (carrying that rider) → at your pickup → dropping that rider → on your way → completed. `co['dropped']` becomes true exactly when the ride enters stage 3; completing earlier is refused and a file that breaks this order is quarantined. Solo rides may carry `surge` (×1.0–×2.0) and `twin` (Agent 1 rollouts). Food: preparing → courier on the way → arriving → delivered. Live positions are straight-line interpolations at 25 km/h shown in a 10× time-lapse (`geo.py`).
+
+## Bank payments and the server (1.5.0)
+
+```mermaid
+flowchart LR
+    UI["AtlasGoApp<br/>Bank & payments · Pay with · balance"] --> ST["LocalStore<br/>link_bank · book(pay_by_bank) · request_payout"]
+    ST --> PAY["payments.py<br/>IBAN · sandbox bank · split · lifecycle · ledger"]
+    UI --> BE["backend.py<br/>connect · link_bank · outbox → deliver → apply"]
+    BE -- "HTTPS · Bearer token · Idempotency-Key" --> API["server/app.py<br/>FastAPI · Service"]
+    API --> PAY
+    API --> BANK["server/bank.py<br/>BankProvider · SandboxBank"]
+    API --> PG[("PostgreSQL<br/>accounts · sessions · bank_accounts<br/>payments · ledger_entries · payouts<br/>outbox · audit_log")]
+```
+
+**Lifecycle.** `authorised` (at booking; the sandbox bank may decline, and then nothing is booked) → `captured` (ride completed or food delivered; the payee is the registered driver or seller, or a house payee: `fleet`, `kitchen-0…2`) or `voided` (ride cancelled). `refunded` exists in the rules and the ledger for the labs; no screen issues refunds. Any other transition raises `ValueError` (`payments.TRANSITIONS`).
+
+**Split.** Ride and shared ride: 15 % to `revenue:commission`, the rest to `payable:<driver>`. Food: the €2.50 delivery fee plus 10 % of the food to the platform, the rest to `payable:<seller>`. Integer cents; half a cent rounds up; `payee_net + platform_fee == amount` always.
+
+**What is saved.** `state.json` gains `payments` (id, kind, booking reference, payer, payee, amount, split, last four, mandate id, status, the booking details the server needs to price it, `synced`), `payouts` and `server_url`. An account may hold `bank` (holder, country, bank, last four, masked IBAN, purpose, and for passengers the mandate id, version and date) and `server` (server account id and session token). The full IBAN is never written. `LocalStore.validate` quarantines a file when a payment or payout is malformed or duplicated, the ledger derived from them does not balance, payouts exceed earnings, or a booking's payment is missing, has another amount, or is in a state the booking contradicts.
+
+**Password again.** `link_bank`, `unlink_bank` and `request_payout` call `_step_up`, which verifies the password even though the user is signed in.
+
+**Connected mode.** `backend.outbox(store)` lists what the server lacks (a seller's menu first, then captured payments, oldest first); `backend.deliver` sends it from a worker thread (`AtlasGoApp.remote`) and stops at the first failure a retry could fix; `backend.apply` records the answers on the main thread. Each payment's own id is its `Idempotency-Key`. Bank linking and payouts go to the server first and are recorded on the phone only after it accepts them. The session token is kept in `state.json` in app-private storage (Android backup is off); moving it to the Android Keystore is listed as a gap.
 
 ## On-device intelligence
 
@@ -242,17 +307,17 @@ UML: [two learning layers — overview, ride sequence, live-loop sequence, layer
 
 ## Integration contract for a live service
 
-Do not turn simulated confirmations into real bookings without replacing `LocalStore` commands with authenticated server transactions. The FastAPI starter on the `architecture-explorer` branch is a development reference, not a production transport/food platform.
+Do not turn simulated confirmations into real bookings without replacing `LocalStore` commands with authenticated server transactions. 1.5.0 does this for accounts, bank details, payments and payouts ([`server/`](../server/README.md)); rides, orders and dispatch are still on the phone. The FastAPI starter on the `architecture-explorer` branch (trips, dispatch, models) is a development reference, not a production transport/food platform.
 
 | Capability | Required live implementation |
 |---|---|
-| Identity | Server accounts for the three roles, email/phone verification, password reset, session tokens in Android Keystore, consent and deletion. 1.2.0's local accounts define the fields and validation rules. |
+| Identity | **1.5.0 implements** server accounts for the three roles, sign-in with lockout, hashed session tokens and deletion (`server/`). Still required: email/phone verification, password reset, session tokens in the Android Keystore. |
 | Driver onboarding | NTA SPSV licence and vehicle checks, insurance, background checks; activation by an operator |
 | Seller onboarding | Food business registration with the competent authority, allergen information, opening hours |
 | Solo ride | Authoritative quote/expiry, idempotent booking, dispatch across phones, status stream |
 | Shared ride | Route overlap and detour limits, atomic capacity transaction, rider safety and cancellation rules |
 | Food | Merchant inventory, order acceptance, courier dispatch, cancellation/refund handling |
-| Payments | Certified payment provider tokenisation (PSD2/SCA), webhook verification and reconciliation |
+| Payments | **1.5.0 implements** the lifecycle, server-side pricing, idempotency, ledger and payouts against a sandbox bank. Still required: a certified payment provider behind `server/bank.py` (PSD2/SCA), webhook verification, returned-debit and refund handling, reconciliation |
 | Maps | Commercial tile/routing provider with an API key held server-side or restricted; real routes and ETAs |
 | Location | Driver location streamed to the server only while online, with purpose-specific consent |
 | Kafka | Back-end outbox and event schemas; never connect phones directly to Kafka |

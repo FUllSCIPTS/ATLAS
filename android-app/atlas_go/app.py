@@ -1,8 +1,10 @@
-"""Python/Kivy screens for ATLAS Go: passengers, drivers and food sellers, live map and on-device ATLAS intelligence."""
+"""Python/Kivy screens for ATLAS Go: passengers, drivers and food sellers, live map, bank payments and on-device ATLAS intelligence."""
 import datetime as dt
 import math
 import os
+import threading
 import time
+from time import time_ns
 from pathlib import Path
 from kivy.app import App
 from kivy.clock import Clock
@@ -29,6 +31,8 @@ from . import livemap
 from . import learned
 from . import twin as layer2
 from . import loop as live
+from . import payments as pay
+from . import backend
 from . import __version__
 
 GREEN = color('#075E4A')
@@ -229,6 +233,9 @@ class AtlasGoApp(App):
         self.restaurant = ui.get('restaurant', 0)
         self.address = ui.get('address', 0)
         self.outlook_day = ui.get('outlook_day', 0)
+        self.pay_bank = ui.get('pay_bank', True) is not False   # pay by bank when an account is linked
+        self.busy = False                 # a server call is running on a worker thread
+        self.sync_note = ''
         self.reg_role = ui.get('reg_role', 'passenger') if ui.get('reg_role') in acc.ROLES else 'passenger'
         self.form = {}
         self.lab = None
@@ -302,7 +309,7 @@ class AtlasGoApp(App):
 
     def save_ui(self):
         self.store.ui = {key: getattr(self, key) for key in ('screen','pickup','destination','party','comfort',
-                                                             'restaurant','address','outlook_day','reg_role')}
+                                                             'restaurant','address','outlook_day','reg_role','pay_bank')}
         self.store.save()
 
     def now_dt(self):
@@ -448,8 +455,8 @@ class AtlasGoApp(App):
         self.container.clear_widgets()
         if not self.store.signed_in and self.screen not in ('welcome','login','register','privacy'):
             self.screen = 'welcome'
-        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin'),
-                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin')}
+        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin','wallet'),
+                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin','wallet')}
         if self.store.user and self.store.role in allowed and self.screen not in allowed[self.store.role]:
             self.screen = self.home_screen()
         if self.store.user and self.store.role == 'passenger' and self.screen in ('driver','seller','seller_menu'):
@@ -471,7 +478,8 @@ class AtlasGoApp(App):
                    'food':self.food,'menu':self.menu,'cart':self.cart,'active_ride':self.active_ride,
                    'active_order':self.active_order,'activity':self.activity,'profile':self.profile,'privacy':self.privacy,
                    'intelligence':self.intelligence,'map':self.map_screen,'driver':self.driver,
-                   'seller':self.seller,'seller_menu':self.seller_menu,'account':self.profile,'twin':self.twin_screen}
+                   'seller':self.seller,'seller_menu':self.seller_menu,'account':self.profile,'twin':self.twin_screen,
+                   'wallet':self.wallet_screen}
         screens.get(self.screen,self.home)()
         items = self.nav_items()
         if items:
@@ -493,6 +501,8 @@ class AtlasGoApp(App):
             changed = self.store.tick()
         except OSError:
             return
+        if changed:
+            self.sync_soon()
         if changed and self.screen in ('active_ride','active_order','driver','seller','map','home','activity','twin'):
             self.render()
             return
@@ -622,8 +632,8 @@ class AtlasGoApp(App):
         self.button(self.body,'Sign in','welcome_login',lambda:self.go('login'),False)
         self.button(self.body,'Continue as a guest passenger','welcome_guest',self.guest,False)
         self.button(self.body,'Privacy notice','welcome_privacy',lambda:self.go('privacy'),False)
-        self.label(self.body,'Accounts are stored securely on this phone. Rides, deliveries and payments are '
-                             'simulated until ATLAS Go is connected to an operator back end.',12,MUTED)
+        self.label(self.body,'Accounts are stored securely on this phone and can be connected to an ATLAS server. '
+                             'Rides and deliveries are simulated; bank payments use a sandbox bank, so no real money moves.',12,MUTED)
 
     def guest(self):
         self.store.continue_as_guest()
@@ -704,8 +714,11 @@ class AtlasGoApp(App):
                             kitchen=f.get('reg_kitchen',''), cuisine=f.get('reg_cuisine',''),
                             registration=f.get('reg_business',''), place=f.get('reg_place',1),
                             prep=f.get('reg_prep','15') or '15')
+        password = f.get('reg_password','')
         self.form = {}
         self.go(self.home_screen())
+        if self.store.server_url:
+            self.connect_server(password, quiet=True)      # also create the account on the ATLAS server
 
     def logout(self):
         self.gps.stop()
@@ -760,7 +773,7 @@ class AtlasGoApp(App):
             self.button(self.body,'View active ride','home_active_ride',lambda:self.go('active_ride'))
         if self.store.order:
             self.button(self.body,'Track food order','home_active_order',lambda:self.go('active_order'))
-        self.label(self.body,'Rides, deliveries and payments are simulated · no real charges.',12,MUTED)
+        self.label(self.body,'Rides and deliveries are simulated · bank payments use a sandbox bank · no real charges.',12,MUTED)
 
     def select(self, parent, title, values, value, key, callback):
         self.label(parent,title,11,MUTED,True)
@@ -824,13 +837,16 @@ class AtlasGoApp(App):
             self.label(preview,f'Pickup in about {chosen.eta} min · {distance(self.pickup,self.destination)} km route',12,MUTED)
             self.label(preview,money(price),31,GREEN,True)
             surge = self.live_surge()
-            self.label(preview,'Estimated total · simulated payment' + (f' · busy period ({round(surge*100)}% surge forecast)' if surge >= .2 else ''),12,MUTED)
+            self.label(preview,'Estimated total' + (f' · busy period ({round(surge*100)}% surge forecast)' if surge >= .2 else ''),12,MUTED)
+            self.pay_card(preview)
             self.button(preview,'Book ride','book_ride',self.book_solo)
             self.price_card(decision, base)
             self.twin_card(decision)
             self.dispatch_card()
         else:
             found = [o for o in self.store.offers if o.matches(self.pickup,self.destination,self.party)]
+            if found:
+                self.pay_card(self.body)
             for offer in found:
                 card = self.box(self.body)
                 self.label(card,offer.driver,17,INK,True)
@@ -986,11 +1002,12 @@ class AtlasGoApp(App):
         twin = dict(decision['twin'], layer=2) if decision['twin'] else None
         self.store.book(self.pickup,self.destination,self.comfort,driver=label,why=decision['why'],
                         driver_id=chosen.account or None,start=self.start_of(chosen),
-                        multiplier=decision['multiplier'],twin=twin,log=decision['log'])
+                        multiplier=decision['multiplier'],twin=twin,log=decision['log'],
+                        pay_by_bank=self.paying_by_bank())
         self.go('active_ride')
 
     def book_shared(self, offer_id):
-        self.store.book(self.pickup,self.destination,offer_id=offer_id,party=self.party)
+        self.store.book(self.pickup,self.destination,offer_id=offer_id,party=self.party,pay_by_bank=self.paying_by_bank())
         self.go('active_ride')
 
     def active_ride(self):
@@ -1019,6 +1036,7 @@ class AtlasGoApp(App):
         self.label(card,f"{money(ride['fare'])} · {ride['party']} seat(s)",25,INK,True)
         if ride.get('surge'):
             self.label(card,f"Includes ×{ride['surge']:.1f} busy-time price · checked by the Guardian",12,CYAN)
+        self.payment_line(card, ride)
         self.label(card,'Reference '+ride['id'],10,MUTED)
         if co:
             self.shared_stops(ride, co)
@@ -1083,6 +1101,7 @@ class AtlasGoApp(App):
 
     def next_ride(self):
         self.store.advance_ride()
+        self.sync_soon()
         self.go('active_ride' if self.store.ride else 'activity')
 
     def cancel_ride(self):
@@ -1137,6 +1156,7 @@ class AtlasGoApp(App):
         rate = ai.acceptance(d['offered'], d['accepted'])
         self.label(stats,f"{d['trips']} trips · {money(d['earnings'])} fares",21,INK,True)
         self.label(stats,f"Requests accepted {d['accepted']} of {d['offered']} · ATLAS expects you to accept {round(rate*100)}%",13,MUTED)
+        self.balance_card()
         today = ai.day_summary(self.today())
         smart = self.box(self.body,LILAC)
         self.label(smart,'WHEN TO DRIVE · ATLAS OUTLOOK',10,VIOLET,True)
@@ -1164,6 +1184,7 @@ class AtlasGoApp(App):
 
     def job_next(self):
         self.store.driver_advance()
+        self.sync_soon()
         self.render()
 
     # ------------------------------------------------------------------ seller
@@ -1213,6 +1234,7 @@ class AtlasGoApp(App):
         self.label(stats,'SALES',10,GREEN,True)
         self.label(stats,f"{kitchen.get('orders',0)} orders delivered · {money(kitchen.get('sales',0))} food sales",19,INK,True)
         self.label(stats,'Registration '+kitchen['registration']+' · self-declared',11,MUTED)
+        self.balance_card()
 
     def seller_menu(self):
         kitchen = self.store.kitchen_of(self.store.user)
@@ -1241,7 +1263,7 @@ class AtlasGoApp(App):
 
     # ------------------------------------------------------------------ food
     def food(self):
-        self.title_block('Good food. Close by.','What are you craving?','Cork kitchens · deliveries and payments are simulated')
+        self.title_block('Good food. Close by.','What are you craving?','Cork kitchens · simulated deliveries · pay by bank or demo')
         descriptions = ('Fresh bowls & wraps · 20–30 min','Stone-baked favourites · 25–35 min','Indian comfort food · 25–40 min')
         marks = ('FRESH & COLOURFUL','SLICE OF HAPPINESS','WARM & SPICED')
         fills = ('#E4EFCC','#F6E4C8','#F0DECF')
@@ -1286,7 +1308,7 @@ class AtlasGoApp(App):
         self.render()
 
     def cart(self):
-        self.title_block('Your basket','A good choice.','Simulated checkout · no payment information required')
+        self.title_block('Your basket','A good choice.','Pay by bank (sandbox) or use the demo checkout')
         if not self.store.cart.items:
             self.label(self.body,'Your basket is empty. Find something you love.',16,MUTED)
             self.button(self.body,'Browse food','empty_food',lambda:self.go('food'))
@@ -1306,13 +1328,14 @@ class AtlasGoApp(App):
         self.label(timing,'COURIER TIMING · LEARNED',10,VIOLET,True)
         self.label(timing,ai.courier_text(plan),13,INK)
         self.select(self.body,'DELIVER TO',PLACES,self.address,'delivery_address',lambda v:self.update_selection('address',v))
+        self.pay_card(self.body)
         self.button(self.body,'Place order','checkout',self.checkout)
         self.button(self.body,'Clear basket','clear_cart',self.clear_cart,False)
 
     def checkout(self):
         restaurant = self.store.cart.restaurant
         plan = ai.courier_plan(restaurant, prep=self.store.kitchen_prep(restaurant)) if restaurant is not None else None
-        self.store.checkout(self.address, plan)
+        self.store.checkout(self.address, plan, pay_by_bank=self.paying_by_bank())
         self.go('active_order')
 
     def active_order(self):
@@ -1333,6 +1356,7 @@ class AtlasGoApp(App):
         self.label(card,money(order['fare']),30,INK,True)
         for item,quantity in order['items'].items():
             self.label(card,f'{quantity} × {self.store.catalog.dishes[item].name}',15,INK)
+        self.payment_line(card, order)
         self.label(card,'Reference '+order['id'],10,MUTED)
         if order.get('courier'):
             timing = self.box(self.body,LILAC)
@@ -1348,7 +1372,280 @@ class AtlasGoApp(App):
 
     def next_order(self):
         self.store.advance_order()
+        self.sync_soon()
         self.go('active_order' if self.store.order else 'activity')
+
+    # ------------------------------------------------------------------ bank payments (1.5.0)
+    def bank(self):
+        user = self.store.user
+        return user.get('bank') if user else None
+
+    def paying_by_bank(self):
+        return bool(self.pay_bank and self.store.user and self.store.role == 'passenger' and self.bank())
+
+    def pay_card(self, parent):
+        """How the booking on this screen will be paid: the linked bank account or the demo checkout."""
+        bank = self.bank()
+        box = self.box(parent,ICE,12)
+        self.label(box,'PAYMENT',10,CYAN,True)
+        if bank:
+            self.select(box,'PAY WITH',('Bank account '+bank['masked'],'Demo · no charge'),0 if self.pay_bank else 1,
+                        'pay_with',lambda v:self.update_selection('pay_bank',v == 0))
+            self.label(box,'Your bank is asked when you book; the money is taken only when you arrive, and the '
+                           'authorisation is released if you cancel. Sandbox bank: no real money moves.' if self.pay_bank
+                       else 'Nothing is charged for this booking.',11,MUTED)
+        elif self.store.user:
+            self.label(box,'Demo · no charge',15,INK,True)
+            self.button(box,'Add a bank account to pay by bank','pay_add_bank',lambda:self.go('wallet'),False)
+        else:
+            self.label(box,'Demo · no charge',15,INK,True)
+            self.label(box,'Create an account to pay by bank.',11,MUTED)
+
+    def payment_line(self, parent, record):
+        payment = self.store.payment(record['payment']) if record.get('payment') else None
+        if not payment:
+            return
+        text = {'authorised':'Bank payment authorised · taken on arrival','captured':'Paid by bank',
+                'voided':'Bank authorisation released · nothing was taken','refunded':'Refunded to your bank',
+                'declined':'Declined by your bank'}[payment['status']]
+        if self.store.role != 'passenger' and payment['status'] == 'captured':
+            text = f"Paid by bank · you receive {money(payment['payee_net'])} after the {money(payment['platform_fee'])} ATLAS fee"
+        where = ' · on the ATLAS server' if payment.get('synced') else ''
+        self.label(parent,f"{text} · account •••• {payment['last4']}{where}",12,CYAN)
+
+    def balance_card(self):
+        wallet = self.store.wallet()
+        box = self.box(self.body,ICE)
+        self.label(box,'YOUR BALANCE · BANK PAYMENTS',10,CYAN,True)
+        self.label(box,money(wallet['balance'])+' available',21,INK,True)
+        pending = f" · {money(wallet['pending'])} arriving with the current job" if wallet['pending'] else ''
+        self.label(box,f"Earned {money(wallet['earned'])} · paid out {money(wallet['paid_out'])}{pending}",12,MUTED)
+        self.button(box,'Bank & payouts','open_wallet',lambda:self.go('wallet'),False)
+        self.shown['wallet'] = wallet
+
+    def wallet_screen(self):
+        user = self.store.user
+        if not user:
+            self.title_block('Bank & payments','Pay by bank','Create an account to link a bank account.')
+            self.button(self.body,'Create an account','wallet_register',lambda:(self.store.logout(),self.go('register')))
+            return
+        role, bank = user['role'], user.get('bank')
+        payee = role != 'passenger'
+        self.title_block('Bank & payments','Get paid to your bank' if payee else 'Pay by bank',
+                         'Sandbox bank · IBANs are checked for real · no real money moves')
+        if payee:
+            wallet = self.store.wallet()
+            box = self.box(self.body,GREEN)
+            self.label(box,'AVAILABLE TO PAY OUT',10,LIME,True)
+            self.label(box,money(wallet['balance']),31,WHITE,True)
+            self.label(box,f"Earned {money(wallet['earned'])} after ATLAS fees · paid out {money(wallet['paid_out'])}",12,WHITE)
+            if bank and wallet['balance'] >= pay.MIN_PAYOUT:
+                self.button(self.body,f"Pay out {money(wallet['balance'])} to {bank['masked']}",'payout',
+                            lambda:self.message('Pay out to your bank?','Enter your password to send your balance to '
+                                                +bank['masked']+'.',self.payout,password=True))
+            self.shown['wallet'] = wallet
+        card = self.box(self.body)
+        if bank:
+            self.label(card,'PAYOUT ACCOUNT' if payee else 'BANK ACCOUNT · DIRECT DEBIT',10,GREEN,True)
+            self.label(card,bank['masked'],23,INK,True)
+            self.label(card,bank['holder']+(' · '+bank['bank'] if bank['bank'] else ''),14,MUTED)
+            if bank.get('mandate'):
+                signed = dt.date.fromtimestamp(bank['mandate']['signed']).strftime('%d %b %Y')
+                self.label(card,f"Mandate {bank['mandate']['id']} · signed {signed}",11,MUTED)
+            self.label(card,'Only these details are saved. The full IBAN was checked and then dropped.',11,MUTED)
+            self.button(card,'Remove bank account','bank_remove',lambda:self.message('Remove this bank account?',
+                        'Enter your password. '+('Your balance stays until you link another account.' if payee else
+                                                 'New bookings will use the demo checkout.'),self.remove_bank,password=True),False)
+        else:
+            self.label(card,'LINK THE ACCOUNT YOU ARE PAID TO' if payee else 'LINK A BANK ACCOUNT',10,GREEN,True)
+            self.form.setdefault('bank_holder',user['name'])
+            self.field(card,'ACCOUNT HOLDER','bank_holder','Aoife Murphy')
+            self.field(card,'IBAN','bank_iban','IE29 AIBK 9311 5212 3456 78')
+            if not payee:
+                self.label(card,'SEPA DIRECT DEBIT MANDATE',10,CYAN,True)
+                self.label(card,pay.MANDATE_TEXT,11,MUTED)
+                agree = self.button(card,('[x] ' if self.form.get('bank_consent') else '[  ] ')+'I authorise these debits',
+                                    'bank_consent',self.toggle_consent,False)
+                agree.background_color = LIME if self.form.get('bank_consent') else WHITE
+            self.field(card,'YOUR ATLAS GO PASSWORD','bank_password','Confirm it is you',password=True)
+            self.button(card,'Link bank account','bank_link',self.submit_bank)
+            self.label(card,'Sandbox test accounts: an IBAN ending 0002 has no funds; one ending 0003 is closed.',11,MUTED)
+        payouts = self.store.my_payouts()
+        if payouts:
+            box = self.box(self.body)
+            self.label(box,'PAYOUTS',10,GREEN,True)
+            for o in payouts[:6]:
+                when = dt.datetime.fromtimestamp(o['created']).strftime('%d %b %H:%M')
+                self.label(box,f"{money(o['amount'])} · {'paid' if o['status']=='paid' else 'failed: account closed'} · •••• {o['last4']} · {when}",
+                           13,INK if o['status']=='paid' else RED)
+        payments = self.store.my_payments()
+        box = self.box(self.body)
+        self.label(box,'PAYMENTS RECEIVED' if payee else 'BANK PAYMENTS',10,GREEN,True)
+        if not payments:
+            self.label(box,'No bank payments yet.' + ('' if payee else ' Book a ride or order food and choose your bank account.'),13,MUTED)
+        for p in payments[:8]:
+            kind = {'ride':'Ride','shared':'Shared ride','food':'Food order'}[p['kind']]
+            amount = f"{money(p['payee_net'])} of {money(p['amount'])} (fee {money(p['platform_fee'])})" if payee else money(p['amount'])
+            server = ' · on server' if p['synced'] else ' · refused by server' if p.get('error') else ''
+            self.label(box,f"{kind} · {amount} · {p['status']}{server}",13,INK)
+        self.server_card(user)
+
+    def toggle_consent(self):
+        self.form['bank_consent'] = not self.form.get('bank_consent')
+        self.render()
+
+    def link_of(self, user=None):
+        user = user or self.store.user
+        return (user or {}).get('server') if self.store.server_url else None
+
+    def submit_bank(self):
+        f, user = self.form, self.store.user
+        holder, iban, password = f.get('bank_holder',''), f.get('bank_iban',''), f.get('bank_password','')
+        consent = bool(f.get('bank_consent'))
+        if not acc.verify_password(password, user):
+            raise ValueError('Password is not correct.')
+        pay.bank_record(user['role'], holder, iban, consent, time.time())      # validate before any network call
+        def save(mandate=None):
+            self.store.link_bank(password, holder, iban, consent, mandate_id=(mandate or {}).get('mandate_id'))
+            for key in ('bank_iban','bank_password','bank_consent'):
+                self.form.pop(key, None)
+            self.render()
+        link = self.link_of()
+        if link:   # connected: the server (system of record) links it first, then the phone
+            self.remote(lambda:backend.Backend(self.store.server_url).link_bank(link['token'],password,holder,iban,consent), save)
+        else:
+            save()
+
+    def remove_bank(self, password):
+        link = self.link_of()
+        if not acc.verify_password(password or '', self.store.user):
+            raise ValueError('Password is not correct.')
+        def done(_=None):
+            self.store.unlink_bank(password)
+            self.render()
+        if link:
+            self.remote(lambda:backend.Backend(self.store.server_url).unlink_bank(link['token'],password), done)
+        else:
+            done()
+
+    def payout(self, password):
+        link = self.link_of()
+        if not link:
+            result = self.store.request_payout(password)
+            self.after_payout(result)
+            return
+        if not acc.verify_password(password or '', self.store.user):
+            raise ValueError('Password is not correct.')
+        amount, key = self.store.wallet()['balance'], f'O-{time_ns()}'
+        jobs, url = backend.outbox(self.store), self.store.server_url
+        def task():   # copy any waiting payments first, so the server's balance matches the phone's
+            client = backend.Backend(url)
+            return backend.deliver(client, jobs), client.payout(link['token'], password, key, amount)
+        def done(result):
+            backend.apply(self.store, result[0])
+            payout = self.store.request_payout(password, payout_id=key)
+            self.store.mark_synced(payout['id'], result[1].get('id'))
+            self.after_payout(payout)
+        self.remote(task, done)
+
+    def after_payout(self, payout):
+        self.render()
+        if payout['status'] == 'paid':
+            self.message('Payout sent',f"{money(payout['amount'])} is on its way to •••• {payout['last4']}. Sandbox: no real transfer.")
+        else:
+            self.message('Payout failed','Your bank reports this account as closed. Your balance is unchanged; link a different account.')
+
+    # ------------------------------------------------------------------ ATLAS server (PostgreSQL back end)
+    def remote(self, task, done=None, quiet=False):
+        """Run a blocking server call on a worker thread; apply its result on Kivy's main thread."""
+        if self.busy:
+            if not quiet:
+                self.message('One moment','ATLAS Go is still talking to the server.')
+            return
+        self.busy = True
+        def finish(result, error):
+            self.busy = False
+            if error is None:
+                try:
+                    if done:
+                        done(result)
+                    return
+                except (ValueError, OSError) as failure:
+                    error = failure
+            self.sync_note = str(error)
+            if not quiet:
+                self.message('ATLAS server',str(error))
+            elif self.screen == 'wallet':
+                self.render()
+        def work():
+            try:
+                result, error = task(), None
+            except (ValueError, OSError) as failure:
+                result, error = None, failure
+            Clock.schedule_once(lambda _dt:finish(result, error), 0)
+        threading.Thread(target=work, daemon=True).start()
+
+    def server_card(self, user):
+        box = self.box(self.body)
+        self.label(box,'ATLAS SERVER · POSTGRESQL',10,GREEN,True)
+        link = self.link_of(user)
+        if link:
+            waiting = len(self.store.unsynced())
+            self.label(box,'Connected',19,INK,True)
+            self.label(box,f"{self.store.server_url} · account {link['id'][:8]}",12,MUTED)
+            self.label(box,f'{waiting} bank payment(s) waiting to be copied to the server.' if waiting else
+                       'Your account, bank details, payments and payouts are in the server database.',13,MUTED)
+            self.button(box,'Sync now','server_sync',lambda:self.sync_soon(quiet=False),False)
+            self.button(box,'Disconnect this phone','server_disconnect',lambda:(self.store.disconnect(),self.render()),False)
+        else:
+            self.label(box,'This account is saved on this phone only.',15,INK,True)
+            self.label(box,'Connect it to an ATLAS server to keep your account, bank mandate, payments and payouts '
+                           'in its PostgreSQL database. Rides and orders stay on this phone.',12,MUTED)
+            self.form.setdefault('server_url',self.store.server_url or os.environ.get('ATLAS_API_URL',''))
+            self.field(box,'SERVER ADDRESS','server_url','https://atlas.example.ie')
+            self.field(box,'YOUR ATLAS GO PASSWORD','server_password','Sent over HTTPS, stored only as a hash',password=True)
+            self.button(box,'Connect this account','server_connect',
+                        lambda:(self.store.set_server(self.form.get('server_url','')),
+                                self.connect_server(self.form.get('server_password',''))),False)
+        if self.sync_note:
+            self.label(box,self.sync_note,12,SURGE)
+
+    def connect_server(self, password, quiet=False):
+        user = self.store.user
+        if not self.store.server_url:
+            raise ValueError('Enter the address of an ATLAS server first.')
+        if not user or not acc.verify_password(password or '', user):
+            raise ValueError('Password is not correct.')
+        account, kitchen, url = dict(user), self.store.kitchen_of(user), self.store.server_url
+        def done(reply):
+            if self.store.session != account['id']:
+                return                               # signed out while the call was running
+            self.store.connect(reply['account']['id'], reply['token'])
+            self.form.pop('server_password', None)
+            self.sync_note = 'Connected. A bank account linked before connecting must be linked again.' \
+                if user.get('bank') else 'Connected.'
+            self.render()
+            self.sync_soon()
+        self.remote(lambda:backend.Backend(url).connect(account, password, kitchen), done, quiet)
+
+    def sync_soon(self, quiet=True):
+        """Copy captured bank payments to the server in the background (transactional outbox)."""
+        if not self.store.server_url:
+            return
+        jobs, url = backend.outbox(self.store), self.store.server_url
+        if not jobs:
+            if not quiet:
+                self.sync_note = 'Nothing to send: the server is up to date.'
+                self.render()
+            return
+        def done(results):
+            summary = backend.apply(self.store, results)
+            self.sync_note = f"Copied {summary['sent']} payment(s) to the server" + \
+                (f", {summary['failed']} refused" if summary['failed'] else '') + \
+                (f", {summary['waiting']} waiting for a connection" if summary['waiting'] else '') + '.'
+            if self.screen == 'wallet':
+                self.render()
+        self.remote(lambda:backend.deliver(backend.Backend(url), jobs), done, quiet)
 
     # ------------------------------------------------------------------ activity and profile
     def activity(self):
@@ -1375,6 +1672,7 @@ class AtlasGoApp(App):
                            else f"Shared with {co['name']}",12,VIOLET)
             if not is_food and (record.get('twin') or {}).get('rollouts'):
                 self.label(card,'Twin-tested by Agent 1 · checked by the Guardian',12,CYAN)
+            self.payment_line(card, record)
             self.label(card,record['id'],10,MUTED)
 
     def profile(self):
@@ -1396,6 +1694,8 @@ class AtlasGoApp(App):
             self.label(card,'Create an account to save your trips under your name, or to drive or sell food.',15,MUTED)
             self.button(self.body,'Create an account','profile_register',lambda:(self.store.logout(),self.go('register')))
             self.button(self.body,'Sign in','profile_login',lambda:(self.store.logout(),self.go('login')),False)
+        if user:
+            self.button(self.body,'Bank & payments','profile_wallet',lambda:self.go('wallet'),False)
         self.button(self.body,'How ATLAS learns','profile_learn',lambda:self.go('intelligence'),False)
         self.button(self.body,'Privacy & how this app works','privacy',lambda:self.go('privacy'),False)
         if user:
@@ -1413,20 +1713,29 @@ class AtlasGoApp(App):
         self.pickup,self.destination,self.party,self.restaurant,self.address,self.comfort = 0,1,1,0,0,False
         self.outlook_day, self.lab, self.models, self.form, self.reg_role = 0, None, None, {}, 'passenger'
         self.layer2_checks = None
+        self.pay_bank, self.sync_note = True, ''
         self.go('welcome')
 
     def privacy(self):
-        self.title_block('Transparent by design','Your data. Your device.','Privacy notice · effective 14 November 2026')
+        self.title_block('Transparent by design','Your data. Your choice.','Privacy notice · effective 16 November 2026')
         for heading,description in (
             ('Accounts stay on this phone','Your name, email, mobile number and role details are stored in private app storage. '
-             'Passwords are never stored: only a salted PBKDF2-SHA256 hash. There is no server account, advertising or analytics.'),
+             'Passwords are never stored: only a salted PBKDF2-SHA256 hash. There is no advertising or analytics.'),
+            ('Bank account, if you link one','You type your IBAN once. It is checked and then dropped: this phone keeps only '
+             'the account holder, the country and the last four characters, plus your Direct Debit mandate reference. '
+             'Linking, removing and paying out ask for your password again. The bank is a sandbox: no real money moves.'),
+            ('ATLAS server, only if you connect','Nothing is sent to a server unless you enter a server address and connect '
+             'your account in You > Bank & payments. Then your name, email, mobile, role details, password (over HTTPS, '
+             'stored only as a salted hash), bank details and your bank payments and payouts are kept in that server\'s '
+             'PostgreSQL database. Rides, orders, location and the models stay on this phone.'),
             ('Location, only when you ask','Location is used only after you tap Me on the map, Pick up near my location or Use my phone '
              'location, and only after you allow it. It is used on this phone to show the blue dot, pick the nearest pickup point '
              'and position a signed-in driver for dispatch. It is not sent anywhere.'),
             ('Map tiles','The live map downloads map images from OpenStreetMap\'s tile servers, which receive your IP address and '
              'the map area being viewed, as any website would. Tiles are cached on this phone. Map data © OpenStreetMap contributors.'),
-            ('Simulated service','Rides, deliveries and payments are simulated. Driver licences, vehicle registrations and food '
-             'business numbers are checked for format only, not verified. No real driver, kitchen or courier is contacted.'),
+            ('Simulated service','Rides and deliveries are simulated and bank payments use a sandbox bank. Driver licences, '
+             'vehicle registrations and food business numbers are checked for format only, not verified. No real driver, '
+             'kitchen, courier or bank is contacted.'),
             ('Delete whenever you like','You > Delete my account removes your profile. You > Erase all data removes everything. '
              'Clearing app storage or uninstalling also removes everything. Android backup is disabled.'),
             ('Learning, on this device only','Surge outlooks, driver choice, acceptance estimates and courier timing come from '

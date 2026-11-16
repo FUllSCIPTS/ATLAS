@@ -1,8 +1,10 @@
-"""Local JSON persistence and business rules: accounts, rides, food orders, seller kitchens.
+"""Local JSON persistence and business rules: accounts, rides, food orders, seller kitchens,
+bank payments and payouts.
 
-No live services or payments. Learned policies run locally (intelligence.py); the UI passes
-their answers in as plain values. Every command validates, mutates, writes the file
-atomically, and restores the previous in-memory state if the write fails.
+Learned policies run locally (intelligence.py); the UI passes their answers in as plain values.
+Bank payments (payments.py, 1.5.0) use the sandbox bank on the phone and are copied to the
+PostgreSQL server when the account is connected (backend.py). Every command validates, mutates,
+writes the file atomically, and restores the previous in-memory state if the write fails.
 """
 from copy import deepcopy
 import json
@@ -12,12 +14,13 @@ from pathlib import Path
 from time import time_ns
 from . import accounts as acc
 from . import geo
+from . import payments as pay
 from . import twin as layer2
 from .domain import Cart, Catalog, Offer, distance, fare, PLACES
 
 SCREENS = ('welcome', 'login', 'register', 'home', 'ride', 'share', 'food', 'menu', 'cart', 'active_ride',
            'active_order', 'activity', 'profile', 'privacy', 'intelligence', 'map', 'driver', 'seller',
-           'seller_menu', 'account', 'twin')
+           'seller_menu', 'account', 'twin', 'wallet')
 OFFER_IDS = ('pool-1', 'pool-2', 'pool-3', 'pool-4')
 FIRST_SELLER_KITCHEN = 3
 MAX_DISHES = 30
@@ -55,6 +58,9 @@ class LocalStore:
         self.order = None
         self.ui = {}
         self.twin = layer2.default_state()     # Layer 2 (1.3.0): on/off, agent status, Guardian log
+        self.payments = []                     # bank payments (1.5.0): authorised, captured, voided
+        self.payouts = []                      # payouts to drivers' and sellers' bank accounts
+        self.server_url = ''                   # ATLAS server (PostgreSQL back end); '' = this phone only
         self.offers = [
             # Each carpool already carries one rider, who is dropped before you (see geo.last_stage).
             Offer('pool-1', 'Alex · Electric hatchback', 0, 1, 3, 490, 3, 'Ciara', 'Bishopstown', 'Grand Parade'),
@@ -83,6 +89,10 @@ class LocalStore:
             # 1.2.0 files have no Layer 2 state; a damaged one is reset on its own (rides are kept).
             twin = data.get('twin')
             self.twin = twin if layer2.valid_state(twin) else layer2.default_state()
+            # 1.4.0 and earlier files have no payments, payouts or server link.
+            self.payments = data.get('payments', [])
+            self.payouts = data.get('payouts', [])
+            self.server_url = data.get('server_url', '')
             for offer in self.offers:
                 seats = data.get('seats', {}).get(offer.id, offer.capacity)
                 offer.seats = max(0, min(offer.capacity, int(seats)))
@@ -116,6 +126,12 @@ class LocalStore:
                     raise ValueError('Invalid account field.')
             if a['email'] in emails or type(a.get('iterations')) is not int or a['iterations'] < 1000:
                 raise ValueError('Invalid account credentials.')
+            if 'bank' in a and not pay.valid_bank(a['bank'], a['role']):
+                raise ValueError('Invalid linked bank account.')
+            link = a.get('server')
+            if link is not None and (not isinstance(link, dict) or
+                                     not all(isinstance(link.get(k), str) and link[k] for k in ('id', 'token'))):
+                raise ValueError('Invalid server link.')
             ids.add(a['id'])
             emails.add(a['email'])
             if a['role'] == 'driver':
@@ -164,11 +180,32 @@ class LocalStore:
         if type(data.get('guest', False)) is not bool:
             raise ValueError('Invalid guest flag.')
         Cart(data.get('cart', {}), catalog)
+        payments, payouts = data.get('payments', []), data.get('payouts', [])
+        if not isinstance(payments, list) or not isinstance(payouts, list) or \
+                not all(pay.valid_payment(p) for p in payments) or not all(pay.valid_payout(o) for o in payouts):
+            raise ValueError('Invalid payment or payout.')
+        paid = {p['id']: p for p in payments}
+        if len(paid) != len(payments) or len({o['id'] for o in payouts}) != len(payouts):
+            raise ValueError('Duplicate payment or payout.')
+        lines = pay.entries(payments, payouts)
+        if not pay.balanced(lines) or any(pay.balance(lines, pay.payable(o['account'])) < 0 for o in payouts):
+            raise ValueError('The payment ledger does not balance.')
+        if not isinstance(data.get('server_url', ''), str):
+            raise ValueError('Invalid server address.')
         records = list(data.get('history', []))
-        records += [data[k] for k in ('ride', 'order') if data.get(k) is not None]
+        active = [data[k] for k in ('ride', 'order') if data.get(k) is not None]
+        records += active
         for record in records:
             if not isinstance(record, dict):
                 raise ValueError('Invalid booking record.')
+            if record.get('payment') is not None:
+                # A booking paid by bank points at its payment, and the two must tell the same story.
+                payment = paid.get(record['payment'])
+                expected = ('authorised',) if any(record is r for r in active) else \
+                    ('voided',) if record.get('status') == 'Cancelled' else ('captured', 'refunded')
+                if payment is None or payment['ref'] != record.get('id') or payment['status'] not in expected \
+                        or payment['amount'] != record.get('fare'):
+                    raise ValueError('Booking and payment do not match.')
             if not isinstance(record.get('id'), str) or type(record.get('fare')) is not int or record['fare'] < 0:
                 raise ValueError('Invalid booking identity or total.')
             if type(record.get('stage')) is not int or record['stage'] not in range(4):
@@ -244,7 +281,8 @@ class LocalStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         payload = dict(cart=self.cart.items, history=self.history, ride=self.ride, order=self.order,
                        seats={o.id: o.seats for o in self.offers}, ui=self.ui, accounts=self.accounts,
-                       kitchens=self.kitchens, session=self.session, guest=self.guest, twin=self.twin)
+                       kitchens=self.kitchens, session=self.session, guest=self.guest, twin=self.twin,
+                       payments=self.payments, payouts=self.payouts, server_url=self.server_url)
         temporary = self.path.with_suffix('.tmp')
         with temporary.open('w', encoding='utf-8') as stream:
             json.dump(payload, stream, ensure_ascii=False)
@@ -254,7 +292,8 @@ class LocalStore:
 
     def snapshot(self):
         return deepcopy((self.cart, self.history, self.ride, self.order, self.ui, self.offers,
-                         self.accounts, self.kitchens, self.session, self.guest, self.twin))
+                         self.accounts, self.kitchens, self.session, self.guest, self.twin,
+                         self.payments, self.payouts, self.server_url))
 
     def commit(self, before) -> None:
         try:
@@ -262,7 +301,8 @@ class LocalStore:
         except OSError:
             if before is not None:
                 (self.cart, self.history, self.ride, self.order, self.ui, self.offers,
-                 self.accounts, self.kitchens, self.session, self.guest, self.twin) = before
+                 self.accounts, self.kitchens, self.session, self.guest, self.twin,
+                 self.payments, self.payouts, self.server_url) = before
                 self.catalog = Catalog(self.kitchens)
                 self.cart.catalog = self.catalog
             raise
@@ -371,8 +411,13 @@ class LocalStore:
         mine = self.kitchen_of(user)
         if self.order and (self.order.get('passenger') == user['id'] or (mine and self.order['restaurant'] == mine['id'])):
             raise ValueError('Complete the active food order first.')
+        if pay.wallet(user['id'], self.payments, self.payouts)['balance'] > 0:
+            raise ValueError('Pay out your balance to your bank account first.')
         before = self.snapshot()
         self.accounts = [a for a in self.accounts if a['id'] != user['id']]
+        for payment in self.payments:
+            if payment['payer'] == user['id']:
+                payment['payer'] = 'deleted'         # the amounts stay for the ledger; the person does not
         if mine:
             # Keep the kitchen record so past orders still show its name, but close it.
             mine['open'] = False
@@ -453,7 +498,7 @@ class LocalStore:
              offer_id: str | None = None, party: int = 1,
              driver: str | None = None, why: str | None = None,
              driver_id: str | None = None, start=None, now: float | None = None,
-             multiplier: float = 1.0, twin: dict | None = None, log=()) -> None:
+             multiplier: float = 1.0, twin: dict | None = None, log=(), pay_by_bank: bool = False) -> None:
         if self.ride:
             raise ValueError('Finish or cancel your active ride first.')
         if self.user and self.user['role'] != 'passenger':
@@ -471,6 +516,12 @@ class LocalStore:
             if not account or account['role'] != 'driver' or not account['driver']['online']:
                 raise ValueError('That driver is no longer online.')
         now = time.time() if now is None else now
+        ride_id = f'R-{time_ns()}'
+        amount = offer.price * party if offer else _priced(fare(pickup, destination, comfort), multiplier)
+        details = dict(offer=offer_id, party=party) if offer else \
+            dict(pickup=pickup, destination=destination, comfort=bool(comfort), multiplier=float(multiplier))
+        # Authorise before anything changes: a declined payment must leave no reservation behind.
+        payment = self._authorise('shared' if offer else 'ride', ride_id, amount, details, now) if pay_by_bank else None
         before = self.snapshot()
         co = None
         if offer:
@@ -484,10 +535,10 @@ class LocalStore:
                 start = (geo.PLACE_COORDS[pickup][0] - 0.004, geo.PLACE_COORDS[pickup][1] - 0.006)
         elif start is None:
             start = (geo.PLACE_COORDS[pickup][0] + 0.006, geo.PLACE_COORDS[pickup][1] + 0.008)
-        self.ride = dict(id=f'R-{time_ns()}', pickup=pickup, destination=destination,
+        self.ride = dict(id=ride_id, pickup=pickup, destination=destination,
                          shared=bool(offer), party=party, offer=offer_id,
                          driver=offer.driver if offer else (driver or 'Morgan · ATLAS demo driver'),
-                         fare=offer.price * party if offer else _priced(fare(pickup, destination, comfort), multiplier),
+                         fare=amount,
                          stage=0,
                          passenger=self.session, driver_id=None if offer else driver_id,
                          pending=bool(driver_id) and not offer,
@@ -500,6 +551,9 @@ class LocalStore:
             self.ride['surge'] = round(float(multiplier), 2)
         if twin and not offer:
             self.ride['twin'] = dict(twin)
+        if payment:
+            self.payments.append(payment)
+            self.ride['payment'] = payment['id']
         self._log(log)
         self.commit(before)
 
@@ -516,6 +570,10 @@ class LocalStore:
                 next(o for o in self.offers if o.id == ride['offer']).release(ride['party'])
             ride['status'] = 'Cancelled' if cancel else 'Completed'
             ride['pending'] = False
+            if ride.get('payment'):
+                # Cancelled: release the authorisation. Completed: capture it for the driver.
+                pay.move(self.payment(ride['payment']), 'voided' if cancel else 'captured', now,
+                         payee=None if cancel else (ride.get('driver_id') or 'fleet'))
             if not cancel and ride.get('driver_id'):
                 driver = self.account(ride['driver_id'])
                 if driver:
@@ -633,7 +691,8 @@ class LocalStore:
             raise ValueError('Unknown basket operation.')
         self.commit(before)
 
-    def checkout(self, address: int, courier: dict | None = None, now: float | None = None) -> None:
+    def checkout(self, address: int, courier: dict | None = None, now: float | None = None,
+                 pay_by_bank: bool = False) -> None:
         if self.order:
             raise ValueError('Complete the active food order first.')
         if self.user and self.user['role'] != 'passenger':
@@ -646,15 +705,21 @@ class LocalStore:
         if not kitchen.open:
             raise ValueError('This kitchen is closed right now.')
         now = time.time() if now is None else now
+        order_id = f'F-{time_ns()}'
+        payment = self._authorise('food', order_id, self.cart.total(),
+                                  dict(kitchen=kitchen.id, items=self.cart.items.copy()), now) if pay_by_bank else None
         before = self.snapshot()
         point = geo.KITCHEN_COORDS[kitchen.id] if kitchen.id < len(geo.KITCHEN_COORDS) else \
             (geo.PLACE_COORDS[kitchen.place][0] + 0.0012, geo.PLACE_COORDS[kitchen.place][1] - 0.0016)
-        self.order = dict(id=f'F-{time_ns()}', restaurant=self.cart.restaurant,
+        self.order = dict(id=order_id, restaurant=self.cart.restaurant,
                           address=address, fare=self.cart.total(), items=self.cart.items.copy(), stage=0,
                           passenger=self.session, pending=kitchen.owner is not None,
                           live=dict(kitchen=[point[0], point[1]], t=now))
         if courier:
             self.order['courier'] = dict(courier)
+        if payment:
+            self.payments.append(payment)
+            self.order['payment'] = payment['id']
         self.cart.clear()
         self.commit(before)
 
@@ -689,6 +754,10 @@ class LocalStore:
             if mine:
                 mine['orders'] = mine.get('orders', 0) + 1
                 mine['sales'] = mine.get('sales', 0) + order['fare'] - 250
+            if order.get('payment'):
+                owner = mine.get('owner') if mine else None
+                pay.move(self.payment(order['payment']), 'captured', now,
+                         payee=owner if owner and self.account(owner) else f"kitchen-{order['restaurant']}")
             self.history.append(order)
             self.order = None
         else:
@@ -727,6 +796,145 @@ class LocalStore:
                     self._advance_order(now)
                     changed = True
         return changed
+
+    # ------------------------------------------------------------------ bank payments (1.5.0)
+    def payment(self, payment_id: str) -> dict | None:
+        return next((p for p in self.payments if p['id'] == payment_id), None)
+
+    def _step_up(self, password: str) -> dict:
+        """Money settings need the password again, even inside a signed-in session."""
+        user = self.user
+        if not user:
+            raise ValueError('Create an account or sign in to use bank payments.')
+        if not acc.verify_password(password or '', user):
+            raise ValueError('Password is not correct.')
+        return user
+
+    def _authorise(self, kind: str, ref: str, amount: int, details: dict, now: float) -> dict:
+        user = self.user
+        if not user or user['role'] != 'passenger' or 'bank' not in user:
+            raise ValueError('Link a bank account in You > Bank & payments to pay by bank.')
+        return pay.new_payment(f'P-{time_ns()}', kind, ref, user['id'], amount, user['bank'], now, details)
+
+    def _open_payment(self, user: dict) -> bool:
+        return any(p['status'] == 'authorised' and p['payer'] == user['id'] for p in self.payments)
+
+    def link_bank(self, password: str, holder: str, iban: str, consent: bool = False,
+                  now: float | None = None, mandate_id: str | None = None) -> dict:
+        """Link (or replace) the signed-in account's bank account. Passengers sign a Direct Debit
+        mandate and pay from it; drivers and sellers are paid out to it. The IBAN is checked and then
+        dropped: only the holder, country and last four characters are saved."""
+        user = self._step_up(password)
+        if self._open_payment(user):
+            raise ValueError('Finish or cancel the booking you are paying for first.')
+        record = pay.bank_record(user['role'], holder, iban, consent, time.time() if now is None else now, mandate_id)
+        before = self.snapshot()
+        user['bank'] = record
+        self.commit(before)
+        return record
+
+    def unlink_bank(self, password: str) -> None:
+        user = self._step_up(password)
+        if 'bank' not in user:
+            raise ValueError('No bank account is linked.')
+        if self._open_payment(user):
+            raise ValueError('Finish or cancel the booking you are paying for first.')
+        before = self.snapshot()
+        del user['bank']
+        self.commit(before)
+
+    def wallet(self) -> dict:
+        """Earned, paid out and available balance of the signed-in driver or seller, plus the amount
+        of the trip or order in progress."""
+        user = self.user
+        if not user or user['role'] not in ('driver', 'seller'):
+            raise ValueError('Only drivers and food sellers have a balance.')
+        view = pay.wallet(user['id'], self.payments, self.payouts)
+        job = self.driver_job() if user['role'] == 'driver' else self.seller_order()
+        payment = self.payment(job['payment']) if job and job.get('payment') else None
+        view['pending'] = payment['payee_net'] if payment and payment['status'] == 'authorised' else 0
+        return view
+
+    def request_payout(self, password: str, now: float | None = None, payout_id: str | None = None) -> dict:
+        """Pay the whole available balance to the linked bank account. A failed payout (closed
+        account) is recorded and leaves the balance untouched."""
+        user = self._step_up(password)
+        if user['role'] not in ('driver', 'seller'):
+            raise ValueError('Only drivers and food sellers can be paid out.')
+        if 'bank' not in user:
+            raise ValueError('Link the bank account you want to be paid to first.')
+        amount = pay.wallet(user['id'], self.payments, self.payouts)['balance']
+        if amount < pay.MIN_PAYOUT:
+            raise ValueError('You need at least €1.00 to pay out.')
+        closed = pay.sandbox_outcome(user['bank']['last4'], 0) == 'account_closed'
+        before = self.snapshot()
+        payout = dict(id=payout_id or f'O-{time_ns()}', account=user['id'], amount=amount, last4=user['bank']['last4'],
+                      status='failed' if closed else 'paid', created=int(time.time() if now is None else now),
+                      synced=False)
+        self.payouts.append(payout)
+        self.commit(before)
+        return payout
+
+    def my_payments(self) -> list[dict]:
+        """Payments the signed-in account made or received, newest first."""
+        me = self.session
+        return [p for p in reversed(self.payments) if me and me in (p['payer'], p['payee'])]
+
+    def my_payouts(self) -> list[dict]:
+        return [o for o in reversed(self.payouts) if o['account'] == self.session]
+
+    # ------------------------------------------------------------------ ATLAS server link (1.5.0)
+    def set_server(self, url: str) -> None:
+        from .backend import clean_url
+        before = self.snapshot()
+        self.server_url = clean_url(url)
+        self.commit(before)
+
+    def connect(self, server_id: str, token: str) -> None:
+        """Remember the signed-in account's server identity and session token."""
+        user = self.user
+        if not user or not isinstance(server_id, str) or not isinstance(token, str) or not server_id or not token:
+            raise ValueError('The server did not return an account.')
+        before = self.snapshot()
+        user['server'] = dict(id=server_id, token=token)
+        self.commit(before)
+
+    def disconnect(self) -> None:
+        before = self.snapshot()
+        if self.user:
+            self.user.pop('server', None)
+        self.commit(before)
+
+    def server_payee(self, payment: dict) -> tuple[bool, str | None]:
+        """(ready, server account id): house payees need no account; a registered payee must be connected."""
+        if payment['payee'] in pay.HOUSE_PAYEES:
+            return True, None
+        link = (self.account(payment['payee']) or {}).get('server')
+        return bool(link), link['id'] if link else None
+
+    def unsynced(self) -> list[dict]:
+        """Captured payments not yet on the server whose payer (and payee, if registered) is connected."""
+        ready = []
+        for p in self.payments:
+            payer = self.account(p['payer'])
+            if p['status'] == 'captured' and not p['synced'] and payer and payer.get('server') and \
+                    self.server_payee(p)[0]:
+                ready.append(p)
+        return ready
+
+    def mark_synced(self, record_id: str, server_id: str | None = None, error: str | None = None) -> None:
+        record = self.payment(record_id) or next((o for o in self.payouts if o['id'] == record_id), None)
+        if record is None:
+            return
+        before = self.snapshot()
+        if error:
+            record['error'] = str(error)[:160]
+        else:
+            record['synced'] = True
+            record.pop('error', None)
+            if server_id:
+                record['server'] = str(server_id)
+        self.commit(before)
 
     # ------------------------------------------------------------------ views
     def my_history(self) -> list[dict]:

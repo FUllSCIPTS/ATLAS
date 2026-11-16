@@ -1,18 +1,19 @@
-"""Check the release metadata and that permissions match the privacy notice (1.4.0)."""
+"""Check the release metadata and that permissions match the privacy notice (1.5.0)."""
 import sys
 from xml.etree import ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 android='{http://schemas.android.com/apk/res/android}'
 assert root.get('package')=='org.atlas.mobility'
 assert int(root.find('uses-sdk').get(android+'targetSdkVersion'))>=36
-assert int(root.get(android+'versionCode'))>=5, root.get(android+'versionCode')
+assert int(root.get(android+'versionCode'))>=6, root.get(android+'versionCode')
 app=root.find('application')
 assert app.get(android+'debuggable','false')=='false'
 assert app.get(android+'allowBackup','true')=='false'
 permissions={p.get(android+'name') for p in root.findall('uses-permission')}
 expected={'android.permission.INTERNET','android.permission.ACCESS_NETWORK_STATE',
           'android.permission.ACCESS_FINE_LOCATION','android.permission.ACCESS_COARSE_LOCATION'}
-# Map tiles need the network; location is foreground-only and requested at run time.
+# Map tiles and the optional ATLAS server need the network; location is foreground-only and requested at run time.
+# Bank payments use the app's own sandbox, not Google Play billing, and add no permission.
 assert permissions==expected,permissions
 forbidden={'android.permission.ACCESS_BACKGROUND_LOCATION','com.android.vending.BILLING','android.permission.READ_CONTACTS'}
 assert not permissions & forbidden,permissions
