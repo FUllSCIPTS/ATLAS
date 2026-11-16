@@ -1,16 +1,17 @@
-// ATLAS Go 1.4.0 — the Android app (Python/Kivy): passenger, driver and seller accounts, live map, on-device intelligence.
-// 1.2.0 introduced this map; 1.3.0 added the digital twin (Layer 2) and 1.4.0 the live LSTM → RL loop (goLayersSystem below).
+// ATLAS Go 1.5.0 — the Android app (Python/Kivy): passenger, driver and seller accounts, live map, on-device intelligence,
+// bank payments and an optional PostgreSQL server. 1.2.0 introduced this map; 1.3.0 added the digital twin (Layer 2), 1.4.0 the
+// live LSTM → RL loop (goLayersSystem below) and 1.5.0 bank payments, payouts and the server (Security → Bank payments & PostgreSQL).
 // Same 900 × 500 coordinate system as atlas.js. Nodes are 188 × 56 unless they set h.
 const goSystem = {
   id: "go",
-  label: "ATLAS Go 1.4.0 app",
-  tagline: "ANDROID APP 1.4.0 / ACCOUNTS · LIVE MAP · ON-DEVICE INTELLIGENCE · TWIN · LIVE LOOP",
-  intro: "ATLAS Go 1.4.0 runs on the phone with passenger, driver and food-seller accounts and a live map. Trace how a registered driver competes in the learned dispatch policy, how a seller's kitchen sets the courier timing, how journeys move on the live map, and how surges are forecast from two simulated years of Cork. Since 1.3.0 a digital twin with three agents sits on top of these models, and since 1.4.0 the LSTM runs live and retrains itself — open <strong>ATLAS Go 1.4 · two learning layers</strong> to trace them.",
-  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md">App architecture</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md">Download 1.4.0</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">1.2.0 release</a>',
+  label: "ATLAS Go 1.5.0 app",
+  tagline: "ANDROID APP 1.5.0 / ACCOUNTS · LIVE MAP · BANK PAYMENTS · ON-DEVICE INTELLIGENCE · TWIN · LIVE LOOP",
+  intro: "ATLAS Go 1.5.0 runs on the phone with passenger, driver and food-seller accounts and a live map. New in 1.5.0: passengers pay rides and food by bank, drivers and sellers are paid out to their bank (a sandbox bank: no real money moves), and an account can be connected to a PostgreSQL server for accounts, payments and payouts — see <a class=\"sec-inline-link\" href=\"#security-payments\">Security → Bank payments & PostgreSQL</a>. Trace how a registered driver competes in the learned dispatch policy, how a seller's kitchen sets the courier timing, how journeys move on the live map, and how surges are forecast from two simulated years of Cork. Since 1.3.0 a digital twin with three agents sits on top of these models, and since 1.4.0 the LSTM runs live and retrains itself — open <strong>ATLAS Go 1.4 · two learning layers</strong> to trace them.",
+  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md">App architecture</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/README.md">PostgreSQL server (1.5.0)</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md">Download 1.4.0 APK</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">1.2.0 release</a>',
   root: "android-app/",
   source: "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/",
   foldersDetail: "Browse the folders and files of the ATLAS Go Android app. Open a file to read its source on GitHub.",
-  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.4.0: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
+  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.5.0 source: 244 Python tests, 353 UI assertions in two screen sizes, and 59 server tests on PostgreSQL 16; the Android build and emulator run for 1.5.0 execute in GitHub Actions. 1.4.0 release: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
   defaultSelected: "dispatch",
   defaultFolder: "intelligence",
   openFolders: ["atlas_go", "training"],
@@ -52,7 +53,7 @@ const goSystem = {
     },
     acctui: {
       title: "Accounts & roles", tech: "Passenger · driver · seller", group: "screen", icon: "user", y: 350, file: "accounts",
-      summary: "Register as a passenger, driver or food seller, sign in, switch accounts, delete an account or continue as a guest. Drivers go online and accept trips; sellers run a kitchen and menu.",
+      summary: "Register as a passenger, driver or food seller, sign in, switch accounts, delete an account or continue as a guest. Drivers go online and accept trips; sellers run a kitchen and menu. Since 1.5.0, Bank & payments links a bank account (pay by bank, or get paid out) and can connect the account to an ATLAS server.",
       inputs: "Name, email, mobile, password; vehicle, plate, SPSV licence; kitchen, cuisine, food business number, prep time",
       outputs: "Role-specific home: Drive, Kitchen or passenger Home",
       notes: "Passwords stored only as PBKDF2-HMAC-SHA256 hashes; five wrong passwords lock sign-in for 60 s. Licence and business numbers are format-checked only.",
@@ -80,10 +81,10 @@ const goSystem = {
     },
     store: {
       title: "LocalStore", tech: "state.json · atomic save", group: "app", icon: "database", y: 350, file: "store",
-      summary: "Holds the basket, active ride and order, history, shared seats and UI state, and saves them atomically in app-private storage.",
-      inputs: "book(), checkout(), advance and reset commands",
+      summary: "Holds accounts, the basket, active ride and order, history, shared seats, bank payments and payouts (1.5.0) and UI state, and saves them atomically in app-private storage.",
+      inputs: "book(), checkout(), link_bank(), request_payout(), advance and reset commands",
       outputs: "Validated state restored on the next start",
-      notes: "Validates the dispatch explanation, courier plan and outlook day on load. Damaged JSON is kept as state.invalid.json and a clean demo state is created.",
+      notes: "Validates the dispatch explanation, courier plan and outlook day on load, and since 1.5.0 rebuilds the payment ledger and refuses a file that does not balance. Damaged JSON is kept as state.invalid.json and a clean demo state is created. A linked bank account is saved as holder, country and last four characters only.",
     },
     domain: {
       title: "Domain model", tech: "Fares · offers · cart", group: "app", icon: "layers", y: 425, file: "domain",
@@ -268,7 +269,9 @@ const goSystem = {
       name: "atlas_go",
       children: [
         { id: "app", name: "app.py", detail: "Kivy screens, charts, navigation and the intelligence and learning lab screens.", example: ["app.py"], component: "app" },
-        { id: "store", name: "store.py", detail: "Atomic JSON persistence: accounts, rides, orders, kitchens and live progress.", example: ["store.py"] },
+        { id: "store", name: "store.py", detail: "Atomic JSON persistence: accounts, rides, orders, kitchens, live progress, bank payments and payouts.", example: ["store.py"] },
+        { id: "paymentspy", name: "payments.py", detail: "1.5.0: IBAN validation, sandbox bank, payment lifecycle, fee split and double-entry ledger; shared with the server.", example: ["payments.py"], component: "store" },
+        { id: "backendpy", name: "backend.py", detail: "1.5.0: client for the ATLAS Go server — connect, link a bank account, idempotent outbox sync, payouts.", example: ["backend.py"], component: "store" },
         { id: "accounts", name: "accounts.py", detail: "Roles, field validation and PBKDF2 password hashing.", example: ["accounts.py"], component: "acctui" },
         { id: "livemap", name: "livemap.py", detail: "LiveMap widget and TileLoader: OSM tiles, disk cache, offline layer. location.py adds the device position.", example: ["livemap.py", "location.py"], component: "mapui" },
         { id: "geo", name: "geo.py", detail: "Cork coordinates, Web-Mercator tiles and live journey positions.", example: ["geo.py"], component: "mapui" },
@@ -292,13 +295,19 @@ const goSystem = {
     {
       name: "tests",
       children: [
-        { id: "tests", name: "Unit tests", detail: "173 tests (1.4.0): calendar, outlook, policy, courier timing, lab, accounts, maps, roles, domain, store, shared rides, the digital twin and the live loop.", example: ["test_intelligence.py", "test_domain.py", "test_roles.py", "test_accounts_geo.py", "test_shared_ride.py", "test_twin.py", "test_loop.py"], component: "outlook" },
+        { id: "tests", name: "Unit tests", detail: "244 tests (1.5.0): calendar, outlook, policy, courier timing, lab, accounts, maps, roles, domain, store, shared rides, the digital twin, the live loop, bank payments and the server client.", example: ["test_intelligence.py", "test_domain.py", "test_roles.py", "test_accounts_geo.py", "test_shared_ride.py", "test_twin.py", "test_loop.py"], component: "outlook" },
       ],
     },
     {
       name: "scripts",
       children: [
         { id: "scripts", name: "Build and release", detail: "Emulator acceptance, screenshot checks, manifest checks and bundle signing.", example: ["emulator-acceptance.py", "verify-acceptance.py", "check-manifest.py", "ci-sign-bundle.py"], component: "app" },
+      ],
+    },
+    {
+      name: "server",
+      children: [
+        { id: "serverpy", name: "ATLAS Go server (1.5.0)", detail: "FastAPI + PostgreSQL: registration and sign-in, bank accounts, payments priced by the server, append-only ledger, payouts. 59 tests on PostgreSQL. Not packaged in the APK.", example: ["app.py", "db.py", "security.py", "bank.py", "roles.sql", "README.md"], component: "store" },
       ],
     },
     {
@@ -335,7 +344,7 @@ const goLayersSystem = {
   label: "ATLAS Go 1.4 · two learning layers",
   tagline: "ATLAS GO 1.4.0 / DIGITAL TWIN · THREE AGENTS · LIVE LSTM → RL LOOP",
   intro: "Inside ATLAS Go 1.4.0 two learning layers work together. <strong>Layer 2</strong> (1.3.0) is a digital twin of Cork: it mirrors drivers and rides, foresees the next 30 minutes, and lets Agent 1 (dispatch) and Agent 2 (pricing and moves) rehearse decisions before a Guardian checks them. <strong>Layer 1</strong> holds the learned models; since 1.4.0 its LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are logged, and both models are retrained nightly and kept only if they pass validation. Trace a ride, a price, one city hour and one night.",
-  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="?lab=twin#ml-twin">Digital twin lab</a><a class="guide-link" href="?lab=loop#ml-loop">LSTM + RL loop lab</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#atlas-go-1-4-two-learning-layers">UML: two learning layers</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md">Download 1.4.0</a>',
+  actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="?lab=twin#ml-twin">Digital twin lab</a><a class="guide-link" href="?lab=loop#ml-loop">LSTM + RL loop lab</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#atlas-go-1-4-two-learning-layers">UML: two learning layers</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/README.md">PostgreSQL server (1.5.0)</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md">Download 1.4.0 APK</a>',
   root: "android-app/",
   source: "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/",
   foldersDetail: "The files behind the two learning layers. Open a file to read its source on GitHub.",

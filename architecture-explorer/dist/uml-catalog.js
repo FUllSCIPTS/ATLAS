@@ -56,9 +56,9 @@ const umlCatalog = {
    "concept": "Store only {salt, hash, iterations} at registration",
    "symbol": "LocalStore.register",
    "path": "android-app/atlas_go/store.py",
-   "line": 290,
+   "line": 330,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330"
   },
   "sec-pw-test": {
    "concept": "Test: same password, different salts and hashes",
@@ -72,17 +72,17 @@ const umlCatalog = {
    "concept": "Explorer lab: PBKDF2 with the app's parameters",
    "symbol": "secPwHash",
    "path": "architecture-explorer/dist/security.js",
-   "line": 212,
+   "line": 215,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L212"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L215"
   },
   "sec-pw-lab-verify": {
    "concept": "Explorer lab: verify_password replica",
    "symbol": "secPwVerify",
    "path": "architecture-explorer/dist/security.js",
-   "line": 231,
+   "line": 234,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L231"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L234"
   },
   "sec-pw-cli": {
    "concept": "Command-line lab runner: all 20 experiments and 5 study paths",
@@ -136,57 +136,57 @@ const umlCatalog = {
    "concept": "Sign in, 5 failures → 60 s lockout, generic error",
    "symbol": "LocalStore.login",
    "path": "android-app/atlas_go/store.py",
-   "line": 334,
+   "line": 374,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L334"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L374"
   },
   "sec-login-failures": {
    "concept": "Failure counter kept in memory only",
    "symbol": "self.failures = {}          # email -> [count, locked_until]; memory ...",
    "path": "android-app/atlas_go/store.py",
-   "line": 39,
+   "line": 42,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42"
   },
   "sec-login-session": {
    "concept": "Session validated on load (must name an account)",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 97,
+   "line": 107,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107"
   },
   "sec-login-guest": {
    "concept": "Guest mode (no identity, least privilege)",
    "symbol": "LocalStore.continue_as_guest",
    "path": "android-app/atlas_go/store.py",
-   "line": 351,
+   "line": 391,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L351"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L391"
   },
   "sec-login-logout": {
    "concept": "Sign out",
    "symbol": "LocalStore.logout",
    "path": "android-app/atlas_go/store.py",
-   "line": 356,
+   "line": 396,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L356"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L396"
   },
   "sec-login-clear": {
    "concept": "Clear the password field after submit",
    "symbol": "AtlasGoApp.submit_login",
    "path": "android-app/atlas_go/app.py",
-   "line": 641,
+   "line": 651,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L641"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L651"
   },
   "sec-login-lab": {
    "concept": "Explorer lab: LocalStore.login replica",
    "symbol": "secLoginAttempt",
    "path": "architecture-explorer/dist/security.js",
-   "line": 275,
+   "line": 278,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L275"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L278"
   },
   "sec-id-email": {
    "concept": "Identity proofing: email format",
@@ -224,65 +224,65 @@ const umlCatalog = {
    "concept": "De-provision with re-authentication, anonymise history",
    "symbol": "LocalStore.delete_account",
    "path": "android-app/atlas_go/store.py",
-   "line": 363,
+   "line": 403,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L363"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L403"
   },
   "sec-rbac-screens": {
    "concept": "RBAC layer 1: screen allow-list per role",
    "symbol": "AtlasGoApp.render",
    "path": "android-app/atlas_go/app.py",
-   "line": 442,
+   "line": 449,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449"
   },
   "sec-rbac-online": {
    "concept": "RBAC layer 2: only drivers go online",
    "symbol": "LocalStore.set_online",
    "path": "android-app/atlas_go/store.py",
-   "line": 397,
+   "line": 442,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L397"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L442"
   },
   "sec-rbac-location": {
    "concept": "RBAC layer 2: only drivers share location",
    "symbol": "LocalStore.update_location",
    "path": "android-app/atlas_go/store.py",
-   "line": 407,
+   "line": 452,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L407"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
   },
   "sec-rbac-respond": {
    "concept": "RBAC layer 2: a driver answers only their own job",
    "symbol": "LocalStore.driver_respond",
    "path": "android-app/atlas_go/store.py",
-   "line": 422,
+   "line": 467,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L467"
   },
   "sec-rbac-book": {
    "concept": "RBAC layer 2: only passengers or guests book",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 452,
+   "line": 497,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497"
   },
   "sec-rbac-checkout": {
    "concept": "RBAC layer 2: only passengers or guests order food",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 636,
+   "line": 694,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694"
   },
   "sec-rbac-kitchen": {
    "concept": "RBAC layer 2: a seller edits only their own kitchen",
    "symbol": "LocalStore._my_kitchen",
    "path": "android-app/atlas_go/store.py",
-   "line": 575,
+   "line": 633,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L575"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L633"
   },
   "sec-gw-routes": {
    "concept": "Route allow-list (method, role, regex)",
@@ -344,17 +344,17 @@ const umlCatalog = {
    "concept": "Explorer lab: gateway checks step by step",
    "symbol": "secGatewayRun",
    "path": "architecture-explorer/dist/security.js",
-   "line": 375,
+   "line": 378,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L375"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L378"
   },
   "sec-sso-lab": {
    "concept": "OIDC + PKCE flow with ES256 tokens",
    "symbol": "secSsoNext",
    "path": "architecture-explorer/dist/security.js",
-   "line": 428,
+   "line": 431,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L428"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L431"
   },
   "sec-sso-target": {
    "concept": "Where JWT validation would replace bearer keys",
@@ -368,33 +368,33 @@ const umlCatalog = {
    "concept": "KDC database and string-to-key (PBKDF2)",
    "symbol": "secKrbSetup",
    "path": "architecture-explorer/dist/security.js",
-   "line": 508,
+   "line": 511,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L508"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L511"
   },
   "sec-krb-messages": {
    "concept": "The six messages AS-REQ … AP-REP",
    "symbol": "secKrbNext",
    "path": "architecture-explorer/dist/security.js",
-   "line": 518,
+   "line": 521,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L518"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L521"
   },
   "sec-krb-ap": {
    "concept": "Service checks: integrity, expiry, skew, replay cache",
    "symbol": "secKrbVerifyAp",
    "path": "architecture-explorer/dist/security.js",
-   "line": 591,
+   "line": 594,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L591"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L594"
   },
   "sec-krb-seal": {
    "concept": "AES-256-GCM seal used for tickets",
    "symbol": "secSeal",
    "path": "architecture-explorer/dist/security.js",
-   "line": 87,
+   "line": 89,
    "status": "lab",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L87"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L89"
   },
   "sec-krb-target": {
    "concept": "What a Kerberos AP-REQ would replace in Dispatch",
@@ -459,6 +459,438 @@ const umlCatalog = {
    "line": 10,
    "status": "impl",
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/deploy/atlas-explorer.service#L10"
+  },
+  "sec-pay-iban": {
+   "concept": "Validate an IBAN (country, length, ISO 7064 mod 97)",
+   "symbol": "clean_iban",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 46,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L46"
+  },
+  "sec-pay-bank-record": {
+   "concept": "Keep holder, country and last four characters; never the IBAN",
+   "symbol": "bank_record",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 80,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L80"
+  },
+  "sec-pay-mandate": {
+   "concept": "SEPA Direct Debit mandate text and version",
+   "symbol": "MANDATE_TEXT",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 73,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L73"
+  },
+  "sec-pay-sandbox": {
+   "concept": "Sandbox bank: outcome from the last four characters",
+   "symbol": "sandbox_outcome",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 119,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L119"
+  },
+  "sec-pay-split": {
+   "concept": "Fee split in integer cents (net + fee = amount)",
+   "symbol": "split",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 155,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L155"
+  },
+  "sec-pay-quote": {
+   "concept": "Price a booking from what was booked (used by the server)",
+   "symbol": "quote",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 168,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L168"
+  },
+  "sec-pay-transitions": {
+   "concept": "Payment state machine: authorised → captured or voided; captured → refunded",
+   "symbol": "TRANSITIONS",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 203,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L203"
+  },
+  "sec-pay-move": {
+   "concept": "Refuse every illegal transition",
+   "symbol": "move",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 223,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L223"
+  },
+  "sec-pay-entries": {
+   "concept": "Double-entry ledger lines for captures, refunds and payouts",
+   "symbol": "entries",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 262,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L262"
+  },
+  "sec-pay-balanced": {
+   "concept": "Ledger invariant: debits equal credits in every transaction",
+   "symbol": "balanced",
+   "path": "android-app/atlas_go/payments.py",
+   "line": 282,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L282"
+  },
+  "sec-pay-stepup": {
+   "concept": "Step-up authentication on the phone: password again for money settings",
+   "symbol": "LocalStore._step_up",
+   "path": "android-app/atlas_go/store.py",
+   "line": 804,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804"
+  },
+  "sec-pay-link": {
+   "concept": "Link a bank account: IBAN checked, mandate recorded, IBAN dropped",
+   "symbol": "LocalStore.link_bank",
+   "path": "android-app/atlas_go/store.py",
+   "line": 822,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L822"
+  },
+  "sec-pay-authorise": {
+   "concept": "Authorise before anything is booked (a decline books nothing)",
+   "symbol": "LocalStore._authorise",
+   "path": "android-app/atlas_go/store.py",
+   "line": 813,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L813"
+  },
+  "sec-pay-payout": {
+   "concept": "Pay out a balance: role, password, linked account, minimum",
+   "symbol": "LocalStore.request_payout",
+   "path": "android-app/atlas_go/store.py",
+   "line": 858,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L858"
+  },
+  "sec-pay-validate": {
+   "concept": "Saved money state must balance and match its bookings",
+   "symbol": "raise ValueError('The payment ledger does not balance.')",
+   "path": "android-app/atlas_go/store.py",
+   "line": 192,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L192"
+  },
+  "sec-pay-url": {
+   "concept": "Server address: HTTPS only (plain HTTP for a local test machine)",
+   "symbol": "clean_url",
+   "path": "android-app/atlas_go/backend.py",
+   "line": 18,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L18"
+  },
+  "sec-pay-call": {
+   "concept": "Bearer token, Idempotency-Key, no redirects followed",
+   "symbol": "Backend.call",
+   "path": "android-app/atlas_go/backend.py",
+   "line": 55,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L55"
+  },
+  "sec-pay-outbox": {
+   "concept": "Offline outbox: what the server does not have yet",
+   "symbol": "outbox",
+   "path": "android-app/atlas_go/backend.py",
+   "line": 139,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L139"
+  },
+  "sec-pay-deliver": {
+   "concept": "Deliver in order; stop at a failure a retry could fix",
+   "symbol": "deliver",
+   "path": "android-app/atlas_go/backend.py",
+   "line": 156,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L156"
+  },
+  "sec-srv-strict": {
+   "concept": "Strict request models: unknown fields are rejected (no mass assignment)",
+   "symbol": "class Strict(BaseModel):",
+   "path": "android-app/server/app.py",
+   "line": 63,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L63"
+  },
+  "sec-srv-register": {
+   "concept": "Server registration: the phone's validation again, own PBKDF2 hash",
+   "symbol": "Service.register",
+   "path": "android-app/server/app.py",
+   "line": 228,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L228"
+  },
+  "sec-srv-login": {
+   "concept": "Server sign-in: uniform 401, dummy hash, rehash when the stored cost is lower",
+   "symbol": "Service.login",
+   "path": "android-app/server/app.py",
+   "line": 268,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L268"
+  },
+  "sec-srv-lock": {
+   "concept": "Lockout stored in PostgreSQL (429 + Retry-After)",
+   "symbol": "Service.check_lock",
+   "path": "android-app/server/app.py",
+   "line": 171,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L171"
+  },
+  "sec-srv-stepup": {
+   "concept": "Step-up on the server, sharing the sign-in lockout",
+   "symbol": "Service.step_up",
+   "path": "android-app/server/app.py",
+   "line": 191,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L191"
+  },
+  "sec-srv-auth": {
+   "concept": "Authenticate a hashed, expiring, revocable session token",
+   "symbol": "Service.authenticate",
+   "path": "android-app/server/app.py",
+   "line": 210,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L210"
+  },
+  "sec-srv-require": {
+   "concept": "Role taken from the session, never from the request",
+   "symbol": "Service.require",
+   "path": "android-app/server/app.py",
+   "line": 224,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L224"
+  },
+  "sec-srv-linkbank": {
+   "concept": "Tokenise the IBAN; store last four and a keyed fingerprint",
+   "symbol": "Service.link_bank",
+   "path": "android-app/server/app.py",
+   "line": 346,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L346"
+  },
+  "sec-srv-pay": {
+   "concept": "Pay: idempotency, server price, debit, ledger, outbox and audit in one transaction",
+   "symbol": "Service.pay",
+   "path": "android-app/server/app.py",
+   "line": 429,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L429"
+  },
+  "sec-srv-replay": {
+   "concept": "Idempotent replay; a different body under the same key is 409",
+   "symbol": "Service.replay",
+   "path": "android-app/server/app.py",
+   "line": 389,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L389"
+  },
+  "sec-srv-owner": {
+   "concept": "Object-level authorisation in the WHERE clause (another user's id is 404)",
+   "symbol": "Service.payment",
+   "path": "android-app/server/app.py",
+   "line": 489,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L489"
+  },
+  "sec-srv-payout": {
+   "concept": "Payout under a row lock (no double spend)",
+   "symbol": "Service.payout",
+   "path": "android-app/server/app.py",
+   "line": 515,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L515"
+  },
+  "sec-srv-delete": {
+   "concept": "Erase the person, keep the accounting rows",
+   "symbol": "Service.delete_account",
+   "path": "android-app/server/app.py",
+   "line": 292,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L292"
+  },
+  "sec-srv-audit": {
+   "concept": "Audit log without passwords, tokens, emails or IBANs",
+   "symbol": "Service.audit",
+   "path": "android-app/server/app.py",
+   "line": 147,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L147"
+  },
+  "sec-srv-env": {
+   "concept": "Refuse to start without a pepper (no default secrets)",
+   "symbol": "from_env",
+   "path": "android-app/server/app.py",
+   "line": 695,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L695"
+  },
+  "sec-srv-hash": {
+   "concept": "600 000-iteration PBKDF2 on the server",
+   "symbol": "DEFAULT_ITERATIONS",
+   "path": "android-app/server/security.py",
+   "line": 10,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L10"
+  },
+  "sec-srv-verify": {
+   "concept": "Constant-shape verification (unknown email costs the same)",
+   "symbol": "verify_password",
+   "path": "android-app/server/security.py",
+   "line": 19,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L19"
+  },
+  "sec-srv-token": {
+   "concept": "256-bit session token; only its SHA-256 is stored",
+   "symbol": "new_token",
+   "path": "android-app/server/security.py",
+   "line": 33,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L33"
+  },
+  "sec-srv-fingerprint": {
+   "concept": "Keyed IBAN fingerprint (HMAC-SHA256 with a pepper)",
+   "symbol": "fingerprint",
+   "path": "android-app/server/security.py",
+   "line": 43,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L43"
+  },
+  "sec-srv-provider": {
+   "concept": "Bank provider boundary: tokenise, debit, credit",
+   "symbol": "class BankProvider(Protocol):",
+   "path": "android-app/server/bank.py",
+   "line": 13,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/bank.py#L13"
+  },
+  "sec-srv-sandbox": {
+   "concept": "Sandbox bank (the only provider in the repository)",
+   "symbol": "class SandboxBank:",
+   "path": "android-app/server/bank.py",
+   "line": 24,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/bank.py#L24"
+  },
+  "sec-srv-tx": {
+   "concept": "One connection per transaction; bound parameters; statement and lock timeouts",
+   "symbol": "Database.transaction",
+   "path": "android-app/server/db.py",
+   "line": 25,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/db.py#L25"
+  },
+  "sec-srv-migrate": {
+   "concept": "Numbered migrations under an advisory lock",
+   "symbol": "Database.migrate",
+   "path": "android-app/server/db.py",
+   "line": 32,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/db.py#L32"
+  },
+  "sec-db-append": {
+   "concept": "PostgreSQL trigger: the ledger is append-only",
+   "symbol": "CREATE FUNCTION ledger_append_only() RETURNS trigger LANGUAGE plpgsql...",
+   "path": "android-app/server/migrations/001_accounts_payments.sql",
+   "line": 134,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L134"
+  },
+  "sec-db-balanced": {
+   "concept": "PostgreSQL deferred constraint trigger: every transaction balances",
+   "symbol": "CREATE CONSTRAINT TRIGGER ledger_balanced AFTER INSERT ON ledger_entries",
+   "path": "android-app/server/migrations/001_accounts_payments.sql",
+   "line": 156,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L156"
+  },
+  "sec-db-idem": {
+   "concept": "Unique Idempotency-Key per payer",
+   "symbol": "UNIQUE (payer_id, idempotency_key)",
+   "path": "android-app/server/migrations/001_accounts_payments.sql",
+   "line": 103,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L103"
+  },
+  "sec-db-once": {
+   "concept": "One non-declined payment per booking (partial unique index)",
+   "symbol": "CREATE UNIQUE INDEX payments_reference_paid ON payments (payer_id, re...",
+   "path": "android-app/server/migrations/001_accounts_payments.sql",
+   "line": 106,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L106"
+  },
+  "sec-db-roles": {
+   "concept": "Least-privilege API role: no DDL, no UPDATE or DELETE on ledger, payouts, audit",
+   "symbol": "GRANT SELECT, INSERT ON payouts, ledger_entries, audit_log TO atlas_app;",
+   "path": "android-app/server/roles.sql",
+   "line": 16,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/roles.sql#L16"
+  },
+  "sec-srv-test-race": {
+   "concept": "Test: four concurrent payouts, exactly one succeeds",
+   "symbol": "test_two_payouts_at_once_cannot_spend_the_balance_twice",
+   "path": "android-app/server/tests/test_server.py",
+   "line": 398,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L398"
+  },
+  "sec-srv-test-ledger": {
+   "concept": "Test: ledger triggers refuse edits and unbalanced entries",
+   "symbol": "test_ledger_is_append_only_and_must_balance",
+   "path": "android-app/server/tests/test_server.py",
+   "line": 320,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L320"
+  },
+  "sec-srv-test-secrets": {
+   "concept": "Test: no password, token or IBAN in any table",
+   "symbol": "test_no_password_token_or_iban_is_stored_or_logged",
+   "path": "android-app/server/tests/test_server.py",
+   "line": 444,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L444"
+  },
+  "sec-pay-guide": {
+   "concept": "Teaching guide §14: threat model, sequence, database layers",
+   "symbol": "## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (san...",
+   "path": "docs/INFORMATION_SECURITY.md",
+   "line": 2021,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2021"
+  },
+  "sec-pay-lab": {
+   "concept": "Explorer lab: IBAN check with mod 97",
+   "symbol": "secIbanCheck",
+   "path": "architecture-explorer/dist/security.js",
+   "line": 824,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L824"
+  },
+  "sec-pay-lab-ledger": {
+   "concept": "Explorer lab: payment state machine and ledger",
+   "symbol": "secPayMove",
+   "path": "architecture-explorer/dist/security.js",
+   "line": 859,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L859"
+  },
+  "sec-pay-lab-idem": {
+   "concept": "Explorer lab: idempotent replay and server-side pricing",
+   "symbol": "secPayServer",
+   "path": "architecture-explorer/dist/security.js",
+   "line": 867,
+   "status": "lab",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/dist/security.js#L867"
   },
   "cr-hash-sums": {
    "concept": "Release SHA256SUMS written by CI",
@@ -1368,9 +1800,9 @@ const umlCatalog = {
    "concept": "Twin state: decision log, blocks and re-tests",
    "symbol": "LocalStore.twin_record",
    "path": "android-app/atlas_go/store.py",
-   "line": 549,
+   "line": 607,
    "status": "synth",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L549"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L607"
   },
   "ml-tw-lab": {
    "concept": "Explorer lab: Agent 1 rehearsal (twin.agent1 port)",
@@ -1600,9 +2032,9 @@ const umlCatalog = {
    "concept": "Live forecast as the dispatch policy's surge feature",
    "symbol": "AtlasGoApp.live_surge",
    "path": "android-app/atlas_go/app.py",
-   "line": 879,
+   "line": 895,
    "status": "synth",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L879"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L895"
   },
   "ml-lp-lab": {
    "concept": "Explorer lab: the phone's LSTM in the browser",
@@ -1904,33 +2336,33 @@ const umlCatalog = {
    "concept": "ADT operation: book a ride",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 452,
+   "line": 497,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497"
   },
   "dsa-app-checkout": {
    "concept": "ADT operation: check out a cart",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 636,
+   "line": 694,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694"
   },
   "dsa-app-online": {
    "concept": "Linear scan: drivers that are online",
    "symbol": "LocalStore.online_drivers",
    "path": "android-app/atlas_go/store.py",
-   "line": 389,
+   "line": 434,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L389"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434"
   },
   "dsa-app-history": {
    "concept": "Linear scan: the user's ride and order history",
    "symbol": "LocalStore.my_history",
    "path": "android-app/atlas_go/store.py",
-   "line": 732,
+   "line": 940,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940"
   },
   "dsa-app-distances": {
    "concept": "2-D table lookup DISTANCES[pickup][destination]",
@@ -2064,17 +2496,17 @@ const umlCatalog = {
    "concept": "State machine: advance a ride",
    "symbol": "LocalStore.advance_ride",
    "path": "android-app/atlas_go/store.py",
-   "line": 534,
+   "line": 592,
    "status": "related",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L534"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L592"
   },
   "dsa-app-validate": {
    "concept": "Invariant check on saved state",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 97,
+   "line": 107,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107"
   },
   "dsa-app-selftest": {
    "concept": "Self-test of the on-device models",
@@ -2664,9 +3096,9 @@ const umlCatalog = {
    "concept": "Guide: 19 standalone information-security units (what, why, how)",
    "symbol": "## Standalone illustrated foundations — Information Security",
    "path": "docs/INFORMATION_SECURITY.md",
-   "line": 75,
+   "line": 76,
    "status": "teach",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L75"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L76"
   },
   "sec-fd-units": {
    "concept": "Explorer: unit data (what, why, how, pitfalls)",
@@ -2730,7 +3162,9 @@ const umlCatalog = {
    "sec-pw-lab-verify",
    "sec-pw-cli",
    "sec-pw-cli-a",
-   "sec-pw-cli-common"
+   "sec-pw-cli-common",
+   "sec-srv-hash",
+   "sec-srv-verify"
   ],
   "security/login": [
    "sec-login",
@@ -2742,7 +3176,11 @@ const umlCatalog = {
    "sec-pw-verify",
    "sec-login-lab",
    "sec-pw-cli-c",
-   "sec-pw-cli-d"
+   "sec-pw-cli-d",
+   "sec-srv-login",
+   "sec-srv-lock",
+   "sec-srv-auth",
+   "sec-srv-token"
   ],
   "security/identity": [
    "sec-pw-register",
@@ -2759,7 +3197,11 @@ const umlCatalog = {
    "sec-rbac-checkout",
    "sec-rbac-kitchen",
    "sec-pw-cli-b",
-   "sec-pw-cli-d"
+   "sec-pw-cli-d",
+   "sec-srv-register",
+   "sec-srv-require",
+   "sec-srv-owner",
+   "sec-srv-delete"
   ],
   "security/gateway": [
    "sec-gw-routes",
@@ -2793,6 +3235,62 @@ const umlCatalog = {
    "sec-dep-systemd",
    "cr-sig-sign"
   ],
+  "security/payments": [
+   "sec-pay-iban",
+   "sec-pay-bank-record",
+   "sec-pay-mandate",
+   "sec-pay-sandbox",
+   "sec-pay-split",
+   "sec-pay-quote",
+   "sec-pay-transitions",
+   "sec-pay-move",
+   "sec-pay-entries",
+   "sec-pay-balanced",
+   "sec-pay-stepup",
+   "sec-pay-link",
+   "sec-pay-authorise",
+   "sec-pay-payout",
+   "sec-pay-validate",
+   "sec-pay-url",
+   "sec-pay-call",
+   "sec-pay-outbox",
+   "sec-pay-deliver",
+   "sec-srv-strict",
+   "sec-srv-register",
+   "sec-srv-login",
+   "sec-srv-lock",
+   "sec-srv-stepup",
+   "sec-srv-auth",
+   "sec-srv-require",
+   "sec-srv-linkbank",
+   "sec-srv-pay",
+   "sec-srv-replay",
+   "sec-srv-owner",
+   "sec-srv-payout",
+   "sec-srv-delete",
+   "sec-srv-audit",
+   "sec-srv-env",
+   "sec-srv-hash",
+   "sec-srv-verify",
+   "sec-srv-token",
+   "sec-srv-fingerprint",
+   "sec-srv-provider",
+   "sec-srv-sandbox",
+   "sec-srv-tx",
+   "sec-srv-migrate",
+   "sec-db-append",
+   "sec-db-balanced",
+   "sec-db-idem",
+   "sec-db-once",
+   "sec-db-roles",
+   "sec-srv-test-race",
+   "sec-srv-test-ledger",
+   "sec-srv-test-secrets",
+   "sec-pay-guide",
+   "sec-pay-lab",
+   "sec-pay-lab-ledger",
+   "sec-pay-lab-idem"
+  ],
   "security/learn": [
    "sec-fd-guide",
    "sec-fd-units",
@@ -2811,7 +3309,11 @@ const umlCatalog = {
    "sec-gw-keys",
    "sec-gw-internal",
    "sec-id-licence",
-   "sec-gw-proxy"
+   "sec-gw-proxy",
+   "sec-pay-stepup",
+   "sec-srv-lock",
+   "sec-srv-pay",
+   "sec-srv-audit"
   ],
   "crypto/hashes": [
    "cr-hash-sums",

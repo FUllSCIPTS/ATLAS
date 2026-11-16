@@ -40,6 +40,7 @@ const secTopics = [
   { id: "sso", title: "Single sign-on", icon: "key", status: "teach" },
   { id: "kerberos", title: "Kerberos live", icon: "ticket", status: "teach" },
   { id: "transport", title: "mTLS & deployment", icon: "cloud", status: "impl" },
+  { id: "payments", title: "Bank payments & PostgreSQL", icon: "database", status: "impl" },
   { id: "controls", title: "Control measures", icon: "radar", status: null },
   { id: "gaps", title: "Gaps & exercises", icon: "bug", status: null },
 ];
@@ -48,13 +49,14 @@ const secTopicById = Object.fromEntries(secTopics.map((t) => [t.id, t]));
 const sec = {
   topic: "overview",
   busy: "",
-  fields: { pw: "cork2026", pw2: "cork2026", pwLogin: "", krbPassword: "Drive2026" },
+  fields: { pw: "cork2026", pw2: "cork2026", pwLogin: "", krbPassword: "Drive2026", iban: "IE29 AIBK 9311 5212 3456 78" },
   pw: { records: [], plain: null, verify: null, ms: 0 },
   login: null,
   gateway: { scenario: "ok", step: -1 },
   sso: { scenario: "normal", steps: [], ctx: null },
   krb: { scenario: "normal", steps: [], ctx: null },
   ctl: { scenario: "app", mode: "both" },
+  pay: { iban: null, payment: null, server: null },
 };
 
 // ------------------------------------------------------------------ crypto helpers (Web Crypto)
@@ -194,6 +196,7 @@ const secMap = [
   ["kerberos", "ticket", "Kerberos", "teach", "KDC tickets for the driver app → Dispatch Service; live AES-GCM with attack scenarios", "Guide §8"],
   ["transport", "cloud", "Mutual TLS", "impl", "Prototype: private CA, serverAuth/clientAuth certificates, CERT_REQUIRED", "prototype/proto_run.py"],
   ["transport", "shield", "Secure deployment", "impl", "Loopback + SSH tunnel, CSP and security headers, systemd sandbox, signed APKs", "server.mjs · releases/"],
+  ["payments", "database", "Bank payments & PostgreSQL back end", "impl", "ATLAS Go 1.5.0: IBAN check, mandate, step-up password, server-side pricing, idempotency, append-only double-entry ledger (sandbox bank)", "payments.py · android-app/server/"],
   ["controls", "radar", "IDS & IPS on the database server", "host", "Preventive, detective and protective controls; live IDS/IPS lab for PostgreSQL :5432", "Guide §11"],
 ];
 
@@ -320,7 +323,7 @@ if account is None or not acc.verify_password(password or '', account):
     self.failures[email] = [0, now + acc.LOCKOUT_SECONDS] if count >= acc.MAX_FAILED_LOGINS else [count, 0]
     raise ValueError('Email or password is not correct.')
 self.failures.pop(email, None)
-self.session, self.guest = account['id'], False`) + secLink("android-app/atlas_go/store.py", SEC_MAIN + "android-app/atlas_go/store.py#L304-L319"))}`;
+self.session, self.guest = account['id'], False`) + secLink("android-app/atlas_go/store.py", SEC_MAIN + "android-app/atlas_go/store.py#L374-L389"))}`;
 }
 
 // ------------------------------------------------------------------ topic: identity & roles
@@ -777,8 +780,8 @@ drop tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: blocked external Postg
 function secGaps() {
   return `<div class="sec-intro"><p>Real properties of the current code — ready-made "find it, fix it, test it" assignments.</p></div>
     ${secTable(["#", "Gap", "Where", "Exercise"], [
-      ["1", "PBKDF2 at 200 000 iterations; OWASP suggests 600 000 for PBKDF2-HMAC-SHA256", "accounts.py", "Time it on a phone; rehash on login when iterations are below target; compare Argon2id"],
-      ["2", "Lockout counter is memory-only, per email", "store.py → self.failures", "Restart resets it. Persist it; add exponential back-off"],
+      ["1", "PBKDF2 at 200 000 iterations on the phone; OWASP suggests 600 000 (the 1.5.0 server uses 600 000 and rehashes at sign-in)", "accounts.py", "Time it on a phone; port the server's rehash-on-login to LocalStore.login; compare Argon2id"],
+      ["2", "Phone lockout counter is memory-only, per email (the server's is persistent)", "store.py → self.failures", "Restart resets it. Persist it; add exponential back-off"],
       ["3", "No MFA, no password reset", "—", "Add TOTP (RFC 6238); design a reset flow that does not enable account takeover"],
       ["4", "state.json not encrypted at rest", "store.py", "Encrypt with a key held in the Android Keystore"],
       ["5", "Default demo keys and internal token", "starter/packages/config.py", "Refuse to start with defaults outside local mode"],
@@ -786,10 +789,18 @@ function secGaps() {
       ["7", "Bearer keys never expire", "gateway.py", "Replace with OIDC access tokens (SSO tab)"],
       ["8", "Licence and business numbers are self-declared", "accounts.py", "Discuss identity assurance levels; design verification"],
       ["9", "IDS/IPS rules live only on the database host", "Database server", "Version the rule set in deploy/ids/; replay a scan and brute-force .pcap and confirm each rule fires"],
-      ["10", "No persistent security audit log", "store.py · gateway.py", "Log logins, lockouts, 401/403s and quarantines; never log secrets"],
+      ["10", "No persistent security audit log on the phone or the starter gateway (the 1.5.0 server has audit_log)", "store.py · gateway.py", "Log logins, lockouts, 401/403s and quarantines; never log secrets"],
       ["11", "No database backup/restore procedure; demo DB password", "starter/compose.yaml", "Schedule pg_dump backups, test a restore, load the password from a secret"],
+      ["12", "The server session token is saved in state.json in clear", "store.py → connect", "Keep it in the Android Keystore; shorten its life and add a refresh step"],
+      ["13", "One factor (the password) authorises a mandate and a payout", "_step_up · Service.step_up", "Add TOTP or a device-bound key as a second factor (strong customer authentication)"],
+      ["14", "Server lockout is per email; no per-IP or global rate limit", "Service.check_lock", "Add a gateway rate limit; design a throttle one attacker cannot use to lock others out"],
+      ["15", "Email and phone are not verified; registration reveals whether an email exists", "Service.register", "Add a verification link; answer every registration with the same message"],
+      ["16", "The bank call runs inside the database transaction", "Service.pay · Service.payout", "Insert a pending row, commit, call the provider with the same idempotency key, then settle"],
+      ["17", "No refunds, returned debits or reconciliation", "server/bank.py", "Add a signed-webhook endpoint that posts the reversing ledger entries"],
+      ["18", "Offline, the phone is the only judge of a payment", "LocalStore._authorise · backend.sync", "Decide which actions must wait for the server, and why"],
+      ["19", "Nothing reads the audit log; the pepper cannot be rotated", "audit_log · security.fingerprint", "Write three detection queries; add a key id beside each fingerprint"],
     ])}
-    ${secSection("LESSON PLAN", "Nine sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
+    ${secSection("LESSON PLAN", "Ten sessions built on ATLAS", secTable(["Session", "Topic", "Use"], [
       ["1", "CIA triad, threat modelling", "Security map + Architecture tab (STRIDE)"],
       ["2", "Password storage", "Password storage tab + security_lab/password_storage_demo.py --path foundations, then --path attacker"],
       ["3", "Authentication & identity", "Login & lockout, Identity & roles + lab --path defender and --path lifecycle"],
@@ -799,22 +810,117 @@ function secGaps() {
       ["7", "Transport security", "Run the prototype; remove the client cert"],
       ["8", "Control measures, IDS & IPS", "Control measures tab: classify every control; run each attack in the IDS/IPS lab"],
       ["9", "Secure engineering", "Fix one gap above with a test"],
+      ["10", "Payments and the database back end", "Bank payments & PostgreSQL tab; run the server tests; try to pay €0.01, pay twice, read another user's payment and edit the ledger"],
     ]))}
     <p class="sec-note">Full write-up: <a class="sec-inline-link" href="${SEC_GUIDE}">docs/INFORMATION_SECURITY.md</a></p>`;
 }
 
+// ------------------------------------------------------------------ topic: bank payments & PostgreSQL (ATLAS Go 1.5.0)
+// Browser replicas of android-app/atlas_go/payments.py: the same IBAN rules, fee split, lifecycle and ledger.
+const SEC_IBAN_LENGTHS = { AT: 20, BE: 16, BG: 22, CH: 21, CY: 28, CZ: 24, DE: 22, DK: 18, EE: 20, ES: 24, FI: 18, FR: 27, GB: 22, GR: 27, HR: 21, HU: 28, IE: 22, IS: 26, IT: 27, LI: 21, LT: 20, LU: 20, LV: 21, MC: 27, MT: 31, NL: 18, NO: 15, PL: 28, PT: 25, RO: 24, SE: 24, SI: 19, SK: 24, SM: 27 };
+const SEC_PAY_NEXT = { authorised: ["captured", "voided"], captured: ["refunded"], voided: [], declined: [], refunded: [] };
+const secMoney = (cents) => "€" + (cents / 100).toFixed(2);
+
+function secIbanCheck(raw) {
+  const iban = String(raw || "").replace(/[\s-]/g, "").toUpperCase();
+  const steps = [];
+  const shaped = /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban);
+  steps.push([shaped, "Shape: two letters, two check digits, 11–30 letters or digits", shaped ? `normalised to ${secEsc(iban)}` : "spaces and hyphens are removed first; nothing else is allowed"]);
+  if (!shaped) return { ok: false, steps };
+  const country = iban.slice(0, 2), want = SEC_IBAN_LENGTHS[country];
+  steps.push([!!want, `Country ${country} is in the SEPA table`, want ? "" : "ATLAS Go only debits and pays SEPA accounts"]);
+  if (!want) return { ok: false, steps };
+  steps.push([iban.length === want, `Length for ${country} is ${want}`, `this one has ${iban.length}`]);
+  if (iban.length !== want) return { ok: false, steps };
+  const digits = [...(iban.slice(4) + iban.slice(0, 4))].map((ch) => parseInt(ch, 36)).join("");
+  const remainder = Number(BigInt(digits) % 97n);
+  steps.push([remainder === 1, "ISO 7064 mod 97: move the first four characters to the end, letters → 10…35, remainder must be 1", `remainder = ${remainder}`]);
+  if (remainder !== 1) return { ok: false, steps };
+  const last4 = iban.slice(-4);
+  const outcome = last4 === "0003" ? "account_closed" : last4 === "0002" ? "insufficient_funds" : "approved";
+  steps.push([true, `Stored: ${iban.slice(0, 4)} •••• ${last4}, the holder and the mandate id`, "the full IBAN is used once and dropped — on the phone and on the server"]);
+  steps.push([outcome === "approved", `Sandbox bank for an account ending ${last4}: ${outcome}`, "…0002 has no funds, …0003 is closed; any other valid account is approved"]);
+  return { ok: true, steps, last4, outcome };
+}
+
+function secSplit(kind, amount) {
+  const share = (value, basisPoints) => Math.floor((value * basisPoints + 5000) / 10000);
+  const fee = kind === "food" ? 250 + share(amount - 250, 1000) : share(amount, 1500);
+  return { net: amount - fee, fee };
+}
+
+function secPayLedger(payment) {
+  const lines = [];
+  if (payment.status === "captured" || payment.status === "refunded") lines.push(["payment", "bank:clearing", payment.amount, 0], ["payment", "payable:driver", 0, payment.net], ["payment", "revenue:commission", 0, payment.fee]);
+  if (payment.status === "refunded") lines.push(["refund", "bank:clearing", 0, payment.amount], ["refund", "payable:driver", payment.net, 0], ["refund", "revenue:commission", payment.fee, 0]);
+  return lines;
+}
+
+function secPayMove(target) {
+  const P = sec.pay.payment;
+  if (!P) return;
+  const legal = SEC_PAY_NEXT[P.status].includes(target);
+  P.log.unshift([legal, `${P.status} → ${target}`, legal ? "legal transition (payments.TRANSITIONS)" : `refused: "A payment that is ${P.status} cannot become ${target}." Nothing changed.`]);
+  if (legal) P.status = target;
+}
+
+function secPayServer(action) {
+  const S = sec.pay.server || (sec.pay.server = { stored: {}, payments: 0, log: [] });
+  const body = action === "tamper" ? "ride UCC → Kent, multiplier 1.0, amount_cents 1" : action === "other" ? "ride UCC → Airport, multiplier 1.0" : "ride UCC → Kent, multiplier 1.0";
+  const key = action === "new" ? "P-" + (2 + S.payments) : "P-1";
+  let status, note;
+  if (action === "tamper") { status = 422; note = "unknown field amount_cents: the request model forbids extras, and the server prices the booking itself"; }
+  else if (S.stored[key] && S.stored[key] !== body) { status = 409; note = "key_reused: same Idempotency-Key, different request"; }
+  else if (S.stored[key]) { status = 200; note = "Idempotent-Replay: the first answer is returned; no second payment, no new ledger lines"; }
+  else if (Object.keys(S.stored).length && action === "new") { status = 409; note = "already_paid: one non-declined payment per booking reference (partial unique index)"; }
+  else { S.stored[key] = body; S.payments += 1; status = 201; note = "captured: payment + 3 ledger lines + outbox + audit row committed in one transaction"; }
+  S.log.unshift([status < 300, `POST /v1/payments · Idempotency-Key ${key} → ${status}`, note]);
+  S.log = S.log.slice(0, 7);
+}
+
+function secPayments() {
+  const I = sec.pay.iban, P = sec.pay.payment, S = sec.pay.server;
+  const split = secSplit("ride", 860), food = secSplit("food", 1100);
+  const lines = P ? secPayLedger(P) : [];
+  const debit = lines.reduce((sum, l) => sum + l[2], 0), credit = lines.reduce((sum, l) => sum + l[3], 0);
+  return `<div class="sec-intro"><p><strong>ATLAS Go 1.5.0</strong> lets passengers pay by bank and pays drivers and food sellers out, and can keep accounts, bank mandates, payments and payouts in <strong>PostgreSQL</strong>. The bank is a sandbox: IBANs are checked for real, no money moves. The three labs below are browser replicas of <code>payments.py</code> and of the server's idempotency rule.</p></div>
+    ${secSection("LAB 1 · INPUT VALIDATION", "Is this IBAN real? payments.clean_iban", `<div class="sec-form">${secField("iban", "IBAN", "text", "IE29 AIBK 9311 5212 3456 78")}</div>
+      <div class="sec-actions">${secButton("pay-iban", "Check this IBAN", { primary: true, iconName: "check" })}${secButton("pay-iban-typo", "Try one mistyped digit", { iconName: "cross" })}${secButton("pay-iban-nofunds", "Try the no-funds test account", { iconName: "bag" })}</div>
+      ${I ? `<ul class="sec-checks">${I.steps.map(([ok, t, d]) => secCheck(ok, t, d)).join("")}</ul>` : `<p class="sec-note">The check digits catch every single mistyped character. Validation proves the format, not that the person owns the account.</p>`}
+      ${secLink("android-app/atlas_go/payments.py → clean_iban, bank_record", SEC_MAIN + "android-app/atlas_go/payments.py")}`)}
+    ${secSection("LAB 2 · STATE MACHINE AND LEDGER", "One €8.60 ride: authorise, capture, void, refund", `<div class="sec-status-row"><span class="sec-pill ${P ? "good" : ""}">status = ${P ? P.status : "no payment"}</span><span class="sec-pill">fare ${secMoney(860)} = driver ${secMoney(split.net)} + ATLAS fee ${secMoney(split.fee)} (15 %)</span><span class="sec-pill ${debit === credit ? "good" : "bad"}">ledger: debits ${debit} = credits ${credit}</span></div>
+      <div class="sec-actions">${secButton("pay-authorise", "Book (authorise)", { primary: true, iconName: "play" })}${secButton("pay-captured", "Ride completed (capture)", { iconName: "check", disabled: !P })}${secButton("pay-voided", "Cancel (void)", { iconName: "cross", disabled: !P })}${secButton("pay-refunded", "Refund", { iconName: "reset", disabled: !P })}</div>
+      ${lines.length ? secTable(["Transaction", "Account", "Debit", "Credit"], lines.map(([t, a, d, c]) => [t, `<code>${a}</code>`, d || "", c || ""])) : `<p class="sec-note">An authorised or voided payment moves nothing: the ledger is empty until the capture.</p>`}
+      ${P ? `<ul class="sec-checks">${P.log.map(([ok, t, d]) => secCheck(ok, t, d)).join("")}</ul>` : ""}
+      <p class="sec-note">A food order of ${secMoney(1100)} pays the seller ${secMoney(food.net)}: the €2.50 delivery fee and 10 % of the food stay with ATLAS. In PostgreSQL a trigger makes <code>ledger_entries</code> append-only and a deferred constraint trigger refuses the COMMIT of a transaction whose debits and credits differ.</p>
+      ${secLink("android-app/atlas_go/payments.py → TRANSITIONS, split, entries", SEC_MAIN + "android-app/atlas_go/payments.py")}${secLink("android-app/server/migrations/001_accounts_payments.sql", SEC_MAIN + "android-app/server/migrations/001_accounts_payments.sql")}`)}
+    ${secSection("LAB 3 · IDEMPOTENCY AND SERVER-SIDE PRICING", "The reply was lost. Send it again?", `<div class="sec-status-row"><span class="sec-pill ${S && S.payments === 1 ? "good" : ""}">payments on the server = ${S ? S.payments : 0}</span></div>
+      <div class="sec-actions">${secButton("pay-send", "Send the payment (key P-1)", { primary: true, iconName: "arrow" })}${secButton("pay-other", "Same key, different booking", { iconName: "cross" })}${secButton("pay-new", "Same booking, new key", { iconName: "cross" })}${secButton("pay-tamper", "Add amount_cents = 1", { iconName: "bug" })}${secButton("pay-reset", "Reset", { iconName: "reset" })}</div>
+      ${S ? `<ul class="sec-checks">${S.log.map(([ok, t, d]) => secCheck(ok, t, d)).join("")}</ul>` : `<p class="sec-note">Press <em>Send</em> twice: the phone cannot know whether a lost reply means "not received", so it must retry, and the server must not charge twice.</p>`}
+      ${secLink("android-app/server/app.py → Service.pay, replay", SEC_MAIN + "android-app/server/app.py")}${secLink("android-app/atlas_go/backend.py → outbox, deliver, apply", SEC_MAIN + "android-app/atlas_go/backend.py")}`)}
+    ${secSection("WHAT PROTECTS THE MONEY", "One control per attack", secTable(["Attack", "Control", "Where"], [
+      ["Pay less than the fare", "No amount field; the server prices the booking; multiplier capped at ×2.0", "payments.quote · Service.pay"],
+      ["Charge or pay out twice", "Idempotency-Key, one payment per booking, row lock before a payout", "UNIQUE constraints · SELECT … FOR UPDATE"],
+      ["Redirect money with a stolen session", "Password asked again for bank changes and payouts, with the sign-in lockout", "LocalStore._step_up · Service.step_up"],
+      ["Steal bank details from the database", "The IBAN is not stored: last four characters, provider token, keyed fingerprint", "Service.link_bank · security.fingerprint"],
+      ["Rewrite the books", "Append-only ledger that must balance; API role without UPDATE/DELETE", "ledger triggers · roles.sql"],
+      ["Read another user's payment", "Ownership in the WHERE clause; a foreign id is 404", "Service.payment"],
+    ]) + `<p class="sec-note">59 server tests run on a real PostgreSQL, including six concurrent requests with one key and four concurrent payouts. Teaching guide: <a class="sec-inline-link" href="${SEC_GUIDE}#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank">§14 Bank payments and the PostgreSQL back end</a> · <a class="sec-inline-link" href="${SEC_MAIN}android-app/server/README.md">server README</a></p>`)}`;
+}
+
 // ------------------------------------------------------------------ inspector
 const secInspect = {
-  overview: { summary: "Ten controls across the Android app, the server starter, the prototype, the explorer server and the database host.", files: [["docs/INFORMATION_SECURITY.md", SEC_GUIDE], ["security_lab/password_storage_demo.py", SEC_MAIN + "security_lab/password_storage_demo.py"]], facts: [["Implemented", "Passwords, login, identity, RBAC, mTLS, deployment"], ["Demo-grade", "Gateway keys and internal token"], ["Teaching extension", "SSO, Kerberos"], ["Host deployment", "IDS and IPS on the database server"]], questions: ["Which control protects which letter of CIA?", "Where is the trust boundary between the app and the server?"] },
+  overview: { summary: "Eleven controls across the Android app, its PostgreSQL server, the server starter, the prototype, the explorer server and the database host.", files: [["docs/INFORMATION_SECURITY.md", SEC_GUIDE], ["security_lab/password_storage_demo.py", SEC_MAIN + "security_lab/password_storage_demo.py"]], facts: [["Implemented", "Passwords, login, identity, RBAC, mTLS, deployment, bank payments on PostgreSQL"], ["Demo-grade", "Gateway keys and internal token"], ["Teaching extension", "SSO, Kerberos"], ["Host deployment", "IDS and IPS on the database server"]], questions: ["Which control protects which letter of CIA?", "Where is the trust boundary between the app and the server?"] },
   passwords: { summary: "One-way, salted, deliberately slow. The record carries its own iteration count so the cost can be raised later.", files: [["android-app/atlas_go/accounts.py", SEC_MAIN + "android-app/atlas_go/accounts.py#L27-L42"], ["android-app/tests/test_accounts_geo.py", SEC_MAIN + "android-app/tests/test_accounts_geo.py#L9-L15"], ["android-app/docs/PRIVACY.md", SEC_MAIN + "android-app/docs/PRIVACY.md"]], facts: [["Algorithm", "PBKDF2-HMAC-SHA256"], ["Iterations", "200 000"], ["Salt", "16 random bytes per account"], ["Output", "32 bytes, hex"], ["Compare", "hmac.compare_digest"], ["Policy", "8–128 chars, letter + digit"]], questions: ["Why hash rather than encrypt?", "What does the salt stop, and what does it not stop?", "Why store the iteration count?", "Why is an upper length limit a security control?"] },
-  login: { summary: "Online guessing is throttled; failures look identical whether or not the account exists.", files: [["android-app/atlas_go/store.py → login", SEC_MAIN + "android-app/atlas_go/store.py#L304-L319"], ["android-app/atlas_go/accounts.py (limits)", SEC_MAIN + "android-app/atlas_go/accounts.py#L16-L18"]], facts: [["Max failures", "5"], ["Lockout", "60 s"], ["Counter", "In memory, per email"], ["Session", "Account id in state.json, validated on load"]], questions: ["Why not lock permanently?", "What attack does the generic message prevent?", "What happens to the counter if the app restarts?"] },
-  identity: { summary: "The lifecycle from registration to deletion, with roles enforced at two layers.", files: [["android-app/atlas_go/store.py", SEC_MAIN + "android-app/atlas_go/store.py#L260-L357"], ["android-app/atlas_go/app.py → render", SEC_MAIN + "android-app/atlas_go/app.py#L428-L435"], ["android-app/docs/ARCHITECTURE.md (Identity roadmap)", SEC_MAIN + "android-app/docs/ARCHITECTURE.md"]], facts: [["Roles", "passenger · driver · seller"], ["Identifier", "U-<nanoseconds>, email unique"], ["Re-auth", "Required to delete"], ["Erasure", "Account removed, history anonymised"]], questions: ["Which identity attributes are verified and which only claimed?", "Why re-ask the password before deletion?", "Why check roles in the store if the UI already hides screens?"] },
+  login: { summary: "Online guessing is throttled; failures look identical whether or not the account exists.", files: [["android-app/atlas_go/store.py → login", SEC_MAIN + "android-app/atlas_go/store.py#L374-L389"], ["android-app/atlas_go/accounts.py (limits)", SEC_MAIN + "android-app/atlas_go/accounts.py#L16-L18"]], facts: [["Max failures", "5"], ["Lockout", "60 s"], ["Counter", "In memory, per email"], ["Session", "Account id in state.json, validated on load"]], questions: ["Why not lock permanently?", "What attack does the generic message prevent?", "What happens to the counter if the app restarts?"] },
+  identity: { summary: "The lifecycle from registration to deletion, with roles enforced at two layers.", files: [["android-app/atlas_go/store.py", SEC_MAIN + "android-app/atlas_go/store.py#L330-L432"], ["android-app/atlas_go/app.py → render", SEC_MAIN + "android-app/atlas_go/app.py#L458-L463"], ["android-app/docs/ARCHITECTURE.md (Identity roadmap)", SEC_MAIN + "android-app/docs/ARCHITECTURE.md"]], facts: [["Roles", "passenger · driver · seller"], ["Identifier", "U-<nanoseconds>, email unique"], ["Re-auth", "Required to delete"], ["Erasure", "Account removed, history anonymised"]], questions: ["Which identity attributes are verified and which only claimed?", "Why re-ask the password before deletion?", "Why check roles in the store if the UI already hides screens?"] },
   gateway: { summary: "Authenticate at the edge, propagate identity inward, re-check inside each service.", files: [["starter/services/gateway.py", SEC_STARTER + "services/gateway.py#L46-L67"], ["starter/packages/config.py", SEC_STARTER + "packages/config.py"], ["starter/services/dispatch.py", SEC_STARTER + "services/dispatch.py"]], facts: [["Client credential", "Static bearer key per actor"], ["Comparison", "hmac.compare_digest"], ["Route control", "Allow-list: method + role + regex"], ["Internal trust", "X-Atlas-Internal shared token"], ["Body limit", "8 KiB"]], questions: ["Why check the route before the key?", "What stops a client from sending its own X-Atlas-Actor?", "What breaks if the internal token leaks?"] },
   sso: { summary: "One identity provider, many ATLAS front ends. The gateway verifies signatures instead of looking up shared keys.", files: [["docs/INFORMATION_SECURITY.md §7", SEC_GUIDE + "#7-single-sign-on-sso-for-atlas--teaching-extension"]], facts: [["Protocol", "OpenID Connect"], ["Flow", "Authorization code + PKCE (S256)"], ["Token", "JWT, ES256, 10 min"], ["Gateway checks", "signature, iss, aud, exp, role"]], questions: ["What does PKCE add for a mobile app?", "Why can the gateway verify tokens without calling the IdP?", "What is the cost of a single point of authentication?"] },
   kerberos: { summary: "Symmetric-key tickets from a trusted third party. The password is used once to derive K_C and never crosses the network.", files: [["docs/INFORMATION_SECURITY.md §8", SEC_GUIDE + "#8-kerberos-step-by-step-on-atlas-components--teaching-extension"]], facts: [["Realm", SEC_REALM], ["Client", "driver-a"], ["Service", "HTTP/dispatch.atlas"], ["Clock skew", "±300 s"], ["TGT lifetime", "10 h"], ["Cipher (demo)", "AES-256-GCM"], ["String-to-key", "PBKDF2-SHA1, 4096, salt realm+principal"]], questions: ["Why can't the driver app read its own TGT?", "Which field defeats a replay?", "What would a stolen K_TGS allow (golden ticket)?", "Why must clocks be synchronised?"] },
   transport: { summary: "Mutual authentication on the wire, a locked-down host for the explorer, and verifiable releases.", files: [["prototype.zip → proto_run.py, module_server.py", SEC_MAIN + "prototype.zip"], ["architecture-explorer/server.mjs", SEC_EXPLORER + "server.mjs"], ["android-app/releases/", "https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app/releases"]], facts: [["mTLS", "Private CA, CERT_REQUIRED"], ["Cert lifetime", "30 days"], ["Explorer bind", "127.0.0.1"], ["Release integrity", "APK v2/v3 + SHA-256"]], questions: ["What does mutual TLS add over ordinary HTTPS?", "Why is serverAuth vs clientAuth key usage important?", "Why bind to loopback instead of adding a login page?"] },
+  payments: { summary: "Bank payments and payouts in ATLAS Go 1.5.0, with accounts and money kept in PostgreSQL. Sandbox bank: no real money moves.", files: [["android-app/atlas_go/payments.py", SEC_MAIN + "android-app/atlas_go/payments.py"], ["android-app/server/app.py", SEC_MAIN + "android-app/server/app.py"], ["android-app/server/migrations/001_accounts_payments.sql", SEC_MAIN + "android-app/server/migrations/001_accounts_payments.sql"], ["android-app/server/roles.sql", SEC_MAIN + "android-app/server/roles.sql"], ["docs/INFORMATION_SECURITY.md §14", SEC_GUIDE + "#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank"]], facts: [["Bank", "Sandbox behind BankProvider"], ["IBAN", "Validated (mod 97), never stored"], ["Password hash (server)", "PBKDF2, 600 000, rehash at sign-in"], ["Session token", "256 random bits; SHA-256 stored; 30 days"], ["Step-up", "Password again for bank and payout"], ["Ledger", "Double-entry, append-only, must balance"], ["Database role", "atlas_app: no DDL, no UPDATE/DELETE on ledger"], ["Tests", "59 on PostgreSQL 16"]], questions: ["Why does the phone not send the amount?", "What does the pepper protect, and where must it not be stored?", "Which control stops two simultaneous payouts?", "What would strong customer authentication add?"] },
   controls: { summary: "Every ATLAS control grouped by what it does to an attack, plus the IDS and IPS that guard the database server.", files: [["docs/INFORMATION_SECURITY.md §11", SEC_GUIDE + "#11-control-measures-preventive-detective-and-protective"], ["starter/compose.yaml (postgres, no published port)", SEC_STARTER + "compose.yaml"], ["ml_lab/…/ml15_anomaly_detection.py", SEC_MAIN + "ml_lab/machine_learning/ml15_anomaly_detection.py"]], facts: [["Control types", "Preventive · detective · protective"], ["Database", "PostgreSQL 16, :5432, atlas"], ["IDS", "Passive — network + host"], ["IPS", "Inline — drops before PostgreSQL"], ["Status", "Host deployment, not in the repo"]], questions: ["Classify the login lockout: preventive, detective or both?", "Why can't a network IDS see SQL injection over TLS, and what can?", "When is an IPS false positive worse than an IDS false positive?", "Should the IPS fail open or fail closed in front of the database?"] },
-  gaps: { summary: "Eleven known gaps, each a self-contained assignment.", files: [["docs/INFORMATION_SECURITY.md §12", SEC_GUIDE + "#12-known-gaps--exercises-for-students"]], facts: [["Exercises", "11"], ["Sessions", "9"]], questions: ["Which gap would you fix first, and why?"] },
+  gaps: { summary: "Nineteen known gaps, each a self-contained assignment.", files: [["docs/INFORMATION_SECURITY.md §12", SEC_GUIDE + "#12-known-gaps--exercises-for-students"]], facts: [["Exercises", "19"], ["Sessions", "10"]], questions: ["Which gap would you fix first, and why?"] },
 };
 
 function securityInspector() {
@@ -831,14 +937,14 @@ function securityInspector() {
 }
 
 // ------------------------------------------------------------------ view + events
-const secRenderers = { overview: secOverview, passwords: secPasswords, login: secLogin, identity: secIdentity, gateway: secGateway, sso: secSso, kerberos: secKrb, transport: secTransport, controls: secControls, gaps: secGaps };
+const secRenderers = { overview: secOverview, passwords: secPasswords, login: secLogin, identity: secIdentity, gateway: secGateway, sso: secSso, kerberos: secKrb, transport: secTransport, payments: secPayments, controls: secControls, gaps: secGaps };
 
 function securityView() {
   if (!globalThis.crypto?.subtle) {
     return viewHeading("INFORMATION SECURITY", "Security", "Web Crypto is unavailable: open the explorer over HTTPS or on localhost.");
   }
   const t = secTopicById[sec.topic];
-  return viewHeading("INFORMATION SECURITY", "How ATLAS is secured", "Authentication, password storage, identity, access control, SSO, Kerberos and control measures (IDS/IPS) — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_GUIDE}">Teaching guide ↗</a>`)
+  return viewHeading("INFORMATION SECURITY", "How ATLAS is secured", "Authentication, password storage, identity, access control, SSO, Kerberos, bank payments on PostgreSQL and control measures (IDS/IPS) — traced through the ATLAS code and run live in your browser.", `<a class="panel-badge sec-guide" href="${SEC_GUIDE}">Teaching guide ↗</a>`)
     + `<nav class="sec-topics" aria-label="Security topics">${secTopics.map((x) => `<button type="button" data-sec-topic="${x.id}" data-keep="sec-topic-${x.id}" aria-pressed="${x.id === sec.topic}">${icon(x.icon, 15)}${x.title}${x.status ? `<i class="sec-dot ${secStatus[x.status].tone}" aria-label="${secStatus[x.status].label}"></i>` : ""}</button>`).join("")}</nav>
     <div class="sec-body"><div class="sec-title-row"><h3>${t.title}</h3>${secChip(t.status)}${umlChip(sec.topic === "overview" ? "uml-security-passwords" : umlData()?.topics?.[`security/${sec.topic}`] ? `uml-security-${sec.topic}` : umlCatalogueAnchor("security"), "UML catalogue")}</div>${secRenderers[sec.topic]()}${sec.topic === "overview" ? umlTopicsSection("security", secTopics) : umlSection(`security/${sec.topic}`)}</div>`;
 }
@@ -888,6 +994,18 @@ function securityClick(button) {
     "krb-next": () => secRun("krb", secKrbNext),
     "krb-all": () => secRun("krb", async () => { for (let i = 0; i < 8; i++) { const s = sec.krb.steps; if (s.length && s[s.length - 1].done) break; const before = s.length; await secKrbNext(); if (sec.krb.steps.length === before) break; } }),
     "krb-reset": () => { sec.krb.steps = []; sec.krb.ctx = null; render(); },
+    "pay-iban": () => { sec.pay.iban = secIbanCheck(sec.fields.iban); render(); },
+    "pay-iban-typo": () => { sec.fields.iban = "IE29 AIBK 9311 5212 3456 79"; sec.pay.iban = secIbanCheck(sec.fields.iban); render(); },
+    "pay-iban-nofunds": () => { sec.fields.iban = "IE56 AIBK 9311 5200 0000 02"; sec.pay.iban = secIbanCheck(sec.fields.iban); render(); },
+    "pay-authorise": () => { const parts = secSplit("ride", 860); sec.pay.payment = { status: "authorised", amount: 860, net: parts.net, fee: parts.fee, log: [[true, "authorised", "the sandbox bank approved; nothing has moved yet"]] }; render(); },
+    "pay-captured": () => { secPayMove("captured"); render(); },
+    "pay-voided": () => { secPayMove("voided"); render(); },
+    "pay-refunded": () => { secPayMove("refunded"); render(); },
+    "pay-send": () => { secPayServer("send"); render(); },
+    "pay-other": () => { secPayServer("other"); render(); },
+    "pay-new": () => { secPayServer("new"); render(); },
+    "pay-tamper": () => { secPayServer("tamper"); render(); },
+    "pay-reset": () => { sec.pay.server = null; render(); },
   };
   actions[secAction]?.();
   return true;
