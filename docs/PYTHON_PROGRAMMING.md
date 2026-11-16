@@ -1,6 +1,6 @@
 # Python Programming with ATLAS Go — an illustrated, standalone course
 
-**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons (Part II) + 12 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
+**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons and 10 real-world testing tasks (Part II) + 18 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
 [Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -1140,7 +1140,7 @@ Build a *local, synthetic* ride-dispatch simulator: a `Ride` dataclass; a dict o
 
 # Part II — Software testing fundamentals with ATLAS Go
 
-**Purpose:** learn to produce *evidence* that code behaves as specified. The tests below run against **real ATLAS Go functions** where possible (`domain.fare`, `Offer`, `LocalStore`) and against small teaching services otherwise; none of them touches a payment provider, a live map or a production backend. Prerequisite: Lessons 1–19.
+**Purpose:** learn to produce *evidence* that code behaves as specified. The tests below run against **real ATLAS Go functions** where possible (`domain.fare`, `Offer`, `LocalStore`) and against small teaching services otherwise; the ten real-world tasks after T15 test the registration, bank-payment and payout code of ATLAS Go 1.5.0. None of them touches a real bank, a payment provider, a live map or a production backend. Prerequisite: Lessons 1–19.
 
 Every test file below begins with this bootstrap, because the folder `android-app` contains a hyphen and is not an importable package name:
 
@@ -1506,6 +1506,93 @@ jobs:
 
 **Defect report:** `ID | commit | environment | steps to reproduce | expected | actual | severity | evidence | owner | status | retest`. Severity = impact; priority = urgency. Give the smallest reproducing input and redact secrets.
 
+## Real-world testing tasks with ATLAS Go 1.5.0 (RT01–RT10)
+
+[Reference solutions](../python_lab/tests/test_real_world_tasks.py) · [the code under test](../android-app/atlas_go/payments.py) · [how the payments work](../android-app/docs/ARCHITECTURE.md#bank-payments-and-the-server-150)
+
+T01–T15 taught the techniques on fares and shared seats. These ten tasks are written the way work arrives on a team: a short brief, the code it concerns, and what "done" means. They test the code that ATLAS Go 1.5.0 added — **registration on a server, bank payments and payouts** — where a wrong test has a price: a passenger charged twice, a driver paid money that was never earned. Do each task before you open the reference solution; then compare.
+
+Set-up, once (the lab module puts `android-app` on the import path and gives you a phone, a server and helpers):
+
+~~~python
+# file: testing_lab/test_rt_setup.py
+import sys
+sys.path.insert(0, "python_lab")
+import pytest
+import payment_flows as pf
+from payment_flows import pay, backend, LocalStore, T0, GOOD, NO_FUNDS
+
+@pytest.fixture
+def phone(tmp_path):
+    """A passenger with a linked bank account, on a phone with no server."""
+    store = LocalStore(tmp_path / "state.json")
+    store.register("passenger", "Aoife Rider", "aoife@atlas.ie", "0851112233", "ride2026x")
+    store.link_bank("ride2026x", "Aoife Rider", GOOD, True, now=T0)
+    return store
+
+def test_the_fixture_works(phone):
+    assert phone.user["bank"]["masked"] == "IE29 •••• 5678"
+~~~
+
+| Task | Brief from the team | Technique (lesson) | Done when |
+|---|---|---|---|
+| **RT01** | "Support says customers mistype IBANs. Prove the form catches it." | Equivalence classes and boundary values (T02, T04) | One parameterised test covers a valid IBAN with spaces, lower case, the shortest (15) and longest (31) SEPA lengths, one character short, one too many, wrong check digits, a non-SEPA country, an illegal character and the empty string |
+| **RT02** | "Finance wants to know no cent is lost in the fee split." | Decision table + property-based test (T02, T09) | A table pins the rounding (15 % of 3, 4 and 10 cents; food with the €2.50 delivery fee) and a Hypothesis property shows `payee_net + platform_fee == amount` for every amount up to €50,000 |
+| **RT03** | "Can a captured payment ever be voided? Can a refund be refunded?" | State-transition testing (T05) | A 5 × 5 matrix test tries every pair of states: the four legal moves succeed, the other 21 raise and leave the payment unchanged |
+| **RT04** | "Test booking without depending on the bank." | Stub and spy (T06) | A **spy** proves the bank is asked exactly once, for exactly the fare, and never for a demo booking; a **stub** returning `limit_exceeded` proves nothing is booked |
+| **RT05** | "Users lose nothing if the phone restarts mid-day." | Integration test with a real file (T07) | Pay for a shared ride, build a second `LocalStore` on the same file, and compare payments, history, bank record and seat counts; the ledger balances |
+| **RT06** | "A security review is coming. What can someone with the file do?" | Security tests (T12) | Tests show the IBAN and password are not in `state.json`, four wrong or malicious passwords are refused, and a file edited to give the platform no fee is quarantined |
+| **RT07** | "Mobile and back-end teams keep breaking each other." | Contract test (T08) | A recorder between client and server proves each payment request carries a bearer token and the payment's id as `Idempotency-Key`, uses HTTPS, follows no redirects, and has exactly five fields — no amount, no payer. The same test passes on the stand-in **and** the real server |
+| **RT08** | "On the train the app loses connection all the time." | Reliability under retries (T13) | For 0, 1, 2, 5 and 9 lost replies: the phone keeps retrying, the server ends with exactly 3 payments, and requests sent = 3 + lost |
+| **RT09** | "A driver tapped *Pay out* on two phones at once." | Concurrency test (T13) | Eight threads each ask for €4.00 of a €7.31 balance at the same instant; exactly one succeeds and the balance is €3.31 — on the stand-in and on PostgreSQL |
+| **RT10** | "Three defects were reported during 1.5.0. Make sure they never return." | Regression tests from defect reports (T11, T15) | One failing-first test per defect: a payment whose amount differs from its ride's fare is quarantined; a NUL byte in the sign-in email is a 401, not a 500; `Retry-After` never exceeds the 60-second lock |
+
+**RT03 as a worked example.** The specification is one dictionary, `payments.TRANSITIONS`. A weak test checks the happy path (authorised → captured). The task asks for the *whole* matrix, because defects hide in the transitions nobody thought to try:
+
+~~~python
+# file: testing_lab/test_rt03_transitions.py
+import pytest
+from test_rt_setup import phone, pay, T0
+
+@pytest.mark.parametrize("start", pay.STATUSES)
+@pytest.mark.parametrize("target", pay.STATUSES)
+def test_transition_matrix(phone, start, target):
+    phone.book(0, 1, now=T0, pay_by_bank=True)
+    payment = dict(phone.payment(phone.ride["payment"]))            # a copy we may move freely
+    path = {"authorised": [], "captured": ["captured"], "voided": ["voided"],
+            "refunded": ["captured", "refunded"], "declined": None}[start]
+    if path is None:
+        payment["status"] = "declined"
+    for step in path or []:
+        pay.move(payment, step, T0, payee="fleet")                   # arrange: reach the start state
+    if target in pay.TRANSITIONS[start]:
+        pay.move(payment, target, T0, payee="fleet")                 # act
+        assert payment["status"] == target                           # assert: legal move happened
+    else:
+        with pytest.raises(ValueError, match="cannot become"):
+            pay.move(payment, target, T0, payee="fleet")
+        assert payment["status"] == start                            # assert: refused move changed nothing
+~~~
+
+25 cases from eight lines of test. **RT09 as a second example** shows why some defects cannot be found by calling a function once:
+
+~~~python
+import threading
+answers, gate = [], threading.Barrier(8)
+def withdraw(i):
+    gate.wait()                                                      # all eight start together
+    answers.append(pf.attempt(lambda: client.payout(token, "drive2026", f"O-rt09-{i:05d}", 400)))
+threads = [threading.Thread(target=withdraw, args=(i,)) for i in range(8)]
+[t.start() for t in threads]; [t.join() for t in threads]
+assert answers.count("accepted") == 1                                # 2 x 400 > 731: only one may win
+~~~
+
+On PostgreSQL the test passes because `Service.payout` locks the driver's account row (`SELECT … FOR UPDATE`) before reading the balance. Remove that line in a copy of the server and the test fails *sometimes* — a flaky test that is telling the truth.
+
+**Run the reference solutions:** `python -m pytest -q python_lab/tests/test_real_world_tasks.py` (57 tests; 3 of them need `ATLAS_TEST_DATABASE_URL` to point at a PostgreSQL server and are skipped otherwise — see [`android-app/server/README.md`](../android-app/server/README.md#tests)).
+
+**Write-up for each task (what a reviewer asks):** which requirement the test protects · the smallest input that would fail if the code were wrong · whether it is a unit, integration or system test · what it does *not* prove (for example: RT08 shows the server is not charged twice, not that the bank was not).
+
 ## Testing vocabulary
 
 | Term | Meaning |
@@ -1520,6 +1607,10 @@ jobs:
 | mutant killed | a deliberate bug that some test detected |
 | TDD | red → green → refactor |
 | CI | automated checks on every change |
+| contract test | client and server agree on the shape of a request and its answers |
+| idempotent | doing it twice has the same effect as doing it once |
+| regression test | a test written from a defect, kept so the defect cannot return |
+| race condition | a result that depends on the timing of two concurrent actions |
 
 **Mini-project:** a fare-and-shared-seat module with five parameterised boundary tests, a `tmp_path` integration test, a mock-interaction test, a Hypothesis property, a killed mutant and a coverage report; plus one defect ticket for a bug you introduced on purpose. Label which tests are unit, integration and system tests.
 
@@ -1531,7 +1622,7 @@ jobs:
 
 [Lab source](../python_lab/app_integration.py) · [Integration tests](../python_lab/tests/test_app_integration.py) · [Open in Colab (Part III section)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb)
 
-Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it.
+Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it (A01–A12). Six more (A13–A18) run the same kinds of flow on ATLAS Go 1.5.0 itself: registration, bank payments and payouts through its HTTP client and its PostgreSQL server.
 
 ~~~mermaid
 sequenceDiagram
@@ -1563,7 +1654,7 @@ sequenceDiagram
 | service | `RideService` | business rules, transactions, cache |
 | data | `Database` | SQLite with `CHECK`, `FOREIGN KEY`, `UNIQUE` constraints |
 
-**Run it:** `python python_lab/app_integration.py --all` (charts in `python_lab/results_app`), `python -m pytest -q python_lab/tests` (34 tests), and `python python_lab/app_integration.py --serve` to click the same API in a browser at http://127.0.0.1:8010 with DevTools → Network open.
+**Run it:** `python python_lab/app_integration.py --all` (charts in `python_lab/results_app`), `python -m pytest -q python_lab/tests/test_app_integration.py` (34 tests), and `python python_lab/app_integration.py --serve` to click the same API in a browser at http://127.0.0.1:8010 with DevTools → Network open.
 
 Every example below starts the whole app on a free local port:
 
@@ -1701,6 +1792,131 @@ with App(drivers=1) as app:
 
 **Chart.** Database row counts and cumulative requests after each step.
 
+## Money flows on the real app (A13–A18)
+
+[Lab source](../python_lab/payment_flows.py) · [Tests](../python_lab/tests/test_payment_flows.py) · [The server these labs call](../android-app/server/README.md) · [Security view of the same flows](INFORMATION_SECURITY.md#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank)
+
+A01–A12 used a teaching app so that every hop was visible. A13–A18 run the same kinds of flow on **ATLAS Go 1.5.0 itself**: the phone's `LocalStore`, its HTTP client `backend.py`, and the ATLAS Go server with PostgreSQL. They are the flows a developer on a ride-hailing or delivery product meets first: sign a user up, attach a way to pay, take a payment, survive a bad network, pay a partner out, and prove afterwards that the books agree.
+
+~~~mermaid
+sequenceDiagram
+    actor U as Passenger
+    participant S as LocalStore (phone, state.json)
+    participant C as backend.Backend (HTTP client)
+    participant A as ATLAS Go server (FastAPI)
+    participant D as PostgreSQL
+    U->>S: book(pay_by_bank=True)
+    S->>S: authorise (sandbox bank) · ride completed → captured
+    S->>C: outbox: captured, not yet synced
+    C->>A: POST /v1/payments + Idempotency-Key (the booking, no amount)
+    A->>A: authenticate · quote the booking · split the fee
+    A->>D: BEGIN · payment + 3 ledger lines + outbox + audit · COMMIT
+    D-->>A: commit only if debits = credits
+    A-->>C: 201 (or 200 on a repeat)
+    C-->>S: mark synced
+~~~
+
+**Run them:** `python python_lab/payment_flows.py --all` (or `--lab 17`). With no database the labs use `DeskServer`, an in-memory stand-in defined in the lab file; with `ATLAS_TEST_DATABASE_URL=postgresql://…` (and `pip install fastapi "psycopg[binary]" httpx`) they use the real server on a fresh PostgreSQL database. The tables below are the labs' printed output and are the same on both, which `test_stand_in_and_real_server_give_the_same_answers` checks. No bank is contacted: both use the sandbox rules in `payments.py`.
+
+~~~python
+import sys
+sys.path.insert(0, "python_lab")
+import payment_flows as pf
+
+with pf.a_server() as server, pf.a_phone() as store:                 # real server if configured, else the stand-in
+    client = pf.backend.Backend(pf.URL, session=server)
+    pf.join(store, client, "passenger", "Aoife Rider", "aoife@atlas.ie", "ride2026x")   # register + connect
+    pf.link(store, client, "ride2026x", "Aoife Rider", pf.GOOD, True)                    # bank: server first, then phone
+    payment = pf.ride(store)                                                             # book, complete, capture
+    print(payment["status"], payment["amount"], pf.backend.sync(store, client))
+~~~
+
+## A13 — Registration: one form, two stores
+
+**Idea.** Registering is A02's form → POST → INSERT, twice: once into the phone's file and once into the server's `accounts` table. Both sides run the *same* validation functions (`accounts.clean_email`, `check_password`), so they cannot disagree. Neither stores the password: the phone keeps `salt`, `hash`, `iterations`; the server keeps its own, stronger hash and returns a session token.
+
+| Input | Phone (`LocalStore.register`) | Server (`POST /v1/accounts`) |
+|---|---|---|
+| valid passenger | accepted | accepted |
+| email without `@` | refused | 422 invalid |
+| password `password` | refused (needs a digit) | 422 invalid |
+| name `A` | refused | 422 invalid |
+| role `admin` | refused | 422 invalid |
+
+Connecting the same email again is a **sign-in** (same account, new token); with a different password it is `401` — a second phone cannot take the account over. **Exercise:** the server answers a duplicate registration with `409 email_taken`. What does that reveal to a stranger, and what would you send instead?
+
+## A14 — Linking a bank account: validation in three places, and the password again
+
+**Idea.** A03's three layers, with money at stake. The phone checks the IBAN (country, length, mod-97 check digits) so the user gets an instant message; the server checks again because it cannot trust the phone; PostgreSQL has a `CHECK` that a debit account always has a mandate, in case both are wrong. Linking also asks for the **password again**, although the user is signed in.
+
+| Attempt | Phone | Server |
+|---|---|---|
+| one digit mistyped | refused: check digits | 422 |
+| two digits swapped | refused: check digits | 422 |
+| not a SEPA country | refused | 422 |
+| mandate not ticked | refused | 422 |
+| wrong password | refused | 403 wrong_password |
+| all correct | accepted | accepted |
+
+After a correct link the phone's file holds `IE29 •••• 5678`, the holder and the mandate id — **not the IBAN** — and on PostgreSQL the lab removes the mandate with raw SQL and is stopped by the constraint. **Exercise:** find the single-character change to an IBAN that mod 97 *cannot* catch (hint: there is none for one character — so try two).
+
+## A15 — One payment's life: authorise, capture, void
+
+**Idea.** A08's transaction across tables, on the phone: a booking and its payment must change together. The bank is asked at booking (`authorised`, nothing moved); the money is taken when the ride completes (`captured`, three ledger lines); a cancelled ride releases it (`voided`). A declined payment must leave **nothing** behind — not even a reserved seat.
+
+| Step | Ride | Payment | Ledger lines | Seats left in pool-1 |
+|---|---|---|---|---|
+| book a ride by bank | active | authorised | 0 | 3 |
+| cancel it | none | voided | 0 | 3 |
+| book 2 shared seats | active | authorised | 0 | 1 |
+| ride completed | none | captured | 3 | 3 |
+| book with an empty account | none | — | 3 | 3 |
+
+The captured €9.80 becomes: debit `bank:clearing` 980; credit `payable:fleet` 833; credit `revenue:commission` 147. **Exercise:** in `LocalStore.book`, move the authorisation *after* `offer.reserve(party)`; which row of the table changes, and which test fails?
+
+## A16 — The server sets the price
+
+**Idea.** The phone knows the fare, and still never sends it. The request describes the **booking** (route, option, busy-time multiplier, or dishes and quantities) and the server prices it with the same `payments.quote`. Whatever a modified client sends, it cannot choose what it pays.
+
+| What the client sends | Server answer |
+|---|---|
+| the booking, as the app does | accepted (860 cents, the server's price) |
+| an extra field `amount_cents = 1` | 422 |
+| multiplier 0.1 (a 90 % discount) | 422 |
+| multiplier 4.0 (above the ×2 cap) | 422 |
+| pickup = destination | 422 |
+| food: a dish from another kitchen | 422 |
+| food: quantity −3 | 422 |
+| a second payment for the same booking | 409 already_paid |
+
+**Exercise:** a seller raises a price after an order was placed but before it syncs. Which price does the server charge, and is that what the customer agreed to? Propose a fix (hint: quote at order time and sign the quote).
+
+## A17 — Offline outbox and exactly-once
+
+**Idea.** A05 (double submit) and A11 (timeouts and retries) on a real mobile network. The phone records the payment first and sends it when it can. If a reply is lost the phone cannot know whether the server got the request, so it must send again — and the server must not charge again. The payment's own id is the `Idempotency-Key`.
+
+| Sync | Network | Requests sent | Phone marks sent | Payments on server |
+|---|---|---|---|---|
+| 1 | offline | 0 | 0 | 0 |
+| 2 | first reply lost | 1 | 0 | **1** |
+| 3 | healthy | 5 | 5 | 5 |
+| 4 | phone forgot; resends all | 5 | 5 | 5 |
+
+After sync 2 the two sides disagree — the dangerous moment. Sync 3 sends that payment again; the server answers `200` with the first result and the ledger still has 15 lines (3 per payment). **Exercise:** change the client to send a fresh random key on every retry and rerun; explain the new last column.
+
+## A18 — Payouts, a race, and reconciliation
+
+**Idea.** A07's concurrent edits, where losing means paying money twice. Four payouts of a driver's whole balance start at the same instant; the server locks the account row, so one succeeds and three get `409 insufficient_balance`. Then the phone and the server are compared figure by figure — **reconciliation**, the daily job that finds what every other control missed.
+
+| Figure | Phone | Server | Match |
+|---|---|---|---|
+| driver earned | 1462 | 1462 | yes |
+| driver paid out | 1462 | 1462 | yes |
+| driver balance | 0 | 0 | yes |
+| after one unsynced ride | 731 | 0 | **no** |
+
+The last row is not an error: it is exactly the net amount of a payment still in the outbox, and it disappears after the next sync. A difference that does *not* match an outbox entry is the one to investigate. **Exercise:** write `reconcile(store, client)` that returns the list of payments on one side only, and use it to explain a difference you create by editing `state.json`.
+
 ## Part III exercises
 
 1. Add a **Delete** button for cancelled rides (`DELETE /api/rides/{id}` → 204) with a test that a requested ride cannot be deleted (409).
@@ -1708,6 +1924,10 @@ with App(drivers=1) as app:
 3. Make *Book* retry automatically on 503 — and prove with a test that the `Idempotency-Key` stops duplicates.
 4. Show **stale responses**: make search request 1 slow and request 2 fast, and fix the screen so an old response never overwrites a newer one.
 5. Replace the in-memory database with a file (`Database(path="rides.db")`) and show that data survives a restart (hint: the schema needs `CREATE TABLE IF NOT EXISTS`).
+6. **Refunds (A15, A18).** `payments.py` already models `refunded`. Add `LocalStore.refund(payment_id, password)` for a completed ride: who may call it, what happens to the driver's balance if it was already paid out, and which ledger lines appear? Write the tests first.
+7. **Receipts (A13, A16).** Add `GET /v1/payments/{id}/receipt` to a copy of the server returning what a passenger needs (date, route or dishes, amount, last four) and nothing a stranger could use; prove with a test that another account gets 404.
+8. **A bank that answers late (A17).** Real direct debits are confirmed hours later. Add a `pending` state between `authorised` and `captured`, list every transition that becomes legal, and extend RT03's matrix.
+9. **Run A13–A18 on PostgreSQL.** Start the server with Docker ([`android-app/server/README.md`](../android-app/server/README.md)), set `ATLAS_TEST_DATABASE_URL`, rerun the labs, then open `psql` and find the rows each lab wrote (`accounts`, `bank_accounts`, `payments`, `ledger_entries`, `payouts`, `audit_log`).
 
 ---
 

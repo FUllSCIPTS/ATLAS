@@ -1,4 +1,4 @@
-# Python lab — 20 experiments, a testing workshop, 12 app-integration labs and 10 graded app-building tasks
+# Python lab — 20 experiments, a testing workshop with 10 real-world tasks, 18 app-integration labs and 10 graded app-building tasks
 
 [Course guide](../docs/PYTHON_PROGRAMMING.md) · [Open the notebook in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab source](experiments.py) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -127,3 +127,31 @@ P20 (and the memory sizes in P07/P15) depend on the machine and Python version; 
 ## Audit notes
 
 Rebuilt in November 2026. The previous labs P01–P17 plotted arbitrary sums against n that had no connection to their lessons (P01 "print" plotted character counts; P14 "files" never wrote a file; P19 returned the constant (3, 0)), every lesson in the guide was one sentence plus a one-line snippet with a copied boilerplate paragraph, a Part II integration test (`snapshot() == snapshot()`) failed because `Cart` has no `__eq__`, inline code in Part II rendered as literal back-slashed backticks, and the notebook had no kernel metadata. All of these are fixed; every code block in the guide is now executed as part of the course checks.
+
+## Real-world tasks on ATLAS Go 1.5.0: money flows (A13–A18) and testing tasks (RT01–RT10)
+
+[Course text: A13–A18](../docs/PYTHON_PROGRAMMING.md#money-flows-on-the-real-app-a13a18) · [RT01–RT10](../docs/PYTHON_PROGRAMMING.md#real-world-testing-tasks-with-atlas-go-150-rt01rt10) · [lab source](payment_flows.py) · [the server](../android-app/server/README.md)
+
+These run on the app's own code (`android-app/atlas_go`: `LocalStore`, `payments.py`, `backend.py`), not on a teaching copy.
+
+~~~bash
+python python_lab/payment_flows.py --all                         # A13-A18 on the in-memory stand-in
+python python_lab/payment_flows.py --lab 17
+python -m pytest -q python_lab/tests/test_payment_flows.py       # 17 tests (5 need PostgreSQL)
+python -m pytest -q python_lab/tests/test_real_world_tasks.py    # 57 tests (3 need PostgreSQL)
+# the same labs and tests on the real server (FastAPI + PostgreSQL):
+python -m pip install fastapi "psycopg[binary]" httpx
+ATLAS_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres python python_lab/payment_flows.py --all
+ATLAS_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres python -m pytest -q python_lab/tests   # 108 tests
+~~~
+
+| Lab | Flow | What you see |
+|---|---|---|
+| A13 | Registration on the phone and on the server | the same five inputs judged by both; what is stored; sign-in instead of a duplicate; no takeover |
+| A14 | Linking a bank account | six attempts, refused by phone, server and (on PostgreSQL) a `CHECK` constraint; the IBAN is nowhere on disk |
+| A15 | A payment's life | ride, payment, ledger and seat count after each step; a decline books nothing |
+| A16 | Server-side pricing | eight ways to change the price, and the status code for each |
+| A17 | Offline outbox | requests sent against payments stored through four syncs with lost replies |
+| A18 | Payout race and reconciliation | four simultaneous payouts, one winner; phone and server compared figure by figure |
+
+`DeskServer` in `payment_flows.py` is a test double for the server. It is checked against the real one by `test_stand_in_and_real_server_give_the_same_answers`; trust it only as far as that test goes.

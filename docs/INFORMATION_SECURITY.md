@@ -2,7 +2,7 @@
 
 This guide uses ATLAS as a worked example for teaching information security. It covers
 **authentication, password storage, identity management, access control, single sign-on (SSO),
-Kerberos, transport security, secure deployment and security control measures (preventive,
+Kerberos, transport security, secure deployment, bank payments on a PostgreSQL back end, and security control measures (preventive,
 detective and protective, including the IDS and IPS on the database server)**, and points every
 claim at the line of code that implements it.
 
@@ -68,6 +68,7 @@ reset on restart, `iterations=0` raising instead of failing closed) for students
     - [11.5 IDS and IPS on the database server](#115-ids-and-ips-on-the-database-server---host-deployment)
 12. [Known gaps — exercises for students](#12-known-gaps--exercises-for-students)
 13. [Suggested lesson plan](#13-suggested-lesson-plan)
+14. [Bank payments and the PostgreSQL back end](#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank)
 
 ---
 
@@ -79,7 +80,9 @@ This chapter explains each principle from the beginning, with concrete examples 
 **Every unit stands alone.** Each unit opens with a short summary, then an **"in depth — what, why and
 how"** part: *what* the concept is, *why* it matters, *how* it works (step by step, with tables, runnable
 standard-library Python and diagrams), common pitfalls and three self-check questions. Units S13.1–S13.6
-cover topics that complete an information-security course beyond the ATLAS code.
+cover topics that complete an information-security course beyond the ATLAS code. Twelve units (S2–S9, S13,
+S13.2–S13.4) end with an **"In ATLAS Go 1.5.0"** note that ties the concept to the registration, bank-payment
+and PostgreSQL code added in that release.
 
 | Unit | Topic | Key ideas |
 |---|---|---|
@@ -215,6 +218,13 @@ authenticator such as a FIDO2 key).
 (which ride, which kitchen) and a *policy*. Accountability needs **unique** identities (no shared
 accounts), synchronised clocks and tamper-resistant logs.
 
+**In ATLAS Go 1.5.0.** Money settings use **step-up authentication**: linking or removing a bank
+account and paying out ask for the password again inside a signed-in session (phone: `LocalStore._step_up`
+in [`store.py`](../android-app/atlas_go/store.py); server: `Service.step_up` in [`server/app.py`](../android-app/server/app.py)), so a stolen
+session is not enough. **Accountability** on the server is the `audit_log` table: who registered, signed in,
+linked a bank account, paid or was paid out, and when — without passwords, tokens, emails or IBANs
+([§14](#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank)).
+
 **Check your understanding.** (1) Which IAAA step fails when a driver opens another driver's offer by
 editing a URL? (2) Why is "password + security question" not MFA? (3) What makes a hardware security key
 AAL3 while a TOTP app is not?
@@ -283,6 +293,13 @@ rate = 1e5                                          # PBKDF2 guesses per second 
 print("common list:", 1e6 / rate, "s;  passphrase (avg):", round(7776**4 / 2 / rate / 3.15e7), "years")
 ~~~
 
+**In ATLAS Go 1.5.0.** The server stores the same PBKDF2-HMAC-SHA256 record, at **600,000**
+iterations (`security.DEFAULT_ITERATIONS` in [`server/security.py`](../android-app/server/security.py)); the phone stays at
+200,000. Because the iteration count is stored per account, `Service.login` re-hashes a cheaper record at
+the next successful sign-in — the moment the server holds the password
+(`test_cheaper_hash_is_upgraded_at_sign_in`). Session tokens are different: they are 256 random bits, so a
+single SHA-256 is enough to store them; a slow hash protects *guessable* secrets, not random ones.
+
 **Check your understanding.** (1) Why does online lockout not protect a stolen `state.json`?
 (2) What does a pepper add, and where must it be stored? (3) Why are composition rules a weak
 substitute for a breached-password check?
@@ -340,6 +357,17 @@ assert canonical_email("ｒｉｄｅｒ@example.ie") == "rider@example.ie"     #
 **SQL injection in one example.** Building `"SELECT * FROM users WHERE email = '" + email + "'"` lets
 `' OR '1'='1` change the query's meaning. Parameterised queries send code and data separately, so input
 can never become SQL — regardless of validation.
+
+**In ATLAS Go 1.5.0.** The server repeats every check the phone makes by importing the *same*
+functions (`accounts.clean_email`, `clean_phone`, `clean_plate`, `check_password`), so the two cannot
+drift. Request bodies are Pydantic models with `extra='forbid'`: a body carrying `is_admin`, `id` or
+`amount_cents` is a 422, not silently ignored (`test_registration_rejects_bad_or_unexpected_input`,
+`test_client_cannot_send_amounts_status_or_payer`). Every SQL value is a bound parameter (`%s` in
+psycopg 3); `test_sql_injection_strings_are_just_data` sends `' OR '1'='1` and `'; DROP TABLE accounts; --`
+and counts the rows afterwards. A second worked example of validation is the **IBAN**:
+`payments.clean_iban` checks the country, the exact length for that country and the ISO 7064 mod-97
+check digits, which catch every single mistyped character (`test_every_single_digit_typo_is_caught`).
+Validation still proves format, not ownership: nothing here shows that the person owns the bank account.
 
 **Check your understanding.** (1) Why must the server repeat validation already done in the app?
 (2) Give an input that passes a deny-list of `<script>` but still causes XSS. (3) Does validation prove
@@ -411,6 +439,17 @@ for bad in ({"driver": "driver-b", "state": "accepted"}, {"driver": "driver-a", 
     try: authorise(driver, "advance", bad); raise SystemExit("should be denied")
     except PermissionError: pass
 ~~~
+
+**In ATLAS Go 1.5.0.** Three more layers of the same idea. (1) On the server the role comes from the
+session, never from the request (`Service.require`): only passengers can pay, only drivers and sellers can
+read a balance or be paid out. (2) **Object-level** access is part of the SQL: `WHERE id = %s AND
+(payer_id = %s OR payee_id = %s)`, so another user's payment id returns 404 — the IDOR test is
+`test_driver_is_credited_and_each_party_sees_only_its_own_side`. (3) The database has its own least
+privilege: the API connects as `atlas_app` ([`roles.sql`](../android-app/server/roles.sql)), which cannot `UPDATE` or
+`DELETE` ledger, payout or audit rows, alter tables or disable triggers
+(`test_api_runs_as_a_least_privilege_role`). The payment lifecycle is a state machine
+(`payments.TRANSITIONS`: authorised → captured or voided; captured → refunded); `payments.move` refuses
+any other transition.
 
 **Check your understanding.** (1) Which model fits "only during the driver's active shift"? (2) Why is
 hiding the "Edit menu" button not access control? (3) Write a test that would catch an IDOR on
@@ -490,6 +529,16 @@ sequenceDiagram
  S->>S: Verify with the stored public key for this user and origin
 ~~~
 
+**In ATLAS Go 1.5.0.** The server closes two of the phone's gaps. Its lockout lives in PostgreSQL
+(`login_failures`), so restarting the server does not reset it, and the failure is committed in its own
+transaction before the 401 is returned. Unknown emails cost the same PBKDF2 as known ones
+(`security.verify_password` hashes against a dummy record), which removes the timing side channel of
+experiment 14; the message and status are identical too. A locked email gets `429` with `Retry-After`.
+The same counter guards the password step-up, so a stolen token cannot be used to guess the password
+(`test_login_uniform_failures_lockout_and_unlock`,
+`test_payout_accounts_have_no_mandate_and_step_up_locks_out`). Still per email, not per IP: see
+[§12](#12-known-gaps--exercises-for-students), gap 14.
+
 **Check your understanding.** (1) How could an attacker abuse ATLAS's lockout to deny service to a
 known driver? (2) Why does a phishing site defeat TOTP but not a passkey? (3) Why must account recovery
 be as strong as the strongest factor?
@@ -564,6 +613,13 @@ sid = login("U-42"); assert current_user(sid) == "U-42"
 logout_everywhere("U-42"); assert current_user(sid) is None
 ~~~
 
+**In ATLAS Go 1.5.0.** A server session is an opaque bearer token: `secrets.token_urlsafe(32)`, of
+which only the SHA-256 is stored (`sessions.token_hash`), with `expires_at` (30 days by default) and
+`revoked_at`. Sign-out revokes that one token; deleting the account revokes all of them; expiry is checked
+in the query (`test_sessions_are_hashed_expire_and_can_be_revoked`). Opaque tokens can be revoked at once,
+which a self-contained JWT cannot. On the phone the token is saved in `state.json` in app-private storage;
+the Android Keystore would be the stronger home (gap 12).
+
 **Check your understanding.** (1) Which cookie attribute limits XSS token theft, and which limits CSRF?
 (2) Why must a password change end other sessions? (3) What is the trade-off between a 15-minute and a
 24-hour JWT lifetime?
@@ -629,6 +685,17 @@ try: load(path); raise SystemExit("tampering not detected")
 except ValueError: pass
 ~~~
 
+**In ATLAS Go 1.5.0.** Money adds integrity rules that are worth more than any single field check.
+The ledger is **double-entry**: a captured payment debits `bank:clearing` and credits the payee and the
+platform's commission; the three lines must sum to zero. On the phone `LocalStore.validate` rebuilds the
+ledger from the saved payments and payouts and quarantines the file if it does not balance, if payouts
+exceed earnings, or if a booking and its payment disagree (`test_tampered_money_state_is_quarantined`,
+nine kinds of tampering). In PostgreSQL the same invariants are enforced by the database itself: a trigger
+makes `ledger_entries` **append-only**, and a deferred constraint trigger refuses the `COMMIT` of any
+transaction whose debits and credits differ (`test_ledger_is_append_only_and_must_balance`). **Idempotency**
+is integrity under retries: each payment carries an `Idempotency-Key`, stored under a unique constraint,
+so a repeated request returns the first answer instead of charging again.
+
 **Check your understanding.** (1) Why does schema validation not stop a user who edits their role on a
 rooted phone? (2) What does `os.replace` guarantee that writing in place does not? (3) How would you
 detect an attacker restoring last week's valid file?
@@ -680,6 +747,16 @@ Level Authorization (BOLA), Broken Authentication and Broken Object Property Lev
 choose between HMAC and RSA); verify the signature with the issuer's key (fetched from its JWKS
 endpoint over TLS); check `iss`, `aud`, `exp`, `nbf`; then apply your own authorisation using `sub`
 and `scope`. A valid signature alone does not mean the caller may perform the action.
+
+**In ATLAS Go 1.5.0.** The ATLAS Go server ([`server/app.py`](../android-app/server/app.py)) is a second, complete API
+to study next to the starter's gateway. Against the OWASP API Top 10: **broken object-level
+authorisation** — ownership in the `WHERE` clause; **broken authentication** — hashed, expiring, revocable
+tokens and a lockout; **broken object property-level authorisation (mass assignment)** — strict request
+models with no `amount`, `status` or `payer` field; **unrestricted resource consumption** — a 64 KiB body
+limit and statement and lock timeouts; **broken function-level authorisation** — `Service.require` by role;
+**unsafe consumption of APIs** — the bank provider is behind one small interface (`BankProvider`). The
+client ([`backend.py`](../android-app/atlas_go/backend.py)) accepts only `https://` addresses, never follows redirects (a
+redirect could carry the bearer token to another host) and never sends an amount.
 
 **Check your understanding.** (1) Why must the gateway delete an `X-Atlas-Actor` header sent by a
 client? (2) Describe a BOLA attack on the trip service. (3) What is wrong with a JWT verifier that reads
@@ -927,6 +1004,14 @@ exposure.
 | Containers | Minimal base images, non-root `USER`, pinned digests, image scanning | Starter `Dockerfile` (exercise: pin by digest) |
 | Monitoring | Logs, health checks, alerts with an owner | Health checks ✅; audit log is a gap |
 
+**In ATLAS Go 1.5.0.** The server takes its two secrets from the environment — `DATABASE_URL` and
+`ATLAS_BANK_PEPPER` — and `from_env` refuses to start without a pepper of at least 16 random bytes; there
+is no default to forget to change (compare gap 5). [`compose.yaml`](../android-app/server/compose.yaml) reads them from an
+untracked `.env`, publishes the API on `127.0.0.1` only and does not publish PostgreSQL at all; the
+[`Dockerfile`](../android-app/server/Dockerfile) runs as a non-root user and copies only the four `atlas_go` modules the
+server needs. The pepper keys the IBAN fingerprint and must live *outside* the database and its backups:
+a secret stored beside the data it protects protects nothing.
+
 **Check your understanding.** (1) Name two ways a secret can leak from a Git repository even after the
 file is deleted. (2) Why is "refuse to start with default credentials" better than a warning in the log?
 (3) Which systemd option limits damage if the Explorer process is compromised, and how?
@@ -1020,6 +1105,17 @@ dish = "<img src=x onerror=alert(1)>"
 assert html.escape(dish) == "&lt;img src=x onerror=alert(1)&gt;"                  # encoded for HTML output
 ~~~
 
+**In ATLAS Go 1.5.0 — the Top 10 against the payment server.** A01 broken access control: role
+from the session, ownership in SQL, 404 for foreign ids. A02 cryptographic failures: PBKDF2 for passwords,
+SHA-256 for random tokens, HMAC for the low-entropy IBAN, HTTPS required by the client. A03 injection:
+bound parameters only. A04 insecure design: the server prices every booking itself
+(`payments.quote`) and caps the busy-time multiplier at ×2.0, so the client cannot choose what it pays.
+A05 misconfiguration: no default secrets, `Cache-Control: no-store`, errors without stack traces
+(`test_http_hygiene`). A07 authentication failures: lockout, uniform errors, step-up. A08 integrity
+failures: append-only balanced ledger, idempotency keys. A09 logging failures: `audit_log`. The server
+renders no HTML, so XSS and CSRF (cookie-based) do not arise; a bearer header is not sent automatically
+by a browser.
+
 **Check your understanding.** (1) Why does input validation alone not prevent SQL injection reliably?
 (2) Which HTTP header limits the damage of an XSS bug? (3) Classify "the CI pipeline downloads an
 unpinned build tool" in the Top 10.
@@ -1064,6 +1160,15 @@ flowchart LR
  C --> D
 ~~~
 
+**In ATLAS Go 1.5.0.** The server answers the "no persistent security log" gap for its own side.
+`audit_log` records `account.registered`, `login.ok`, `login.failed`, `bank.linked`, `bank.unlinked`,
+`payment.captured`, `payment.declined`, `payout.paid`, `payout.failed`, `account.deleted` and `logout`, each
+with a timestamp and the account id. It never contains a password, a token or an IBAN, and a failed
+sign-in stores a short hash of the email rather than the address; `atlas_app` can insert audit rows but
+not change them. `test_no_password_token_or_iban_is_stored_or_logged` dumps every table and searches it.
+Useful detections to build from it: many `login.failed` rows, a `bank.linked` followed quickly by a
+`payout.paid`, repeated `payment.declined`.
+
 **Check your understanding.** (1) Why should a failed-login log never contain the attempted password?
 (2) An ATLAS seller reports menu prices changed overnight — walk through the four phases. (3) What makes
 a log trustworthy as evidence?
@@ -1097,6 +1202,15 @@ rectification, erasure, portability, objection), and **breach notification** wit
 supervisory authority where there is a risk to individuals (Article 33). Technical tools: pseudonymisation
 (still personal data), anonymisation (truly irreversible — hard for location traces), aggregation,
 differential privacy for statistics.
+
+**In ATLAS Go 1.5.0.** Bank details are a worked example of **data minimisation** (Art. 5(1)(c)):
+the IBAN is needed once, to create the mandate, so neither the phone nor the server stores it — only the
+holder, country and last four characters, which is what a receipt shows. **Erasure** (Art. 17) on the
+server removes the name, email, phone, password hash, bank holder and profile, and keeps payment and
+ledger rows under an anonymous id, because Art. 17(3)(b) exempts data kept for a legal obligation
+(accounting records). **Transparency**: the [privacy notice](../android-app/docs/PRIVACY.md) lists exactly
+what a connected account sends. Whoever operates the server is the **controller** of that data; bank
+account data is not a special category under Art. 9, but it is high-risk if breached.
 
 **Check your understanding.** (1) Is a hashed phone number anonymous? Why not? (2) Which principle
 justifies overwriting the driver's last location instead of storing a trail? (3) What must happen within
@@ -1196,11 +1310,12 @@ The original numbered source lab runs the real code. The **observed PNG** report
 
 ## 1. The security map of ATLAS
 
-ATLAS has three runnable parts, and each teaches a different layer of security.
+ATLAS has four runnable parts, and each teaches a different layer of security.
 
 | Part | Where | Security topics it demonstrates |
 |---|---|---|
 | **ATLAS Go** Android app | [`android-app/atlas_go/`](../android-app/atlas_go/) | Password hashing (PBKDF2), login throttling, sessions, identity lifecycle, role-based screens, privacy-by-design |
+| **ATLAS Go server** (FastAPI · PostgreSQL), new in 1.5.0 | [`android-app/server/`](../android-app/server/) | Server-side registration and sign-in, hashed session tokens, step-up authentication, bank details without storing the IBAN, server-side pricing, idempotency, an append-only double-entry ledger, least-privilege database role, audit log ([§14](#14-bank-payments-and-the-postgresql-back-end---implemented-sandbox-bank)) |
 | **Server starter** (FastAPI · PostgreSQL · Kafka) | [`architecture-explorer/starter/`](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter) | API gateway authentication, bearer keys, constant-time comparison, route allow-listing, identity propagation to internal services |
 | **Prototype** + **Explorer server** | [`prototype.zip`](../prototype.zip), [`architecture-explorer/server.mjs`](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/server.mjs) | Mutual TLS with a private CA, HTTP security headers (CSP), loopback binding + SSH tunnel, systemd sandboxing, signed releases |
 
@@ -1209,8 +1324,14 @@ flowchart LR
   subgraph Phone["ATLAS Go (on the phone)"]
     UI[Kivy screens<br/>role-gated] --> ST[LocalStore<br/>login · lockout · session]
     ST --> AC[accounts.py<br/>PBKDF2-HMAC-SHA256]
-    ST --> SJ[(state.json<br/>salt + hash only)]
+    ST --> SJ[(state.json<br/>salt + hash only<br/>bank: last four only)]
+    ST --> PY[payments.py<br/>IBAN · lifecycle · ledger]
   end
+  subgraph GoServer["ATLAS Go server (1.5.0)"]
+    API[FastAPI Service<br/>sessions · step-up · server pricing] --> PG[(PostgreSQL<br/>accounts · payments · ledger<br/>triggers · audit_log)]
+    API --> BK[BankProvider<br/>sandbox]
+  end
+  ST -. "optional · HTTPS · Bearer token · Idempotency-Key" .-> API
   subgraph Server["Server starter"]
     PA[Passenger / Driver web apps] -- "Authorization: Bearer key" --> GW[API Gateway<br/>authenticate · allow-list route]
     GW -- "X-Atlas-Actor + X-Atlas-Internal" --> TS[Trip Service]
@@ -1283,9 +1404,24 @@ sequenceDiagram
 ```
 
 > **Discussion:** OWASP's current guidance for PBKDF2-HMAC-SHA256 is 600 000 iterations, and it
-> prefers memory-hard Argon2id. ATLAS uses 200 000 because PBKDF2 is in the Python standard library
-> and must run on low-end phones. Ask students to measure the cost on a phone and argue the trade-off
-> (see [§12](#12-known-gaps--exercises-for-students)).
+> prefers memory-hard Argon2id. ATLAS Go uses 200 000 on the phone because PBKDF2 is in the Python
+> standard library and must run on low-end phones. Ask students to measure the cost on a phone and
+> argue the trade-off (see [§12](#12-known-gaps--exercises-for-students)).
+
+### On the server (1.5.0)
+
+**Files:** [`android-app/server/security.py`](../android-app/server/security.py) — `hash_password`, `verify_password`; `Service.register` and `Service.login` in [`server/app.py`](../android-app/server/app.py).
+
+When an account is connected, the password travels once over HTTPS and the server stores its own
+record in the `accounts` table: `password_salt BYTEA`, `password_hash BYTEA`, `password_iterations INTEGER`.
+
+| Property | Phone (`state.json`) | Server (PostgreSQL) |
+|---|---|---|
+| Algorithm | PBKDF2-HMAC-SHA256, 16-byte salt | The same function (`accounts.hash_password`) |
+| Iterations | 200 000 | **600 000** (`ATLAS_PBKDF2_ITERATIONS`) |
+| Upgrade | Exercise (gap 1) | **Rehash at sign-in** when the stored count is lower than the target |
+| Unknown email | No hash computed (timing leak, experiment 14) | A dummy hash is computed, so timing is the same |
+| Password in transit | Never leaves the phone | Only to an `https://` server the user entered (`backend.clean_url`) |
 
 ---
 
@@ -1315,6 +1451,19 @@ def login(self, email, password, now=None):
 | Session | `session` = account id, persisted in `state.json`; validated on load (`validate`: session must reference an existing account) | A stale or forged session id is discarded |
 | Guest mode | `continue_as_guest` — no identity, passenger features only | Least privilege for anonymous use |
 
+### On the server (1.5.0)
+
+**File:** [`android-app/server/app.py`](../android-app/server/app.py) — `Service.login`, `check_lock`, `record_failure`, `open_session`, `authenticate`.
+
+| Control | Value | Why |
+|---|---|---|
+| Lockout | Five failures → 60 s, stored in the `login_failures` table | Survives a restart; committed even though the request is refused |
+| Locked answer | `429` with `Retry-After` | The client can tell the user how long to wait |
+| Generic error | One `401 bad_credentials` body for unknown email and wrong password, after the same PBKDF2 cost | No enumeration by message or timing |
+| Session token | `secrets.token_urlsafe(32)`; only its SHA-256 is stored; `expires_at` 30 days; `revoked_at` on sign-out | A copied database yields no usable tokens; a token can be withdrawn at once |
+| Transport | `Authorization: Bearer …`; responses carry `Cache-Control: no-store` | Tokens are not cached by intermediaries |
+| Step-up | Bank changes, payouts and deletion require the password again | A stolen token cannot redirect money |
+
 **Authentication factors.** ATLAS Go uses one factor: *something you know*. The phone itself is an
 implicit *something you have* (accounts live only on that device). Multi-factor authentication is an
 exercise in §12.
@@ -1323,7 +1472,7 @@ exercise in §12.
 
 ## 4. Identity management: the account lifecycle — ✅ Implemented
 
-**Files:** `accounts.py` (validation), `store.py` (`register`, `login`, `logout`, `delete_account`, `reset`), [`docs/PRIVACY.md`](../android-app/docs/PRIVACY.md).
+**Files:** `accounts.py` (validation), `store.py` (`register`, `login`, `logout`, `delete_account`, `reset`), [`docs/PRIVACY.md`](../android-app/docs/PRIVACY.md); from 1.5.0 also [`server/app.py`](../android-app/server/app.py) (`Service.register`, `login`, `delete_account`) and `backend.py` (`Backend.connect`).
 
 ```mermaid
 stateDiagram-v2
@@ -1343,7 +1492,9 @@ stateDiagram-v2
 | **Credential** | Salted PBKDF2 hash (§2) | Credential storage |
 | **Re-authentication** | `delete_account(password)` asks for the password again | Step-up authentication for destructive actions |
 | **De-provisioning** | Account removed; ride history kept with `passenger='deleted'`; seller kitchen closed and registration set to `REMOVED` | Right to erasure while keeping non-personal records |
-| **Data minimisation** | Location stored only after the driver taps *Use my phone location*; overwritten each fix | Privacy by design (GDPR Art. 25) |
+| **Data minimisation** | Location stored only after the driver taps *Use my phone location*; overwritten each fix. A linked bank account keeps the holder, country and last four characters; the IBAN itself is never stored (1.5.0) | Privacy by design (GDPR Art. 25) |
+| **Server registration** (1.5.0) | `POST /v1/accounts` repeats the phone's validation with the same functions, stores its own 600 000-iteration hash and returns a session token; `UNIQUE (email)` in PostgreSQL. `Backend.connect` registers, or signs in if the email exists — with the wrong password that is a 401, so an existing account cannot be taken over (`test_connect_signs_in_when_the_email_is_already_registered`) | Provisioning in a second system; one identity, two stores |
+| **Server de-provisioning** (1.5.0) | `DELETE /v1/accounts/me` with the password: name, email, phone, hash, bank holder and profile are overwritten, sessions revoked, the email freed; payment and ledger rows stay under the anonymous id; refused while a balance is owed | Erasure with a legal-retention exception |
 
 ---
 
@@ -1355,8 +1506,8 @@ two places, at two layers — a good example of defence in depth.
 **UI layer** — `app.py`, `render()`:
 
 ```python
-allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account'),
-           'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account')}
+allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin','wallet'),
+           'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin','wallet')}
 if self.store.user and self.store.role in allowed and self.screen not in allowed[self.store.role]:
     self.screen = self.home_screen()        # a driver cannot open the food basket
 ```
@@ -1368,12 +1519,21 @@ if self.store.user and self.store.role in allowed and self.screen not in allowed
 | `book`, `checkout` | Only passengers or guests |
 | `set_online`, `update_location`, `driver_respond` | Only `role == 'driver'` |
 | `add_dish`, `seller_accept`, `seller_ready` | Only the seller who owns that kitchen |
+| `book(pay_by_bank=True)`, `checkout(pay_by_bank=True)` (1.5.0) | Only a signed-in passenger with a linked bank account and mandate |
+| `link_bank`, `unlink_bank` (1.5.0) | Any signed-in account, **after the password is re-entered**; passengers must accept the mandate |
+| `wallet`, `request_payout` (1.5.0) | Only `driver` or `seller`; payout also needs the password and a linked account |
 
 | Role | May | May not |
 |---|---|---|
 | Passenger | Book rides, share rides, order food | Go online, edit menus |
 | Driver | Go online, accept/decline offers, advance trips | Book rides, order food |
 | Food seller | Edit own menu, accept and ready orders | Book rides, see other kitchens' orders |
+
+**On the server (1.5.0)** the same matrix is enforced a third time, from the session rather than the
+request: `Service.require(account, 'passenger')` before a payment, `require(account, 'driver', 'seller')`
+before a balance or payout, `require(account, 'seller')` before a menu upload — each a `403`. Rows are
+filtered by owner in SQL, and the database role `atlas_app` adds a fourth layer under the application
+(§14.4).
 
 ---
 
@@ -1408,6 +1568,10 @@ sequenceDiagram
 | 4 | Gateway sets `X-Atlas-Actor` and `X-Atlas-Internal`; clients cannot choose them because the gateway overwrites the header set | **Identity propagation** |
 | 5 | `internal_actor()` in each service re-checks the internal token and the actor's role → 403 | **Zero-trust-ish**: services do not trust the network alone |
 | — | Body limit 8 KiB → 413; `Idempotency-Key` forwarded | Abuse resistance; safe retries |
+
+> **Two servers, two labels.** This section is about the *starter* (trips and dispatch), which stays
+> demo-grade. The **ATLAS Go server** added in 1.5.0 (accounts and money, §14) does not use shared demo
+> keys: every user has an account, a password hash and expiring session tokens.
 
 **Why it is demo-grade:** keys default to `rider-demo`, `driver-a-demo`, … and the internal token to
 `local-internal-only` unless environment variables override them; the internal token is one static
@@ -1570,6 +1734,21 @@ APK v2/v3 signatures, `SHA256SUMS` for every artefact, a published upload certif
 release manifest. Students can verify a download with `sha256sum -c SHA256SUMS` and
 `apksigner verify --print-certs`. Integrity (the "I" in CIA) applied to software distribution.
 
+**ATLAS Go server (1.5.0)** — [`android-app/server/`](../android-app/server/):
+
+| Control | Setting | Threat addressed |
+|---|---|---|
+| Secrets from the environment | `DATABASE_URL`, `ATLAS_BANK_PEPPER`; `from_env` refuses to start without a pepper of ≥ 16 random bytes; `.env` is git-ignored | Default or committed secrets |
+| Database not published | `compose.yaml`: `postgres` has no `ports:`; the API binds `127.0.0.1:8080` | Direct connections to PostgreSQL |
+| Least-privilege database role | `roles.sql`: `atlas_app` has no DDL and no `UPDATE`/`DELETE` on ledger, payouts or audit | SQL injection or a compromised API rewriting history |
+| Non-root container, minimal copy | `Dockerfile`: `USER atlas`; only four `atlas_go` modules and `server/` are copied | Privilege after compromise; unneeded code in the image |
+| Bounded queries | `statement_timeout` 8 s, `lock_timeout` 4 s, body limit 64 KiB | Resource exhaustion |
+| Versioned schema | Numbered migrations applied under an advisory lock, recorded in `schema_version` | Two instances migrating at once; unknown schema state |
+| Tested in CI | [`atlas-server.yml`](../.github/workflows/atlas-server.yml): 59 tests on PostgreSQL 16 on every change | Regressions in a control |
+
+TLS is **not** terminated by the server itself: it must sit behind an HTTPS reverse proxy, and the app
+refuses plain `http://` to anything but a local test machine.
+
 **App storage** — `state.json` lives in Android's app-private directory (sandboxed per app UID) and is
 written atomically; a damaged file is quarantined as `state.invalid.json` (integrity and availability).
 
@@ -1623,6 +1802,13 @@ flowchart LR
 | Mutual TLS with private CA | `prototype/proto_run.py`, `module_server.py` | ✅ Implemented | Impersonation and eavesdropping between processes |
 | Loopback binding, method allow-list, static asset map, CSP | `architecture-explorer/server.mjs` | ✅ Implemented | Network exposure, path traversal, XSS, clickjacking |
 | Database not published to the host network | `starter/compose.yaml` (`postgres` has no `ports:`; only the gateway is published, on `127.0.0.1:8000`) | ✅ Implemented | Direct connections to PostgreSQL from outside the container network |
+| Server-side validation, strict request models, bound SQL parameters (1.5.0) | `server/app.py` (`Strict`, `Service.register`), `server/db.py` | ✅ Implemented | Malformed input, mass assignment, SQL injection |
+| Server-side pricing and price cap (1.5.0) | `payments.quote`, called by `Service.pay` | ✅ Implemented | A client paying less than the fare, or charging more than ×2.0 |
+| Password step-up for money settings (1.5.0) | `LocalStore._step_up`, `Service.step_up` | ✅ Implemented | Redirecting payouts or debits with a stolen session or unlocked phone |
+| Idempotency keys and one payment per booking (1.5.0) | `UNIQUE (payer_id, idempotency_key)`, partial unique index on `(payer_id, reference)` | ✅ Implemented | Double charge after a retry or a replayed request |
+| Row lock before a payout (1.5.0) | `SELECT … FOR UPDATE` in `Service.payout` | ✅ Implemented | Two concurrent payouts spending one balance |
+| Least-privilege database role (1.5.0) | `server/roles.sql` | ✅ Implemented | The API (or an injection through it) altering schema, ledger or audit rows |
+| HTTPS-only server address, no redirects (1.5.0) | `backend.clean_url`, `Backend.call` | ✅ Implemented | Passwords, IBANs and tokens sent in clear or to another host |
 | **IPS** inline in front of the database server | Database host | 🖥️ Host deployment | Scans, brute force and exploit traffic reaching PostgreSQL — see §11.5 |
 
 ### 11.3 Detective controls in ATLAS
@@ -1636,10 +1822,14 @@ flowchart LR
 | Container health checks (`pg_isready`, Kafka topic list) | `starter/compose.yaml` | ✅ Implemented | Database or broker unavailable (availability, the "A" in CIA) |
 | Release checksums and signatures | `android-app/releases/SHA256SUMS`, `apksigner verify` | ✅ Implemented | Modified or substituted APK downloads |
 | Anomaly detection (Isolation Forest, LOF, Mahalanobis) | [`ml_lab/machine_learning/ml15_anomaly_detection.py`](../ml_lab/machine_learning/ml15_anomaly_detection.py) | ✅ Implemented (lab) | Unusual behaviour without a known signature — the same idea as anomaly-based IDS |
+| Server audit log (1.5.0) | `audit_log` table, `Service.audit` | ✅ Implemented | Registrations, sign-ins and failures, bank changes, payments, declines, payouts, deletions |
+| Ledger checks (1.5.0) | `LocalStore.validate` on the phone; `ledger_txn_balanced` trigger in PostgreSQL | ✅ Implemented | Payments or payouts that do not add up; a booking and payment that disagree |
+| Persistent failed-sign-in table (1.5.0) | `login_failures` | ✅ Implemented | Repeated wrong passwords, across restarts |
 | **IDS** on the database server | Database host | 🖥️ Host deployment | Intrusion attempts and suspicious database traffic — see §11.5 |
 
-> **Detection needs a record.** ATLAS Go raises errors but keeps no persistent security log, so an
-> attack that does not trip a counter leaves no trace. Adding an audit log is exercise 10 in §12.
+> **Detection needs a record.** The ATLAS Go *app* raises errors but keeps no persistent security log,
+> so an attack on the phone that does not trip a counter leaves no trace (exercise 10 in §12). The
+> 1.5.0 *server* does keep one (`audit_log`); nothing reads it yet, which is the next exercise.
 
 ### 11.4 Protective controls in ATLAS
 
@@ -1654,6 +1844,10 @@ flowchart LR
 | systemd sandbox (`DynamicUser`, `ProtectSystem=strict`, `NoNewPrivileges`, …) | `deploy/atlas-explorer.service` | ✅ Implemented | A compromised Explorer process cannot write to the system or escalate |
 | Network segmentation (services on the compose network only) | `starter/compose.yaml` | ✅ Implemented | A compromise of one exposed port does not expose the database port |
 | Persistent database volume (`pgdata`) | `starter/compose.yaml` | ✅ Implemented | Data survives container restarts (backups are still needed — exercise 11 in §12) |
+| IBAN never stored; keyed fingerprint only (1.5.0) | `payments.bank_record`, `Service.link_bank`, `security.fingerprint` | ✅ Implemented | A stolen phone file or database yields no bank account numbers |
+| Hashed session tokens; 600 000-iteration password hashes (1.5.0) | `server/security.py` | ✅ Implemented | A copied database gives neither sessions nor passwords |
+| Append-only ledger (1.5.0) | `ledger_append_only` triggers | ✅ Implemented | History cannot be rewritten to hide a theft; corrections are new entries |
+| Declined or failed money movements change nothing (1.5.0) | `payments.new_payment`, `Service.pay`, `Service.payout` | ✅ Implemented | A refused debit leaves no booking; a failed payout leaves the balance |
 | **IPS** blocking and **IDS** alerting on the database host | Database host | 🖥️ Host deployment | Cuts off an attack in progress and starts incident response — see §11.5 |
 
 ### 11.5 IDS and IPS on the database server — 🖥️ Host deployment
@@ -1768,6 +1962,10 @@ drop tcp !$APP_NET any -> $DB_SERVER 5432 (msg:"ATLAS DB: blocked external Postg
 | Tampered saved state | Schema validation before commit | `validate()` on load | Quarantine to `state.invalid.json`; atomic replace |
 | Malicious release download | Signed builds from protected keys | `sha256sum -c`, `apksigner verify` | Android refuses mismatched signatures on update |
 | Compromised Explorer process | Loopback binding, CSP, method allow-list | — (exercise: add access logging) | systemd sandbox, `NoNewPrivileges`, `DynamicUser` |
+| Client pays less than the fare (1.5.0) | No amount field; server pricing | `payment.captured` audit rows carry the server's amount | Ledger must balance; price cap ×2.0 |
+| Double charge or double payout (1.5.0) | Idempotency key; unique booking reference; row lock | Replay answered with `Idempotent-Replay: true` | A second attempt is `409`; balance cannot go below zero |
+| Stolen session token (1.5.0) | Step-up password for bank and payout; expiry; revocation | `bank.linked` / `payout.paid` in `audit_log` | Tokens stored hashed; lockout on step-up guesses |
+| Database copied (1.5.0) | Not published; least-privilege role | IDS on the host (§11.5) | Hashes, token digests and IBAN fingerprints instead of secrets |
 
 ---
 
@@ -1777,8 +1975,8 @@ These are real properties of the current code, ideal for "find and fix" assignme
 
 | # | Gap | Where | Suggested exercise |
 |---|---|---|---|
-| 1 | PBKDF2 at 200 000 iterations (OWASP: 600 000) | `accounts.py` | Measure on a phone; implement *rehash on login* when `iterations < target`; compare Argon2id |
-| 2 | Lockout counter is memory-only and per email | `store.py` (`self.failures`) | Restarting the app resets it. Persist it; add exponential back-off |
+| 1 | PBKDF2 at 200 000 iterations on the phone (OWASP: 600 000; the 1.5.0 server uses 600 000 and rehashes at sign-in) | `accounts.py` | Measure on a phone; port the server's *rehash on login* (`Service.login`) to `LocalStore.login`; compare Argon2id |
+| 2 | Phone lockout counter is memory-only and per email (the server's is persistent, in `login_failures`) | `store.py` (`self.failures`) | Restarting the app resets it. Persist it; add exponential back-off |
 | 3 | No MFA, no password reset | — | Add TOTP (RFC 6238) as a second factor |
 | 4 | `state.json` is not encrypted at rest | `store.py` | Encrypt with a key held in the Android Keystore |
 | 5 | Default demo keys and internal token | `starter/packages/config.py` | Refuse to start when defaults are in use outside `local` mode |
@@ -1786,8 +1984,16 @@ These are real properties of the current code, ideal for "find and fix" assignme
 | 7 | Bearer keys never expire | `gateway.py` | Replace with OIDC access tokens (§7) |
 | 8 | Self-declared licences and business numbers | `accounts.py` | Discuss identity assurance levels; design a verification step |
 | 9 | IDS/IPS rules live only on the database host | Database server (§11.5) | Version the rule set in `deploy/ids/`; replay a captured scan and brute-force `.pcap` and confirm each rule fires |
-| 10 | No persistent security audit log | `store.py`, `gateway.py` | Log logins, lockouts, 401/403s and quarantines with timestamps; never log secrets |
+| 10 | No persistent security audit log on the phone or the starter gateway (the 1.5.0 server has `audit_log`) | `store.py`, `gateway.py` | Log logins, lockouts, 401/403s and quarantines with timestamps; never log secrets. Use `Service.audit` as the model |
 | 11 | No database backup or restore procedure; demo database password | `starter/compose.yaml` | Add scheduled `pg_dump` backups, test a restore, and load the password from a secret |
+| 12 | The server session token is saved in `state.json` in clear | `store.py` (`connect`) | Keep it in the Android Keystore; shorten its life and add a refresh step |
+| 13 | No strong customer authentication: one factor (password) authorises a mandate and a payout | `LocalStore._step_up`, `Service.step_up` | Strong customer authentication means two independent factors; a real provider applies it at mandate set-up and when payout details change. Add TOTP or a device-bound key as the second |
+| 14 | Server lockout is per email; there is no per-IP or global rate limit | `Service.check_lock` | Add a gateway rate limit; show how one attacker can lock many victims out, and design a fairer throttle |
+| 15 | Email and phone are not verified; registration reveals whether an email exists (`409 email_taken`) | `Service.register` | Add a verification link and answer every registration with the same message |
+| 16 | The bank call runs inside the database transaction | `Service.pay`, `Service.payout` | Harmless with a sandbox; with a real provider it holds locks across a network call. Insert a *pending* row, commit, call the provider with the same idempotency key, then settle |
+| 17 | No refunds, no handling of returned debits, no reconciliation | `server/bank.py` | A SEPA debit can be returned for 8 weeks. Add a signed-webhook endpoint that posts the reversing ledger entries (`payments.entries` already models `refunded`) |
+| 18 | Offline, the phone is the only judge of a payment | `LocalStore._authorise`, `backend.sync` | An altered app could mark a ride as paid before the server sees it. Decide which actions must wait for the server, and why |
+| 19 | Nothing reads the audit log; the pepper cannot be rotated | `audit_log`, `security.fingerprint` | Write three detection queries (S13.3); add a key id beside each fingerprint so the pepper can change |
 
 ---
 
@@ -1804,12 +2010,141 @@ These are real properties of the current code, ideal for "find and fix" assignme
 | 7 | Transport security | §9 | Run the prototype; break mTLS by removing the client certificate |
 | 8 | Control measures, IDS and IPS | §11 | Classify every ATLAS control as preventive, detective or protective; write and test an IDS rule for the database server |
 | 9 | Secure engineering | §12 | Fix one gap and write a test for it |
+| 10 | Payments and the database back end | §14, [`android-app/server/`](../android-app/server/README.md) | Run the server tests; STRIDE the payment flow; try to pay €0.01 for a ride, pay twice, read another user's payment and edit the ledger, and name the control that stops each |
 
 **Pre-reading by session (standalone units):** 1 → S1, S13.5 · 2 → S3 · 3 → S2, S6, S7 · 4 → S5, S9 ·
-5 → S10 · 6 → S11 · 7 → S12, S13.1 · 8 → S13.3 and §11 · 9 → S4, S8, S13, S13.2. S13.4 (privacy) and
+5 → S10 · 6 → S11 · 7 → S12, S13.1 · 8 → S13.3 and §11 · 9 → S4, S8, S13, S13.2 · 10 → the *In ATLAS Go 1.5.0* notes of S5, S8, S9 and S13.4. S13.4 (privacy) and
 S13.6 (human factors) suit an extra session or self-study; every unit ends with self-check questions.
 
 ---
 
-*Code references are to the `main` branch (ATLAS Go 1.2.0) and the `architecture-explorer` branch
-(server starter and Explorer). If you change the code, update this guide in the same commit.*
+## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (sandbox bank)
+
+**Files:** [`android-app/atlas_go/payments.py`](../android-app/atlas_go/payments.py) (rules shared by phone and server), [`store.py`](../android-app/atlas_go/store.py) (`link_bank`, `book`, `checkout`, `request_payout`, `validate`), [`backend.py`](../android-app/atlas_go/backend.py) (client), [`android-app/server/`](../android-app/server/) (`app.py`, `security.py`, `bank.py`, `db.py`, `migrations/001_accounts_payments.sql`, `roles.sql`). Tests: `android-app/tests/test_payments.py`, `test_backend.py`, `android-app/server/tests/`.
+
+ATLAS Go 1.5.0 lets a passenger pay for rides and food from a bank account, and pays drivers and food
+sellers out to theirs. Accounts, bank details, payments and payouts can be kept in PostgreSQL by the
+ATLAS Go server.
+
+> **What "sandbox bank" means.** IBANs are validated for real, the payment lifecycle, ledger and
+> database controls are real and tested, but **no bank is contacted and no money moves**. `SandboxBank`
+> approves or declines from the account's last four characters (…`0002` has no funds, …`0003` is
+> closed), as payment providers' test modes do. A licensed provider would implement the same three
+> calls (`tokenise`, `debit`, `credit`); everything a provider adds — strong customer authentication,
+> webhooks, refunds — is listed as gaps 13, 16 and 17 in §12.
+
+### 14.1 Assets, actors and trust boundaries
+
+```mermaid
+flowchart LR
+  subgraph Phone["Phone (untrusted by the server)"]
+    P[Passenger] --> APP[ATLAS Go<br/>LocalStore · payments.py]
+    D[Driver / seller] --> APP
+  end
+  APP -- "HTTPS · Bearer token<br/>Idempotency-Key · booking, never an amount" --> API
+  subgraph Server["ATLAS Go server (trusted)"]
+    API[Service<br/>authenticate · step-up · quote] --> PG[(PostgreSQL<br/>ledger triggers · audit_log)]
+  end
+  API -- "IBAN once → token" --> BANK[Bank provider<br/>sandbox]
+```
+
+| Asset | Why it matters | Where it lives |
+|---|---|---|
+| Password | Authorises everything, including money settings | Never stored; PBKDF2 hash on the phone (200 000) and server (600 000) |
+| Session token | Acts as the user until it expires | Phone: `state.json`; server: SHA-256 only |
+| IBAN and mandate | Lets someone debit or redirect money | IBAN: nowhere after linking. Kept: holder, country, last four, mandate id, provider token, HMAC fingerprint |
+| Amounts and balances | The money itself | Phone: payment and payout records; server: `payments`, `payouts`, `ledger_entries` |
+| Audit trail | Evidence after an incident | `audit_log` (server) |
+
+### 14.2 Threat model (STRIDE) for one payment
+
+| STRIDE | Attack | Control | Test that proves it |
+|---|---|---|---|
+| **S**poofing | Pay or withdraw as someone else with a guessed or stolen credential | Hashed, expiring tokens; lockout; password step-up for bank and payout | `test_sessions_are_hashed_expire_and_can_be_revoked`, `test_payout_accounts_have_no_mandate_and_step_up_locks_out` |
+| **T**ampering | Send `amount_cents: 1`; edit a ledger row; alter `state.json` | No amount field and server pricing; append-only and must-balance triggers; `validate` rebuilds the ledger | `test_client_cannot_send_amounts_status_or_payer`, `test_ledger_is_append_only_and_must_balance`, `test_tampered_money_state_is_quarantined` |
+| **R**epudiation | "I never made that payout" | `audit_log` rows with account and time; step-up shows the password was known | `test_ride_payment_is_priced_by_the_server_and_posted_to_the_ledger` |
+| **I**nformation disclosure | Read another user's payment; steal IBANs from a database copy | Ownership in SQL (404); payee never sees the payer's bank details; IBAN not stored | `test_driver_is_credited_and_each_party_sees_only_its_own_side`, `test_no_password_token_or_iban_is_stored_or_logged` |
+| **D**enial of service | Huge bodies, slow queries, locking a victim out | 64 KiB limit; statement and lock timeouts; temporary (60 s) lockout | `test_http_hygiene`, `test_login_uniform_failures_lockout_and_unlock` |
+| **E**levation of privilege | A passenger reads balances; a driver pays; the API role drops a table | `Service.require`; `atlas_app` has no DDL | `test_only_passengers_with_a_mandate_can_pay`, `test_api_runs_as_a_least_privilege_role` |
+
+### 14.3 One payment, end to end
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as Passenger
+  participant A as ATLAS Go (phone)
+  participant S as ATLAS Go server
+  participant B as Bank provider (sandbox)
+  participant DB as PostgreSQL
+  U->>A: Link bank: holder, IBAN, mandate tick, password
+  A->>A: clean_iban (mod 97) · verify password (step-up)
+  A->>S: PUT /v1/me/bank (HTTPS, Bearer token)
+  S->>S: step_up: lockout check, PBKDF2
+  S->>B: tokenise(IBAN) → token, mandate id
+  S->>DB: bank_accounts: holder, last4, HMAC fingerprint, token (no IBAN)
+  S-->>A: last four + mandate id (the phone drops the IBAN too)
+  U->>A: Book ride · Pay with bank
+  A->>A: authorise (sandbox may decline → nothing booked)
+  Note over A: ride completed → payment captured locally, queued
+  A->>S: POST /v1/payments · Idempotency-Key = payment id · booking details
+  S->>S: require passenger · quote(booking) = 860 · split 731 / 129
+  S->>B: debit(token, 860)
+  S->>DB: payments + 3 ledger lines + outbox + audit, one transaction
+  DB-->>S: COMMIT only if debits = credits
+  S-->>A: 201 captured (200 on a repeat)
+```
+
+| Step | Security principle | Code |
+|---|---|---|
+| 2 | Validate early; re-authenticate before a sensitive change | `payments.clean_iban`, `LocalStore._step_up` |
+| 4 | Never trust the client's earlier check | `Service.step_up` |
+| 5–7 | Tokenisation and data minimisation: the system that needs the secret keeps it, everyone else keeps a reference | `SandboxBank.tokenise`, `Service.link_bank`, `payments.bank_record` |
+| 9 | Fail closed: a declined payment leaves no booking and no reserved seat | `payments.new_payment`; `test_declined_payment_books_nothing` |
+| 10 | Offline first with an **outbox**; retries are safe because the request is idempotent | `backend.outbox`, `deliver`, `apply` |
+| 11 | The server decides the price | `payments.quote`, `PRICE_CAP` |
+| 13–14 | Atomicity: the payment, its ledger lines, its event and its audit row commit together or not at all | `Service.pay`, `ledger_txn_balanced` |
+
+### 14.4 Database controls, layer by layer
+
+| Layer | Control | What it stops, even if the layer above fails |
+|---|---|---|
+| Column | `CHECK (amount_cents > 0)`, `CHECK (payee_net_cents + platform_fee_cents = amount_cents)`, `CHECK (role IN (…))` | A bug writing an impossible value |
+| Table | `UNIQUE (email)`, `UNIQUE (payer_id, idempotency_key)`, partial unique indexes (one active bank account; one non-declined payment per booking) | Duplicates under concurrency, which application checks alone cannot prevent |
+| Row | `SELECT … FOR UPDATE` on the account before a payout | Double spend (`test_two_payouts_at_once_cannot_spend_the_balance_twice`: four at once, one succeeds) |
+| Transaction | Deferred constraint trigger `ledger_balanced` | Any transaction that would leave debits ≠ credits |
+| History | `ledger_no_change`, `ledger_no_truncate` triggers | Rewriting or deleting ledger rows |
+| Privilege | `atlas_app`: DML only; `INSERT`/`SELECT` only on ledger, payouts, audit | A compromised API changing schema or history |
+| Host | Port not published; IDS/IPS (§11.5) | Direct network attacks on PostgreSQL |
+
+```sql
+-- Try it as the application role: each statement fails.
+UPDATE ledger_entries SET credit_cents = credit_cents + 100000;   -- permission denied (and append-only)
+INSERT INTO ledger_entries (txn, account, debit_cents, credit_cents, created_at)
+VALUES ('forged', 'payable:fleet', 0, 5000, now());               -- "does not balance" at COMMIT
+```
+
+### 14.5 Regulation in one table
+
+| Rule | What it asks | ATLAS Go 1.5.0 |
+|---|---|---|
+| **PSD2 — strong customer authentication** | Two independent factors (knowledge, possession, inherence) when a payer initiates an electronic payment, or sets up a mandate through their own bank (an e-mandate) | One factor (password step-up); a provider's hosted flow would add the second. Gap 13 |
+| **SEPA Direct Debit Core** | A signed mandate with a unique reference; refund right for 8 weeks | Mandate text, version, reference and date are recorded; refunds are not implemented. Gap 17 |
+| **PCI DSS** | Protect *card* data | Out of scope by design: the app takes no card numbers. Bank-account payments avoid PCI scope, not responsibility |
+| **GDPR** | Minimisation, purpose limitation, erasure, security of processing | IBAN not stored; erasure keeps accounting rows only; see S13.4 |
+| **Accounting and tax law** | Keep financial records for a fixed period (six years in Ireland) | Ledger rows survive account deletion, anonymised |
+
+### 14.6 Exercises
+
+1. **Pay less.** Send `POST /v1/payments` with every field you can think of to lower the price (an `amount_cents`, a negative quantity, a multiplier of 0.1, a dish from another kitchen). Record each status code and the line of code that produced it.
+2. **Pay twice.** Send the same request twice with the same `Idempotency-Key`, then with a new key, then with the same key and a different body. Explain the three different answers.
+3. **Race.** Start four payouts at once. Remove the `FOR UPDATE` line, run the test again and explain the result.
+4. **Insider.** Connect to PostgreSQL as `atlas_app` and try to raise your own balance. Then try as the database owner. What does the difference tell you about who must hold the owner password?
+5. **Breach.** You are handed a full copy of the database. List what you can and cannot learn about one user, and what the missing pepper prevents.
+6. **Design.** Add a refund: which tables change, which ledger lines are posted, who may trigger it, and what is logged?
+
+---
+
+*Code references are to the `main` branch (ATLAS Go 1.5.0, including `android-app/server/`) and the
+`architecture-explorer` branch (server starter and Explorer). If you change the code, update this guide
+in the same commit.*
