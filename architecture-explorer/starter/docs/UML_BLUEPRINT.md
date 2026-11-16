@@ -2,12 +2,12 @@
 
 Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-- **Android app** — ATLAS Go 1.4.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab); since 1.3.0 a digital twin with three agents (dispatch, pricing + moves, Guardian) on top of them, and since 1.4.0 a live LSTM → RL loop that retrains and validates itself on the phone ([two learning layers](#atlas-go-1-4-two-learning-layers)).
+- **Android app** — ATLAS Go 1.5.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab); since 1.3.0 a digital twin with three agents (dispatch, pricing + moves, Guardian) on top of them, and since 1.4.0 a live LSTM → RL loop that retrains and validates itself on the phone ([two learning layers](#atlas-go-1-4-two-learning-layers)); and since 1.5.0 bank payments and payouts for passengers, drivers and food sellers, with a sandbox bank ([bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server)).
 - **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
-- **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving.
-- **Databases** — the device's `state.json` (accounts, kitchens, rides, orders) and map-tile cache, the starter's PostgreSQL (or local SQLite) schema, the Kafka event log and the model artifact volume.
+- **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving in this starter; and, on `main`, the **ATLAS Go server** ([`android-app/server/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app/server), FastAPI + PostgreSQL, 1.5.0) for accounts, bank accounts, payments, the ledger and payouts.
+- **Databases** — the device's `state.json` (accounts, kitchens, rides, orders) and map-tile cache, the starter's PostgreSQL (or local SQLite) schema, the ATLAS Go server's PostgreSQL schema (accounts, sessions, bank accounts, payments, ledger, payouts, outbox, audit log), the Kafka event log and the model artifact volume.
 
-The Android app has no back end today; its only network use is map tiles. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-120). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the accounts, food, seller and shared-ride parts the back end does not yet implement.
+Without a server address the Android app uses the network only for map tiles. Since 1.5.0 an account can be connected to the ATLAS Go server, which then holds that account's identity, bank details, payments and payouts in PostgreSQL; rides, orders and dispatch stay on the phone. Its learned policies are small constants bundled with the app, produced offline by simulations on the `main` branch; see [On-device intelligence](#on-device-intelligence-120). [Connecting the Android app to the back end](#connecting-the-android-app-to-the-back-end) maps each on-device command to the starter API, and labels the food, seller-order, shared-ride and cross-phone dispatch parts that no back end implements yet.
 
 [Final handover and runbook](FINAL_HANDOVER.md) · [Security and cryptography catalogue](#security-and-cryptography-catalogue) · [Machine learning and optimisation catalogue](#machine-learning-and-optimisation-catalogue) · [Data structures and algorithms catalogue](#data-structures-and-algorithms-catalogue) · [Runnable starter](../README.md) · [Android app source](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app) · [Android app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · [Machine-readable symbol inventory](uml-blueprint.json) · [Build specification](../../dist/build-spec.json) · [Kafka event contract](../packages/ride-event.schema.json)
 
@@ -130,6 +130,8 @@ architecture-explorer/
 │   │   │       ├── uml-app-class-diagram.svg
 │   │   │       ├── uml-app-layers.svg
 │   │   │       ├── uml-atlas-go-1-4-two-learning-layers.svg
+│   │   │       ├── uml-atlas-go-1-5-bank-payments-and-the-postg.svg
+│   │   │       ├── uml-atlas-go-server-database-1-5-0.svg
 │   │   │       ├── uml-booking-and-dispatch-types.svg
 │   │   │       ├── uml-component-and-deployment-boundaries.svg
 │   │   │       ├── uml-connected-booking-sequence.svg
@@ -146,6 +148,9 @@ architecture-explorer/
 │   │   │       ├── uml-on-device-intelligence-1-2-0.svg
 │   │   │       ├── uml-on-device-ride-and-order-lifecycles.svg
 │   │   │       ├── uml-passenger-booking.svg
+│   │   │       ├── uml-pay-by-bank-and-sync-to-postgresql-1-5-0.svg
+│   │   │       ├── uml-payment-classes-phone-client-and-server-.svg
+│   │   │       ├── uml-payment-lifecycle-1-5-0.svg
 │   │   │       ├── uml-persistence-model.svg
 │   │   │       ├── uml-proposed-back-end-extensions-for-the-and.svg
 │   │   │       ├── uml-registration-and-sign-in.svg
@@ -153,6 +158,7 @@ architecture-explorer/
 │   │   │       ├── uml-ride-with-a-registered-driver-on-the-sam.svg
 │   │   │       ├── uml-scoring-types-and-lstm.svg
 │   │   │       ├── uml-screen-navigation.svg
+│   │   │       ├── uml-server-registration-bank-link-and-payout.svg
 │   │   │       ├── uml-shared-ride-with-a-rider-on-board-1-3-0.svg
 │   │   │       ├── uml-system-overview-apps-front-end-back-end-.svg
 │   │   │       ├── uml-training-serving-and-approval.svg
@@ -203,20 +209,22 @@ architecture-explorer/
 
 ## Android app (ATLAS Go)
 
-The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.4.0** (versionCode 5). **1.4.0** adds Layer 1's live loop — the LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are recorded and both models are retrained nightly and kept only if validated (`loop.py`, `lstm_weights.py`). **1.3.0** added Layer 2 — a digital twin of Cork with Agent 1 (dispatch), Agent 2 (pricing and moves) and Agent 3 (Guardian) on top of the unchanged models (`twin.py`) — and the four-stage shared ride (the rider already on board is dropped first). **1.2.0** (versionCode 3) added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · downloads and SHA256SUMS: [1.4.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) · [two learning layers](#atlas-go-1-4-two-learning-layers).
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.5.0** (versionCode 6). **1.5.0** adds bank payments and payouts (`payments.py`, a sandbox bank), a client for the ATLAS Go server (`backend.py`) and the server itself (`server/`, FastAPI + PostgreSQL); see [bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server). **1.4.0** added Layer 1's live loop — the LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are recorded and both models are retrained nightly and kept only if validated (`loop.py`, `lstm_weights.py`). **1.3.0** added Layer 2 — a digital twin of Cork with Agent 1 (dispatch), Agent 2 (pricing and moves) and Agent 3 (Guardian) on top of the unchanged models (`twin.py`) — and the four-stage shared ride (the rider already on board is dropped first). **1.2.0** (versionCode 3) added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · downloads and SHA256SUMS: [1.4.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) · [two learning layers](#atlas-go-1-4-two-learning-layers).
 
 ```text
 android-app/
 ├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
-├── buildozer.spec          1.4.0 / versionCode 5; API 36, min API 26; arm64-v8a + x86_64;
+├── buildozer.spec          1.5.0 / versionCode 6; API 36, min API 26; arm64-v8a + x86_64;
 │                           INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE/COARSE_LOCATION (foreground)
 ├── CHANGELOG.md
 ├── atlas_go/
-│   ├── __init__.py         Version (1.4.0)
+│   ├── __init__.py         Version (1.5.0)
 │   ├── accounts.py         Roles, field validation, PBKDF2-HMAC-SHA256 hashing          (new)
 │   ├── domain.py           Places, fares, Dish, Offer, Kitchen, Catalog, Cart
 │   ├── geo.py              Cork coordinates, Web-Mercator tiles, live journey positions  (new)
-│   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, tick()
+│   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, payments, payouts, tick()
+│   ├── payments.py         IBAN rules, sandbox bank, payment lifecycle, fee split, double-entry ledger (1.5.0)
+│   ├── backend.py          Client for the ATLAS Go server: connect, link bank, outbox sync, payouts   (1.5.0)
 │   ├── intelligence.py     Calendar, outlook, dispatch, acceptance, courier, LearningLab, self_test
 │   ├── learned.py          Learned constants exported from the simulations (generated, read-only)
 │   ├── twin.py             Layer 2: mirror, foresee, Agent 1/2, Guardian, re-test, fault drill   (1.3.0)
@@ -226,9 +234,11 @@ android-app/
 │   ├── location.py         DeviceLocation: runtime permission, LocationManager via pyjnius (new)
 │   ├── app.py              AtlasGoApp and widgets: role-aware Kivy screens
 │   └── acceptance.py       Debug-only UI click-through and screenshot capture
-├── tests/                  173 tests: domain, intelligence, accounts/geo, roles, shared rides, twin, loop
+├── tests/                  244 tests: domain, intelligence, accounts/geo, roles, shared rides, twin, loop, payments, backend
+├── server/                 ATLAS Go server (1.5.0): app.py, db.py, security.py, bank.py, migrations/, roles.sql,
+│                           59 tests on PostgreSQL, Dockerfile, compose.yaml (not packaged in the APK)
 ├── training/               Development-only simulations and exporters, incl. export_lstm.py (numpy; excluded from the APK)
-├── scripts/                Emulator acceptance, signing, manifest and alignment checks
+├── scripts/                Emulator and connected-mode acceptance, signing, manifest and alignment checks
 ├── docs/                   User guide, architecture, privacy, Play handover, 22 screenshots, video
 └── releases/               1.2.0, 1.3.0, 1.4.0: APK, SHA256SUMS, release notes, validation
 ```
@@ -262,6 +272,9 @@ flowchart LR
     AI --> LC[("learned.py<br/>bundled constants")]
     TR["training/<br/>simulations · dev only"] -. "export_learned.py" .-> LC
     X["Acceptance<br/>debug builds only"] --> U
+    L --> PAY["payments.py (1.5.0)<br/>IBAN · sandbox bank · lifecycle · ledger"]
+    U --> BE["backend.py (1.5.0)<br/>connect · outbox sync · payouts"]
+    BE -. "HTTPS · only when connected" .-> SRV[("ATLAS Go server<br/>FastAPI · PostgreSQL")]
 ```
 
 </details>
@@ -311,6 +324,9 @@ classDiagram
         +driver() job_accept() job_decline() job_next()
         +seller() seller_menu() add_dish()
         +food() menu() cart() checkout() active_order() next_order()
+        +wallet_screen() pay_card(parent) balance_card()
+        +submit_bank() remove_bank(password) payout(password)
+        +connect_server(password) sync_soon() remote(task, done)
         +activity() profile() privacy() reset()
         +intelligence() check_models() lab_train()
     }
@@ -352,6 +368,9 @@ classDiagram
         +dict ride
         +dict order
         +list offers
+        +list payments
+        +list payouts
+        +str server_url
         +register(role, name, email, phone, password, ...) dict
         +login(email, password, now) dict
         +logout() continue_as_guest()
@@ -363,19 +382,27 @@ classDiagram
         +driver_job() dict
         +driver_respond(accept, fallback, now)
         +driver_advance(now)
-        +book(pickup, destination, comfort, offer_id, party, driver, why, driver_id, start, now)
+        +book(pickup, destination, comfort, offer_id, party, driver, why, driver_id, start, now, pay_by_bank)
         +advance_ride(cancel, now)
         +kitchen_of(account) dict
         +add_dish(name, detail, price) str
         +archive_dish(dish_id)
         +update_kitchen(open_, prep)
         +update_cart(operation, item)
-        +checkout(address, courier, now)
+        +checkout(address, courier, now, pay_by_bank)
         +seller_order() dict
         +seller_accept(now) seller_ready(now)
         +advance_order(now)
         +tick(now) bool
         +my_history() list
+        +link_bank(password, holder, iban, consent) dict
+        +unlink_bank(password)
+        +wallet() dict
+        +request_payout(password) dict
+        +my_payments() my_payouts()
+        +set_server(url) connect(id, token) disconnect()
+        +unsynced() list
+        +mark_synced(record_id, server_id, error)
         +validate(data)$
     }
     class Catalog {
@@ -506,6 +533,11 @@ stateDiagram-v2
     seller --> profile : You
     profile --> welcome : Sign out · Delete account · Erase all
     profile --> intelligence : How ATLAS learns
+    profile --> wallet : Bank & payments (1.5.0)
+    driver --> wallet : Bank & payouts
+    seller --> wallet : Bank & payouts
+    ride --> wallet : Add a bank account
+    cart --> wallet : Add a bank account
     profile --> privacy
 ```
 
@@ -559,6 +591,12 @@ One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atom
 
 ```text
 erDiagram
+    STATE ||--o{ PAYMENT : "payments (1.5.0)"
+    STATE ||--o{ PAYOUT : "payouts (1.5.0)"
+    ACCOUNT ||--o| BANK : "bank (1.5.0)"
+    ACCOUNT ||--o| SERVER_LINK : "server (1.5.0)"
+    RIDE ||--o| PAYMENT : "payment"
+    ORDER ||--o| PAYMENT : "payment"
     STATE ||--o{ ACCOUNT : "accounts"
     STATE ||--o| ACCOUNT : "session"
     STATE ||--o{ KITCHEN : "kitchens (sellers)"
@@ -684,11 +722,47 @@ erDiagram
         int outlook_day
         string reg_role
     }
+    PAYMENT {
+        string id "P- plus nanosecond timestamp; also the Idempotency-Key"
+        string kind "ride, shared or food"
+        string ref "ride or order id"
+        string payer "account id, deleted after erasure"
+        string payee "account id, fleet or kitchen-N; null until captured"
+        int amount "cents, equals the booking fare"
+        int payee_net "cents"
+        int platform_fee "cents, net plus fee equals amount"
+        string last4
+        string mandate "mandate id"
+        string status "authorised, captured, voided or refunded"
+        object details "what was booked, for the server to price"
+        bool synced "copied to the server"
+    }
+    PAYOUT {
+        string id "O- plus nanosecond timestamp"
+        string account "driver or seller id"
+        int amount "cents, at least 100"
+        string last4
+        string status "paid or failed"
+        bool synced
+    }
+    BANK {
+        string holder
+        string country
+        string bank "name for Irish bank codes"
+        string last4 "the full IBAN is never stored"
+        string masked "IE29 dots 5678"
+        string purpose "debit for passengers, payout for drivers and sellers"
+        object mandate "id, version, signed (debit only)"
+    }
+    SERVER_LINK {
+        string id "server account id"
+        string token "session token"
+    }
 ```
 
 </details>
 
-Account deletion removes the account, replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock).
+Account deletion removes the account, replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock). Since 1.5.0 `validate` also rebuilds the double-entry ledger from `payments` and `payouts` and rejects the file if it does not balance, if payouts exceed earnings, or if a booking's payment is missing, has another amount or contradicts the booking's status; deletion is refused while a balance is waiting to be paid out, and replaces the payer id in payments with `deleted`. `state.json` also holds `server_url` (empty = this phone only).
 
 ### Registration and sign-in
 
@@ -703,6 +777,7 @@ sequenceDiagram
     participant Store as LocalStore
     participant Acc as accounts.py
     participant File as state.json
+    participant Server as ATLAS Go server (1.5.0)
     User->>UI: Create account (role, details, password, consent)
     UI->>UI: check consent and password confirmation
     UI->>Store: register(role, name, email, phone, password, role fields)
@@ -717,6 +792,12 @@ sequenceDiagram
     Store->>Store: lockout check
     Store->>Acc: verify_password (constant-time compare)
     Store->>File: save() session
+    opt a server address is saved (1.5.0)
+        UI->>Server: POST /v1/accounts or /v1/sessions (worker thread, HTTPS)
+        Server->>Server: validate again, PBKDF2 600 000, open session
+        Server-->>UI: server account id + session token
+        UI->>Store: connect(id, token)
+    end
 ```
 
 </details>
@@ -1208,6 +1289,398 @@ erDiagram
 
 </details>
 
+### ATLAS Go 1.5: bank payments and the PostgreSQL server
+
+ATLAS Go 1.5.0 adds three things that 1.4.0 did not have. Source: [`atlas_go/payments.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py), [`atlas_go/backend.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py), [`server/`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/README.md); every function is listed in the [catalogue](#uml-security-payments).
+
+| Capability | 1.4.0 | 1.5.0 |
+| --- | --- | --- |
+| User registration | On the phone (`LocalStore.register`) | On the phone and, for a connected account, on the server (`POST /v1/accounts`, `Service.register`) |
+| Bank payment for passengers | None (payments simulated) | Link an IBAN with a SEPA Direct Debit mandate; rides, shared rides and food paid by bank (`link_bank`, `book(pay_by_bank=True)`, `checkout(pay_by_bank=True)`) |
+| Bank payment for drivers | None | Fare minus 15 % credited when the trip completes; balance paid out to the driver's IBAN (`wallet`, `request_payout`) |
+| Bank payment for food sellers | None | Food total minus 10 % credited on delivery (the €2.50 delivery fee stays with the platform); balance paid out |
+| Back end using PostgreSQL | None for the app | `android-app/server`: FastAPI + psycopg 3; eleven tables, two ledger triggers, a least-privilege role |
+
+The bank is a **sandbox**: IBANs are validated for real, but no bank is contacted and no money moves. A licensed provider implements `BankProvider` (`tokenise`, `debit`, `credit`). Rides, orders and dispatch stay on the phone; the server is the system of record for accounts, bank details, payments and payouts.
+
+![Flowchart: ATLAS Go 1.5: bank payments and the PostgreSQL server](img/uml/uml-atlas-go-1-5-bank-payments-and-the-postg.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+flowchart LR
+    subgraph Phone["Phone · ATLAS Go 1.5.0"]
+        UI["AtlasGoApp<br/>Bank & payments · Pay with · balance"] --> ST["LocalStore<br/>link_bank · book · checkout · request_payout"]
+        ST --> PAY["payments.py<br/>IBAN · sandbox bank · split · lifecycle · ledger"]
+        ST --> SJ[("state.json<br/>payments · payouts · bank: last four")]
+        UI --> BE["backend.py<br/>connect · outbox · deliver · apply"]
+    end
+    subgraph Server["ATLAS Go server · android-app/server"]
+        API["app.py · FastAPI routes<br/>strict request models"] --> SVC["Service<br/>authenticate · step_up · pay · payout"]
+        SVC --> RULES["atlas_go.payments + accounts<br/>the same rules as the phone"]
+        SVC --> BANK["bank.py<br/>BankProvider · SandboxBank"]
+        SVC --> DBM["db.py<br/>Database.transaction · migrate"]
+    end
+    BE -- "HTTPS · Bearer token · Idempotency-Key" --> API
+    DBM --> PG[("PostgreSQL<br/>accounts · sessions · bank_accounts · payments<br/>ledger_entries · payouts · outbox · audit_log")]
+    PG -. "triggers: append-only, must balance" .-> PG
+    BANK -. "licensed provider attaches here" .-> EXT["Bank / payment provider<br/>(not contacted: sandbox)"]
+```
+
+</details>
+
+The phone and the server import the **same** `payments.py`, so the fee split, the price of a booking and the legal state transitions cannot differ between them. The phone never sends an amount: `Service.pay` calls `payments.quote` on the booking it was sent.
+
+### Payment lifecycle (1.5.0)
+
+![State diagram: Payment lifecycle (1.5.0)](img/uml/uml-payment-lifecycle-1-5-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+stateDiagram-v2
+    [*] --> authorised: book or checkout with pay_by_bank, sandbox bank approves
+    [*] --> declined: bank declines, nothing is booked or stored
+    authorised --> captured: ride completed or food delivered (payee set)
+    authorised --> voided: ride cancelled
+    captured --> refunded: refund (rules and ledger only, no screen)
+    captured --> [*]
+    voided --> [*]
+    refunded --> [*]
+    declined --> [*]
+    note right of captured
+        ledger: debit bank clearing (amount),
+        credit payable payee (net),
+        credit revenue commission (fee)
+    end note
+```
+
+</details>
+
+`payments.TRANSITIONS` is the whole specification; `payments.move` raises `ValueError` for anything else. Split, in integer cents with half a cent rounding up: ride and shared ride 15 % to the platform; food €2.50 delivery plus 10 % of the food. `payee_net + platform_fee == amount` always. The payee is a registered driver's or seller's account id, or a house payee (`fleet`, `kitchen-0`…`kitchen-2`) for simulated drivers and built-in kitchens.
+
+### Payment classes: phone, client and server (1.5.0)
+
+![Class diagram: Payment classes: phone, client and server (1.5.0)](img/uml/uml-payment-classes-phone-client-and-server-.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+classDiagram
+    class payments_py {
+        <<module>>
+        +clean_iban(value) str
+        +mask_iban(iban) str
+        +bank_record(role, holder, iban, consent, now) dict
+        +sandbox_outcome(last4, amount) str
+        +split(kind, amount) dict
+        +quote(kind, details, menu) int
+        +new_payment(id, kind, ref, payer, amount, bank, now) dict
+        +move(payment, status, now, payee)
+        +entries(payments, payouts) list
+        +balanced(lines) bool
+        +wallet(account, payments, payouts) dict
+    }
+    class LocalStore {
+        +payments list
+        +payouts list
+        +server_url str
+        +link_bank(password, holder, iban, consent) dict
+        +unlink_bank(password)
+        +book(pickup, destination, pay_by_bank)
+        +checkout(address, courier, pay_by_bank)
+        +wallet() dict
+        +request_payout(password) dict
+        +connect(server_id, token)
+        +unsynced() list
+        +mark_synced(record_id, server_id, error)
+        -_step_up(password) dict
+        -_authorise(kind, ref, amount, details, now) dict
+    }
+    class Backend {
+        +url str
+        +call(method, path, body, token, key) dict
+        +connect(account, password, kitchen) dict
+        +link_bank(token, password, holder, iban, consent) dict
+        +push_payment(token, payment, payee_account) dict
+        +payout(token, password, key, amount) dict
+        +balance(token) dict
+    }
+    class ServerError {
+        +status int
+        +code str
+        +retryable bool
+    }
+    class Service {
+        +register(body) dict
+        +login(body) dict
+        +authenticate(db, request) dict
+        +step_up(account, password)
+        +require(account, roles)
+        +link_bank(account, body) dict
+        +pay(account, body, key) Response
+        +replay(row, request_hash, me) Response
+        +payout(account, body, key) Response
+        +balance(db, me) dict
+        +delete_account(account, password)
+        +audit(db, account_id, action)
+    }
+    class Database {
+        +dsn str
+        +transaction()
+        +migrate() int
+    }
+    class BankProvider {
+        <<protocol>>
+        +tokenise(iban, holder, purpose) dict
+        +debit(token, last4, amount, reference) str
+        +credit(token, last4, amount, reference) str
+    }
+    class SandboxBank
+    class AtlasGoApp {
+        +wallet_screen()
+        +pay_card(parent)
+        +submit_bank()
+        +payout(password)
+        +connect_server(password)
+        +sync_soon()
+        +remote(task, done)
+    }
+    AtlasGoApp --> LocalStore : commands
+    AtlasGoApp --> Backend : on a worker thread
+    LocalStore ..> payments_py : rules
+    Backend ..> ServerError : raises
+    Backend ..> Service : HTTPS /v1
+    Service ..> payments_py : the same rules
+    Service --> Database
+    Service --> BankProvider
+    BankProvider <|.. SandboxBank
+```
+
+</details>
+
+### Pay by bank and sync to PostgreSQL (1.5.0)
+
+![Sequence diagram: Pay by bank and sync to PostgreSQL (1.5.0)](img/uml/uml-pay-by-bank-and-sync-to-postgresql-1-5-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    actor P as Passenger
+    participant UI as AtlasGoApp
+    participant Store as LocalStore
+    participant Pay as payments.py
+    participant Client as backend.py
+    participant API as Service (server)
+    participant PG as PostgreSQL
+    P->>UI: Book ride, Pay with bank account
+    UI->>Store: book(..., pay_by_bank=True)
+    Store->>Pay: new_payment(fare, bank) asks the sandbox bank
+    alt declined
+        Pay-->>Store: ValueError, nothing booked, no seat reserved
+    else approved
+        Store->>Store: ride + payment (authorised) saved atomically
+    end
+    Note over Store: ride completed: move(payment, captured, payee)
+    UI->>Client: sync_soon(): outbox(store) on the main thread
+    Client->>API: POST /v1/payments, Idempotency-Key = payment id, booking details, no amount
+    API->>PG: SELECT payment by (payer, key)
+    alt key seen before
+        API-->>Client: 200 with the first answer (Idempotent-Replay)
+    else new
+        API->>API: require passenger, mandate active, resolve payee, quote() and split()
+        API->>API: bank.debit(token, amount)
+        API->>PG: INSERT payment, 3 ledger lines, outbox event, audit row
+        PG-->>API: COMMIT only if debits equal credits
+        API-->>Client: 201 captured (402 if the bank declined)
+    end
+    Client-->>UI: results, apply(store) marks the payment synced
+    Note over Client,API: no reply? keep the payment unsynced and send it again later with the same key
+```
+
+</details>
+
+The outbox makes delivery at-least-once; the unique `(payer_id, idempotency_key)` makes the effect exactly-once. A second payment for the same booking under a new key is `409 already_paid` (partial unique index on `(payer_id, reference)`).
+
+### Server registration, bank link and payout (1.5.0)
+
+![Sequence diagram: Server registration, bank link and payout (1.5.0)](img/uml/uml-server-registration-bank-link-and-payout.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    actor D as Driver or seller
+    participant UI as AtlasGoApp
+    participant Store as LocalStore
+    participant Client as backend.py
+    participant API as Service (server)
+    participant Bank as BankProvider (sandbox)
+    participant PG as PostgreSQL
+    D->>UI: Connect this account (server address, password)
+    UI->>Client: connect(account, password, kitchen)
+    Client->>API: POST /v1/accounts (409 email_taken leads to POST /v1/sessions)
+    API->>PG: INSERT accounts, driver_profiles or kitchens + dishes, sessions (token hash)
+    API-->>Client: account id + session token
+    UI->>Store: connect(id, token)
+    D->>UI: Link bank account (holder, IBAN, password)
+    UI->>UI: verify password and IBAN locally first
+    UI->>Client: link_bank(token, password, holder, iban)
+    Client->>API: PUT /v1/me/bank
+    API->>API: step_up: lockout check, PBKDF2 verify
+    API->>Bank: tokenise(iban) returns provider token
+    API->>PG: INSERT bank_accounts (holder, last4, HMAC fingerprint, token), no IBAN
+    UI->>Store: link_bank(...) saves the last four only
+    D->>UI: Pay out (password)
+    UI->>Client: deliver waiting payments, then payout(token, password, key, amount)
+    Client->>API: POST /v1/payouts, Idempotency-Key
+    API->>PG: SELECT account FOR UPDATE (one payout at a time)
+    API->>PG: balance from ledger_entries, amount within balance
+    API->>Bank: credit(token, amount)
+    API->>PG: INSERT payouts + 2 ledger lines + outbox + audit
+    API-->>Client: 201 paid (failed if the account is closed)
+    UI->>Store: request_payout(password, payout_id=key), mark_synced
+```
+
+</details>
+
+Bank linking and payouts go to the server first and are recorded on the phone only after it accepts them; both need the password again (`LocalStore._step_up`, `Service.step_up`).
+
+### ATLAS Go server database (1.5.0)
+
+![Entity-relationship diagram: ATLAS Go server database (1.5.0)](img/uml/uml-atlas-go-server-database-1-5-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+erDiagram
+    ACCOUNTS ||--o| DRIVER_PROFILES : "driver"
+    ACCOUNTS ||--o| KITCHENS : "seller owns"
+    KITCHENS ||--o{ DISHES : "menu"
+    ACCOUNTS ||--o{ SESSIONS : "signed in"
+    ACCOUNTS ||--o{ BANK_ACCOUNTS : "one active"
+    ACCOUNTS ||--o{ PAYMENTS : "payer or payee"
+    ACCOUNTS ||--o{ PAYOUTS : "paid to"
+    PAYMENTS ||--o{ LEDGER_ENTRIES : "3 lines when captured"
+    PAYOUTS ||--o{ LEDGER_ENTRIES : "2 lines when paid"
+    ACCOUNTS ||--o{ AUDIT_LOG : "acted"
+    ACCOUNTS {
+        uuid id PK
+        text role "passenger, driver or seller"
+        text name
+        text email UK "lower case"
+        text phone "E.164"
+        bytea password_salt
+        bytea password_hash "PBKDF2-HMAC-SHA256"
+        int password_iterations "600000 by default"
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+    DRIVER_PROFILES {
+        uuid account_id PK
+        text vehicle
+        text plate
+        text licence
+        smallint seats "1 to 8"
+        boolean verified "always false today"
+    }
+    KITCHENS {
+        bigint id PK
+        uuid owner_id UK
+        text name UK
+        text registration
+        smallint place
+        smallint prep_minutes
+        boolean open
+    }
+    DISHES {
+        bigint kitchen_id PK
+        text dish_id PK "the phone's id"
+        text name
+        int price_cents "50 to 20000"
+        boolean archived
+    }
+    SESSIONS {
+        bytea token_hash PK "SHA-256 of the token"
+        uuid account_id FK
+        timestamptz expires_at
+        timestamptz revoked_at
+    }
+    LOGIN_FAILURES {
+        text email PK
+        int failures
+        timestamptz locked_until
+    }
+    BANK_ACCOUNTS {
+        uuid id PK
+        uuid account_id FK "one active per account"
+        text purpose "debit or payout"
+        text holder
+        char country
+        char last4
+        bytea fingerprint "HMAC of the IBAN"
+        text provider_token
+        text mandate_id "debit only"
+        timestamptz revoked_at
+    }
+    PAYMENTS {
+        uuid id PK
+        uuid payer_id FK
+        uuid payee_id FK "or house_payee"
+        text kind "ride, shared or food"
+        text reference "booking id, paid once"
+        int amount_cents
+        int payee_net_cents
+        int platform_fee_cents "net plus fee equals amount"
+        text status "captured, declined or refunded"
+        text idempotency_key "unique per payer"
+        bytea request_hash
+    }
+    PAYOUTS {
+        uuid id PK
+        uuid account_id FK
+        int amount_cents "at least 100"
+        text status "paid or failed"
+        text idempotency_key "unique per account"
+    }
+    LEDGER_ENTRIES {
+        bigint id PK
+        text txn "payment or payout id"
+        text account "bank clearing, revenue commission, payable account"
+        int debit_cents
+        int credit_cents "exactly one side is positive"
+    }
+    OUTBOX {
+        bigint id PK
+        text event_type
+        jsonb body
+        timestamptz published_at
+    }
+    AUDIT_LOG {
+        bigint id PK
+        timestamptz at
+        uuid account_id
+        text action
+        jsonb detail "no passwords, tokens, emails or IBANs"
+    }
+```
+
+</details>
+
+Defined in [`server/migrations/001_accounts_payments.sql`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql). `ledger_entries` is append-only (triggers refuse `UPDATE`, `DELETE` and `TRUNCATE`) and a deferred constraint trigger refuses the `COMMIT` of a transaction whose debits and credits differ. The API connects as `atlas_app` ([`roles.sql`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/roles.sql)): no DDL, and no `UPDATE` or `DELETE` on ledger, payout or audit rows.
+
+| Route | Role | Purpose |
+| --- | --- | --- |
+| `POST /v1/accounts` · `POST /v1/sessions` · `DELETE /v1/sessions/current` | anyone / signed in | Register the three roles, sign in (uniform 401, lockout, `429` + `Retry-After`), sign out |
+| `GET /v1/me` · `DELETE /v1/accounts/me` | signed in (+ password) | Account and bank view; erasure that keeps the accounting rows |
+| `PUT /v1/me/bank` · `DELETE /v1/me/bank` | signed in + password | Link, replace or revoke the bank account |
+| `PUT /v1/seller/kitchen` | seller | Upload the kitchen and menu so the server prices food itself |
+| `POST /v1/payments` (`Idempotency-Key`) · `GET /v1/payments` · `GET /v1/payments/{id}` | passenger / payer or payee | Pay for a booking; list or read own payments (another user's id is 404) |
+| `GET /v1/me/balance` · `POST /v1/payouts` (`Idempotency-Key`) · `GET /v1/payouts` | driver, seller (+ password) | Balance from the ledger; payout under a row lock |
+
+Verification: 244 app unit tests (71 for payments and the client), 353 desktop UI assertions including linking, paying and paying out, 59 server tests on PostgreSQL 16 (idempotency and payout races, ledger triggers, the least-privilege role, a scan of every table for secrets, and the phone syncing over HTTP), and a connected-mode UI run checked against the database.
+
 ## Component and deployment boundaries
 
 Only the gateway is published on the host loopback interface in the starter. The trip, dispatch and model APIs run on the internal network. The same event worker performs outbox relay and event consumption in this demo.
@@ -1561,7 +2034,7 @@ The LSTM reads 12 five-minute counts. Logistic regression and Isolation Forest r
 
 ## Connecting the Android app to the back end
 
-This section is a design for the next step. None of it is implemented yet: in 1.2.0 the Android app's only network calls are map-tile downloads.
+This section is a design for moving rides, food and dispatch to the starter's back end. **Accounts, bank details, payments and payouts are already implemented** since 1.5.0 by the separate ATLAS Go server on `main` ([bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server)); everything else in this section is still a proposal, and the starter's own gateway still uses demo bearer keys.
 
 ### Repository boundary
 
@@ -1639,7 +2112,8 @@ classDiagram
 | Shared ride | `Offer.matches`, `reserve`, `release` | Not available | [Proposed shared-ride API](#proposed-back-end-extensions-for-the-android-app) |
 | Food menu, basket, checkout, tracking | `Cart`, `checkout`, `advance_order` | Not available | [Proposed food API](#proposed-back-end-extensions-for-the-android-app) |
 | Activity | `history` in `state.json` | Not available | Add `GET /v1/rider/history` |
-| Identity | `register`, `login`, `logout`, `delete_account`; PBKDF2 hashes on the phone; guest mode | Demo bearer keys per role | Server accounts for passenger, driver and seller roles; email/phone verification; tokens in Android Keystore; hashing moves to the server (Argon2id or PBKDF2) |
+| Identity | `register`, `login`, `logout`, `delete_account`; PBKDF2 hashes on the phone; guest mode; since 1.5.0 `connect` to the ATLAS Go server | Starter: demo bearer keys per role. ATLAS Go server (1.5.0): accounts for the three roles, PBKDF2 at 600 000 iterations, hashed session tokens, lockout, erasure | Email/phone verification; tokens in the Android Keystore; one identity shared by the ATLAS Go server and the starter's gateway |
+| Payments and payouts | `link_bank`, `book`/`checkout` with `pay_by_bank`, `request_payout`; `backend.sync` | ATLAS Go server (1.5.0): `PUT /v1/me/bank`, `POST /v1/payments`, `POST /v1/payouts` with a sandbox bank | A licensed payment provider behind `BankProvider`; refunds, returned debits, reconciliation; strong customer authentication |
 | Driver online and location | `set_online`, `update_location` (local) | Driver page polls offers | `POST /v1/driver/availability` with location while online |
 | Driver accepts and drives | `driver_respond`, `driver_advance` | `POST /v1/driver/offers/{id}/accept`, completion routes | Add decline (re-match), arrived and start-trip milestones |
 | Seller kitchen and menu | `add_dish`, `archive_dish`, `update_kitchen` | Not available | [Proposed seller API](#proposed-back-end-extensions-for-the-android-app) |
@@ -1685,7 +2159,7 @@ Retries must reuse the same idempotency key, so a lost response never books twic
 
 ### Proposed back-end extensions for the Android app
 
-These tables and routes are a proposal to support the app's accounts, driver, seller, food and shared-ride features (the fields mirror 1.2.0's `state.json`). They are not in [`infra/schema.sql`](../infra/schema.sql) and no service implements them.
+These tables and routes are a proposal to support the app's accounts, driver, seller, food and shared-ride features (the fields mirror 1.2.0's `state.json`). They are not in [`infra/schema.sql`](../infra/schema.sql) and no service in this starter implements them. The accounts part exists separately, in the ATLAS Go server's own schema ([server database](#atlas-go-server-database-150)); the `ACCOUNTS` entity below is how the starter would hold the same identity.
 
 ![Entity-relationship diagram: Proposed back-end extensions for the Android app](img/uml/uml-proposed-back-end-extensions-for-the-and.svg)
 
@@ -1788,7 +2262,7 @@ Rules carried over from the app: `UNIQUE (rider_id, request_key)` on `food_order
 | `GET /v1/rider/shared-offers?pickup=&destination=&party=` · `POST /v1/rider/shared-offers/{id}/reserve` | Shared-ride search and atomic seat reservation |
 | `POST /v1/rider/trips/{id}/cancel` | Ride cancellation; releases driver and seats |
 | `GET /v1/rider/history` | Activity screen |
-| `POST /v1/accounts` · `POST /v1/sessions` · `DELETE /v1/accounts/me` | Registration for the three roles, sign-in, account deletion |
+| `POST /v1/accounts` · `POST /v1/sessions` · `DELETE /v1/accounts/me` | Registration for the three roles, sign-in, account deletion — **implemented in 1.5.0 by the ATLAS Go server** (`android-app/server`), not yet by this starter's gateway |
 | `POST /v1/driver/availability` · `POST /v1/driver/offers/{id}/decline` · `POST /v1/driver/trips/{id}/milestones` | Online/offline with location; decline and re-match; arrived, started, completed |
 | `GET/PUT /v1/seller/kitchen` · `POST /v1/seller/menu-items` · `DELETE /v1/seller/menu-items/{id}` | Kitchen profile, open/closed, preparation time, menu |
 | `POST /v1/seller/orders/{id}/accept` · `POST /v1/seller/orders/{id}/ready` | Seller order handling; the server then schedules the courier from the courier-timing policy |
@@ -1836,13 +2310,15 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-verify"></a>Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
 | <a name="sec-pw-policy"></a>Password policy (8–128, letter + digit) | `check_password` | [android-app/atlas_go/accounts.py L72](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L72) | Implemented |
 | <a name="sec-pw-public"></a>Strip salt and hash before display | `public_view` | [android-app/atlas_go/accounts.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L124) | Implemented |
-| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L290](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290) | Implemented |
+| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L330](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330) | Implemented |
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
-| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L212](../../dist/security.js#L212) | Explorer / lab |
-| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L231](../../dist/security.js#L231) | Explorer / lab |
+| <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L215](../../dist/security.js#L215) | Explorer / lab |
+| <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L234](../../dist/security.js#L234) | Explorer / lab |
 | <a name="sec-pw-cli"></a>Command-line lab runner: all 20 experiments and 5 study paths | `if __name__ == '__main__':` | [security_lab/password_storage_demo.py L37](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/password_storage_demo.py#L37) | Explorer / lab |
 | <a name="sec-pw-cli-a"></a>Lab A: what the app stores (experiments 1-8) | `exp_record` | [security_lab/lab_a_password_storage.py L38](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_a_password_storage.py#L38) | Explorer / lab |
 | <a name="sec-pw-cli-common"></a>Lab helpers, experiment registry and command line | `main` | [security_lab/lab_common.py L144](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_common.py#L144) | Explorer / lab |
+| <a name="sec-srv-hash"></a>600 000-iteration PBKDF2 on the server | `DEFAULT_ITERATIONS` | [android-app/server/security.py L10](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L10) | Implemented |
+| <a name="sec-srv-verify"></a>Constant-shape verification (unknown email costs the same) | `verify_password` | [android-app/server/security.py L19](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L19) | Implemented |
 
 <a name="uml-security-login"></a>
 
@@ -1852,16 +2328,20 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L334](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L334) | Implemented |
-| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39) | Implemented |
-| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L97](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97) | Implemented |
-| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L351](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L351) | Implemented |
-| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L356](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L356) | Implemented |
-| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L641](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L641) | Implemented |
+| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L374](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L374) | Implemented |
+| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42) | Implemented |
+| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107) | Implemented |
+| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L391](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L391) | Implemented |
+| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L396](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L396) | Implemented |
+| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L651](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L651) | Implemented |
 | Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
-| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L275](../../dist/security.js#L275) | Explorer / lab |
+| <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L278](../../dist/security.js#L278) | Explorer / lab |
 | <a name="sec-pw-cli-c"></a>Lab C: sign-in defences (experiments 12-15) | `exp_lockout` | [security_lab/lab_c_signin_defences.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_c_signin_defences.py#L28) | Explorer / lab |
 | <a name="sec-pw-cli-d"></a>Lab D: integrity, sessions and lifecycle (experiments 16-20) | `exp_sessions` | [security_lab/lab_d_integrity_lifecycle.py L34](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34) | Explorer / lab |
+| <a name="sec-srv-login"></a>Server sign-in: uniform 401, dummy hash, rehash when the stored cost is lower | `Service.login` | [android-app/server/app.py L268](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L268) | Implemented |
+| <a name="sec-srv-lock"></a>Lockout stored in PostgreSQL (429 + Retry-After) | `Service.check_lock` | [android-app/server/app.py L171](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L171) | Implemented |
+| <a name="sec-srv-auth"></a>Authenticate a hashed, expiring, revocable session token | `Service.authenticate` | [android-app/server/app.py L210](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L210) | Implemented |
+| <a name="sec-srv-token"></a>256-bit session token; only its SHA-256 is stored | `new_token` | [android-app/server/security.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L33) | Implemented |
 
 <a name="uml-security-identity"></a>
 
@@ -1871,21 +2351,25 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L290](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L290) | Implemented |
+| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L330](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330) | Implemented |
 | <a name="sec-id-email"></a>Identity proofing: email format | `clean_email` | [android-app/atlas_go/accounts.py L53](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L53) | Implemented |
 | <a name="sec-id-phone"></a>Identity proofing: phone normalised to E.164 | `clean_phone` | [android-app/atlas_go/accounts.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L60) | Implemented |
 | <a name="sec-id-licence"></a>Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
 | <a name="sec-id-business"></a>Food-business number (self-declared) | `clean_business` | [android-app/atlas_go/accounts.py L95](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L95) | Implemented |
-| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L363](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L363) | Implemented |
-| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442) | Implemented |
-| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L397](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L397) | Implemented |
-| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L407](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L407) | Implemented |
-| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422) | Implemented |
-| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
-| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L636](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636) | Implemented |
-| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L575](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L575) | Implemented |
+| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L403](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L403) | Implemented |
+| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L449](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449) | Implemented |
+| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L442) | Implemented |
+| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
+| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L467](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L467) | Implemented |
+| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L497](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497) | Implemented |
+| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L694](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694) | Implemented |
+| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L633](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L633) | Implemented |
 | <a name="sec-pw-cli-b"></a>Lab B: registration and identity (experiments 9-11) | `exp_validation` | [security_lab/lab_b_registration_identity.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_b_registration_identity.py#L28) | Explorer / lab |
 | Lab D: integrity, sessions and lifecycle (experiments 16-20) | `exp_sessions` | [security_lab/lab_d_integrity_lifecycle.py L34](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34) | Explorer / lab |
+| <a name="sec-srv-register"></a>Server registration: the phone's validation again, own PBKDF2 hash | `Service.register` | [android-app/server/app.py L228](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L228) | Implemented |
+| <a name="sec-srv-require"></a>Role taken from the session, never from the request | `Service.require` | [android-app/server/app.py L224](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L224) | Implemented |
+| <a name="sec-srv-owner"></a>Object-level authorisation in the WHERE clause (another user's id is 404) | `Service.payment` | [android-app/server/app.py L489](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L489) | Implemented |
+| <a name="sec-srv-delete"></a>Erase the person, keep the accounting rows | `Service.delete_account` | [android-app/server/app.py L292](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L292) | Implemented |
 
 <a name="uml-security-gateway"></a>
 
@@ -1902,7 +2386,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-gw-internal"></a>Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | <a name="sec-gw-trips"></a>Trip Service accepts only gateway-asserted riders | `book` | [architecture-explorer/starter/services/trips.py L32](../services/trips.py#L32) | Demo-grade |
 | <a name="sec-gw-dispatch"></a>Dispatch Service accepts only gateway-asserted drivers | `offers` | [architecture-explorer/starter/services/dispatch.py L35](../services/dispatch.py#L35) | Demo-grade |
-| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L375](../../dist/security.js#L375) | Explorer / lab |
+| <a name="sec-gw-lab"></a>Explorer lab: gateway checks step by step | `secGatewayRun` | [architecture-explorer/dist/security.js L378](../../dist/security.js#L378) | Explorer / lab |
 
 <a name="uml-security-sso"></a>
 
@@ -1914,7 +2398,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | --- | --- | --- | --- |
 | <a name="sec-sso-target"></a>Where JWT validation would replace bearer keys | `proxy` | [architecture-explorer/starter/services/gateway.py L47](../services/gateway.py#L47) | Teaching extension |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
-| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L428](../../dist/security.js#L428) | Explorer / lab |
+| <a name="sec-sso-lab"></a>OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L431](../../dist/security.js#L431) | Explorer / lab |
 
 <a name="uml-security-kerberos"></a>
 
@@ -1925,10 +2409,10 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | <a name="sec-krb-target"></a>What a Kerberos AP-REQ would replace in Dispatch | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Teaching extension |
-| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L508](../../dist/security.js#L508) | Explorer / lab |
-| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L518](../../dist/security.js#L518) | Explorer / lab |
-| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L591](../../dist/security.js#L591) | Explorer / lab |
-| <a name="sec-krb-seal"></a>AES-256-GCM seal used for tickets | `secSeal` | [architecture-explorer/dist/security.js L87](../../dist/security.js#L87) | Explorer / lab |
+| <a name="sec-krb-setup"></a>KDC database and string-to-key (PBKDF2) | `secKrbSetup` | [architecture-explorer/dist/security.js L511](../../dist/security.js#L511) | Explorer / lab |
+| <a name="sec-krb-messages"></a>The six messages AS-REQ … AP-REP | `secKrbNext` | [architecture-explorer/dist/security.js L521](../../dist/security.js#L521) | Explorer / lab |
+| <a name="sec-krb-ap"></a>Service checks: integrity, expiry, skew, replay cache | `secKrbVerifyAp` | [architecture-explorer/dist/security.js L594](../../dist/security.js#L594) | Explorer / lab |
+| <a name="sec-krb-seal"></a>AES-256-GCM seal used for tickets | `secSeal` | [architecture-explorer/dist/security.js L89](../../dist/security.js#L89) | Explorer / lab |
 
 <a name="uml-security-transport"></a>
 
@@ -1947,6 +2431,69 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-dep-systemd"></a>systemd sandbox (DynamicUser, ProtectSystem) | `DynamicUser=yes` | [architecture-explorer/deploy/atlas-explorer.service L10](../../deploy/atlas-explorer.service#L10) | Implemented |
 | <a name="cr-sig-sign"></a>Sign the bundle: jarsigner SHA256withRSA, then verify | `main` | [android-app/scripts/sign-release.py L8](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/sign-release.py#L8) | Implemented |
 
+<a name="uml-security-payments"></a>
+
+### Security → Bank payments & PostgreSQL back end (ATLAS Go 1.5)
+
+[Open in the explorer ↗](https://fullscipts.github.io/ATLAS/#security-payments)
+
+| Concept | Function / symbol | Location | Status |
+| --- | --- | --- | --- |
+| <a name="sec-pay-iban"></a>Validate an IBAN (country, length, ISO 7064 mod 97) | `clean_iban` | [android-app/atlas_go/payments.py L46](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L46) | Implemented |
+| <a name="sec-pay-bank-record"></a>Keep holder, country and last four characters; never the IBAN | `bank_record` | [android-app/atlas_go/payments.py L80](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L80) | Implemented |
+| <a name="sec-pay-mandate"></a>SEPA Direct Debit mandate text and version | `MANDATE_TEXT` | [android-app/atlas_go/payments.py L73](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L73) | Implemented |
+| <a name="sec-pay-sandbox"></a>Sandbox bank: outcome from the last four characters | `sandbox_outcome` | [android-app/atlas_go/payments.py L119](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L119) | Implemented |
+| <a name="sec-pay-split"></a>Fee split in integer cents (net + fee = amount) | `split` | [android-app/atlas_go/payments.py L155](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L155) | Implemented |
+| <a name="sec-pay-quote"></a>Price a booking from what was booked (used by the server) | `quote` | [android-app/atlas_go/payments.py L168](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L168) | Implemented |
+| <a name="sec-pay-transitions"></a>Payment state machine: authorised → captured or voided; captured → refunded | `TRANSITIONS` | [android-app/atlas_go/payments.py L203](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L203) | Implemented |
+| <a name="sec-pay-move"></a>Refuse every illegal transition | `move` | [android-app/atlas_go/payments.py L223](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L223) | Implemented |
+| <a name="sec-pay-entries"></a>Double-entry ledger lines for captures, refunds and payouts | `entries` | [android-app/atlas_go/payments.py L262](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L262) | Implemented |
+| <a name="sec-pay-balanced"></a>Ledger invariant: debits equal credits in every transaction | `balanced` | [android-app/atlas_go/payments.py L282](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L282) | Implemented |
+| <a name="sec-pay-stepup"></a>Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L804](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804) | Implemented |
+| <a name="sec-pay-link"></a>Link a bank account: IBAN checked, mandate recorded, IBAN dropped | `LocalStore.link_bank` | [android-app/atlas_go/store.py L822](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L822) | Implemented |
+| <a name="sec-pay-authorise"></a>Authorise before anything is booked (a decline books nothing) | `LocalStore._authorise` | [android-app/atlas_go/store.py L813](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L813) | Implemented |
+| <a name="sec-pay-payout"></a>Pay out a balance: role, password, linked account, minimum | `LocalStore.request_payout` | [android-app/atlas_go/store.py L858](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L858) | Implemented |
+| <a name="sec-pay-validate"></a>Saved money state must balance and match its bookings | `raise ValueError('The payment ledger does not balance.')` | [android-app/atlas_go/store.py L192](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L192) | Implemented |
+| <a name="sec-pay-url"></a>Server address: HTTPS only (plain HTTP for a local test machine) | `clean_url` | [android-app/atlas_go/backend.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L18) | Implemented |
+| <a name="sec-pay-call"></a>Bearer token, Idempotency-Key, no redirects followed | `Backend.call` | [android-app/atlas_go/backend.py L55](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L55) | Implemented |
+| <a name="sec-pay-outbox"></a>Offline outbox: what the server does not have yet | `outbox` | [android-app/atlas_go/backend.py L139](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L139) | Implemented |
+| <a name="sec-pay-deliver"></a>Deliver in order; stop at a failure a retry could fix | `deliver` | [android-app/atlas_go/backend.py L156](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L156) | Implemented |
+| <a name="sec-srv-strict"></a>Strict request models: unknown fields are rejected (no mass assignment) | `class Strict(BaseModel):` | [android-app/server/app.py L63](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L63) | Implemented |
+| Server registration: the phone's validation again, own PBKDF2 hash | `Service.register` | [android-app/server/app.py L228](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L228) | Implemented |
+| Server sign-in: uniform 401, dummy hash, rehash when the stored cost is lower | `Service.login` | [android-app/server/app.py L268](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L268) | Implemented |
+| Lockout stored in PostgreSQL (429 + Retry-After) | `Service.check_lock` | [android-app/server/app.py L171](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L171) | Implemented |
+| <a name="sec-srv-stepup"></a>Step-up on the server, sharing the sign-in lockout | `Service.step_up` | [android-app/server/app.py L191](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L191) | Implemented |
+| Authenticate a hashed, expiring, revocable session token | `Service.authenticate` | [android-app/server/app.py L210](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L210) | Implemented |
+| Role taken from the session, never from the request | `Service.require` | [android-app/server/app.py L224](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L224) | Implemented |
+| <a name="sec-srv-linkbank"></a>Tokenise the IBAN; store last four and a keyed fingerprint | `Service.link_bank` | [android-app/server/app.py L346](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L346) | Implemented |
+| <a name="sec-srv-pay"></a>Pay: idempotency, server price, debit, ledger, outbox and audit in one transaction | `Service.pay` | [android-app/server/app.py L429](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L429) | Implemented |
+| <a name="sec-srv-replay"></a>Idempotent replay; a different body under the same key is 409 | `Service.replay` | [android-app/server/app.py L389](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L389) | Implemented |
+| Object-level authorisation in the WHERE clause (another user's id is 404) | `Service.payment` | [android-app/server/app.py L489](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L489) | Implemented |
+| <a name="sec-srv-payout"></a>Payout under a row lock (no double spend) | `Service.payout` | [android-app/server/app.py L515](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L515) | Implemented |
+| Erase the person, keep the accounting rows | `Service.delete_account` | [android-app/server/app.py L292](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L292) | Implemented |
+| <a name="sec-srv-audit"></a>Audit log without passwords, tokens, emails or IBANs | `Service.audit` | [android-app/server/app.py L147](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L147) | Implemented |
+| <a name="sec-srv-env"></a>Refuse to start without a pepper (no default secrets) | `from_env` | [android-app/server/app.py L695](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L695) | Implemented |
+| 600 000-iteration PBKDF2 on the server | `DEFAULT_ITERATIONS` | [android-app/server/security.py L10](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L10) | Implemented |
+| Constant-shape verification (unknown email costs the same) | `verify_password` | [android-app/server/security.py L19](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L19) | Implemented |
+| 256-bit session token; only its SHA-256 is stored | `new_token` | [android-app/server/security.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L33) | Implemented |
+| <a name="sec-srv-fingerprint"></a>Keyed IBAN fingerprint (HMAC-SHA256 with a pepper) | `fingerprint` | [android-app/server/security.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/security.py#L43) | Implemented |
+| <a name="sec-srv-provider"></a>Bank provider boundary: tokenise, debit, credit | `class BankProvider(Protocol):` | [android-app/server/bank.py L13](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/bank.py#L13) | Implemented |
+| <a name="sec-srv-sandbox"></a>Sandbox bank (the only provider in the repository) | `class SandboxBank:` | [android-app/server/bank.py L24](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/bank.py#L24) | Implemented |
+| <a name="sec-srv-tx"></a>One connection per transaction; bound parameters; statement and lock timeouts | `Database.transaction` | [android-app/server/db.py L25](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/db.py#L25) | Implemented |
+| <a name="sec-srv-migrate"></a>Numbered migrations under an advisory lock | `Database.migrate` | [android-app/server/db.py L32](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/db.py#L32) | Implemented |
+| <a name="sec-db-append"></a>PostgreSQL trigger: the ledger is append-only | `CREATE FUNCTION ledger_append_only() RETURNS trigger LANGUAGE plpgsql...` | [android-app/server/migrations/001_accounts_payments.sql L134](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L134) | Implemented |
+| <a name="sec-db-balanced"></a>PostgreSQL deferred constraint trigger: every transaction balances | `CREATE CONSTRAINT TRIGGER ledger_balanced AFTER INSERT ON ledger_entries` | [android-app/server/migrations/001_accounts_payments.sql L156](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L156) | Implemented |
+| <a name="sec-db-idem"></a>Unique Idempotency-Key per payer | `UNIQUE (payer_id, idempotency_key)` | [android-app/server/migrations/001_accounts_payments.sql L103](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L103) | Implemented |
+| <a name="sec-db-once"></a>One non-declined payment per booking (partial unique index) | `CREATE UNIQUE INDEX payments_reference_paid ON payments (payer_id, re...` | [android-app/server/migrations/001_accounts_payments.sql L106](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/migrations/001_accounts_payments.sql#L106) | Implemented |
+| <a name="sec-db-roles"></a>Least-privilege API role: no DDL, no UPDATE or DELETE on ledger, payouts, audit | `GRANT SELECT, INSERT ON payouts, ledger_entries, audit_log TO atlas_app;` | [android-app/server/roles.sql L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/roles.sql#L16) | Implemented |
+| <a name="sec-srv-test-race"></a>Test: four concurrent payouts, exactly one succeeds | `test_two_payouts_at_once_cannot_spend_the_balance_twice` | [android-app/server/tests/test_server.py L398](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L398) | Implemented |
+| <a name="sec-srv-test-ledger"></a>Test: ledger triggers refuse edits and unbalanced entries | `test_ledger_is_append_only_and_must_balance` | [android-app/server/tests/test_server.py L320](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L320) | Implemented |
+| <a name="sec-srv-test-secrets"></a>Test: no password, token or IBAN in any table | `test_no_password_token_or_iban_is_stored_or_logged` | [android-app/server/tests/test_server.py L444](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L444) | Implemented |
+| <a name="sec-pay-guide"></a>Teaching guide §14: threat model, sequence, database layers | `## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (san...` | [docs/INFORMATION_SECURITY.md L2021](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2021) | Implemented |
+| <a name="sec-pay-lab"></a>Explorer lab: IBAN check with mod 97 | `secIbanCheck` | [architecture-explorer/dist/security.js L824](../../dist/security.js#L824) | Explorer / lab |
+| <a name="sec-pay-lab-ledger"></a>Explorer lab: payment state machine and ledger | `secPayMove` | [architecture-explorer/dist/security.js L859](../../dist/security.js#L859) | Explorer / lab |
+| <a name="sec-pay-lab-idem"></a>Explorer lab: idempotent replay and server-side pricing | `secPayServer` | [architecture-explorer/dist/security.js L867](../../dist/security.js#L867) | Explorer / lab |
+
 <a name="uml-security-learn"></a>
 
 ### Security → Foundations
@@ -1955,7 +2502,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="sec-fd-guide"></a>Guide: 19 standalone information-security units (what, why, how) | `## Standalone illustrated foundations — Information Security` | [docs/INFORMATION_SECURITY.md L75](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L75) | Teaching extension |
+| <a name="sec-fd-guide"></a>Guide: 19 standalone information-security units (what, why, how) | `## Standalone illustrated foundations — Information Security` | [docs/INFORMATION_SECURITY.md L76](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L76) | Teaching extension |
 | <a name="sec-fd-units"></a>Explorer: unit data (what, why, how, pitfalls) | `fdSecUnits` | [architecture-explorer/dist/foundations.js L112](../../dist/foundations.js#L112) | Explorer / lab |
 | <a name="sec-fd-lab-access"></a>Explorer lab: role, ownership and state checks | `fdAccessLab` | [architecture-explorer/dist/foundations.js L586](../../dist/foundations.js#L586) | Explorer / lab |
 | <a name="sec-fd-lab-entropy"></a>Explorer lab: password guessability | `fdEntropyLab` | [architecture-explorer/dist/foundations.js L526](../../dist/foundations.js#L526) | Explorer / lab |
@@ -1963,8 +2510,8 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-fd-lab-pkce"></a>Explorer lab: PKCE S256 (RFC 7636) | `fdPkceRun` | [architecture-explorer/dist/foundations.js L558](../../dist/foundations.js#L558) | Explorer / lab |
 | <a name="sec-fd-lab-inject"></a>Explorer lab: SQL injection and XSS encoding | `fdInjectLab` | [architecture-explorer/dist/foundations.js L571](../../dist/foundations.js#L571) | Explorer / lab |
 | Hash a password (salt + PBKDF2-HMAC-SHA256) | `hash_password` | [android-app/atlas_go/accounts.py L27](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L27) | Implemented |
-| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L442) | Implemented |
-| OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L428](../../dist/security.js#L428) | Explorer / lab |
+| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L449](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449) | Implemented |
+| OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L431](../../dist/security.js#L431) | Explorer / lab |
 
 <a name="uml-security-gaps"></a>
 
@@ -1975,11 +2522,15 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | Work factor and lockout limits | `PBKDF2_ITERATIONS` | [android-app/atlas_go/accounts.py L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L16) | Implemented |
-| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L39](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L39) | Implemented |
+| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42) | Implemented |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
 | Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
 | Authenticate, check role, assert identity, forward | `proxy` | [architecture-explorer/starter/services/gateway.py L47](../services/gateway.py#L47) | Demo-grade |
+| Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L804](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804) | Implemented |
+| Lockout stored in PostgreSQL (429 + Retry-After) | `Service.check_lock` | [android-app/server/app.py L171](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L171) | Implemented |
+| Pay: idempotency, server price, debit, ledger, outbox and audit in one transaction | `Service.pay` | [android-app/server/app.py L429](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L429) | Implemented |
+| Audit log without passwords, tokens, emails or IBANs | `Service.audit` | [android-app/server/app.py L147](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L147) | Implemented |
 
 <a name="uml-crypto-hashes"></a>
 
@@ -2298,7 +2849,7 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-tw-retest"></a>Guardian: 500-rollout re-test before handing control back | `retest_pricing` | [android-app/atlas_go/twin.py L345](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L345) | App / starter (synthetic data) |
 | <a name="ml-tw-decide"></a>One ride through both layers, with fallback to Layer 1 | `decide_ride` | [android-app/atlas_go/twin.py L361](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L361) | App / starter (synthetic data) |
 | <a name="ml-tw-drill"></a>Fault drill: inject bad decisions, count what the Guardian catches | `fault_drill` | [android-app/atlas_go/twin.py L399](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L399) | App / starter (synthetic data) |
-| <a name="ml-tw-store"></a>Twin state: decision log, blocks and re-tests | `LocalStore.twin_record` | [android-app/atlas_go/store.py L549](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L549) | App / starter (synthetic data) |
+| <a name="ml-tw-store"></a>Twin state: decision log, blocks and re-tests | `LocalStore.twin_record` | [android-app/atlas_go/store.py L607](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L607) | App / starter (synthetic data) |
 | Dispatch: softmax over candidate drivers | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | App / starter (synthetic data) |
 | <a name="ml-tw-lab"></a>Explorer lab: Agent 1 rehearsal (twin.agent1 port) | `mlAgent1` | [architecture-explorer/dist/ml.js L575](../../dist/ml.js#L575) | Explorer / lab |
 | <a name="ml-tw-lab-rehearse"></a>Explorer lab: twin.rehearse port | `mlRehearse` | [architecture-explorer/dist/ml.js L559](../../dist/ml.js#L559) | Explorer / lab |
@@ -2362,7 +2913,7 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-lp-demand"></a>Simulated city demand (city_sim model, deterministic) | `demand` | [android-app/atlas_go/loop.py L87](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L87) | App / starter (synthetic data) |
 | Generated LSTM weights and agent tables | `W` | [android-app/atlas_go/lstm_weights.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/lstm_weights.py#L18) | App / starter (synthetic data) |
 | Offline training of the compact LSTM and the agent | `train` | [android-app/training/export_lstm.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/export_lstm.py#L43) | App / starter (synthetic data) |
-| <a name="ml-lp-surge"></a>Live forecast as the dispatch policy's surge feature | `AtlasGoApp.live_surge` | [android-app/atlas_go/app.py L879](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L879) | App / starter (synthetic data) |
+| <a name="ml-lp-surge"></a>Live forecast as the dispatch policy's surge feature | `AtlasGoApp.live_surge` | [android-app/atlas_go/app.py L895](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L895) | App / starter (synthetic data) |
 | Driver supply agent with hindsight updates | `run_rl` | [android-app/training/city_sim.py L152](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L152) | App / starter (synthetic data) |
 | Explorer lab: the phone's LSTM in the browser | `mlLstmHidden` | [architecture-explorer/dist/ml.js L961](../../dist/ml.js#L961) | Explorer / lab |
 | <a name="ml-lp-lab-whatif"></a>Explorer lab: what-if event tag and demand shock | `mlLoopWhatIf` | [architecture-explorer/dist/ml.js L979](../../dist/ml.js#L979) | Explorer / lab |
@@ -2409,13 +2960,13 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L389](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L389) | Implemented |
-| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L732](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732) | Implemented |
+| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L434](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434) | Implemented |
+| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L940](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940) | Implemented |
 | <a name="dsa-app-distances"></a>2-D table lookup DISTANCES[pickup][destination] | `DISTANCES` | [android-app/atlas_go/domain.py L5](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L5) | Implemented |
 | <a name="dsa-app-nearest"></a>Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
 | <a name="dsa-app-tiles"></a>Grid indexing: tiles that cover the view | `tile_range` | [android-app/atlas_go/geo.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L107) | Implemented |
-| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
-| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L636](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L636) | Implemented |
+| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L497](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497) | Implemented |
+| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L694](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694) | Implemented |
 | <a name="dsa-lab-linear"></a>Linear search with a comparison count | `linear_search` | [dsa_lab/experiments.py L41](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L41) | Explorer / lab |
 | <a name="dsa-lab-binary"></a>Binary search with a comparison count | `binary_search` | [dsa_lab/experiments.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L51) | Explorer / lab |
 | <a name="dsa-lab-dynarray"></a>Dynamic array: growth policy and copies | `DynamicArray.append` | [dsa_lab/experiments.py L267](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L267) | Explorer / lab |
@@ -2542,9 +3093,9 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L97](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L97) | Implemented |
+| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107) | Implemented |
 | <a name="dsa-app-selftest"></a>Self-test of the on-device models | `self_test` | [android-app/atlas_go/intelligence.py L459](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L459) | Implemented |
-| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L534](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L534) | Related (similar code, not this exact structure) |
+| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L592](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L592) | Related (similar code, not this exact structure) |
 | <a name="dsa-lab-fib"></a>Fibonacci with a memo: call count | `fib_memo_calls` | [dsa_lab/experiments.py L1797](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1797) | Explorer / lab |
 | <a name="dsa-lab-knapsack"></a>0/1 knapsack by dynamic programming | `knapsack_01` | [dsa_lab/experiments.py L1819](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1819) | Explorer / lab |
 | <a name="dsa-lab-queens"></a>N queens by backtracking | `n_queens` | [dsa_lab/experiments.py L1837](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1837) | Explorer / lab |
@@ -2559,7 +3110,7 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L732](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L732) | Implemented |
+| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L940](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940) | Implemented |
 | Sorting: rank candidates with sorted() | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | Implemented |
 | Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
 | Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L130](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L130) | Related (similar code, not this exact structure) |
@@ -2723,14 +3274,14 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `read(location, main)` | — | [L493](../scripts/security_catalog.py#L493) |
-| Function | `python_symbols(text)` | — | [L503](../scripts/security_catalog.py#L503) |
-| Function | `locate(text, path, symbol)` | — | [L515](../scripts/security_catalog.py#L515) |
-| Function | `resolve(main)` | — | [L536](../scripts/security_catalog.py#L536) |
-| Function | `markdown(rows, views, intro)` | — | [L569](../scripts/security_catalog.py#L569) |
-| Function | `script(rows)` | — | [L590](../scripts/security_catalog.py#L590) |
-| Function | `replace_block(document, content, name)` | — | [L598](../scripts/security_catalog.py#L598) |
-| Function | `main()` | — | [L607](../scripts/security_catalog.py#L607) |
+| Function | `read(location, main)` | — | [L549](../scripts/security_catalog.py#L549) |
+| Function | `python_symbols(text)` | — | [L559](../scripts/security_catalog.py#L559) |
+| Function | `locate(text, path, symbol)` | — | [L571](../scripts/security_catalog.py#L571) |
+| Function | `resolve(main)` | — | [L592](../scripts/security_catalog.py#L592) |
+| Function | `markdown(rows, views, intro)` | — | [L625](../scripts/security_catalog.py#L625) |
+| Function | `script(rows)` | — | [L646](../scripts/security_catalog.py#L646) |
+| Function | `replace_block(document, content, name)` | — | [L654](../scripts/security_catalog.py#L654) |
+| Function | `main()` | — | [L663](../scripts/security_catalog.py#L663) |
 
 ### `services/dispatch.py`
 
@@ -4081,141 +4632,168 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `<callback: secTopics.map>(t)` | — | [L46](../../dist/security.js#L46) |
-| Function | `secHex(buf)` | — | [L63](../../dist/security.js#L63) |
-| Function | `secHex.<callback: [...new Uint8Array(buf)].map>(b)` | — | [L63](../../dist/security.js#L63) |
-| Function | `secRand(n)` | — | [L64](../../dist/security.js#L64) |
-| Function | `secShort(h, n = 24)` | — | [L65](../../dist/security.js#L65) |
-| Function | `secB64u(bytes)` | — | [L66](../../dist/security.js#L66) |
-| Function | `secFromB64u(text)` | — | [L67](../../dist/security.js#L67) |
-| Function | `secFromB64u.<callback: Uint8Array.from>(c)` | — | [L67](../../dist/security.js#L67) |
-| Function | `secEsc(text)` | — | [L68](../../dist/security.js#L68) |
-| Function | `secEsc.<callback: String(text).replace, /[&<>"']/g>(c)` | — | [L68](../../dist/security.js#L68) |
-| Function | `secClock(ms)` | — | [L69](../../dist/security.js#L69) |
-| Function | `async secPbkdf2(password, salt, iterations, hash = "SHA-256", bits = 256)` | — | [L71](../../dist/security.js#L71) |
-| Function | `async secSha256(bytes)` | — | [L76](../../dist/security.js#L76) |
-| Function | `secEqual(a, b)` | — | [L80](../../dist/security.js#L80) |
-| Function | `async secSeal(keyBytes, object)` | — | [L87](../../dist/security.js#L87) |
-| Function | `async secOpen(keyBytes, sealed)` | — | [L96](../../dist/security.js#L96) |
-| Function | `async secFingerprint(bytes)` | — | [L102](../../dist/security.js#L102) |
-| Function | `secChip(status)` | — | [L105](../../dist/security.js#L105) |
-| Function | `secCode(text)` | — | [L111](../../dist/security.js#L111) |
-| Function | `secCheck(ok, text, detail = "")` | — | [L113](../../dist/security.js#L113) |
-| Function | `secField(name, label, type = "text", hint = "")` | — | [L117](../../dist/security.js#L117) |
-| Function | `secButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L121](../../dist/security.js#L121) |
-| Function | `secSelect(name, options, value, label = "Scenario")` | — | [L125](../../dist/security.js#L125) |
-| Function | `secSelect.<callback: options.map>([v, l])` | — | [L126](../../dist/security.js#L126) |
-| Function | `secTable(head, rows, cls = "")` | — | [L129](../../dist/security.js#L129) |
-| Function | `secTable.<callback: head.map>(h)` | — | [L130](../../dist/security.js#L130) |
-| Function | `secTable.<callback: rows.map>(r)` | — | [L130](../../dist/security.js#L130) |
-| Function | `secTable.<callback: rows.map>.<callback: r.map>(c, i)` | — | [L130](../../dist/security.js#L130) |
-| Function | `secLink(label, url)` | — | [L133](../../dist/security.js#L133) |
-| Function | `secSection(kicker, title, body)` | — | [L135](../../dist/security.js#L135) |
-| Function | `umlData()` | — | [L141](../../dist/security.js#L141) |
-| Function | `umlHref(anchor)` | — | [L142](../../dist/security.js#L142) |
-| Function | `umlChip(anchor, label = "UML catalogue")` | — | [L144](../../dist/security.js#L144) |
-| Function | `umlSection(topicKey)` | — | [L149](../../dist/security.js#L149) |
-| Function | `umlSection.<callback: ids.map>(id)` | — | [L154](../../dist/security.js#L154) |
-| Function | `umlCatalogueName(view)` | — | [L162](../../dist/security.js#L162) |
-| Function | `umlCatalogueAnchor(view)` | — | [L163](../../dist/security.js#L163) |
-| Function | `umlTopicsSection(view, topics)` | — | [L166](../../dist/security.js#L166) |
-| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L169](../../dist/security.js#L169) |
-| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L169](../../dist/security.js#L169) |
-| Function | `umlInspector(topicKey, view, topics)` | — | [L174](../../dist/security.js#L174) |
-| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L178](../../dist/security.js#L178) |
-| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L178](../../dist/security.js#L178) |
-| Function | `umlInspector.<callback: ids.map>(id)` | — | [L182](../../dist/security.js#L182) |
-| Function | `secOverview()` | — | [L200](../../dist/security.js#L200) |
-| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L202](../../dist/security.js#L202) |
-| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L203](../../dist/security.js#L203) |
-| Function | `async secPwHash(again = false)` | — | [L212](../../dist/security.js#L212) |
-| Function | `async secPwVerify()` | — | [L231](../../dist/security.js#L231) |
-| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L234](../../dist/security.js#L234) |
+| Function | `<callback: secTopics.map>(t)` | — | [L47](../../dist/security.js#L47) |
+| Function | `secHex(buf)` | — | [L65](../../dist/security.js#L65) |
+| Function | `secHex.<callback: [...new Uint8Array(buf)].map>(b)` | — | [L65](../../dist/security.js#L65) |
+| Function | `secRand(n)` | — | [L66](../../dist/security.js#L66) |
+| Function | `secShort(h, n = 24)` | — | [L67](../../dist/security.js#L67) |
+| Function | `secB64u(bytes)` | — | [L68](../../dist/security.js#L68) |
+| Function | `secFromB64u(text)` | — | [L69](../../dist/security.js#L69) |
+| Function | `secFromB64u.<callback: Uint8Array.from>(c)` | — | [L69](../../dist/security.js#L69) |
+| Function | `secEsc(text)` | — | [L70](../../dist/security.js#L70) |
+| Function | `secEsc.<callback: String(text).replace, /[&<>"']/g>(c)` | — | [L70](../../dist/security.js#L70) |
+| Function | `secClock(ms)` | — | [L71](../../dist/security.js#L71) |
+| Function | `async secPbkdf2(password, salt, iterations, hash = "SHA-256", bits = 256)` | — | [L73](../../dist/security.js#L73) |
+| Function | `async secSha256(bytes)` | — | [L78](../../dist/security.js#L78) |
+| Function | `secEqual(a, b)` | — | [L82](../../dist/security.js#L82) |
+| Function | `async secSeal(keyBytes, object)` | — | [L89](../../dist/security.js#L89) |
+| Function | `async secOpen(keyBytes, sealed)` | — | [L98](../../dist/security.js#L98) |
+| Function | `async secFingerprint(bytes)` | — | [L104](../../dist/security.js#L104) |
+| Function | `secChip(status)` | — | [L107](../../dist/security.js#L107) |
+| Function | `secCode(text)` | — | [L113](../../dist/security.js#L113) |
+| Function | `secCheck(ok, text, detail = "")` | — | [L115](../../dist/security.js#L115) |
+| Function | `secField(name, label, type = "text", hint = "")` | — | [L119](../../dist/security.js#L119) |
+| Function | `secButton(action, label, { primary = false, iconName = "", disabled = false } = {})` | — | [L123](../../dist/security.js#L123) |
+| Function | `secSelect(name, options, value, label = "Scenario")` | — | [L127](../../dist/security.js#L127) |
+| Function | `secSelect.<callback: options.map>([v, l])` | — | [L128](../../dist/security.js#L128) |
+| Function | `secTable(head, rows, cls = "")` | — | [L131](../../dist/security.js#L131) |
+| Function | `secTable.<callback: head.map>(h)` | — | [L132](../../dist/security.js#L132) |
+| Function | `secTable.<callback: rows.map>(r)` | — | [L132](../../dist/security.js#L132) |
+| Function | `secTable.<callback: rows.map>.<callback: r.map>(c, i)` | — | [L132](../../dist/security.js#L132) |
+| Function | `secLink(label, url)` | — | [L135](../../dist/security.js#L135) |
+| Function | `secSection(kicker, title, body)` | — | [L137](../../dist/security.js#L137) |
+| Function | `umlData()` | — | [L143](../../dist/security.js#L143) |
+| Function | `umlHref(anchor)` | — | [L144](../../dist/security.js#L144) |
+| Function | `umlChip(anchor, label = "UML catalogue")` | — | [L146](../../dist/security.js#L146) |
+| Function | `umlSection(topicKey)` | — | [L151](../../dist/security.js#L151) |
+| Function | `umlSection.<callback: ids.map>(id)` | — | [L156](../../dist/security.js#L156) |
+| Function | `umlCatalogueName(view)` | — | [L164](../../dist/security.js#L164) |
+| Function | `umlCatalogueAnchor(view)` | — | [L165](../../dist/security.js#L165) |
+| Function | `umlTopicsSection(view, topics)` | — | [L168](../../dist/security.js#L168) |
+| Function | `umlTopicsSection.<callback: topics.filter>(t)` | — | [L171](../../dist/security.js#L171) |
+| Function | `umlTopicsSection.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L171](../../dist/security.js#L171) |
+| Function | `umlInspector(topicKey, view, topics)` | — | [L176](../../dist/security.js#L176) |
+| Function | `umlInspector.<callback: topics.filter>(t)` | — | [L180](../../dist/security.js#L180) |
+| Function | `umlInspector.<callback: topics.filter((t) => data.topics[`${view}/${t.id}`]).map>(t)` | — | [L180](../../dist/security.js#L180) |
+| Function | `umlInspector.<callback: ids.map>(id)` | — | [L184](../../dist/security.js#L184) |
+| Function | `secOverview()` | — | [L203](../../dist/security.js#L203) |
+| Function | `secOverview.<callback: Object.keys(secStatus).map>(k)` | — | [L205](../../dist/security.js#L205) |
+| Function | `secOverview.<callback: secMap.map>([topic, ic, title, status, text, where])` | — | [L206](../../dist/security.js#L206) |
+| Function | `async secPwHash(again = false)` | — | [L215](../../dist/security.js#L215) |
+| Function | `async secPwVerify()` | — | [L234](../../dist/security.js#L234) |
 | Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L237](../../dist/security.js#L237) |
-| Function | `secPasswords()` | — | [L241](../../dist/security.js#L241) |
-| Function | `async secLoginInit()` | — | [L267](../../dist/security.js#L267) |
-| Function | `async secLoginAttempt(email, password)` | — | [L275](../../dist/security.js#L275) |
-| Function | `secLogin()` | — | [L304](../../dist/security.js#L304) |
-| Function | `secLogin.<callback: L.log.map>(e)` | — | [L313](../../dist/security.js#L313) |
-| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L313](../../dist/security.js#L313) |
-| Function | `secIdentity()` | — | [L327](../../dist/security.js#L327) |
-| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L338](../../dist/security.js#L338) |
-| Function | `secGatewayRun(s)` | — | [L375](../../dist/security.js#L375) |
-| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L385](../../dist/security.js#L385) |
-| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L388](../../dist/security.js#L388) |
-| Function | `secGateway()` | — | [L404](../../dist/security.js#L404) |
-| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L408](../../dist/security.js#L408) |
-| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L410](../../dist/security.js#L410) |
-| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L412](../../dist/security.js#L412) |
-| Function | `async secSsoNext()` | — | [L428](../../dist/security.js#L428) |
-| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L433](../../dist/security.js#L433) |
-| Function | `secMessages(steps)` | — | [L484](../../dist/security.js#L484) |
-| Function | `secMessages.<callback: steps.map>(m)` | — | [L485](../../dist/security.js#L485) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L485](../../dist/security.js#L485) |
-| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L485](../../dist/security.js#L485) |
-| Function | `secSso()` | — | [L488](../../dist/security.js#L488) |
-| Function | `async secKrbSetup()` | — | [L508](../../dist/security.js#L508) |
-| Function | `async secKrbNext()` | — | [L518](../../dist/security.js#L518) |
-| Function | `secKrbNext.kdcNow()` | — | [L523](../../dist/security.js#L523) |
-| Function | `secKrbNext.appNow()` | — | [L524](../../dist/security.js#L524) |
-| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L525](../../dist/security.js#L525) |
-| Function | `secKrbNext.skewOk(t)` | — | [L526](../../dist/security.js#L526) |
-| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L527](../../dist/security.js#L527) |
-| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L555](../../dist/security.js#L555) |
-| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L591](../../dist/security.js#L591) |
-| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L602](../../dist/security.js#L602) |
-| Function | `secKrb()` | — | [L612](../../dist/security.js#L612) |
-| Function | `secKrb.has(who, k)` | — | [L617](../../dist/security.js#L617) |
-| Function | `secKrb.cell(ok)` | — | [L619](../../dist/security.js#L619) |
-| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L624](../../dist/security.js#L624) |
-| Function | `secTransport()` | — | [L635](../../dist/security.js#L635) |
+| Function | `secPwVerify.<callback: Uint8Array.from>(h)` | — | [L240](../../dist/security.js#L240) |
+| Function | `secPasswords()` | — | [L244](../../dist/security.js#L244) |
+| Function | `async secLoginInit()` | — | [L270](../../dist/security.js#L270) |
+| Function | `async secLoginAttempt(email, password)` | — | [L278](../../dist/security.js#L278) |
+| Function | `secLogin()` | — | [L307](../../dist/security.js#L307) |
+| Function | `secLogin.<callback: L.log.map>(e)` | — | [L316](../../dist/security.js#L316) |
+| Function | `secLogin.<callback: L.log.map>.<callback: e.steps.map>([ok, t, d])` | — | [L316](../../dist/security.js#L316) |
+| Function | `secIdentity()` | — | [L330](../../dist/security.js#L330) |
+| Function | `secIdentity.<callback: stages.map>([t, c, d], i)` | — | [L341](../../dist/security.js#L341) |
+| Function | `secGatewayRun(s)` | — | [L378](../../dist/security.js#L378) |
+| Function | `secGatewayRun.<callback: secRoutes.find>([m, r, re])` | — | [L388](../../dist/security.js#L388) |
+| Function | `secGatewayRun.<callback: Object.keys(secKeys).find>(k)` | — | [L391](../../dist/security.js#L391) |
+| Function | `secGateway()` | — | [L407](../../dist/security.js#L407) |
+| Function | `secGateway.<callback: Object.entries(s.headers).map>([k, v])` | — | [L411](../../dist/security.js#L411) |
+| Function | `secGateway.<callback: Object.entries(secGatewayScenarios).map>([k, v])` | — | [L413](../../dist/security.js#L413) |
+| Function | `secGateway.<callback: result.steps.slice(0, shown).map>([ok, t, d])` | — | [L415](../../dist/security.js#L415) |
+| Function | `async secSsoNext()` | — | [L431](../../dist/security.js#L431) |
+| Function | `secSsoNext.push(title, from, to, wire, checks, done = false)` | — | [L436](../../dist/security.js#L436) |
+| Function | `secMessages(steps)` | — | [L487](../../dist/security.js#L487) |
+| Function | `secMessages.<callback: steps.map>(m)` | — | [L488](../../dist/security.js#L488) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.every>([ok])` | — | [L488](../../dist/security.js#L488) |
+| Function | `secMessages.<callback: steps.map>.<callback: m.checks.map>([ok, t, d])` | — | [L488](../../dist/security.js#L488) |
+| Function | `secSso()` | — | [L491](../../dist/security.js#L491) |
+| Function | `async secKrbSetup()` | — | [L511](../../dist/security.js#L511) |
+| Function | `async secKrbNext()` | — | [L521](../../dist/security.js#L521) |
+| Function | `secKrbNext.kdcNow()` | — | [L526](../../dist/security.js#L526) |
+| Function | `secKrbNext.appNow()` | — | [L527](../../dist/security.js#L527) |
+| Function | `secKrbNext.push(title, from, to, wire, checks, done = false)` | — | [L528](../../dist/security.js#L528) |
+| Function | `secKrbNext.skewOk(t)` | — | [L529](../../dist/security.js#L529) |
+| Function | `secKrbNext.fail(title, from, to, wire, checks)` | — | [L530](../../dist/security.js#L530) |
+| Function | `secKrbNext.<callback: Uint8Array.from>(h)` | — | [L558](../../dist/security.js#L558) |
+| Function | `async secKrbVerifyAp(c, ticketBytes, authBytes)` | — | [L594](../../dist/security.js#L594) |
+| Function | `secKrbVerifyAp.<callback: Uint8Array.from>(h)` | — | [L605](../../dist/security.js#L605) |
+| Function | `secKrb()` | — | [L615](../../dist/security.js#L615) |
+| Function | `secKrb.has(who, k)` | — | [L620](../../dist/security.js#L620) |
+| Function | `secKrb.cell(ok)` | — | [L622](../../dist/security.js#L622) |
+| Function | `secKrb.<callback: keyRows.map>([k, d])` | — | [L627](../../dist/security.js#L627) |
+| Function | `secTransport()` | — | [L638](../../dist/security.js#L638) |
 | Function | `secTransport.<callback: [
       ["Private CA", "openssl req -x509 … /CN=atlas-ca", "basicConstraints CA:TRUE, keyUsage keyCertSign, 30 days"],
       ["Server certificate", "extendedKeyUsage=serverAuth", "subjectAltName=IP:127.0.0.1 binds it to the address"],
       ["Client certificate", "extendedKeyUsage=clientAuth", "Cannot be reused as a server certificate"],
       ["Server requires a client cert", "verify_mode = ssl.CERT_REQUIRED", "No certificate from atlas-ca → handshake fails"],
       ["Client verifies the server", "create_default_context(cafile=ca.crt)", "Plus load_cert_chain to present its own identity"],
-    ].map>([t, c, d], i)` | — | [L643](../../dist/security.js#L643) |
-| Function | `secCtlRun(s, mode)` | — | [L694](../../dist/security.js#L694) |
-| Function | `secControls()` | — | [L732](../../dist/security.js#L732) |
-| Function | `secControls.<callback: types.map>([t, q, w, e], i)` | — | [L742](../../dist/security.js#L742) |
-| Function | `secControls.<callback: Object.entries(secCtlScenarios).map>([k, v])` | — | [L744](../../dist/security.js#L744) |
-| Function | `secControls.<callback: r.steps.map>([ok, t, d])` | — | [L746](../../dist/security.js#L746) |
-| Function | `secGaps()` | — | [L777](../../dist/security.js#L777) |
-| Function | `securityInspector()` | — | [L820](../../dist/security.js#L820) |
-| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L826](../../dist/security.js#L826) |
-| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L827](../../dist/security.js#L827) |
-| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L829](../../dist/security.js#L829) |
-| Function | `securityView()` | — | [L836](../../dist/security.js#L836) |
-| Function | `securityView.<callback: secTopics.map>(x)` | — | [L842](../../dist/security.js#L842) |
-| Function | `securityOpen(topic)` | — | [L846](../../dist/security.js#L846) |
-| Function | `secSetHash()` | — | [L851](../../dist/security.js#L851) |
-| Function | `async secRun(busy, task)` | — | [L855](../../dist/security.js#L855) |
-| Function | `securityClick(button)` | — | [L863](../../dist/security.js#L863) |
-| Function | `securityClick."pw-hash"()` | — | [L875](../../dist/security.js#L875) |
-| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L875](../../dist/security.js#L875) |
-| Function | `securityClick."pw-again"()` | — | [L876](../../dist/security.js#L876) |
-| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L876](../../dist/security.js#L876) |
-| Function | `securityClick."pw-verify"()` | — | [L877](../../dist/security.js#L877) |
-| Function | `securityClick."login-init"()` | — | [L878](../../dist/security.js#L878) |
-| Function | `securityClick."login-wrong"()` | — | [L879](../../dist/security.js#L879) |
-| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L879](../../dist/security.js#L879) |
-| Function | `securityClick."login-unknown"()` | — | [L880](../../dist/security.js#L880) |
-| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L880](../../dist/security.js#L880) |
-| Function | `securityClick."login-right"()` | — | [L881](../../dist/security.js#L881) |
-| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L881](../../dist/security.js#L881) |
-| Function | `securityClick."login-tick"()` | — | [L882](../../dist/security.js#L882) |
-| Function | `securityClick."login-reset"()` | — | [L883](../../dist/security.js#L883) |
-| Function | `securityClick."gw-step"()` | — | [L884](../../dist/security.js#L884) |
-| Function | `securityClick."gw-all"()` | — | [L885](../../dist/security.js#L885) |
-| Function | `securityClick."sso-next"()` | — | [L886](../../dist/security.js#L886) |
-| Function | `securityClick."sso-reset"()` | — | [L887](../../dist/security.js#L887) |
-| Function | `securityClick."krb-next"()` | — | [L888](../../dist/security.js#L888) |
-| Function | `securityClick."krb-all"()` | — | [L889](../../dist/security.js#L889) |
-| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L889](../../dist/security.js#L889) |
-| Function | `securityClick."krb-reset"()` | — | [L890](../../dist/security.js#L890) |
-| Function | `<callback: document.addEventListener, "input">(event)` | — | [L896](../../dist/security.js#L896) |
-| Function | `<callback: document.addEventListener, "change">(event)` | — | [L901](../../dist/security.js#L901) |
+    ].map>([t, c, d], i)` | — | [L646](../../dist/security.js#L646) |
+| Function | `secCtlRun(s, mode)` | — | [L697](../../dist/security.js#L697) |
+| Function | `secControls()` | — | [L735](../../dist/security.js#L735) |
+| Function | `secControls.<callback: types.map>([t, q, w, e], i)` | — | [L745](../../dist/security.js#L745) |
+| Function | `secControls.<callback: Object.entries(secCtlScenarios).map>([k, v])` | — | [L747](../../dist/security.js#L747) |
+| Function | `secControls.<callback: r.steps.map>([ok, t, d])` | — | [L749](../../dist/security.js#L749) |
+| Function | `secGaps()` | — | [L780](../../dist/security.js#L780) |
+| Function | `secMoney(cents)` | — | [L822](../../dist/security.js#L822) |
+| Function | `secIbanCheck(raw)` | — | [L824](../../dist/security.js#L824) |
+| Function | `secIbanCheck.<callback: [...(iban.slice(4) + iban.slice(0, 4))].map>(ch)` | — | [L835](../../dist/security.js#L835) |
+| Function | `secSplit(kind, amount)` | — | [L846](../../dist/security.js#L846) |
+| Function | `secSplit.share(value, basisPoints)` | — | [L847](../../dist/security.js#L847) |
+| Function | `secPayLedger(payment)` | — | [L852](../../dist/security.js#L852) |
+| Function | `secPayMove(target)` | — | [L859](../../dist/security.js#L859) |
+| Function | `secPayServer(action)` | — | [L867](../../dist/security.js#L867) |
+| Function | `secPayments()` | — | [L881](../../dist/security.js#L881) |
+| Function | `secPayments.<callback: lines.reduce>(sum, l)` | — | [L885](../../dist/security.js#L885) |
+| Function | `secPayments.<callback: lines.reduce>(sum, l)` | — | [L885](../../dist/security.js#L885) |
+| Function | `secPayments.<callback: I.steps.map>([ok, t, d])` | — | [L889](../../dist/security.js#L889) |
+| Function | `secPayments.<callback: lines.map>([t, a, d, c])` | — | [L893](../../dist/security.js#L893) |
+| Function | `secPayments.<callback: P.log.map>([ok, t, d])` | — | [L894](../../dist/security.js#L894) |
+| Function | `secPayments.<callback: S.log.map>([ok, t, d])` | — | [L899](../../dist/security.js#L899) |
+| Function | `securityInspector()` | — | [L926](../../dist/security.js#L926) |
+| Function | `securityInspector.<callback: info.facts.map>([k, v])` | — | [L932](../../dist/security.js#L932) |
+| Function | `securityInspector.<callback: info.files.map>([l, u])` | — | [L933](../../dist/security.js#L933) |
+| Function | `securityInspector.<callback: info.questions.map>(q)` | — | [L935](../../dist/security.js#L935) |
+| Function | `securityView()` | — | [L942](../../dist/security.js#L942) |
+| Function | `securityView.<callback: secTopics.map>(x)` | — | [L948](../../dist/security.js#L948) |
+| Function | `securityOpen(topic)` | — | [L952](../../dist/security.js#L952) |
+| Function | `secSetHash()` | — | [L957](../../dist/security.js#L957) |
+| Function | `async secRun(busy, task)` | — | [L961](../../dist/security.js#L961) |
+| Function | `securityClick(button)` | — | [L969](../../dist/security.js#L969) |
+| Function | `securityClick."pw-hash"()` | — | [L981](../../dist/security.js#L981) |
+| Function | `securityClick."pw-hash".<callback: secRun, "pw">()` | — | [L981](../../dist/security.js#L981) |
+| Function | `securityClick."pw-again"()` | — | [L982](../../dist/security.js#L982) |
+| Function | `securityClick."pw-again".<callback: secRun, "pw">()` | — | [L982](../../dist/security.js#L982) |
+| Function | `securityClick."pw-verify"()` | — | [L983](../../dist/security.js#L983) |
+| Function | `securityClick."login-init"()` | — | [L984](../../dist/security.js#L984) |
+| Function | `securityClick."login-wrong"()` | — | [L985](../../dist/security.js#L985) |
+| Function | `securityClick."login-wrong".<callback: secRun, "login">()` | — | [L985](../../dist/security.js#L985) |
+| Function | `securityClick."login-unknown"()` | — | [L986](../../dist/security.js#L986) |
+| Function | `securityClick."login-unknown".<callback: secRun, "login">()` | — | [L986](../../dist/security.js#L986) |
+| Function | `securityClick."login-right"()` | — | [L987](../../dist/security.js#L987) |
+| Function | `securityClick."login-right".<callback: secRun, "login">()` | — | [L987](../../dist/security.js#L987) |
+| Function | `securityClick."login-tick"()` | — | [L988](../../dist/security.js#L988) |
+| Function | `securityClick."login-reset"()` | — | [L989](../../dist/security.js#L989) |
+| Function | `securityClick."gw-step"()` | — | [L990](../../dist/security.js#L990) |
+| Function | `securityClick."gw-all"()` | — | [L991](../../dist/security.js#L991) |
+| Function | `securityClick."sso-next"()` | — | [L992](../../dist/security.js#L992) |
+| Function | `securityClick."sso-reset"()` | — | [L993](../../dist/security.js#L993) |
+| Function | `securityClick."krb-next"()` | — | [L994](../../dist/security.js#L994) |
+| Function | `securityClick."krb-all"()` | — | [L995](../../dist/security.js#L995) |
+| Function | `async securityClick."krb-all".<callback: secRun, "krb">()` | — | [L995](../../dist/security.js#L995) |
+| Function | `securityClick."krb-reset"()` | — | [L996](../../dist/security.js#L996) |
+| Function | `securityClick."pay-iban"()` | — | [L997](../../dist/security.js#L997) |
+| Function | `securityClick."pay-iban-typo"()` | — | [L998](../../dist/security.js#L998) |
+| Function | `securityClick."pay-iban-nofunds"()` | — | [L999](../../dist/security.js#L999) |
+| Function | `securityClick."pay-authorise"()` | — | [L1000](../../dist/security.js#L1000) |
+| Function | `securityClick."pay-captured"()` | — | [L1001](../../dist/security.js#L1001) |
+| Function | `securityClick."pay-voided"()` | — | [L1002](../../dist/security.js#L1002) |
+| Function | `securityClick."pay-refunded"()` | — | [L1003](../../dist/security.js#L1003) |
+| Function | `securityClick."pay-send"()` | — | [L1004](../../dist/security.js#L1004) |
+| Function | `securityClick."pay-other"()` | — | [L1005](../../dist/security.js#L1005) |
+| Function | `securityClick."pay-new"()` | — | [L1006](../../dist/security.js#L1006) |
+| Function | `securityClick."pay-tamper"()` | — | [L1007](../../dist/security.js#L1007) |
+| Function | `securityClick."pay-reset"()` | — | [L1008](../../dist/security.js#L1008) |
+| Function | `<callback: document.addEventListener, "input">(event)` | — | [L1014](../../dist/security.js#L1014) |
+| Function | `<callback: document.addEventListener, "change">(event)` | — | [L1019](../../dist/security.js#L1019) |
 
 ### `dist/uml-catalog.js`
 
