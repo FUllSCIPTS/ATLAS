@@ -4,7 +4,7 @@
 **[▶ Watch the ATLAS Go --- Full Version](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
 
 **[▶ Watch the ATLAS Go --- Smooth Version](android-app/docs/video/atlas-go-demo-v1.6.0.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.6.0.mp4?raw=true)
----
+
 ## ATLAS Go Android app
 
 **Version 1.6.0 (source)** — Layer 1 (LSTM forecaster + RL agents, a closed loop since 1.4.0) and Layer 2 (digital twin with three agents, 1.3.0) are unchanged.
