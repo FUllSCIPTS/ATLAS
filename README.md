@@ -23,18 +23,6 @@
 
 LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated.
 
-**App components, 1.3.0 → 1.6.0**
-
-| Component | 1.3.0 | 1.4.0 | 1.6.0 |
-|---|---|---|---|
-| User registration (passenger, driver, food seller) | On the phone | On the phone | On the phone and, when connected, on the server (since 1.5.0) |
-| Bank payment option for passengers, drivers and food sellers | Not implemented | Not implemented | **Implemented** (sandbox bank, since 1.5.0): pay by bank, balances, payouts |
-| Back end using PostgreSQL | Not implemented | Not implemented | **Implemented** (since 1.5.0): [`server/`](android-app/server/README.md), optional |
-| Pre-book an ordinary ride | Not implemented | Not implemented | **Implemented**: 15 minutes to 7 days ahead, fare fixed, driver chosen 10 minutes before pickup |
-| Pre-book a shared ride | Not implemented | Not implemented | **Implemented**: seats held from the moment you pre-book |
-| SOS during a ride, trusted contact | Not implemented | Not implemented | **Implemented**: records ride, time and place; opens the dialler on 112 and a text to your contact; no new permission |
-| Android permissions | 4 | 4 | 4 |
-
 **Layer 2 — the digital twin and three agents (1.3.0, as in the video)**
 
 - **Digital twin** of Cork: mirrors drivers, rides and couriers, and plays the next 30 minutes from Layer 1's forecast.
