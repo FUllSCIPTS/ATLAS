@@ -11,7 +11,7 @@ const goSystem = {
   root: "android-app/",
   source: "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/",
   foldersDetail: "Browse the folders and files of the ATLAS Go Android app. Open a file to read its source on GitHub.",
-  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.6.0 source: 300 Python tests, 412 UI assertions and 35 screenshots in two screen sizes, 59 server tests on PostgreSQL 16; the Android 16 emulator click-through runs in CI on every push. 1.5.0: 244 Python tests, 353 UI assertions and 418 emulator assertions with 32 screenshots. 1.4.0 release: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
+  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.6.0 source: 300 Python tests, 412 UI assertions and 35 screenshots in two screen sizes, 59 server tests on PostgreSQL 16, and 483 assertions in the Android 16 emulator click-through with 35 screenshots. 1.5.0: 244 Python tests, 353 UI assertions and 418 emulator assertions with 32 screenshots. 1.4.0 release: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
   defaultSelected: "dispatch",
   defaultFolder: "intelligence",
   openFolders: ["atlas_go", "training"],
