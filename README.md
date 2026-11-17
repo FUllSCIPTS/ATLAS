@@ -73,7 +73,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 1) [🎓 Teaching Method — Big-Picture Concept–Theory–Practice (BCTP)](docs/teaching/TEACHING_METHOD.md) · [BCTP method (PDF)](docs/teaching/BCTP_Method.pdf) · [Lecture deck: Introduction to Data Structures taught with BCTP (PPT, 61 slides)](docs/teaching/Intro_Data_Structures_BCTP.pptx)
 
-2) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · (https://fullscipts.github.io/ATLAS/#security-learn) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
+2) [🔐 Information Security in ATLAS — live Security view in the explorer](https://fullscipts.github.io/ATLAS/#security) · [Teaching guide](docs/INFORMATION_SECURITY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Information_Security_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
 3) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
