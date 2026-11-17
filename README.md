@@ -8,11 +8,8 @@
 ---
 ## ATLAS Go Android app
 
-**Version 1.6.0 (source)** — the app shown in the video above, now with **pre-booked rides** (ordinary and shared) and an **SOS** option, on top of the **bank payments and payouts** and **PostgreSQL back end** of 1.5.0. A Python/Kivy Android app for Cork with **passenger, driver and food-seller accounts**, a **live map**, solo and shared rides and food ordering. Layer 1 (LSTM forecaster + RL agents, a closed loop since 1.4.0) and Layer 2 (digital twin with three agents, 1.3.0) are unchanged.
+**Version 1.6.0 (source)** — Layer 1 (LSTM forecaster + RL agents, a closed loop since 1.4.0) and Layer 2 (digital twin with three agents, 1.3.0) are unchanged.
 
-**New in 1.6.0.** *Pre-book:* on the ride and shared-ride screens choose **When** (15 minutes to 7 days ahead) and tap **Pre-book ride** or **Pre-book seat**. An ordinary ride's fare is fixed at the ordinary fare; a shared ride holds its seats from that moment. Ten minutes before pickup the app chooses a driver and, if you pay by bank, asks the bank then. Upcoming pre-bookings are listed on Home and Activity and can be cancelled free of charge. *SOS:* during a ride, passengers and drivers have a red SOS button. It records the ride, time and place, then offers **Call 112** (opens the dialler) and **Message my trusted contact** (opens the messaging app with your route, driver and a map link). ATLAS Go has no control room: nobody is alerted until you press call or send. The app must be open around the pickup time for a pre-booked ride to start. [What 1.5.0 had and what 1.6.0 adds](android-app/README.md#whats-new-in-160--pre-booked-rides-and-sos).
-
-**New in 1.5.0.** Passengers link a bank account (IBAN checked, SEPA Direct Debit mandate, password asked again) and pay rides and food by bank; drivers and food sellers see a balance and pay it out to their bank. The [ATLAS Go server](android-app/server/README.md) (FastAPI + PostgreSQL) keeps accounts, bank mandates, payments, a double-entry ledger and payouts, and the app syncs to it when an account is connected. The bank is a **sandbox**: no real bank is contacted and no money moves. Rides and deliveries are simulated and stay on the phone. [What 1.4.0 had and what 1.5.0 adds](android-app/README.md#whats-new-in-150--bank-payments-and-a-postgresql-back-end).
 
 | Open or download | Contents |
 |---|---|
