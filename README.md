@@ -21,14 +21,14 @@
 
 **Layer 1 — the LSTM and RL agents as a closed loop (new in 1.4.0)**
 
-LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated.
+LSTM predicts demand → RL agent chooses actions (LSTM and RL agent in a closed loop) → actual outcomes are recorded → both models are periodically updated and validated.
 
 **Layer 2 — the digital twin and three agents (1.3.0, as in the video)**
 
-- **Digital twin** of Cork: mirrors drivers, rides and couriers, and plays the next 30 minutes from Layer 1's forecast.
-- **Agent 1 · Dispatch** rehearses Layer 1's top three drivers in the twin and sends the lowest total wait (*Why this driver · twin-tested*).
-- **Agent 2 · Pricing + moves**: capped surge (never above ×2.0) and *Twin hints* for drivers and kitchens.
-- **Agent 3 · Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back.
+- **Digital twin** of Cork (Mirror->See->Foresee): mirrors drivers, rides and couriers, and plays the next 30 minutes from Layer 1's forecast.
+- **Agent 1 (Foresight Evaluator)· Dispatch** rehearses Layer 1's top three drivers in the twin and sends the lowest total wait (*Why this driver · twin-tested*).
+- **Agent 2 (Foresight Evaluator)· Pricing + moves**: capped surge (never above ×2.0) and *Twin hints* for drivers and kitchens.
+- **Agent 3 (Watch->Catch->Evaluate->Place· Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back.
 - **Shared rides:** a rider is already in the car. The new rider waits while the driver comes with that rider, boards, and is **dropped only after the earlier rider's drop-off**.
 
 | Live loop (Layer 1) | Twin-tested ride | Shared car: earlier rider first | Twin tab | Guardian log |
