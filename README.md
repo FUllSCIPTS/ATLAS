@@ -3,6 +3,26 @@
 
 **[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
 
+### ATLAS Go — smooth version (1.6.0)
+
+<a href="android-app/docs/video/atlas-go-demo-v1.6.0.mp4"><img src="android-app/docs/video/atlas-go-demo-v1.6.0-poster.jpg" alt="ATLAS Go 1.6.0 smooth demo — click to play" width="640"></a>
+
+**[▶ Watch the ATLAS Go smooth demo (4 min 36 s · 1080p)](android-app/docs/video/atlas-go-demo-v1.6.0.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.6.0.mp4?raw=true)
+
+A shorter, polished walk-through of the 1.6.0 app, using real Android captures alongside illustrated simulations. It covers:
+
+| Part | What you see |
+|---|---|
+| **Pre-book a ride** | Choose a pickup time 15 min to 7 days ahead; upcoming rides appear in Activity |
+| **Safety & SOS** | SOS during a ride, the Emergency screen, call 112 or message a trusted contact from your phone |
+| **Ride, share and order** | One car, two drop-offs — the earlier rider is dropped first |
+| **Bank & payments** | Pay by bank in the sandbox: authorise at booking, capture at arrival, release on cancel |
+| **Layer 1 · Live loop** | The LSTM forecasts demand up to six hours ahead; the RL supply agent acts on it; a challenger model is promoted only if it wins on held-out data |
+| **Layer 2 · Digital twin** | Cork, 30 minutes ahead — Agent 2 rehearses surge plans in the twin; the Guardian blocks a ×4 price, falls back to Layer 1 and hands control back after 500 re-tests |
+| **Runtime coupling** | Under a traffic surge, ATLAS moves the architecture from monolith → hybrid → loose, with a 300 s hysteresis hold before re-tightening |
+
+*Simulated rides and deliveries · sandbox payments only.*
+
 
 
 ---
