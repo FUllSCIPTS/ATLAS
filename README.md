@@ -81,7 +81,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [📚 Data Structures and Algorithms](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md) · [Live Data Structures view in the explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
-6) [🐍 Python Programming](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+6) [🐍 Python Programming](docs/PYTHON_PROGRAMMING.md) · [Study in Google Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 
 7) [🌐 Web Technology ](docs/WEB_TECHNOLOGY.md) · [Runnable full-stack lab](web_lab/README.md) · [20 Colab experiments (incl. real-browser runs)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md) ·

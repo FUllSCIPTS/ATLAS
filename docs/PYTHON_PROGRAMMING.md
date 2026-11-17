@@ -1,8 +1,23 @@
 # Python Programming with ATLAS Go — an illustrated, standalone course
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb)
+
 **Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons and 10 real-world testing tasks (Part II) + 19 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
-[Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+[Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+
+## Study in Google Colab
+
+1. Open the notebook, choose **Connect**, and run the **Setup** cell at the top.
+2. Choose a part below. Read the matching lesson in this guide, then run its notebook cells in order with **Shift+Enter**. Change an input and compare the result with your prediction.
+3. To keep your edits, choose **File → Save a copy in Drive**.
+
+| Jump to a part in Colab | What you can study |
+|---|---|
+| [I. Python foundations](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb#scrollTo=python_foundations) | Editable examples and 20 visual labs (P01–P20) |
+| [II. Software testing](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb#scrollTo=20264dee) | A pytest workshop and 10 real-world testing tasks (RT01–RT10) |
+| [III. App integration](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb#scrollTo=6917bee8) | 19 labs on how the front end, API, back end, and database work together (A01–A19) |
+| [IV. App-building tasks](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb#scrollTo=f719a807) | 10 graded coding tickets with an autograder (T01–T10) |
 
 **How every lesson is built:** *idea* (plain-language explanation and a picture) → *worked examples* (run them; the expected output is shown or asserted) → *common mistakes* → *ATLAS Go* (where the real app uses the idea, with a link to the exact function) → *lab* (what the experiment measures and what its chart shows) → *exercises*. Every code block in this guide runs as written; blocks that use ATLAS Go code first add `android-app` to the import path.
 
@@ -1620,7 +1635,7 @@ On PostgreSQL the test passes because `Service.payout` locks the driver's accoun
 
 # Part III — Building real apps: integration flows
 
-[Lab source](../python_lab/app_integration.py) · [Integration tests](../python_lab/tests/test_app_integration.py) · [Open in Colab (Part III section)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb)
+[Lab source](../python_lab/app_integration.py) · [Integration tests](../python_lab/tests/test_app_integration.py) · [Open Part III in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb#scrollTo=6917bee8)
 
 Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it (A01–A12). Six more (A13–A18) run the same kinds of flow on ATLAS Go 1.5.0 itself: registration, bank payments and payouts through its HTTP client and its PostgreSQL server. A19 is the lesson every working developer needs most: **adding a feature to an app that already works** (ATLAS Go 1.6.0's SOS button), from the requirement to the tests, across the front end, the API, the back end and the database.
 
