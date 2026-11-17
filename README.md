@@ -77,7 +77,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [🔑 Cryptography in ATLAS — live Cryptography view in the explorer](https://fullscipts.github.io/ATLAS/#crypto) · [Teaching guide](docs/CRYPTOGRAPHY.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/security_lab/Cryptography_Colab_Labs.ipynb) · [Lab manual](security_lab/README.md)
 
-4) [📈 Machine learning and Optimisation in ATLAS — the paper's coupling optimiser and every learner, live in the explorer](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [🚀 Launch Colab lab — all 44 visual experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/ml_lab/ML_Optimisation_Colab_Labs.ipynb) · [Lab manual — 44 experiments (24 ML + 20 optimisation)](ml_lab/README.md) 
+4) [📈 Machine learning and Optimisation in ATLAS](https://fullscipts.github.io/ATLAS/#ml) · [Teaching guide](docs/MACHINE_LEARNING_OPTIMISATION.md) · [🚀 Launch Colab lab — all 44 visual experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/ml_lab/ML_Optimisation_Colab_Labs.ipynb) · [Lab manual — 44 experiments (24 ML + 20 optimisation)](ml_lab/README.md) 
 
 5) [📚 Data Structures and Algorithms](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md) · [Live Data Structures view in the explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
