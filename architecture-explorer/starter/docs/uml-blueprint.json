@@ -1290,7 +1290,7 @@
   ],
   "supporting_source_sha256": {
     "deploy/atlas-explorer.service": "66eab9b12a63fc985358260c04faa33ce039df4c234af12570ad4c655adf528e",
-    "dist/atlas-go.js": "e2c56b5d2d9ad861a3b82986e8edb83c285da8196aac24da9c76c50f48bdf6cd",
+    "dist/atlas-go.js": "a1fd5434e0ced67590935bc7e471f94356bb91022fc373efd380a7c4a6a0b10e",
     "dist/atlas.js": "c155c3968107f38fcd7612e07671ef8ea9d08ed60343c313b366186a79ba4667",
     "dist/atlas.svg": "6ad19e85d79ecde63c453a40c65eb44b817b273318f57c6f1b7e107bacdc7d2e",
     "dist/build-spec.json": "556e11d0f31230d5acd4ebf27fb98468e3d9c5db551a150b1a1de0bee093ba9e",
