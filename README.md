@@ -67,7 +67,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [Final handover and acceptance checks](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md) · [UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
-4) [▶ Watch the ATLAS Go demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4)
+4) [▶ Watch the ATLAS Go demo video](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)
 
 # Learning path ways
 
