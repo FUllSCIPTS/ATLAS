@@ -26,17 +26,6 @@
 
 LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated.
 
-| Component | 1.3.0 | 1.4.0 | 1.6.0 |
-|---|---|---|---|
-| LSTM training implementation | Present | Present (+ `training/export_lstm.py` for the on-device LSTM) | | Unchanged |
-| RL agent training implementation | Present | Present (+ forecast-aware supply agent) | | Unchanged |
-| RL experience used to train the LSTM | Connected (simulation) | Connected, offline and on the phone | | Unchanged |
-| LSTM forecast feature in dispatch | Represented (fixed tables) | **Live** next-hour LSTM forecast | | Unchanged |
-| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented** — every city hour | | Unchanged |
-| Continuous online LSTM–RL retraining | Not implemented | **Implemented** — agent hourly, LSTM nightly, champion/challenger validation on held-out hours | | Unchanged |
-
-Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent.
-
 **App components, 1.3.0 → 1.6.0**
 
 | Component | 1.3.0 | 1.4.0 | 1.6.0 |
