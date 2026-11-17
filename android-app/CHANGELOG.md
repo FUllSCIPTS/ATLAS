@@ -1,5 +1,40 @@
 # ATLAS Go changelog
 
+## 1.6.0 (versionCode 7) — 17 November 2026
+
+### Added
+- **Pre-booked rides** for ordinary and shared rides (`LocalStore.prebook`, `cancel_prebook`, `due_prebook`, `dispatch_prebook`; rules in `atlas_go/safety.py`).
+  - The ride and shared-ride screens have a **When** choice: *Now*, *In 30 minutes*, *In 1 hour*, *In 2 hours* and fixed times today and tomorrow. A later time turns **Book ride** / **Join shared ride** into **Pre-book ride** / **Pre-book seat**.
+  - Pickup must be 15 minutes to 7 days ahead. An account holds at most three upcoming pre-bookings, at least 30 minutes apart. Pre-booking needs a passenger account (guests are asked to create one).
+  - **Ordinary ride:** the fare is fixed at the ordinary fare when you pre-book; no busy-time price is added later. **Shared ride:** the seats are held from the moment you pre-book and the price is the shared price per seat.
+  - **Ten minutes before the pickup time** the pre-booking becomes the active ride through the ordinary `book` path: the dispatch policy (and the twin, when Layer 2 is on) chooses the driver then, and a bank payment is authorised then, not when pre-booking. If the bank declines, the pre-booking is marked *failed*, the seats are released and nothing is charged.
+  - Upcoming pre-bookings are listed on **Home** and **Activity** with **Cancel this pre-booking** (free; seats released). A pre-booking that could not start within 30 minutes of its time (signed out, or another ride was active) is marked *missed* and its seats are released.
+- **SOS** during a ride, for passengers (including guests) and for the registered driver of the ride (`LocalStore.raise_sos`, `resolve_sos`, `mark_sos_shared`).
+  - A red **SOS · emergency help** button on the live ride and on the driver's trip card asks for confirmation, then records the ride, the time and the position (the phone's own location when it has one, otherwise the car's position on the route) and opens the **Emergency** screen.
+  - The Emergency screen offers **Call 112** (opens the phone's dialler with 112 filled in) and **Message my trusted contact** (opens the messaging app with a text holding your name, the route, the driver, the time and an OpenStreetMap link). You press call or send in those apps; ATLAS Go sends nothing itself.
+  - **I am safe · end SOS** needs the account password, so someone else holding the unlocked phone cannot switch it off.
+  - ATLAS Go has no control room. The screen says so: an SOS does not alert the emergency services or ATLAS staff by itself.
+- **Safety & SOS** screen (**You → Safety & SOS**): how SOS works, a **trusted contact** (name and mobile number, kept on the phone, shown masked), a 112 button and your SOS records.
+- `atlas_go/safety.py`: pickup-time rules, the offered times, record validation, `tel:` / `sms:` / map links and the SOS message text.
+
+### Changed
+- `state.json` adds `prebooks` and `sos`; an account may hold `trusted`; a ride created from a pre-booking carries `prebook`. `LocalStore.validate` checks all of them, including that seats held by scheduled shared pre-bookings are really taken.
+- `delete_account` cancels the account's pre-bookings (releasing seats) and removes its trusted contact and SOS records.
+- Privacy notice (in the app and in `docs/PRIVACY.md`) covers pre-bookings, the trusted contact and SOS records.
+- `scripts/check-manifest.py` refuses `CALL_PHONE` and `SEND_SMS`.
+- 300 unit tests (56 new, `tests/test_prebook_sos.py`); the desktop acceptance run has 412 assertions and 35 screenshots (59 and 3 new).
+
+### Unchanged
+- Android permissions are the same four. SOS uses `ACTION_DIAL` and `ACTION_SENDTO`, which need none.
+- `intelligence.py`, `learned.py`, `loop.py`, `twin.py`, `payments.py`, `backend.py` and the server are unchanged. A ride booked for *Now* behaves exactly as in 1.5.0.
+
+### Compatibility
+- 1.5.0 and earlier `state.json` files load unchanged (no pre-bookings, no SOS records).
+
+### Limits
+- A pre-booked ride is dispatched by the app on this phone: ATLAS Go must be open and the passenger signed in around the pickup time. There is no server-side scheduler and no reminder notification.
+- SOS helps you call and message; it is not monitored by anyone.
+
 ## 1.5.0 (versionCode 6) — 16 November 2026
 
 ### Added

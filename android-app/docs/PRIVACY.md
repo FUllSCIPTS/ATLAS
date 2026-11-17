@@ -1,6 +1,6 @@
 # ATLAS Go privacy notice
 
-Effective: 16 November 2026. Applies to ATLAS Go Android version 1.5.0 (`org.atlas.mobility`). Maintainer: FUllSCIPTS / ATLAS. Contact: [ATLAS issue tracker](https://github.com/FUllSCIPTS/ATLAS/issues). Do not put personal information in a public issue.
+Effective: 17 November 2026. Applies to ATLAS Go Android version 1.6.0 (`org.atlas.mobility`). Maintainer: FUllSCIPTS / ATLAS. Contact: [ATLAS issue tracker](https://github.com/FUllSCIPTS/ATLAS/issues). Do not put personal information in a public issue.
 
 ATLAS Go lets people create passenger, driver and food-seller accounts on their phone, book simulated rides, run a simulated kitchen, follow journeys on a live map and, from 1.5.0, pay and be paid through a **sandbox bank** (no real bank is contacted and no money moves). By default nothing you enter leaves the phone, apart from the map-tile requests described below. If **you** enter the address of an ATLAS server and connect your account, the data listed under [ATLAS server](#atlas-server-only-if-you-connect) is sent to that server. The maintainer of this project operates no such server; whoever runs the server you connect to is the controller of the data it holds.
 
@@ -17,6 +17,9 @@ ATLAS Go lets people create passenger, driver and food-seller accounts on their 
 | Bank account, if you link one: account holder, country, bank, **last four characters** of the IBAN; for passengers the Direct Debit mandate reference, version and date | Paying by bank (passengers); being paid out (drivers, sellers) | Private app storage. The full IBAN is checked when you type it and is **not stored** |
 | Bank payments and payouts: booking reference, amount, fee split, status, last four characters | Your payment history, a driver's or seller's balance | Private app storage |
 | Server address and, for a connected account, its server id and session token | Sending your payments to the server you chose | Private app storage |
+| Pre-booked rides (1.6.0): route, pickup time, seats, fixed fare, how you chose to pay | To start the ride at the time you chose | Private app storage, until the ride runs, you cancel it, or you delete your account (the last 12 finished ones are kept for Activity) |
+| Trusted contact (1.6.0): the name and mobile number you type in | To address your SOS text message | Private app storage; shown masked; removed when you remove it or delete your account |
+| SOS records (1.6.0): ride, time, position, whether you opened the message, when you ended it | So you can see what was recorded and reopen an active SOS | Private app storage (the last 20), removed with your account |
 | Map tiles | Faster maps, offline use | App cache |
 
 Licence and registration numbers are checked for format only; they are not verified with any authority.
@@ -28,6 +31,14 @@ The app asks for location permission only when you tap **Me** on the map, **Pick
 ## Map tiles
 
 The live map downloads map images from OpenStreetMap's tile servers (`tile.openstreetmap.org`). As with any website, those servers receive your IP address, the app's name and version, and the map area being viewed. Their privacy policy applies: <https://osmfoundation.org/wiki/Privacy_Policy>. Map data © OpenStreetMap contributors, available under the Open Database Licence.
+
+## Pre-booked rides and SOS
+
+A pre-booked ride is kept on the phone and started by the app on the phone; it is not sent anywhere.
+
+Raising an SOS stores the time and a position on the phone: your phone's location if you have allowed location, otherwise the simulated car's position on the route. ATLAS Go then offers two buttons. **Call 112** opens your phone's dialler with the number filled in. **Message my trusted contact** opens your messaging app with a text containing your name, the route, the driver's name, the time and an OpenStreetMap link to that position. Nothing is sent until you press call or send in those apps, and what happens then is between you, your mobile operator and the recipient. ATLAS Go does not read your address book: the trusted contact is the one name and number you type. The app has no permission to place calls or send texts, and no SOS information goes to the maintainer or, in this version, to an ATLAS server.
+
+The trusted contact is another person's name and number. Tell them you have saved it.
 
 ## Bank details
 
@@ -49,7 +60,7 @@ Rides and orders themselves, your location, map activity and the on-device model
 
 ## Not collected
 
-No card data, contacts, camera, microphone, advertising identifiers, analytics or third-party tracking SDKs. Android backup is disabled for this app.
+No card data, address-book contacts, call or SMS logs, camera, microphone, advertising identifiers, analytics or third-party tracking SDKs. Android backup is disabled for this app.
 
 ## Learning on the phone
 
@@ -57,7 +68,7 @@ Surge outlooks, driver choice, acceptance estimates and courier timing come from
 
 ## Retention and deletion
 
-Data stays until you delete it. **You → Delete my account** (with your password) removes your profile and linked bank details; your past rides and payments stay on the phone without your identity, and a seller's kitchen is closed and its registration number removed. A driver or seller must pay out any balance first. **You → Erase all data on this phone** removes every account, ride, order and kitchen. Clearing app storage in Android settings or uninstalling also removes everything.
+Data stays until you delete it. **You → Delete my account** (with your password) removes your profile, linked bank details, pre-booked rides, trusted contact and SOS records; your past rides and payments stay on the phone without your identity, and a seller's kitchen is closed and its registration number removed. A driver or seller must pay out any balance first. **You → Erase all data on this phone** removes every account, ride, order and kitchen. Clearing app storage in Android settings or uninstalling also removes everything.
 
 ## Changes
 

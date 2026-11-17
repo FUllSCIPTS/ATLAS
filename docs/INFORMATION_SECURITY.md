@@ -82,7 +82,8 @@ how"** part: *what* the concept is, *why* it matters, *how* it works (step by st
 standard-library Python and diagrams), common pitfalls and three self-check questions. Units S13.1–S13.6
 cover topics that complete an information-security course beyond the ATLAS code. Twelve units (S2–S9, S13,
 S13.2–S13.4) end with an **"In ATLAS Go 1.5.0"** note that ties the concept to the registration, bank-payment
-and PostgreSQL code added in that release.
+and PostgreSQL code added in that release. Unit S5 also has an **"In ATLAS Go 1.6.0"** note on the
+pre-booking and SOS code.
 
 | Unit | Topic | Key ideas |
 |---|---|---|
@@ -450,6 +451,22 @@ privilege: the API connects as `atlas_app` ([`roles.sql`](../android-app/server/
 (`test_api_runs_as_a_least_privilege_role`). The payment lifecycle is a state machine
 (`payments.TRANSITIONS`: authorised → captured or voided; captured → refunded); `payments.move` refuses
 any other transition.
+
+**In ATLAS Go 1.6.0.** Pre-booked rides and SOS reuse the same three ideas on the phone
+([`safety.py`](../android-app/atlas_go/safety.py), [`store.py`](../android-app/atlas_go/store.py);
+catalogue rows `sec-pre-*` and `sec-sos-*`). (1) **Role:** only a passenger account can pre-book
+(`LocalStore.prebook`), and an SOS can be raised only by the passenger, guest or registered driver of the
+ride in progress (`LocalStore.raise_sos`). (2) **Object-level:** a pre-booking can be cancelled or
+dispatched only by the account that made it (`_own_prebook`), and an SOS record is visible only to the
+account that raised it (`_own_sos`); the tests are `test_only_the_owner_can_cancel` and
+`test_driver_sos_and_privacy_between_accounts`. (3) **Least privilege:** *Call 112* and *Message my
+trusted contact* use `ACTION_DIAL` and `ACTION_SENDTO`, which open another app with the fields filled
+in, so the app holds no `CALL_PHONE` or `SEND_SMS` permission and `scripts/check-manifest.py` fails the
+release if one appears. Ending an SOS is a **step-up**: `resolve_sos` asks for the password, so someone
+holding the unlocked phone cannot switch it off. The pre-booking is a state machine too (scheduled →
+dispatched, failed, cancelled or missed), and only *scheduled* holds seats. What this does **not** give
+you: the SOS is not monitored, and the phone is the scheduler; both are listed as gaps in
+[`ARCHITECTURE.md`](../android-app/docs/ARCHITECTURE.md#integration-contract-for-a-live-service).
 
 **Check your understanding.** (1) Which model fits "only during the driver's active shift"? (2) Why is
 hiding the "Edit menu" button not access control? (3) Write a test that would catch an IDOR on

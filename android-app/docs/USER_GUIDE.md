@@ -1,4 +1,4 @@
-# ATLAS Go user guide (1.5.0)
+# ATLAS Go user guide (1.6.0)
 
 The screenshots are captured from the running Python/Kivy app by the automated acceptance run (desktop preview at 440 × 940; the Android workflow replaces them with Android 16 emulator captures of the same screens). They show illustrative Cork data and test accounts, not real customers, drivers or kitchens.
 
@@ -131,6 +131,38 @@ Open **You → Bank & payments** (drivers and sellers can also tap **Bank & payo
 To try a refusal, use a sandbox test IBAN: one ending `0002` has no funds, one ending `0003` is closed (`IE56 AIBK 9311 5200 0000 02` and `IE29 AIBK 9311 5200 0000 03`).
 
 **ATLAS server (optional).** At the bottom of Bank & payments, enter the address of an ATLAS server (`https://…`), your password, and tap **Connect this account**. Your account is created on the server (or signed in, if the email is already registered there). From then on a bank account is linked on the server first, bank payments are copied to it in the background (**Sync now** sends anything waiting), and payouts are made there. Accounts registered after an address is saved connect automatically. A bank account linked *before* connecting must be removed and linked again, because the phone no longer has the IBAN to send. **Disconnect this phone** stops all sending. Without a server address the app sends nothing.
+
+## 14. Pre-book a ride (new in 1.6)
+
+On **Ride** or **Share ride**, open **When** and choose a time: *In 30 minutes*, *In 1 hour*, *In 2 hours*, or a fixed time today or tomorrow. The button changes to **Pre-book ride** (or **Pre-book seat** on a shared car). Pre-booking needs a passenger account.
+
+- **Ordinary ride.** The price shown is the ordinary fare and it is fixed: no busy-time price is added at pickup time.
+- **Shared ride.** Your one or two seats are held from now, so other riders cannot take them.
+- **Payment.** Choose *Bank account* or *Demo · no charge* as usual. Your bank is asked when the driver is sent, not when you pre-book.
+
+Your pre-booked rides appear at the top of **Home** and **Activity**, soonest first, each with **Cancel this pre-booking**. Cancelling is free and releases held seats. You can hold three at a time, at least 30 minutes apart, from 15 minutes to 7 days ahead.
+
+Ten minutes before the pickup time ATLAS Go chooses a driver and opens the live ride, marked *Pre-booked ride*. Keep the app open and stay signed in around that time: the phone does the dispatching. If the app was closed, the ride starts when you next open it, up to 30 minutes after the pickup time; after that it is marked *missed* in Activity and nothing is charged. If your bank declines, it is marked *failed* and nothing is charged.
+
+| Pre-book | Your pre-booked rides |
+|---|---|
+| ![Pre-book a ride](screenshots/34-prebook-ride.png) | ![Pre-booked rides in Activity](screenshots/35-prebooked-rides.png) |
+
+## 15. Safety & SOS (new in 1.6)
+
+**In an emergency call 112 (or 999).** ATLAS Go has no control room, so an SOS in the app does not alert the Gardaí, an ambulance or ATLAS staff by itself. It makes calling and telling someone quicker.
+
+**Set up a trusted contact.** Open **You → Safety & SOS**, enter a name and mobile number and tap **Save trusted contact**. It is kept on this phone only.
+
+**During a ride** the passenger sees a red **SOS · emergency help** button under the live map; a driver sees it on the trip card. Tap it and confirm. ATLAS Go records the ride, the time and where you are (your phone's location if location is on, otherwise the car's position on the route) and opens the **Emergency** screen:
+
+- **Call 112 · emergency services** opens your phone's dialler with 112 filled in. Press the call button there.
+- **Message … my ride and location** opens your messaging app with a text for your trusted contact: your name, the route, the driver, the time and a map link. Press send there.
+- **I am safe · end SOS** ends it. An account must enter its password.
+
+Your SOS records are listed in **You → Safety & SOS** and are deleted with your account.
+
+![SOS](screenshots/36-sos.png)
 
 ## Limits
 

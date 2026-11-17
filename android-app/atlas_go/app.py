@@ -33,6 +33,7 @@ from . import twin as layer2
 from . import loop as live
 from . import payments as pay
 from . import backend
+from . import safety
 from . import __version__
 
 GREEN = color('#075E4A')
@@ -235,6 +236,8 @@ class AtlasGoApp(App):
         self.outlook_day = ui.get('outlook_day', 0)
         self.pay_bank = ui.get('pay_bank', True) is not False   # pay by bank when an account is linked
         self.busy = False                 # a server call is running on a worker thread
+        self.when = 0                     # booking screens: 0 = ride now, n = the n-th pre-book time (1.6.0)
+        self.opened = []                  # tel: and sms: links handed to the phone (SOS)
         self.sync_note = ''
         self.reg_role = ui.get('reg_role', 'passenger') if ui.get('reg_role') in acc.ROLES else 'passenger'
         self.form = {}
@@ -455,8 +458,8 @@ class AtlasGoApp(App):
         self.container.clear_widgets()
         if not self.store.signed_in and self.screen not in ('welcome','login','register','privacy'):
             self.screen = 'welcome'
-        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin','wallet'),
-                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin','wallet')}
+        allowed = {'driver': ('driver','map','activity','profile','privacy','intelligence','account','twin','wallet','sos','safety'),
+                   'seller': ('seller','seller_menu','activity','profile','privacy','intelligence','account','twin','wallet','sos','safety')}
         if self.store.user and self.store.role in allowed and self.screen not in allowed[self.store.role]:
             self.screen = self.home_screen()
         if self.store.user and self.store.role == 'passenger' and self.screen in ('driver','seller','seller_menu'):
@@ -479,7 +482,7 @@ class AtlasGoApp(App):
                    'active_order':self.active_order,'activity':self.activity,'profile':self.profile,'privacy':self.privacy,
                    'intelligence':self.intelligence,'map':self.map_screen,'driver':self.driver,
                    'seller':self.seller,'seller_menu':self.seller_menu,'account':self.profile,'twin':self.twin_screen,
-                   'wallet':self.wallet_screen}
+                   'wallet':self.wallet_screen,'sos':self.sos_screen,'safety':self.safety_screen}
         screens.get(self.screen,self.home)()
         items = self.nav_items()
         if items:
@@ -503,6 +506,11 @@ class AtlasGoApp(App):
             return
         if changed:
             self.sync_soon()
+        try:
+            if self.dispatch_due():
+                return
+        except (ValueError, OSError):
+            pass
         if changed and self.screen in ('active_ride','active_order','driver','seller','map','home','activity','twin'):
             self.render()
             return
@@ -769,6 +777,7 @@ class AtlasGoApp(App):
         count = len(self.store.catalog.listed())
         self.label(food,f'{count} kitchens · bowls, pizza, comfort food and local sellers',13,MUTED)
         self.button(food,'Explore food >','home_eat',lambda:self.go('food'),False)
+        self.upcoming_card()
         if self.store.ride:
             self.button(self.body,'View active ride','home_active_ride',lambda:self.go('active_ride'))
         if self.store.order:
@@ -823,9 +832,31 @@ class AtlasGoApp(App):
             self.select(route,'SEATS NEEDED',('1 seat','2 seats'),self.party-1,'party',lambda v:self.update_selection('party',v+1))
         else:
             self.select(route,'RIDE OPTION',('ATLAS Go · everyday value','ATLAS Comfort · extra space'),int(self.comfort),'vehicle',lambda v:self.update_selection('comfort',bool(v)))
+        times = safety.when_options(dt.datetime.now())
+        self.when = min(self.when, len(times))
+        self.select(route,'WHEN',['Now']+[label for label, _ in times],self.when,'when',lambda v:self.update_selection('when',v))
+        later = times[self.when-1][1] if self.when else None
         self.button(route,'Find matching rides' if shared else 'Update estimate','find_pool' if shared else 'estimate',lambda:self.render())
         if self.pickup == self.destination:
             self.label(self.body,'Choose two different places to continue.',15,MUTED)
+            return
+        if later and not self.store.user:
+            card = self.box(self.body,AMBER)
+            self.label(card,'Pre-booking needs an account',19,INK,True)
+            self.label(card,'Create an account so the ride is kept under your name until its pickup time.',13,MUTED)
+            self.button(card,'Create an account','prebook_register',lambda:(self.store.logout(),self.go('register')))
+            return
+        if later and not shared:
+            preview = self.box(self.body)
+            self.label(preview,'PRE-BOOK · '+('ATLAS COMFORT' if self.comfort else 'ATLAS GO'),10,VIOLET,True)
+            self.label(preview,'Pickup '+later.strftime('%a %d %b at %H:%M'),21,INK,True)
+            base = fare(self.pickup,self.destination,self.comfort)
+            self.label(preview,money(base),31,GREEN,True)
+            self.label(preview,f'Price fixed now · no busy-time price · {distance(self.pickup,self.destination)} km route',12,MUTED)
+            self.pay_card(preview,True)
+            self.label(preview,'A driver is chosen 10 minutes before the pickup time; your bank is asked then. '
+                               'Keep ATLAS Go open and signed in at that time. Cancel free of charge any time before.',12,MUTED)
+            self.button(preview,'Pre-book ride','prebook_ride',lambda:self.prebook(later))
             return
         if not shared:
             preview = self.box(self.body)
@@ -846,11 +877,11 @@ class AtlasGoApp(App):
         else:
             found = [o for o in self.store.offers if o.matches(self.pickup,self.destination,self.party)]
             if found:
-                self.pay_card(self.body)
+                self.pay_card(self.body,bool(later))
             for offer in found:
                 card = self.box(self.body)
                 self.label(card,offer.driver,17,INK,True)
-                self.label(card,f'On the road now · {offer.seats} seats free',12,MUTED)
+                self.label(card,f"Runs this route at {later:%H:%M} · {offer.seats} seats free" if later else f'On the road now · {offer.seats} seats free',12,MUTED)
                 if offer.co_rider:
                     order = self.box(card,LILAC,12)
                     self.label(order,'WHO GETS OUT FIRST',10,VIOLET,True)
@@ -859,7 +890,11 @@ class AtlasGoApp(App):
                                      f'then takes you to {PLACES[offer.destination]}.',12,INK)
                 self.label(card,f'{money(offer.price)} per seat',23,GREEN,True)
                 self.label(card,f'Total for {self.party}: {money(offer.price*self.party)}',13,MUTED)
-                self.button(card,'Join shared ride','join_'+offer.id,lambda o=offer:self.book_shared(o.id))
+                if later:
+                    self.label(card,'Pickup '+later.strftime('%a %d %b at %H:%M')+' · your seats are held from now',12,VIOLET)
+                    self.button(card,'Pre-book seat' if self.party == 1 else 'Pre-book seats','prebook_'+offer.id,lambda o=offer:self.prebook(later,o.id))
+                else:
+                    self.button(card,'Join shared ride','join_'+offer.id,lambda o=offer:self.book_shared(o.id))
             if not found:
                 card = self.box(self.body)
                 self.label(card,'No matching rides right now',20,INK,True)
@@ -1010,14 +1045,186 @@ class AtlasGoApp(App):
         self.store.book(self.pickup,self.destination,offer_id=offer_id,party=self.party,pay_by_bank=self.paying_by_bank())
         self.go('active_ride')
 
+    # ------------------------------------------------------------------ pre-booked rides (1.6.0)
+    def prebook(self, when, offer_id=None):
+        self.store.prebook(self.pickup,self.destination,when.timestamp(),comfort=self.comfort,offer_id=offer_id,
+                           party=self.party if offer_id else 1,pay_by_bank=self.paying_by_bank())
+        self.when = 0
+        self.go('activity')
+        self.message('Ride pre-booked','Pickup '+when.strftime('%a %d %b at %H:%M')+'. It is listed under Activity, where you can cancel it.')
+
+    def prebook_title(self, p):
+        kind = 'Shared ride' if p['offer'] else 'ATLAS Comfort' if p['comfort'] else 'ATLAS ride'
+        return f"{kind} · {PLACES[p['pickup']]} > {PLACES[p['destination']]}"
+
+    def upcoming_card(self):
+        upcoming = self.store.my_prebooks() if self.store.user else []
+        if not upcoming:
+            return
+        box = self.box(self.body,LILAC)
+        self.label(box,'PRE-BOOKED RIDES',10,VIOLET,True)
+        for n, p in enumerate(upcoming):
+            self.label(box,safety.when_text(p['when']),19,INK,True)
+            self.label(box,self.prebook_title(p),13,INK)
+            pays = 'bank account' if p['pay_by_bank'] else 'demo checkout'
+            self.label(box,f"{money(p['fare'])} fixed · {p['party']} seat(s) · {pays} · {p['id']}",12,MUTED)
+            self.button(box,'Cancel this pre-booking',f'prebook_cancel_{n}',
+                        lambda p=p:self.message('Cancel this pre-booked ride?','Nothing has been charged. Held shared seats are released.',
+                                                lambda:(self.store.cancel_prebook(p['id']),self.render())),False)
+        self.shown['prebooks'] = [p['id'] for p in upcoming]
+
+    def dispatch_due(self, now=None):
+        """Send a driver for a pre-booked ride whose time has come (called every second by live_tick)."""
+        due = self.store.due_prebook(now)
+        if not due:
+            return False
+        choice = {}
+        if not due['offer']:
+            decision = self.decide(due['pickup'])
+            chosen = decision['choice']
+            choice = dict(driver=f'{chosen.name} · ' + ('registered driver' if chosen.account else 'ATLAS demo driver'),
+                          why=decision['why'], driver_id=chosen.account or None, start=self.start_of(chosen),
+                          twin=dict(decision['twin'], layer=2) if decision['twin'] else None, log=decision['log'])
+        booked = self.store.dispatch_prebook(due['id'], now, **choice)
+        if booked:
+            self.go('active_ride')
+            self.message('Your pre-booked ride','A driver is on the way for your '+safety.when_text(due['when'])+' pickup.')
+        else:
+            failed = next(p for p in self.store.prebooks if p['id'] == due['id'])
+            self.go('activity')
+            self.message('Pre-booked ride not started',failed.get('reason','')+' Nothing was charged.')
+        return True
+
+    # ------------------------------------------------------------------ SOS and safety (1.6.0)
+    def sos_button(self, parent, key):
+        active = self.store.active_sos()
+        button = self.button(parent,'SOS ACTIVE · open emergency screen' if active else 'SOS · emergency help',key,
+                             (lambda:self.go('sos')) if active else
+                             lambda:self.message('Raise an SOS?','ATLAS Go will record where you are and open the emergency screen, '
+                                                 'where you can call 112 and message your trusted contact.',self.raise_sos))
+        button.background_color = RED
+        button.color = WHITE
+        return button
+
+    def raise_sos(self):
+        self.store.raise_sos(point=self.gps.point if self.gps.available else None)
+        self.go('sos')
+
+    def open_link(self, uri, shown):
+        """Hand a tel: or sms: link to the phone. Away from Android, show what would be opened."""
+        self.opened.append(uri)
+        if platform == 'android' and not getattr(self,'acceptance',None):     # the debug click-through stays in the app
+            if not safety.open_uri(uri):
+                self.message('Could not open the phone app',f'Dial {safety.EMERGENCY_NUMBER} from your phone.')
+        else:
+            self.message('On a phone this opens',shown)
+
+    def call_emergency(self):
+        self.open_link(safety.dial_uri(), f'the dialler with {safety.EMERGENCY_NUMBER} filled in. You press call.')
+
+    def sos_text(self, event):
+        user = self.store.user
+        ride = self.store.ride if self.store.ride and self.store.ride['id'] == event['ride'] else \
+            next((r for r in self.store.history if r['id'] == event['ride']), None)
+        return safety.sos_message(event, user['name'] if user else '', ride, PLACES)
+
+    def message_trusted(self, event):
+        contact = self.store.user['trusted']
+        text = self.sos_text(event)
+        self.store.mark_sos_shared(event['id'])
+        self.open_link(safety.sms_uri(contact['phone'], text), f"a text message to {contact['name']}, ready to send:\n\n{text}")
+
+    def sos_screen(self):
+        event = self.store.active_sos()
+        user = self.store.user
+        if not event:
+            self.title_block('Safety','No SOS is active','In an emergency call 112 or 999.')
+            self.button(self.body,f'Call {safety.EMERGENCY_NUMBER}','sos_call',self.call_emergency)
+            self.button(self.body,'Safety settings','sos_settings',lambda:self.go('safety'),False)
+            return
+        self.title_block('Emergency','SOS is active','Raised at '+dt.datetime.fromtimestamp(event['at']).strftime('%H:%M:%S'))
+        alert = self.box(self.body,RED)
+        self.label(alert,'CALL FOR HELP NOW',11,WHITE,True)
+        self.label(alert,'ATLAS Go has no control room. This SOS does not alert the Gardaí or anyone else by itself.',14,WHITE,True)
+        call = self.button(alert,f'Call {safety.EMERGENCY_NUMBER} · emergency services','sos_call',self.call_emergency,False)
+        call.color = RED
+        contact = user.get('trusted') if user else None
+        card = self.box(self.body)
+        self.label(card,'TRUSTED CONTACT',10,GREEN,True)
+        if contact:
+            self.label(card,contact['name'],19,INK,True)
+            self.label(card,'Message sent to your messaging app' if event['shared'] else 'Not messaged yet',12,MUTED)
+            self.button(card,'Message '+contact['name'].split()[0]+' my ride and location','sos_message',lambda:self.message_trusted(event))
+            self.label(card,self.sos_text(event),11,MUTED)
+        else:
+            self.label(card,'No trusted contact saved' if user else 'Guests have no trusted contact',17,INK,True)
+            if user:
+                self.button(card,'Add a trusted contact','sos_add_contact',lambda:self.go('safety'),False)
+        where = self.box(self.body,ICE)
+        self.label(where,'WHERE YOU WERE WHEN YOU ASKED',10,CYAN,True)
+        self.label(where,f"{event['point'][0]:.5f}, {event['point'][1]:.5f}",19,INK,True)
+        self.label(where,"From this phone's location" if event['source'] == 'device' else
+                   "The car's position on the route (turn on location for your own position)",12,MUTED)
+        ride = self.store.ride if self.store.ride and self.store.ride['id'] == event['ride'] else None
+        if ride:
+            self.label(where,f"{PLACES[ride['pickup']]} > {PLACES[ride['destination']]} · {ride['driver']} · {ride['id']}",12,INK)
+            self.button(self.body,'Back to my ride','sos_back',lambda:self.go(self.home_screen() if event['role'] == 'driver' else 'active_ride'),False)
+        self.button(self.body,'I am safe · end SOS','sos_resolve',
+                    (lambda:self.message('End this SOS?','Enter your password to confirm that you are safe.',
+                                         lambda pw:(self.store.resolve_sos(event['id'],pw),self.render()),password=True)) if user else
+                    lambda:self.message('End this SOS?','Confirm that you are safe.',lambda:(self.store.resolve_sos(event['id']),self.render())),False)
+        self.shown['sos'] = event
+
+    def safety_screen(self):
+        user = self.store.user
+        self.title_block('Safety','Help when you need it','SOS during a ride · trusted contact · 112')
+        how = self.box(self.body,ICE)
+        self.label(how,'HOW SOS WORKS',10,CYAN,True)
+        self.label(how,'During a ride, passengers and drivers have a red SOS button. It records the time and place, then '
+                       'offers one tap to call 112 and one tap to text your trusted contact your ride and location. '
+                       'ATLAS Go has no control room: nobody is alerted until you call or send.',13,INK)
+        self.button(how,f'Call {safety.EMERGENCY_NUMBER} now','safety_call',self.call_emergency,False)
+        card = self.box(self.body)
+        self.label(card,'TRUSTED CONTACT',10,GREEN,True)
+        if not user:
+            self.label(card,'Create an account to save a trusted contact.',14,MUTED)
+        else:
+            contact = user.get('trusted')
+            if contact:
+                self.label(card,contact['name'],21,INK,True)
+                phone = contact['phone']
+                self.label(card,phone[:4]+'•'*max(0,len(phone)-8)+phone[-4:],14,MUTED)
+                self.button(card,'Remove trusted contact','trusted_remove',lambda:(self.store.set_trusted('',''),self.render()),False)
+            else:
+                self.field(card,'NAME','trusted_name','Niamh Murphy')
+                self.field(card,'MOBILE NUMBER','trusted_phone','087 123 4567')
+                self.button(card,'Save trusted contact','trusted_save',self.save_trusted)
+            self.label(card,'Saved on this phone only. It is used for nothing except your SOS message.',11,MUTED)
+        events = self.store.my_sos()
+        if events:
+            log = self.box(self.body)
+            self.label(log,'YOUR SOS RECORDS',10,GREEN,True)
+            for e in events[:6]:
+                when = dt.datetime.fromtimestamp(e['at']).strftime('%d %b %H:%M')
+                self.label(log,f"{when} · {e['status']} · ride {e['ride']} · {e['point'][0]:.4f}, {e['point'][1]:.4f}",12,
+                           RED if e['status'] == 'active' else INK)
+        if self.store.active_sos():
+            self.button(self.body,'Open the active SOS','safety_open_sos',lambda:self.go('sos'))
+
+    def save_trusted(self):
+        self.store.set_trusted(self.form.get('trusted_name',''),self.form.get('trusted_phone',''))
+        self.form.pop('trusted_name',None)
+        self.form.pop('trusted_phone',None)
+        self.render()
+
     def active_ride(self):
         ride = self.store.ride
         if not ride:
             self.screen = 'activity'
             self.activity()
             return
-        self.title_block('Booking confirmed',"You're sharing this ride" if ride['shared'] else 'Your ride is booked',
-                         'Live map · simulated journey')
+        self.title_block('Pre-booked ride' if ride.get('prebook') else 'Booking confirmed',
+                         "You're sharing this ride" if ride['shared'] else 'Your ride is booked','Live map · simulated journey')
         start, pickup, dest = geo.ride_legs(ride)
         self.add_map(self.body, 230, fit=[start, pickup, dest])
         self.live_label = self.label(self.body,self.live_text(),14,VIOLET,True)
@@ -1062,6 +1269,7 @@ class AtlasGoApp(App):
             self.label(self.body,'The journey moves on its own. Skip ahead to jump to the next stage.',13,MUTED)
             last = geo.last_stage(ride)
             self.button(self.body,'Complete ride' if ride['stage']==last else 'Skip to next stage','ride_next',self.next_ride)
+        self.sos_button(self.body,'ride_sos')
         self.button(self.body,'Cancel ride','ride_cancel',lambda:self.message('Cancel this ride?','Your reserved shared seats will be released.',self.cancel_ride),False)
 
     def shared_stops(self, ride, co):
@@ -1151,6 +1359,7 @@ class AtlasGoApp(App):
                 self.add_map(card, 200, fit=[start, pickup, dest])
                 self.live_label = self.label(card,self.live_text(),13,VIOLET,True)
                 self.button(card,('I have arrived at pickup','Start trip','Complete trip')[job['stage']],'job_next',self.job_next)
+                self.sos_button(card,'job_sos')
         stats = self.box(self.body)
         self.label(stats,'YOUR WEEK',10,GREEN,True)
         rate = ai.acceptance(d['offered'], d['accepted'])
@@ -1383,7 +1592,7 @@ class AtlasGoApp(App):
     def paying_by_bank(self):
         return bool(self.pay_bank and self.store.user and self.store.role == 'passenger' and self.bank())
 
-    def pay_card(self, parent):
+    def pay_card(self, parent, later=False):
         """How the booking on this screen will be paid: the linked bank account or the demo checkout."""
         bank = self.bank()
         box = self.box(parent,ICE,12)
@@ -1391,7 +1600,8 @@ class AtlasGoApp(App):
         if bank:
             self.select(box,'PAY WITH',('Bank account '+bank['masked'],'Demo · no charge'),0 if self.pay_bank else 1,
                         'pay_with',lambda v:self.update_selection('pay_bank',v == 0))
-            self.label(box,'Your bank is asked when you book; the money is taken only when you arrive, and the '
+            self.label(box,('Your bank is asked when the driver is sent, not now; ' if later else 'Your bank is asked when you book; ')+
+                           'the money is taken only when you arrive, and the '
                            'authorisation is released if you cancel. Sandbox bank: no real money moves.' if self.pay_bank
                        else 'Nothing is charged for this booking.',11,MUTED)
         elif self.store.user:
@@ -1656,6 +1866,15 @@ class AtlasGoApp(App):
             self.button(self.body,'Active ride · view journey','activity_ride',lambda:self.go('active_ride'))
         if self.store.order and role == 'passenger':
             self.button(self.body,'Active food order · track','activity_order',lambda:self.go('active_order'))
+        if role == 'passenger':
+            self.upcoming_card()
+            for p in (self.store.my_prebooks(upcoming=False) if self.store.user else [])[:4]:
+                if p['status'] in ('missed','failed','cancelled'):
+                    card = self.box(self.body)
+                    self.label(card,'Pre-booked ride · '+p['status'],17,SURGE if p['status'] != 'cancelled' else MUTED,True)
+                    self.label(card,safety.when_text(p['when'])+' · '+self.prebook_title(p),13,MUTED)
+                    if p.get('reason'):
+                        self.label(card,p['reason']+' Nothing was charged.',12,MUTED)
         records = self.store.my_history()
         if not records:
             self.label(self.body,'Your story starts here.' + (' Try a ride or a food order.' if role == 'passenger' else ''),16,MUTED)
@@ -1672,6 +1891,8 @@ class AtlasGoApp(App):
                            else f"Shared with {co['name']}",12,VIOLET)
             if not is_food and (record.get('twin') or {}).get('rollouts'):
                 self.label(card,'Twin-tested by Agent 1 · checked by the Guardian',12,CYAN)
+            if record.get('prebook'):
+                self.label(card,'Pre-booked · fare fixed in advance',12,VIOLET)
             self.payment_line(card, record)
             self.label(card,record['id'],10,MUTED)
 
@@ -1696,6 +1917,7 @@ class AtlasGoApp(App):
             self.button(self.body,'Sign in','profile_login',lambda:(self.store.logout(),self.go('login')),False)
         if user:
             self.button(self.body,'Bank & payments','profile_wallet',lambda:self.go('wallet'),False)
+        self.button(self.body,'Safety & SOS','profile_safety',lambda:self.go('safety'),False)
         self.button(self.body,'How ATLAS learns','profile_learn',lambda:self.go('intelligence'),False)
         self.button(self.body,'Privacy & how this app works','privacy',lambda:self.go('privacy'),False)
         if user:
@@ -1703,7 +1925,7 @@ class AtlasGoApp(App):
                         'Enter your password. Your profile is removed from this phone; past trips stay anonymised.',
                         self.delete_account,password=True),False)
         self.button(self.body,'Erase all data on this phone','reset',lambda:self.message('Erase everything?','Delete all accounts, rides, orders, kitchens and the basket on this phone.',self.reset),False)
-        self.label(self.body,'Project help: github.com/FUllSCIPTS/ATLAS/issues\nATLAS Go does not provide emergency transport or live customer support.',13,MUTED)
+        self.label(self.body,'Project help: github.com/FUllSCIPTS/ATLAS/issues\nATLAS Go does not provide emergency transport or live customer support. In an emergency call 112.',13,MUTED)
 
     def reset(self):
         self.gps.stop()
@@ -1714,6 +1936,7 @@ class AtlasGoApp(App):
         self.outlook_day, self.lab, self.models, self.form, self.reg_role = 0, None, None, {}, 'passenger'
         self.layer2_checks = None
         self.pay_bank, self.sync_note = True, ''
+        self.when, self.opened = 0, []
         self.go('welcome')
 
     def privacy(self):
@@ -1724,6 +1947,10 @@ class AtlasGoApp(App):
             ('Bank account, if you link one','You type your IBAN once. It is checked and then dropped: this phone keeps only '
              'the account holder, the country and the last four characters, plus your Direct Debit mandate reference. '
              'Linking, removing and paying out ask for your password again. The bank is a sandbox: no real money moves.'),
+            ('Pre-booked rides and SOS','A pre-booked ride (route, time, fixed fare) is kept on this phone until it runs or you cancel it. '
+             'If you save a trusted contact, their name and number stay on this phone and are used only to address your SOS message. '
+             'Raising an SOS stores the time and your position on this phone. Nothing is sent by ATLAS Go: you place the 112 call '
+             'and send the text yourself, in your phone\'s dialler and messaging app. Deleting your account removes all three.'),
             ('ATLAS server, only if you connect','Nothing is sent to a server unless you enter a server address and connect '
              'your account in You > Bank & payments. Then your name, email, mobile, role details, password (over HTTPS, '
              'stored only as a salted hash), bank details and your bank payments and payouts are kept in that server\'s '

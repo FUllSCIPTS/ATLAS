@@ -9,6 +9,7 @@ from pathlib import Path
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.utils import platform
+from .domain import fare
 from .store import LocalStore
 from . import intelligence as ai
 from . import twin as layer2
@@ -357,13 +358,73 @@ class Acceptance:
             lambda:self.check(pay.wallet(self.account(sel)['id'],S.payments,S.payouts)['balance']==765,
                               'Seller is owed the food total minus the 10% fee; delivery fee stays with ATLAS'),
             lambda:self.check(len(S.my_history())==2,'Passenger history has their ride and order'),
+            # ---- pre-booked rides (1.6.0): a solo ride and a shared seat for later, kept under the account
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),
+            lambda:setattr(a.controls['pickup'],'text','UCC Campus'),lambda:setattr(a.controls['destination'],'text','Kent Station'),
+            lambda:setattr(a.controls['when'],'text','In 1 hour'),
+            lambda:self.check('prebook_ride' in a.controls and 'book_ride' not in a.controls,'Choosing a later time turns Book into Pre-book'),
+            lambda:self.capture('34-prebook-ride'),lambda:self.click('prebook_ride'),
+            lambda:self.check(len(S.my_prebooks())==1 and S.my_prebooks()[0]['fare']==fare(0,2) and S.ride is None
+                              and len(S.payments)==2 and a.screen=='activity','Solo ride pre-booked at the ordinary fare; nothing charged yet'),
+            lambda:self.click('dialog_confirm'),
+            lambda:self.click('nav_home'),lambda:self.click('home_pool'),
+            lambda:setattr(a.controls['pickup'],'text','Cork City Centre'),lambda:setattr(a.controls['destination'],'text','Cork Airport'),
+            lambda:setattr(a.controls['party'],'text','2 seats'),lambda:setattr(a.controls['when'],'text','In 2 hours'),
+            lambda:self.check('prebook_pool-3' in a.controls and 'join_pool-3' not in a.controls,'Shared ride offers Pre-book for a later time'),
+            lambda:self.click('prebook_pool-3'),
+            lambda:self.check(S.offers[2].seats==1 and LocalStore(S.path).offers[2].seats==1 and len(LocalStore(S.path).prebooks)==2,
+                              'Two shared seats are held for the pre-booking and persist'),
+            lambda:self.click('dialog_confirm'),
+            lambda:self.check(a.shown['prebooks']==[p['id'] for p in S.my_prebooks()] and 'prebook_cancel_1' in a.controls,
+                              'Activity lists both pre-booked rides, soonest first'),
+            lambda:self.capture('35-prebooked-rides'),
+            # ---- safety: trusted contact
+            lambda:self.click('nav_profile'),lambda:self.click('profile_safety'),
+            lambda:self.fill(trusted_name='Niamh Murphy',trusted_phone='12'),lambda:self.click('trusted_save'),
+            lambda:self.check('trusted' not in S.user,'Invalid trusted-contact number is rejected'),
+            lambda:self.click('dialog_confirm'),lambda:self.fill(trusted_phone='087 123 4567'),lambda:self.click('trusted_save'),
+            lambda:self.check(S.user['trusted']==dict(name='Niamh Murphy',phone='+353871234567'),'Trusted contact saved'),
+            # ---- ten minutes before pickup the pre-booked ride becomes the active ride
+            lambda:self.check(not a.dispatch_due(now=S.my_prebooks()[0]['when']-601) and S.ride is None,'Pre-booked ride waits for its time'),
+            lambda:a.dispatch_due(now=S.my_prebooks()[0]['when']-600),
+            lambda:self.check(S.ride is not None and S.ride.get('prebook') and S.ride['fare']==fare(0,2) and a.screen=='active_ride'
+                              and len(S.my_prebooks())==1,'Pre-booked ride dispatched at the fixed fare'),
+            lambda:self.check(S.payments[-1]['status']=='authorised' and S.payments[-1]['amount']==fare(0,2),
+                              'Bank authorised at dispatch, not when pre-booking'),
+            lambda:self.click('dialog_confirm'),
+            # ---- SOS during the ride
+            lambda:self.click('ride_sos'),
+            lambda:self.check(not S.sos,'SOS asks before it is raised'),
+            lambda:self.click('dialog_confirm'),
+            lambda:self.check(a.screen=='sos' and S.active_sos()['ride']==S.ride['id'] and S.active_sos()['role']=='passenger'
+                              and LocalStore(S.path).sos[0]['status']=='active','SOS recorded with ride, time and place'),
+            lambda:self.capture('36-sos'),
+            lambda:self.click('sos_call'),
+            lambda:self.check(a.opened[-1]=='tel:112','Call button hands 112 to the dialler'),
+            lambda:self.click('dialog_confirm'),lambda:self.click('sos_message'),
+            lambda:self.check(a.opened[-1].startswith('sms:+353871234567?body=SOS%20from%20Aoife%20Rider') and S.active_sos()['shared'],
+                              'Trusted contact message prepared with ride and location'),
+            lambda:self.click('dialog_confirm'),lambda:self.click('sos_resolve'),
+            lambda:setattr(a.controls['dialog_password'],'text','wrong-pass1'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(S.active_sos() is not None,'Ending an SOS needs the account password'),
+            lambda:self.click('dialog_confirm'),lambda:self.click('sos_resolve'),
+            lambda:setattr(a.controls['dialog_password'],'text','ride2026x'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(S.active_sos() is None and S.sos[0]['status']=='resolved','SOS ended by the passenger'),
+            lambda:self.click('nav_activity'),lambda:self.click('activity_ride'),
+            lambda:self.click('ride_cancel'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(S.ride is None and S.payments[-1]['status']=='voided','Cancelled pre-booked ride releases the authorisation'),
+            lambda:self.click('nav_activity'),lambda:self.click('prebook_cancel_0'),lambda:self.click('dialog_confirm'),
+            lambda:self.check(S.offers[2].seats==3 and not S.my_prebooks(),'Cancelling the shared pre-booking releases its seats'),
+            lambda:self.click('nav_home'),lambda:self.click('home_ride'),
+            lambda:setattr(a.controls['pickup'],'text','UCC Campus'),lambda:setattr(a.controls['destination'],'text','Cork City Centre'),
+            lambda:self.check('book_ride' in a.controls and 'prebook_ride' not in a.controls,'Booking screen is back to "Now" after pre-booking'),
             # ---- account deletion
             lambda:self.click('nav_profile'),lambda:self.click('delete_account'),
             lambda:setattr(a.controls['dialog_password'],'text','ride2026x'),lambda:self.click('dialog_confirm'),
             lambda:self.check(a.screen=='welcome' and len(S.accounts)==2,'Passenger deleted their account'),
             lambda:self.check(LocalStore(S.path).session is None and len(LocalStore(S.path).accounts)==2,'Deletion persists'),
-            lambda:self.check(all(p['payer']=='deleted' for p in S.payments) and len(S.payments)==2,
-                              'Deleted passenger is removed from the payment records; amounts stay for the ledger'),
+            lambda:self.check(all(p['payer']=='deleted' for p in S.payments) and len(S.payments)==3 and not S.prebooks and not S.sos,
+                              'Deleted passenger is removed from the payment records; their pre-bookings and SOS records go'),
         ]
         self.steps += [
             lambda:self.click('welcome_guest'),lambda:self.click('home_ride'),

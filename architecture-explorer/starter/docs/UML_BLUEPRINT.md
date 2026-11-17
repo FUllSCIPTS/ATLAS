@@ -2,7 +2,7 @@
 
 Use this blueprint to reproduce or extend ATLAS end to end. It covers four layers:
 
-- **Android app** — ATLAS Go 1.5.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab); since 1.3.0 a digital twin with three agents (dispatch, pricing + moves, Guardian) on top of them, and since 1.4.0 a live LSTM → RL loop that retrains and validates itself on the phone ([two learning layers](#atlas-go-1-4-two-learning-layers)); and since 1.5.0 bank payments and payouts for passengers, drivers and food sellers, with a sandbox bank ([bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server)).
+- **Android app** — ATLAS Go 1.6.0, the Python/Kivy app on the `main` branch ([`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app)): passenger, driver and food-seller accounts, a live map with device location, solo and shared rides, food ordering from built-in and seller kitchens, stored on the device, plus six on-device models (dispatch policy, acceptance, surge outlook, supply agent, courier timing, learning lab); since 1.3.0 a digital twin with three agents (dispatch, pricing + moves, Guardian) on top of them, and since 1.4.0 a live LSTM → RL loop that retrains and validates itself on the phone ([two learning layers](#atlas-go-1-4-two-learning-layers)); and since 1.5.0 bank payments and payouts for passengers, drivers and food sellers, with a sandbox bank ([bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server)).
 - **Web front end** — the passenger and driver browser pages served by the gateway in this starter.
 - **Back end** — the FastAPI gateway, trip, dispatch and model services, the event worker, Kafka, and ML training and serving in this starter; and, on `main`, the **ATLAS Go server** ([`android-app/server/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app/server), FastAPI + PostgreSQL, 1.5.0) for accounts, bank accounts, payments, the ledger and payouts.
 - **Databases** — the device's `state.json` (accounts, kitchens, rides, orders) and map-tile cache, the starter's PostgreSQL (or local SQLite) schema, the ATLAS Go server's PostgreSQL schema (accounts, sessions, bank accounts, payments, ledger, payouts, outbox, audit log), the Kafka event log and the model artifact volume.
@@ -152,6 +152,8 @@ architecture-explorer/
 │   │   │       ├── uml-payment-classes-phone-client-and-server-.svg
 │   │   │       ├── uml-payment-lifecycle-1-5-0.svg
 │   │   │       ├── uml-persistence-model.svg
+│   │   │       ├── uml-pre-book-and-dispatch-1-6-0.svg
+│   │   │       ├── uml-pre-booked-ride-lifecycle-1-6-0.svg
 │   │   │       ├── uml-proposed-back-end-extensions-for-the-and.svg
 │   │   │       ├── uml-registration-and-sign-in.svg
 │   │   │       ├── uml-repository-boundary.svg
@@ -160,6 +162,7 @@ architecture-explorer/
 │   │   │       ├── uml-screen-navigation.svg
 │   │   │       ├── uml-server-registration-bank-link-and-payout.svg
 │   │   │       ├── uml-shared-ride-with-a-rider-on-board-1-3-0.svg
+│   │   │       ├── uml-sos-during-a-ride-1-6-0.svg
 │   │   │       ├── uml-system-overview-apps-front-end-back-end-.svg
 │   │   │       ├── uml-training-serving-and-approval.svg
 │   │   │       └── uml-trip-state-machine.svg
@@ -209,20 +212,22 @@ architecture-explorer/
 
 ## Android app (ATLAS Go)
 
-The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.5.0** (versionCode 6). **1.5.0** adds bank payments and payouts (`payments.py`, a sandbox bank), a client for the ATLAS Go server (`backend.py`) and the server itself (`server/`, FastAPI + PostgreSQL); see [bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server). **1.4.0** added Layer 1's live loop — the LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are recorded and both models are retrained nightly and kept only if validated (`loop.py`, `lstm_weights.py`). **1.3.0** added Layer 2 — a digital twin of Cork with Agent 1 (dispatch), Agent 2 (pricing and moves) and Agent 3 (Guardian) on top of the unchanged models (`twin.py`) — and the four-stage shared ride (the rider already on board is dropped first). **1.2.0** (versionCode 3) added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · downloads and SHA256SUMS: [1.4.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) · [two learning layers](#atlas-go-1-4-two-learning-layers).
+The Android app lives on the `main` branch at [`android-app/`](https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app). This section describes version **1.6.0** (versionCode 6). **1.5.0** adds bank payments and payouts (`payments.py`, a sandbox bank), a client for the ATLAS Go server (`backend.py`) and the server itself (`server/`, FastAPI + PostgreSQL); see [bank payments and the server](#atlas-go-15-bank-payments-and-the-postgresql-server). **1.4.0** added Layer 1's live loop — the LSTM forecasts every city hour, the RL supply agent acts on the forecast, outcomes are recorded and both models are retrained nightly and kept only if validated (`loop.py`, `lstm_weights.py`). **1.3.0** added Layer 2 — a digital twin of Cork with Agent 1 (dispatch), Agent 2 (pricing and moves) and Agent 3 (Guardian) on top of the unchanged models (`twin.py`) — and the four-stage shared ride (the rider already on board is dropped first). **1.2.0** (versionCode 3) added passenger, driver and food-seller accounts, a live map with device location, time-lapse live journeys, and connects all six on-device models to those flows. Every screen, rule, storage operation and test is Python. Accounts and bookings live on one phone; the only network traffic is map tiles from OpenStreetMap. [changelog](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/CHANGELOG.md) · [app architecture](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md) · downloads and SHA256SUMS: [1.4.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md) · [1.3.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.3.0/README.md) · [1.2.0](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md) · [two learning layers](#atlas-go-1-4-two-learning-layers).
 
 ```text
 android-app/
 ├── main.py                 Entry point; sets the desktop preview size, starts AtlasGoApp
-├── buildozer.spec          1.5.0 / versionCode 6; API 36, min API 26; arm64-v8a + x86_64;
+├── buildozer.spec          1.6.0 / versionCode 7; API 36, min API 26; arm64-v8a + x86_64;
 │                           INTERNET, ACCESS_NETWORK_STATE, ACCESS_FINE/COARSE_LOCATION (foreground)
 ├── CHANGELOG.md
 ├── atlas_go/
-│   ├── __init__.py         Version (1.5.0)
+│   ├── __init__.py         Version (1.6.0)
 │   ├── accounts.py         Roles, field validation, PBKDF2-HMAC-SHA256 hashing          (new)
 │   ├── domain.py           Places, fares, Dish, Offer, Kitchen, Catalog, Cart
 │   ├── geo.py              Cork coordinates, Web-Mercator tiles, live journey positions  (new)
-│   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, payments, payouts, tick()
+│   ├── store.py            LocalStore: accounts, sessions, rides, orders, kitchens, payments, payouts,
+│   │                       pre-booked rides, SOS records, tick()
+│   ├── safety.py           Pre-booking time rules and offered times; SOS: 112 and SMS links, message, validation (1.6.0)
 │   ├── payments.py         IBAN rules, sandbox bank, payment lifecycle, fee split, double-entry ledger (1.5.0)
 │   ├── backend.py          Client for the ATLAS Go server: connect, link bank, outbox sync, payouts   (1.5.0)
 │   ├── intelligence.py     Calendar, outlook, dispatch, acceptance, courier, LearningLab, self_test
@@ -234,7 +239,8 @@ android-app/
 │   ├── location.py         DeviceLocation: runtime permission, LocationManager via pyjnius (new)
 │   ├── app.py              AtlasGoApp and widgets: role-aware Kivy screens
 │   └── acceptance.py       Debug-only UI click-through and screenshot capture
-├── tests/                  244 tests: domain, intelligence, accounts/geo, roles, shared rides, twin, loop, payments, backend
+├── tests/                  300 tests: domain, intelligence, accounts/geo, roles, shared rides, twin, loop, payments, backend,
+│                           pre-booking and SOS (test_prebook_sos.py, 1.6.0)
 ├── server/                 ATLAS Go server (1.5.0): app.py, db.py, security.py, bank.py, migrations/, roles.sql,
 │                           59 tests on PostgreSQL, Dockerfile, compose.yaml (not packaged in the APK)
 ├── training/               Development-only simulations and exporters, incl. export_lstm.py (numpy; excluded from the APK)
@@ -274,6 +280,9 @@ flowchart LR
     X["Acceptance<br/>debug builds only"] --> U
     L --> PAY["payments.py (1.5.0)<br/>IBAN · sandbox bank · lifecycle · ledger"]
     U --> BE["backend.py (1.5.0)<br/>connect · outbox sync · payouts"]
+    L --> SAF["safety.py (1.6.0)<br/>pre-book time rules · SOS records"]
+    U --> SAF
+    SAF -. "tel:112 · sms: (user confirms there)" .-> PH[("Phone dialler and<br/>messaging app")]
     BE -. "HTTPS · only when connected" .-> SRV[("ATLAS Go server<br/>FastAPI · PostgreSQL")]
 ```
 
@@ -324,7 +333,10 @@ classDiagram
         +driver() job_accept() job_decline() job_next()
         +seller() seller_menu() add_dish()
         +food() menu() cart() checkout() active_order() next_order()
-        +wallet_screen() pay_card(parent) balance_card()
+        +wallet_screen() pay_card(parent, later) balance_card()
+        +prebook(when, offer_id) upcoming_card() dispatch_due(now)
+        +sos_button(parent, key) raise_sos() sos_screen() safety_screen()
+        +open_link(uri, shown) call_emergency() message_trusted(event) save_trusted()
         +submit_bank() remove_bank(password) payout(password)
         +connect_server(password) sync_soon() remote(task, done)
         +activity() profile() privacy() reset()
@@ -371,6 +383,8 @@ classDiagram
         +list payments
         +list payouts
         +str server_url
+        +list prebooks
+        +list sos
         +register(role, name, email, phone, password, ...) dict
         +login(email, password, now) dict
         +logout() continue_as_guest()
@@ -403,6 +417,15 @@ classDiagram
         +set_server(url) connect(id, token) disconnect()
         +unsynced() list
         +mark_synced(record_id, server_id, error)
+        +prebook(pickup, destination, when, comfort, offer_id, party, pay_by_bank, now) dict
+        +cancel_prebook(prebook_id) my_prebooks(upcoming) list
+        +due_prebook(now) dict
+        +dispatch_prebook(prebook_id, now, choice) bool
+        +set_trusted(name, phone) dict
+        +sos_ride() dict
+        +raise_sos(now, point) dict
+        +active_sos() my_sos()
+        +mark_sos_shared(sos_id) resolve_sos(sos_id, password, now)
         +validate(data)$
     }
     class Catalog {
@@ -515,6 +538,11 @@ stateDiagram-v2
         home --> map
         ride --> active_ride : book_solo
         share --> active_ride : book_shared
+        ride --> activity : When later · Pre-book ride (1.6.0)
+        share --> activity : When later · Pre-book seat (1.6.0)
+        activity --> active_ride : dispatch_due · 10 min before pickup
+        active_ride --> sos : SOS · confirm (1.6.0)
+        sos --> active_ride : Back to my ride
         food --> menu
         menu --> cart
         cart --> active_order : checkout
@@ -534,6 +562,10 @@ stateDiagram-v2
     profile --> welcome : Sign out · Delete account · Erase all
     profile --> intelligence : How ATLAS learns
     profile --> wallet : Bank & payments (1.5.0)
+    profile --> safety : Safety & SOS (1.6.0)
+    safety --> sos : Open the active SOS
+    sos --> safety : Add a trusted contact
+    driver --> sos : SOS on the trip card
     driver --> wallet : Bank & payouts
     seller --> wallet : Bank & payouts
     ride --> wallet : Add a bank account
@@ -556,6 +588,8 @@ stateDiagram-v2
     state "Ride" as R {
         [*] --> pending : book with a registered driver
         [*] --> on_the_way : book with a simulated driver or shared offer
+        [*] --> pending : pre-booking dispatched with a registered driver (1.6.0)
+        [*] --> on_the_way : pre-booking dispatched (1.6.0)
         pending --> on_the_way : driver accepts
         pending --> pending : driver declines · next registered driver
         pending --> on_the_way : declines · next simulated driver
@@ -579,7 +613,7 @@ stateDiagram-v2
 
 </details>
 
-`stage` stays 0..2 as in 1.1.0; `pending` marks the waiting states. Legs are straight lines at 25 km/h played 10× faster (`geo.leg_seconds`). *Skip to next stage* still advances simulated journeys by hand. On completion a registered driver's `earnings` and `trips` increase; on delivery a seller kitchen's `orders` and `sales` (food total without the €2.50 delivery fee) increase.
+A ride dispatched from a pre-booking (1.6.0) enters this lifecycle through the same `book` command and carries `prebook`; the states before that are in [Pre-booked ride lifecycle](#pre-booked-ride-lifecycle-160). `stage` stays 0..2 as in 1.1.0; `pending` marks the waiting states. Legs are straight lines at 25 km/h played 10× faster (`geo.leg_seconds`). *Skip to next stage* still advances simulated journeys by hand. On completion a registered driver's `earnings` and `trips` increase; on delivery a seller kitchen's `orders` and `sales` (food total without the €2.50 delivery fee) increase.
 
 ### On-device data model (`state.json`)
 
@@ -591,6 +625,14 @@ One JSON document in app-private storage, saved via `state.tmp` + `fsync` + atom
 
 ```text
 erDiagram
+    STATE ||--o{ PREBOOK : "prebooks (1.6.0)"
+    STATE ||--o{ SOS_EVENT : "sos (1.6.0)"
+    ACCOUNT ||--o| TRUSTED_CONTACT : "trusted (1.6.0)"
+    PREBOOK }o--|| ACCOUNT : "account"
+    PREBOOK }o--o| OFFER : "offer (seats held)"
+    PREBOOK ||--o| RIDE : "ride after dispatch"
+    SOS_EVENT }o--o| ACCOUNT : "account (none for a guest)"
+    SOS_EVENT }o--|| RIDE : "ride"
     STATE ||--o{ PAYMENT : "payments (1.5.0)"
     STATE ||--o{ PAYOUT : "payouts (1.5.0)"
     ACCOUNT ||--o| BANK : "bank (1.5.0)"
@@ -685,6 +727,7 @@ erDiagram
         array declined "account ids"
         string passenger "account id, null for guest"
         string why "dispatch explanation"
+        string prebook "pre-booking id, when the ride came from one (1.6.0)"
         object live "start lat-lon, t stage start"
         int fare "cents"
         int stage "0..2"
@@ -758,11 +801,43 @@ erDiagram
         string id "server account id"
         string token "session token"
     }
+    PREBOOK {
+        string id "B- plus nanosecond timestamp"
+        string account "passenger account id"
+        int pickup
+        int destination
+        int when "pickup time, 15 min to 7 days after created"
+        int created
+        bool comfort
+        string offer "shared offer id or null"
+        int party "1 or 2 seats"
+        int fare "cents, fixed when pre-booked"
+        bool pay_by_bank "asked at dispatch"
+        string status "scheduled, dispatched, cancelled, missed or failed"
+        string ride "ride id after dispatch"
+        string reason "why it failed or was missed"
+    }
+    SOS_EVENT {
+        string id "S- plus nanosecond timestamp"
+        string account "who raised it, null for a guest"
+        string role "passenger or driver"
+        string ride "ride id"
+        int at "when it was raised"
+        array point "lat-lon rounded to 5 decimals"
+        string source "device or route"
+        bool shared "trusted-contact message opened"
+        string status "active or resolved"
+        int resolved "when it was ended"
+    }
+    TRUSTED_CONTACT {
+        string name
+        string phone "E.164"
+    }
 ```
 
 </details>
 
-Account deletion removes the account, replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock). Since 1.5.0 `validate` also rebuilds the double-entry ledger from `payments` and `payouts` and rejects the file if it does not balance, if payouts exceed earnings, or if a booking's payment is missing, has another amount or contradicts the booking's status; deletion is refused while a balance is waiting to be paid out, and replaces the payer id in payments with `deleted`. `state.json` also holds `server_url` (empty = this phone only).
+Account deletion removes the account, its pre-booked rides (releasing held seats), trusted contact and SOS records (1.6.0), replaces its id in history with `deleted`, and closes the seller's kitchen (owner `deleted`, registration removed) so past orders keep a name. Sign-in failures are counted in memory only (five failures → 60-second lock). Since 1.5.0 `validate` also rebuilds the double-entry ledger from `payments` and `payouts` and rejects the file if it does not balance, if payouts exceed earnings, or if a booking's payment is missing, has another amount or contradicts the booking's status; deletion is refused while a balance is waiting to be paid out, and replaces the payer id in payments with `deleted`. `state.json` also holds `server_url` (empty = this phone only).
 
 ### Registration and sign-in
 
@@ -1681,6 +1756,132 @@ Defined in [`server/migrations/001_accounts_payments.sql`](https://github.com/FU
 
 Verification: 244 app unit tests (71 for payments and the client), 353 desktop UI assertions including linking, paying and paying out, 59 server tests on PostgreSQL 16 (idempotency and payout races, ledger triggers, the least-privilege role, a scan of every table for secrets, and the phone syncing over HTTP), and a connected-mode UI run checked against the database.
 
+### ATLAS Go 1.6: pre-booked rides and SOS
+
+ATLAS Go 1.6.0 adds three things that 1.5.0 did not have. Source: [`atlas_go/safety.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py), the *pre-booked rides* and *SOS and trusted contact* sections of [`atlas_go/store.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py) and [`atlas_go/app.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py), tests in [`tests/test_prebook_sos.py`](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_prebook_sos.py). The functions are listed in the catalogue under [Security → Identity & roles](#security--identity--roles).
+
+| Capability | 1.5.0 | 1.6.0 |
+| --- | --- | --- |
+| Pre-book an ordinary ride | None (a ride starts at once) | `LocalStore.prebook` 15 minutes to 7 days ahead; fare fixed at the ordinary fare; dispatched by `dispatch_prebook` 10 minutes before pickup |
+| Pre-book a shared ride | None | Same command with `offer_id`; one or two seats are reserved at once and released by `cancel_prebook`, a failed dispatch or a missed pickup |
+| SOS | None | `raise_sos` during a ride for the passenger (or guest) and the registered driver; **Call 112** and **Message my trusted contact** open the phone's dialler and messaging app; `resolve_sos` needs the password |
+
+Limits stated in the app: the phone is the scheduler (ATLAS Go must be open and signed in around the pickup time), and SOS is not monitored by anyone.
+
+### Pre-booked ride lifecycle (1.6.0)
+
+![State diagram: Pre-booked ride lifecycle (1.6.0)](img/uml/uml-pre-booked-ride-lifecycle-1-6-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+stateDiagram-v2
+    [*] --> scheduled : prebook() · account, time window, limits · shared seats reserved
+    scheduled --> scheduled : due_prebook() is None until 10 min before pickup · or while another ride is active
+    scheduled --> dispatched : dispatch_prebook() · held seats released · book() reserves, prices, authorises
+    scheduled --> failed : dispatch_prebook() · book() raises (bank declined, seats) · state restored · seats released
+    scheduled --> cancelled : cancel_prebook() by the owner · seats released
+    scheduled --> missed : tick() later than pickup + 30 min · seats released
+    dispatched --> [*] : ride record carries prebook = id · ordinary ride lifecycle follows
+    failed --> [*] : reason kept for Activity · nothing charged
+    cancelled --> [*]
+    missed --> [*]
+```
+
+</details>
+
+Only `scheduled` holds seats. `LocalStore.validate` adds up the seats of scheduled shared pre-bookings per offer and refuses a file in which fewer seats are taken than are held.
+
+### Pre-book and dispatch (1.6.0)
+
+![Sequence diagram: Pre-book and dispatch (1.6.0)](img/uml/uml-pre-book-and-dispatch-1-6-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    actor P as Passenger
+    participant UI as AtlasGoApp
+    participant SF as safety.py
+    participant ST as LocalStore
+    participant OF as Offer (shared)
+    participant PAY as payments.py · sandbox bank
+    P->>UI: Ride or Share ride · When = In 1 hour
+    UI->>SF: when_options(now)
+    P->>UI: Pre-book ride / Pre-book seat
+    UI->>ST: prebook(pickup, destination, when, comfort, offer_id, party, pay_by_bank)
+    ST->>SF: check_when(when, now)
+    Note over ST: passenger account · at most 3 · 30 min apart · bank linked if pay_by_bank
+    opt shared ride
+        ST->>OF: reserve(party)
+    end
+    ST->>ST: append PREBOOK scheduled · fare fixed · commit (atomic save)
+    UI-->>P: Activity: pre-booked rides, soonest first
+    loop every second (live_tick)
+        UI->>ST: due_prebook(now)
+    end
+    Note over UI,ST: now is at least when minus 10 min, and no active ride
+    UI->>UI: decide(pickup) · Layer 1 policy · Layer 2 twin if on
+    UI->>ST: dispatch_prebook(id, now, driver choice)
+    opt shared ride
+        ST->>OF: release(party)
+    end
+    ST->>ST: book(...) at the fixed fare
+    opt pay by bank
+        ST->>PAY: authorise(fare)
+        PAY-->>ST: authorised or declined
+    end
+    alt booked
+        ST->>ST: ride.prebook = id · PREBOOK dispatched · commit
+        UI-->>P: Live ride · "Pre-booked ride"
+    else book() refused
+        ST->>ST: restore snapshot · release seats · PREBOOK failed + reason · commit
+        UI-->>P: "Pre-booked ride not started · nothing was charged"
+    end
+```
+
+</details>
+
+### SOS during a ride (1.6.0)
+
+![Sequence diagram: SOS during a ride (1.6.0)](img/uml/uml-sos-during-a-ride-1-6-0.svg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
+```text
+sequenceDiagram
+    actor U as Passenger or driver
+    participant UI as AtlasGoApp
+    participant ST as LocalStore
+    participant SF as safety.py
+    participant OS as Android (dialler · messaging app)
+    actor T as Trusted contact
+    U->>UI: SOS · emergency help
+    UI-->>U: "Raise an SOS?" (confirm)
+    U->>UI: Confirm
+    UI->>ST: raise_sos(point = phone location or none)
+    Note over ST: only the ride's passenger, guest or driver · one per ride
+    ST->>ST: SOS_EVENT active · ride, role, time, position (device or route) · commit
+    UI-->>U: Emergency screen: "no control room · this does not alert anyone by itself"
+    U->>UI: Call 112
+    UI->>SF: dial_uri() → tel:112
+    UI->>OS: ACTION_DIAL (no CALL_PHONE permission)
+    OS-->>U: dialler with 112 filled in · user presses call
+    U->>UI: Message my trusted contact
+    UI->>SF: sos_message(event, name, ride) · sms_uri(phone, text)
+    UI->>ST: mark_sos_shared(id)
+    UI->>OS: ACTION_SENDTO sms: (no SEND_SMS permission)
+    OS-->>U: messaging app with the text filled in · user presses send
+    OS-->>T: SMS: name, route, driver, time, map link
+    U->>UI: I am safe · end SOS + password
+    UI->>ST: resolve_sos(id, password)
+    ST->>ST: verify password · SOS_EVENT resolved · commit
+```
+
+</details>
+
+Neither intent places a call or sends a message: each opens another app with the fields filled in, which is why the manifest keeps its four permissions and `scripts/check-manifest.py` fails the release if `CALL_PHONE` or `SEND_SMS` appears. An SOS record is visible only to the account that raised it (`LocalStore._own_sos`), and `delete_account` removes the account's pre-bookings, trusted contact and SOS records.
+
 ## Component and deployment boundaries
 
 Only the gateway is published on the host loopback interface in the starter. The trip, dispatch and model APIs run on the internal network. The same event worker performs outbox relay and event consumption in this demo.
@@ -2310,7 +2511,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pw-verify"></a>Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
 | <a name="sec-pw-policy"></a>Password policy (8–128, letter + digit) | `check_password` | [android-app/atlas_go/accounts.py L72](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L72) | Implemented |
 | <a name="sec-pw-public"></a>Strip salt and hash before display | `public_view` | [android-app/atlas_go/accounts.py L124](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L124) | Implemented |
-| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L330](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330) | Implemented |
+| <a name="sec-pw-register"></a>Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L361](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L361) | Implemented |
 | <a name="sec-pw-test"></a>Test: same password, different salts and hashes | `test_password_hash_roundtrip_and_salt` | [android-app/tests/test_accounts_geo.py L9](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/tests/test_accounts_geo.py#L9) | Implemented |
 | <a name="sec-pw-lab"></a>Explorer lab: PBKDF2 with the app's parameters | `secPwHash` | [architecture-explorer/dist/security.js L215](../../dist/security.js#L215) | Explorer / lab |
 | <a name="sec-pw-lab-verify"></a>Explorer lab: verify_password replica | `secPwVerify` | [architecture-explorer/dist/security.js L234](../../dist/security.js#L234) | Explorer / lab |
@@ -2328,12 +2529,12 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L374](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L374) | Implemented |
-| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42) | Implemented |
-| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107) | Implemented |
-| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L391](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L391) | Implemented |
-| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L396](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L396) | Implemented |
-| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L651](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L651) | Implemented |
+| <a name="sec-login"></a>Sign in, 5 failures → 60 s lockout, generic error | `LocalStore.login` | [android-app/atlas_go/store.py L405](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L405) | Implemented |
+| <a name="sec-login-failures"></a>Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L43) | Implemented |
+| <a name="sec-login-session"></a>Session validated on load (must name an account) | `LocalStore.validate` | [android-app/atlas_go/store.py L113](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L113) | Implemented |
+| <a name="sec-login-guest"></a>Guest mode (no identity, least privilege) | `LocalStore.continue_as_guest` | [android-app/atlas_go/store.py L422](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422) | Implemented |
+| <a name="sec-login-logout"></a>Sign out | `LocalStore.logout` | [android-app/atlas_go/store.py L427](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L427) | Implemented |
+| <a name="sec-login-clear"></a>Clear the password field after submit | `AtlasGoApp.submit_login` | [android-app/atlas_go/app.py L659](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L659) | Implemented |
 | Verify a password (constant-time compare) | `verify_password` | [android-app/atlas_go/accounts.py L33](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L33) | Implemented |
 | <a name="sec-login-lab"></a>Explorer lab: LocalStore.login replica | `secLoginAttempt` | [architecture-explorer/dist/security.js L278](../../dist/security.js#L278) | Explorer / lab |
 | <a name="sec-pw-cli-c"></a>Lab C: sign-in defences (experiments 12-15) | `exp_lockout` | [security_lab/lab_c_signin_defences.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_c_signin_defences.py#L28) | Explorer / lab |
@@ -2351,25 +2552,40 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L330](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330) | Implemented |
+| Store only {salt, hash, iterations} at registration | `LocalStore.register` | [android-app/atlas_go/store.py L361](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L361) | Implemented |
 | <a name="sec-id-email"></a>Identity proofing: email format | `clean_email` | [android-app/atlas_go/accounts.py L53](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L53) | Implemented |
 | <a name="sec-id-phone"></a>Identity proofing: phone normalised to E.164 | `clean_phone` | [android-app/atlas_go/accounts.py L60](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L60) | Implemented |
 | <a name="sec-id-licence"></a>Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
 | <a name="sec-id-business"></a>Food-business number (self-declared) | `clean_business` | [android-app/atlas_go/accounts.py L95](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L95) | Implemented |
-| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L403](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L403) | Implemented |
-| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L449](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449) | Implemented |
-| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L442](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L442) | Implemented |
-| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452) | Implemented |
-| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L467](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L467) | Implemented |
-| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L497](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497) | Implemented |
-| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L694](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694) | Implemented |
-| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L633](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L633) | Implemented |
+| <a name="sec-id-delete"></a>De-provision with re-authentication, anonymise history | `LocalStore.delete_account` | [android-app/atlas_go/store.py L434](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434) | Implemented |
+| <a name="sec-rbac-screens"></a>RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L452) | Implemented |
+| <a name="sec-rbac-online"></a>RBAC layer 2: only drivers go online | `LocalStore.set_online` | [android-app/atlas_go/store.py L478](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L478) | Implemented |
+| <a name="sec-rbac-location"></a>RBAC layer 2: only drivers share location | `LocalStore.update_location` | [android-app/atlas_go/store.py L488](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L488) | Implemented |
+| <a name="sec-rbac-respond"></a>RBAC layer 2: a driver answers only their own job | `LocalStore.driver_respond` | [android-app/atlas_go/store.py L503](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L503) | Implemented |
+| <a name="sec-rbac-book"></a>RBAC layer 2: only passengers or guests book | `LocalStore.book` | [android-app/atlas_go/store.py L533](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L533) | Implemented |
+| <a name="sec-rbac-checkout"></a>RBAC layer 2: only passengers or guests order food | `LocalStore.checkout` | [android-app/atlas_go/store.py L730](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L730) | Implemented |
+| <a name="sec-rbac-kitchen"></a>RBAC layer 2: a seller edits only their own kitchen | `LocalStore._my_kitchen` | [android-app/atlas_go/store.py L669](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L669) | Implemented |
 | <a name="sec-pw-cli-b"></a>Lab B: registration and identity (experiments 9-11) | `exp_validation` | [security_lab/lab_b_registration_identity.py L28](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_b_registration_identity.py#L28) | Explorer / lab |
 | Lab D: integrity, sessions and lifecycle (experiments 16-20) | `exp_sessions` | [security_lab/lab_d_integrity_lifecycle.py L34](https://github.com/FUllSCIPTS/ATLAS/blob/main/security_lab/lab_d_integrity_lifecycle.py#L34) | Explorer / lab |
 | <a name="sec-srv-register"></a>Server registration: the phone's validation again, own PBKDF2 hash | `Service.register` | [android-app/server/app.py L228](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L228) | Implemented |
 | <a name="sec-srv-require"></a>Role taken from the session, never from the request | `Service.require` | [android-app/server/app.py L224](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L224) | Implemented |
 | <a name="sec-srv-owner"></a>Object-level authorisation in the WHERE clause (another user's id is 404) | `Service.payment` | [android-app/server/app.py L489](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L489) | Implemented |
 | <a name="sec-srv-delete"></a>Erase the person, keep the accounting rows | `Service.delete_account` | [android-app/server/app.py L292](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L292) | Implemented |
+| <a name="sec-pre-when"></a>Pre-booking: pickup time must be a number, 15 minutes to 7 days ahead | `check_when` | [android-app/atlas_go/safety.py L25](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L25) | Implemented |
+| <a name="sec-pre-book"></a>Pre-book: passenger account, limits, bank linked; shared seats reserved in the same commit | `LocalStore.prebook` | [android-app/atlas_go/store.py L854](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L854) | Implemented |
+| <a name="sec-pre-owner"></a>Only the signed-in owner can cancel or dispatch a pre-booking | `LocalStore._own_prebook` | [android-app/atlas_go/store.py L890](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L890) | Implemented |
+| <a name="sec-pre-dispatch"></a>Dispatch through book(): bank asked then; a refusal restores state and charges nothing | `LocalStore.dispatch_prebook` | [android-app/atlas_go/store.py L919](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L919) | Implemented |
+| <a name="sec-pre-validate"></a>Saved pre-bookings must belong to an account and hold seats that are really taken | `raise ValueError('Pre-booked seats are not held.')` | [android-app/atlas_go/store.py L216](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L216) | Implemented |
+| <a name="sec-pre-record"></a>Pre-booking record schema check | `valid_prebook` | [android-app/atlas_go/safety.py L50](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L50) | Implemented |
+| <a name="sec-sos-raise"></a>SOS only for the passenger, guest or registered driver of the active ride; one per ride | `LocalStore.raise_sos` | [android-app/atlas_go/store.py L980](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L980) | Implemented |
+| <a name="sec-sos-own"></a>An SOS record is visible only to the account that raised it | `LocalStore._own_sos` | [android-app/atlas_go/store.py L1004](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1004) | Implemented |
+| <a name="sec-sos-resolve"></a>Step-up: ending an SOS needs the account password | `LocalStore.resolve_sos` | [android-app/atlas_go/store.py L1016](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1016) | Implemented |
+| <a name="sec-sos-trusted"></a>Trusted contact: name and E.164 number validated, kept on the phone | `LocalStore.set_trusted` | [android-app/atlas_go/store.py L950](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L950) | Implemented |
+| <a name="sec-sos-dial"></a>tel: link accepts digits only (no dial-string injection) | `dial_uri` | [android-app/atlas_go/safety.py L92](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L92) | Implemented |
+| <a name="sec-sos-sms"></a>sms: link: E.164 number, percent-encoded body | `sms_uri` | [android-app/atlas_go/safety.py L99](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L99) | Implemented |
+| <a name="sec-sos-intent"></a>Least privilege: ACTION_DIAL and ACTION_SENDTO, the user confirms in the other app | `open_uri` | [android-app/atlas_go/safety.py L122](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L122) | Implemented |
+| <a name="sec-sos-manifest"></a>Release check refuses CALL_PHONE and SEND_SMS | `# sends the text there, so CALL_PHONE and SEND_SMS must never be decl...` | [android-app/scripts/check-manifest.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/check-manifest.py#L18) | Implemented |
+| <a name="sec-sos-message"></a>Data minimisation: the SOS text holds name, route, driver, time and a map link only | `sos_message` | [android-app/atlas_go/safety.py L110](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L110) | Implemented |
 
 <a name="uml-security-gateway"></a>
 
@@ -2449,11 +2665,11 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-pay-move"></a>Refuse every illegal transition | `move` | [android-app/atlas_go/payments.py L223](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L223) | Implemented |
 | <a name="sec-pay-entries"></a>Double-entry ledger lines for captures, refunds and payouts | `entries` | [android-app/atlas_go/payments.py L262](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L262) | Implemented |
 | <a name="sec-pay-balanced"></a>Ledger invariant: debits equal credits in every transaction | `balanced` | [android-app/atlas_go/payments.py L282](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/payments.py#L282) | Implemented |
-| <a name="sec-pay-stepup"></a>Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L804](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804) | Implemented |
-| <a name="sec-pay-link"></a>Link a bank account: IBAN checked, mandate recorded, IBAN dropped | `LocalStore.link_bank` | [android-app/atlas_go/store.py L822](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L822) | Implemented |
-| <a name="sec-pay-authorise"></a>Authorise before anything is booked (a decline books nothing) | `LocalStore._authorise` | [android-app/atlas_go/store.py L813](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L813) | Implemented |
-| <a name="sec-pay-payout"></a>Pay out a balance: role, password, linked account, minimum | `LocalStore.request_payout` | [android-app/atlas_go/store.py L858](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L858) | Implemented |
-| <a name="sec-pay-validate"></a>Saved money state must balance and match its bookings | `raise ValueError('The payment ledger does not balance.')` | [android-app/atlas_go/store.py L192](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L192) | Implemented |
+| <a name="sec-pay-stepup"></a>Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L1036](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1036) | Implemented |
+| <a name="sec-pay-link"></a>Link a bank account: IBAN checked, mandate recorded, IBAN dropped | `LocalStore.link_bank` | [android-app/atlas_go/store.py L1054](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1054) | Implemented |
+| <a name="sec-pay-authorise"></a>Authorise before anything is booked (a decline books nothing) | `LocalStore._authorise` | [android-app/atlas_go/store.py L1045](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1045) | Implemented |
+| <a name="sec-pay-payout"></a>Pay out a balance: role, password, linked account, minimum | `LocalStore.request_payout` | [android-app/atlas_go/store.py L1090](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1090) | Implemented |
+| <a name="sec-pay-validate"></a>Saved money state must balance and match its bookings | `raise ValueError('The payment ledger does not balance.')` | [android-app/atlas_go/store.py L200](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L200) | Implemented |
 | <a name="sec-pay-url"></a>Server address: HTTPS only (plain HTTP for a local test machine) | `clean_url` | [android-app/atlas_go/backend.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L18) | Implemented |
 | <a name="sec-pay-call"></a>Bearer token, Idempotency-Key, no redirects followed | `Backend.call` | [android-app/atlas_go/backend.py L55](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L55) | Implemented |
 | <a name="sec-pay-outbox"></a>Offline outbox: what the server does not have yet | `outbox` | [android-app/atlas_go/backend.py L139](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/backend.py#L139) | Implemented |
@@ -2489,7 +2705,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-srv-test-race"></a>Test: four concurrent payouts, exactly one succeeds | `test_two_payouts_at_once_cannot_spend_the_balance_twice` | [android-app/server/tests/test_server.py L398](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L398) | Implemented |
 | <a name="sec-srv-test-ledger"></a>Test: ledger triggers refuse edits and unbalanced entries | `test_ledger_is_append_only_and_must_balance` | [android-app/server/tests/test_server.py L320](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L320) | Implemented |
 | <a name="sec-srv-test-secrets"></a>Test: no password, token or IBAN in any table | `test_no_password_token_or_iban_is_stored_or_logged` | [android-app/server/tests/test_server.py L444](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/tests/test_server.py#L444) | Implemented |
-| <a name="sec-pay-guide"></a>Teaching guide §14: threat model, sequence, database layers | `## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (san...` | [docs/INFORMATION_SECURITY.md L2021](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2021) | Implemented |
+| <a name="sec-pay-guide"></a>Teaching guide §14: threat model, sequence, database layers | `## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (san...` | [docs/INFORMATION_SECURITY.md L2038](https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2038) | Implemented |
 | <a name="sec-pay-lab"></a>Explorer lab: IBAN check with mod 97 | `secIbanCheck` | [architecture-explorer/dist/security.js L824](../../dist/security.js#L824) | Explorer / lab |
 | <a name="sec-pay-lab-ledger"></a>Explorer lab: payment state machine and ledger | `secPayMove` | [architecture-explorer/dist/security.js L859](../../dist/security.js#L859) | Explorer / lab |
 | <a name="sec-pay-lab-idem"></a>Explorer lab: idempotent replay and server-side pricing | `secPayServer` | [architecture-explorer/dist/security.js L867](../../dist/security.js#L867) | Explorer / lab |
@@ -2510,7 +2726,7 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | <a name="sec-fd-lab-pkce"></a>Explorer lab: PKCE S256 (RFC 7636) | `fdPkceRun` | [architecture-explorer/dist/foundations.js L558](../../dist/foundations.js#L558) | Explorer / lab |
 | <a name="sec-fd-lab-inject"></a>Explorer lab: SQL injection and XSS encoding | `fdInjectLab` | [architecture-explorer/dist/foundations.js L571](../../dist/foundations.js#L571) | Explorer / lab |
 | Hash a password (salt + PBKDF2-HMAC-SHA256) | `hash_password` | [android-app/atlas_go/accounts.py L27](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L27) | Implemented |
-| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L449](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449) | Implemented |
+| RBAC layer 1: screen allow-list per role | `AtlasGoApp.render` | [android-app/atlas_go/app.py L452](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L452) | Implemented |
 | OIDC + PKCE flow with ES256 tokens | `secSsoNext` | [architecture-explorer/dist/security.js L431](../../dist/security.js#L431) | Explorer / lab |
 
 <a name="uml-security-gaps"></a>
@@ -2522,12 +2738,12 @@ Status: **Implemented** (in the code), **Demo-grade** (implemented with delibera
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
 | Work factor and lockout limits | `PBKDF2_ITERATIONS` | [android-app/atlas_go/accounts.py L16](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L16) | Implemented |
-| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L42](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42) | Implemented |
+| Failure counter kept in memory only | `self.failures = {}          # email -> [count, locked_until]; memory ...` | [android-app/atlas_go/store.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L43) | Implemented |
 | Bearer keys per actor (demo defaults) | `KEYS` | [architecture-explorer/starter/packages/config.py L13](../packages/config.py#L13) | Demo-grade |
 | Service re-check: internal token and actor role | `internal_actor` | [architecture-explorer/starter/packages/config.py L24](../packages/config.py#L24) | Demo-grade |
 | Driver licence number (self-declared) | `clean_licence` | [android-app/atlas_go/accounts.py L88](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/accounts.py#L88) | Implemented |
 | Authenticate, check role, assert identity, forward | `proxy` | [architecture-explorer/starter/services/gateway.py L47](../services/gateway.py#L47) | Demo-grade |
-| Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L804](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804) | Implemented |
+| Step-up authentication on the phone: password again for money settings | `LocalStore._step_up` | [android-app/atlas_go/store.py L1036](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1036) | Implemented |
 | Lockout stored in PostgreSQL (429 + Retry-After) | `Service.check_lock` | [android-app/server/app.py L171](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L171) | Implemented |
 | Pay: idempotency, server price, debit, ledger, outbox and audit in one transaction | `Service.pay` | [android-app/server/app.py L429](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L429) | Implemented |
 | Audit log without passwords, tokens, emails or IBANs | `Service.audit` | [android-app/server/app.py L147](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/app.py#L147) | Implemented |
@@ -2849,7 +3065,7 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-tw-retest"></a>Guardian: 500-rollout re-test before handing control back | `retest_pricing` | [android-app/atlas_go/twin.py L345](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L345) | App / starter (synthetic data) |
 | <a name="ml-tw-decide"></a>One ride through both layers, with fallback to Layer 1 | `decide_ride` | [android-app/atlas_go/twin.py L361](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L361) | App / starter (synthetic data) |
 | <a name="ml-tw-drill"></a>Fault drill: inject bad decisions, count what the Guardian catches | `fault_drill` | [android-app/atlas_go/twin.py L399](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/twin.py#L399) | App / starter (synthetic data) |
-| <a name="ml-tw-store"></a>Twin state: decision log, blocks and re-tests | `LocalStore.twin_record` | [android-app/atlas_go/store.py L607](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L607) | App / starter (synthetic data) |
+| <a name="ml-tw-store"></a>Twin state: decision log, blocks and re-tests | `LocalStore.twin_record` | [android-app/atlas_go/store.py L643](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L643) | App / starter (synthetic data) |
 | Dispatch: softmax over candidate drivers | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | App / starter (synthetic data) |
 | <a name="ml-tw-lab"></a>Explorer lab: Agent 1 rehearsal (twin.agent1 port) | `mlAgent1` | [architecture-explorer/dist/ml.js L575](../../dist/ml.js#L575) | Explorer / lab |
 | <a name="ml-tw-lab-rehearse"></a>Explorer lab: twin.rehearse port | `mlRehearse` | [architecture-explorer/dist/ml.js L559](../../dist/ml.js#L559) | Explorer / lab |
@@ -2913,7 +3129,7 @@ Generated by `scripts/security_catalog.py`.
 | <a name="ml-lp-demand"></a>Simulated city demand (city_sim model, deterministic) | `demand` | [android-app/atlas_go/loop.py L87](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/loop.py#L87) | App / starter (synthetic data) |
 | Generated LSTM weights and agent tables | `W` | [android-app/atlas_go/lstm_weights.py L18](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/lstm_weights.py#L18) | App / starter (synthetic data) |
 | Offline training of the compact LSTM and the agent | `train` | [android-app/training/export_lstm.py L43](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/export_lstm.py#L43) | App / starter (synthetic data) |
-| <a name="ml-lp-surge"></a>Live forecast as the dispatch policy's surge feature | `AtlasGoApp.live_surge` | [android-app/atlas_go/app.py L895](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L895) | App / starter (synthetic data) |
+| <a name="ml-lp-surge"></a>Live forecast as the dispatch policy's surge feature | `AtlasGoApp.live_surge` | [android-app/atlas_go/app.py L930](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L930) | App / starter (synthetic data) |
 | Driver supply agent with hindsight updates | `run_rl` | [android-app/training/city_sim.py L152](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/training/city_sim.py#L152) | App / starter (synthetic data) |
 | Explorer lab: the phone's LSTM in the browser | `mlLstmHidden` | [architecture-explorer/dist/ml.js L961](../../dist/ml.js#L961) | Explorer / lab |
 | <a name="ml-lp-lab-whatif"></a>Explorer lab: what-if event tag and demand shock | `mlLoopWhatIf` | [architecture-explorer/dist/ml.js L979](../../dist/ml.js#L979) | Explorer / lab |
@@ -2960,13 +3176,13 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L434](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434) | Implemented |
-| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L940](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940) | Implemented |
+| <a name="dsa-app-online"></a>Linear scan: drivers that are online | `LocalStore.online_drivers` | [android-app/atlas_go/store.py L470](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L470) | Implemented |
+| <a name="dsa-app-history"></a>Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L1172](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1172) | Implemented |
 | <a name="dsa-app-distances"></a>2-D table lookup DISTANCES[pickup][destination] | `DISTANCES` | [android-app/atlas_go/domain.py L5](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/domain.py#L5) | Implemented |
 | <a name="dsa-app-nearest"></a>Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
 | <a name="dsa-app-tiles"></a>Grid indexing: tiles that cover the view | `tile_range` | [android-app/atlas_go/geo.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L107) | Implemented |
-| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L497](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497) | Implemented |
-| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L694](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694) | Implemented |
+| <a name="dsa-app-book"></a>ADT operation: book a ride | `LocalStore.book` | [android-app/atlas_go/store.py L533](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L533) | Implemented |
+| <a name="dsa-app-checkout"></a>ADT operation: check out a cart | `LocalStore.checkout` | [android-app/atlas_go/store.py L730](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L730) | Implemented |
 | <a name="dsa-lab-linear"></a>Linear search with a comparison count | `linear_search` | [dsa_lab/experiments.py L41](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L41) | Explorer / lab |
 | <a name="dsa-lab-binary"></a>Binary search with a comparison count | `binary_search` | [dsa_lab/experiments.py L51](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L51) | Explorer / lab |
 | <a name="dsa-lab-dynarray"></a>Dynamic array: growth policy and copies | `DynamicArray.append` | [dsa_lab/experiments.py L267](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L267) | Explorer / lab |
@@ -3093,9 +3309,9 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L107](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107) | Implemented |
+| <a name="dsa-app-validate"></a>Invariant check on saved state | `LocalStore.validate` | [android-app/atlas_go/store.py L113](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L113) | Implemented |
 | <a name="dsa-app-selftest"></a>Self-test of the on-device models | `self_test` | [android-app/atlas_go/intelligence.py L459](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L459) | Implemented |
-| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L592](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L592) | Related (similar code, not this exact structure) |
+| <a name="dsa-app-advance"></a>State machine: advance a ride | `LocalStore.advance_ride` | [android-app/atlas_go/store.py L628](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L628) | Related (similar code, not this exact structure) |
 | <a name="dsa-lab-fib"></a>Fibonacci with a memo: call count | `fib_memo_calls` | [dsa_lab/experiments.py L1797](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1797) | Explorer / lab |
 | <a name="dsa-lab-knapsack"></a>0/1 knapsack by dynamic programming | `knapsack_01` | [dsa_lab/experiments.py L1819](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1819) | Explorer / lab |
 | <a name="dsa-lab-queens"></a>N queens by backtracking | `n_queens` | [dsa_lab/experiments.py L1837](https://github.com/FUllSCIPTS/ATLAS/blob/main/dsa_lab/experiments.py#L1837) | Explorer / lab |
@@ -3110,7 +3326,7 @@ Generated by `scripts/security_catalog.py`.
 
 | Concept | Function / symbol | Location | Status |
 | --- | --- | --- | --- |
-| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L940](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940) | Implemented |
+| Linear scan: the user's ride and order history | `LocalStore.my_history` | [android-app/atlas_go/store.py L1172](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1172) | Implemented |
 | Sorting: rank candidates with sorted() | `rank` | [android-app/atlas_go/intelligence.py L266](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/intelligence.py#L266) | Implemented |
 | Minimum selection: nearest saved place | `nearest_place` | [android-app/atlas_go/geo.py L62](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L62) | Implemented |
 | Straight-line trip legs (no road graph) | `ride_legs` | [android-app/atlas_go/geo.py L130](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/geo.py#L130) | Related (similar code, not this exact structure) |
@@ -3274,14 +3490,14 @@ This file declares no functions.
 
 | Kind | Signature | Decorators | Source |
 | --- | --- | --- | --- |
-| Function | `read(location, main)` | — | [L549](../scripts/security_catalog.py#L549) |
-| Function | `python_symbols(text)` | — | [L559](../scripts/security_catalog.py#L559) |
-| Function | `locate(text, path, symbol)` | — | [L571](../scripts/security_catalog.py#L571) |
-| Function | `resolve(main)` | — | [L592](../scripts/security_catalog.py#L592) |
-| Function | `markdown(rows, views, intro)` | — | [L625](../scripts/security_catalog.py#L625) |
-| Function | `script(rows)` | — | [L646](../scripts/security_catalog.py#L646) |
-| Function | `replace_block(document, content, name)` | — | [L654](../scripts/security_catalog.py#L654) |
-| Function | `main()` | — | [L663](../scripts/security_catalog.py#L663) |
+| Function | `read(location, main)` | — | [L565](../scripts/security_catalog.py#L565) |
+| Function | `python_symbols(text)` | — | [L575](../scripts/security_catalog.py#L575) |
+| Function | `locate(text, path, symbol)` | — | [L587](../scripts/security_catalog.py#L587) |
+| Function | `resolve(main)` | — | [L608](../scripts/security_catalog.py#L608) |
+| Function | `markdown(rows, views, intro)` | — | [L641](../scripts/security_catalog.py#L641) |
+| Function | `script(rows)` | — | [L662](../scripts/security_catalog.py#L662) |
+| Function | `replace_block(document, content, name)` | — | [L670](../scripts/security_catalog.py#L670) |
+| Function | `main()` | — | [L679](../scripts/security_catalog.py#L679) |
 
 ### `services/dispatch.py`
 

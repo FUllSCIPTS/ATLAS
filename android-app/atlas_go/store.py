@@ -15,12 +15,13 @@ from time import time_ns
 from . import accounts as acc
 from . import geo
 from . import payments as pay
+from . import safety
 from . import twin as layer2
 from .domain import Cart, Catalog, Offer, distance, fare, PLACES
 
 SCREENS = ('welcome', 'login', 'register', 'home', 'ride', 'share', 'food', 'menu', 'cart', 'active_ride',
            'active_order', 'activity', 'profile', 'privacy', 'intelligence', 'map', 'driver', 'seller',
-           'seller_menu', 'account', 'twin', 'wallet')
+           'seller_menu', 'account', 'twin', 'wallet', 'sos', 'safety')
 OFFER_IDS = ('pool-1', 'pool-2', 'pool-3', 'pool-4')
 FIRST_SELLER_KITCHEN = 3
 MAX_DISHES = 30
@@ -61,6 +62,8 @@ class LocalStore:
         self.payments = []                     # bank payments (1.5.0): authorised, captured, voided
         self.payouts = []                      # payouts to drivers' and sellers' bank accounts
         self.server_url = ''                   # ATLAS server (PostgreSQL back end); '' = this phone only
+        self.prebooks = []                     # pre-booked rides (1.6.0): scheduled, dispatched, cancelled, missed
+        self.sos = []                          # SOS events (1.6.0): where and when help was asked for
         self.offers = [
             # Each carpool already carries one rider, who is dropped before you (see geo.last_stage).
             Offer('pool-1', 'Alex · Electric hatchback', 0, 1, 3, 490, 3, 'Ciara', 'Bishopstown', 'Grand Parade'),
@@ -93,6 +96,9 @@ class LocalStore:
             self.payments = data.get('payments', [])
             self.payouts = data.get('payouts', [])
             self.server_url = data.get('server_url', '')
+            # 1.5.0 and earlier files have no pre-booked rides or SOS events.
+            self.prebooks = data.get('prebooks', [])
+            self.sos = data.get('sos', [])
             for offer in self.offers:
                 seats = data.get('seats', {}).get(offer.id, offer.capacity)
                 offer.seats = max(0, min(offer.capacity, int(seats)))
@@ -132,6 +138,8 @@ class LocalStore:
             if link is not None and (not isinstance(link, dict) or
                                      not all(isinstance(link.get(k), str) and link[k] for k in ('id', 'token'))):
                 raise ValueError('Invalid server link.')
+            if 'trusted' in a and not safety.valid_trusted(a['trusted']):
+                raise ValueError('Invalid trusted contact.')
             ids.add(a['id'])
             emails.add(a['email'])
             if a['role'] == 'driver':
@@ -192,6 +200,23 @@ class LocalStore:
             raise ValueError('The payment ledger does not balance.')
         if not isinstance(data.get('server_url', ''), str):
             raise ValueError('Invalid server address.')
+        prebooks, events = data.get('prebooks', []), data.get('sos', [])
+        if not isinstance(prebooks, list) or not all(safety.valid_prebook(p, OFFER_IDS) for p in prebooks) or \
+                len({p['id'] for p in prebooks}) != len(prebooks):
+            raise ValueError('Invalid pre-booked ride.')
+        if any(p['status'] == 'scheduled' and p['account'] not in ids for p in prebooks):
+            raise ValueError('A pre-booked ride belongs to no account.')
+        held = {}
+        for p in prebooks:
+            if p['status'] == 'scheduled' and p['offer']:
+                held[p['offer']] = held.get(p['offer'], 0) + p['party']
+        capacity = {'pool-1': 3, 'pool-2': 2, 'pool-3': 3, 'pool-4': 2}
+        seats = data.get('seats', {})
+        if any(n > capacity[o] - min(capacity[o], max(0, int(seats.get(o, capacity[o])))) for o, n in held.items()):
+            raise ValueError('Pre-booked seats are not held.')
+        if not isinstance(events, list) or not all(safety.valid_sos(e) for e in events) or \
+                len({e['id'] for e in events}) != len(events):
+            raise ValueError('Invalid SOS record.')
         records = list(data.get('history', []))
         active = [data[k] for k in ('ride', 'order') if data.get(k) is not None]
         records += active
@@ -258,6 +283,8 @@ class LocalStore:
                     raise ValueError('Invalid price multiplier.')
                 if record.get('twin') is not None and not isinstance(record['twin'], dict):
                     raise ValueError('Invalid twin record.')
+                if not isinstance(record.get('prebook', ''), str):
+                    raise ValueError('Invalid pre-booking reference.')
                 if record.get('driver_id') is not None and not isinstance(record['driver_id'], str):
                     raise ValueError('Invalid driver account.')
                 if live is not None and not _is_point(live.get('start')):
@@ -282,7 +309,8 @@ class LocalStore:
         payload = dict(cart=self.cart.items, history=self.history, ride=self.ride, order=self.order,
                        seats={o.id: o.seats for o in self.offers}, ui=self.ui, accounts=self.accounts,
                        kitchens=self.kitchens, session=self.session, guest=self.guest, twin=self.twin,
-                       payments=self.payments, payouts=self.payouts, server_url=self.server_url)
+                       payments=self.payments, payouts=self.payouts, server_url=self.server_url,
+                       prebooks=self.prebooks, sos=self.sos)
         temporary = self.path.with_suffix('.tmp')
         with temporary.open('w', encoding='utf-8') as stream:
             json.dump(payload, stream, ensure_ascii=False)
@@ -293,18 +321,21 @@ class LocalStore:
     def snapshot(self):
         return deepcopy((self.cart, self.history, self.ride, self.order, self.ui, self.offers,
                          self.accounts, self.kitchens, self.session, self.guest, self.twin,
-                         self.payments, self.payouts, self.server_url))
+                         self.payments, self.payouts, self.server_url, self.prebooks, self.sos))
+
+    def _restore(self, before) -> None:
+        (self.cart, self.history, self.ride, self.order, self.ui, self.offers,
+         self.accounts, self.kitchens, self.session, self.guest, self.twin,
+         self.payments, self.payouts, self.server_url, self.prebooks, self.sos) = before
+        self.catalog = Catalog(self.kitchens)
+        self.cart.catalog = self.catalog
 
     def commit(self, before) -> None:
         try:
             self.save()
         except OSError:
             if before is not None:
-                (self.cart, self.history, self.ride, self.order, self.ui, self.offers,
-                 self.accounts, self.kitchens, self.session, self.guest, self.twin,
-                 self.payments, self.payouts, self.server_url) = before
-                self.catalog = Catalog(self.kitchens)
-                self.cart.catalog = self.catalog
+                self._restore(before)
             raise
 
     def _refresh_catalog(self) -> None:
@@ -427,6 +458,11 @@ class LocalStore:
         for record in self.history:
             if record.get('passenger') == user['id']:
                 record['passenger'] = 'deleted'
+        for p in self.prebooks:
+            if p['account'] == user['id'] and p['status'] == 'scheduled':
+                self._release_prebook(p)
+        self.prebooks = [p for p in self.prebooks if p['account'] != user['id']]
+        self.sos = [e for e in self.sos if e.get('account') != user['id']]      # where they asked for help goes with them
         self.session = None
         self.commit(before)
 
@@ -795,7 +831,203 @@ class LocalStore:
                 if progress >= 1.0:
                     self._advance_order(now)
                     changed = True
+        late = [p for p in self.prebooks if p['status'] == 'scheduled' and now > p['when'] + safety.GRACE]
+        if late:
+            before = self.snapshot()
+            for p in late:        # nobody was signed in to take the ride: free the seats, say so in Activity
+                self._release_prebook(p)
+                p['status'], p['reason'] = 'missed', 'The pickup time passed while this account was signed out or busy.'
+            self.commit(before)
+            changed = True
         return changed
+
+    # ------------------------------------------------------------------ pre-booked rides (1.6.0)
+    def _release_prebook(self, p: dict) -> None:
+        if p['offer']:
+            next(o for o in self.offers if o.id == p['offer']).release(p['party'])
+
+    def my_prebooks(self, upcoming: bool = True) -> list[dict]:
+        """The signed-in account's pre-booked rides: upcoming ones soonest first, or finished ones newest first."""
+        mine = [p for p in self.prebooks if p['account'] == self.session and (p['status'] == 'scheduled') == upcoming]
+        return sorted(mine, key=lambda p: p['when'], reverse=not upcoming)
+
+    def prebook(self, pickup: int, destination: int, when: float, comfort: bool = False,
+                offer_id: str | None = None, party: int = 1, pay_by_bank: bool = False,
+                now: float | None = None) -> dict:
+        """Reserve a ride for later. A solo ride is fixed at today's ordinary fare (no busy-time price);
+        a shared ride holds its seats from now. The driver is chosen, and a bank payment authorised,
+        when the ride is dispatched (dispatch_prebook), 10 minutes before the pickup time."""
+        user = self.user
+        if not user:
+            raise ValueError('Create an account or sign in to pre-book a ride.')
+        if user['role'] != 'passenger':
+            raise ValueError('Sign in as a passenger to pre-book rides.')
+        now = time.time() if now is None else now
+        when = safety.check_when(when, now)
+        distance(pickup, destination)
+        if party not in (1, 2):
+            raise ValueError('Choose one or two seats.')
+        offer = next((o for o in self.offers if o.id == offer_id), None)
+        if offer_id and (not offer or not offer.matches(pickup, destination, party)):
+            raise ValueError('This shared ride does not match your route or seats.')
+        if len(self.my_prebooks()) >= safety.MAX_PREBOOKS:
+            raise ValueError('You can hold three pre-booked rides at a time. Cancel one first.')
+        if any(abs(p['when'] - when) < 1800 for p in self.my_prebooks()):
+            raise ValueError('You already have a ride pre-booked within 30 minutes of that time.')
+        if pay_by_bank and 'bank' not in user:
+            raise ValueError('Link a bank account in You > Bank & payments to pay by bank.')
+        before = self.snapshot()
+        if offer:
+            offer.reserve(party)
+        record = dict(id=f'B-{time_ns()}', account=user['id'], pickup=pickup, destination=destination,
+                      comfort=bool(comfort) and not offer, offer=offer_id, party=party, when=when,
+                      fare=offer.price * party if offer else fare(pickup, destination, comfort),
+                      pay_by_bank=bool(pay_by_bank), status='scheduled', created=int(now))
+        self.prebooks.append(record)
+        self.commit(before)
+        return record
+
+    def _own_prebook(self, prebook_id: str) -> dict:
+        p = next((p for p in self.prebooks if p['id'] == prebook_id and p['account'] == self.session
+                  and self.session is not None), None)
+        if not p or p['status'] != 'scheduled':
+            raise ValueError('This pre-booked ride is no longer scheduled.')
+        return p
+
+    def cancel_prebook(self, prebook_id: str) -> None:
+        self._own_prebook(prebook_id)
+        before = self.snapshot()
+        p = self._own_prebook(prebook_id)
+        self._release_prebook(p)
+        p['status'] = 'cancelled'
+        self._trim_prebooks()
+        self.commit(before)
+
+    def _trim_prebooks(self) -> None:
+        finished = [p for p in self.prebooks if p['status'] != 'scheduled']
+        for p in sorted(finished, key=lambda p: p['when'])[:max(0, len(finished) - safety.KEEP_FINISHED)]:
+            self.prebooks.remove(p)
+
+    def due_prebook(self, now: float | None = None) -> dict | None:
+        """The signed-in passenger's next pre-booked ride if it is time to send a driver, else None."""
+        now = time.time() if now is None else now
+        if self.ride or not self.user:
+            return None
+        due = [p for p in self.my_prebooks() if now >= p['when'] - safety.DISPATCH_LEAD]
+        return due[0] if due else None
+
+    def dispatch_prebook(self, prebook_id: str, now: float | None = None, **choice) -> bool:
+        """Turn a pre-booked ride into the active ride through the ordinary book() path, at the fare
+        fixed when it was pre-booked. choice carries the dispatch decision (driver, why, driver_id,
+        start, twin, log). Returns False, and marks the pre-booking failed, if the ride cannot be
+        booked (for example the bank declines): the held seats are released and nothing is charged."""
+        now = time.time() if now is None else now
+        self._own_prebook(prebook_id)
+        if self.ride:
+            raise ValueError('Finish or cancel your active ride first.')
+        before = self.snapshot()
+        p = self._own_prebook(prebook_id)
+        self._release_prebook(p)                      # book() reserves the same seats again
+        p['status'] = 'dispatched'
+        try:
+            self.book(p['pickup'], p['destination'], p['comfort'], offer_id=p['offer'], party=p['party'],
+                      now=now, pay_by_bank=p['pay_by_bank'], **choice)
+        except ValueError as error:
+            self._restore(before)                     # exactly as it was before this attempt
+            before = self.snapshot()
+            p = self._own_prebook(prebook_id)
+            self._release_prebook(p)
+            p['status'], p['reason'] = 'failed', str(error)[:140]
+            self.commit(before)
+            return False
+        self.ride['prebook'] = p['id']
+        p['ride'] = self.ride['id']
+        self._trim_prebooks()
+        self.commit(before)
+        return True
+
+    # ------------------------------------------------------------------ SOS and trusted contact (1.6.0)
+    def set_trusted(self, name: str, phone: str) -> dict | None:
+        """Save (or, with both fields empty, remove) the person an SOS message is addressed to."""
+        user = self.user
+        if not user:
+            raise ValueError('Create an account or sign in to save a trusted contact.')
+        contact = None
+        if (name or '').strip() or (phone or '').strip():
+            contact = dict(name=acc.clean_name(name, 'Contact name'), phone=acc.clean_phone(phone))
+            if not contact['phone']:
+                raise ValueError('Enter the contact\'s mobile number.')
+        before = self.snapshot()
+        if contact:
+            user['trusted'] = contact
+        else:
+            user.pop('trusted', None)
+        self.commit(before)
+        return contact
+
+    def sos_ride(self) -> dict | None:
+        """The active ride the current session is in, as passenger (or guest) or as its driver."""
+        ride = self.ride
+        if not ride:
+            return None
+        if ride.get('driver_id') is not None and ride['driver_id'] == self.session:
+            return ride
+        return ride if ride.get('passenger') == self.session and self.role == 'passenger' else None
+
+    def active_sos(self) -> dict | None:
+        return next((e for e in reversed(self.sos) if e['status'] == 'active' and e.get('account') == self.session), None)
+
+    def raise_sos(self, now: float | None = None, point=None) -> dict:
+        """Record an SOS for the ride in progress: who, which ride, when and where (the phone's own
+        position when it has one, otherwise the car's position on the route). Raising it twice for
+        one ride returns the same event. It alerts nobody by itself: the screen that follows offers
+        112 and the trusted contact."""
+        ride = self.sos_ride()
+        if not ride:
+            raise ValueError('SOS is available during a ride. In an emergency call 112.')
+        now = time.time() if now is None else now
+        existing = self.active_sos()
+        if existing and existing['ride'] == ride['id']:
+            return existing
+        device = _is_point(list(point)) if point is not None else False
+        where = point if device else geo.ride_position(ride, now)[0]
+        before = self.snapshot()
+        event = dict(id=f'S-{time_ns()}', account=self.session, ride=ride['id'],
+                     role='driver' if ride.get('driver_id') == self.session and self.session else 'passenger',
+                     at=int(now), point=[round(where[0], 5), round(where[1], 5)],
+                     source='device' if device else 'route', status='active', shared=False)
+        self.sos.append(event)
+        self.sos = self.sos[-20:]
+        self.commit(before)
+        return event
+
+    def _own_sos(self, sos_id: str) -> dict:
+        event = next((e for e in self.sos if e['id'] == sos_id and e.get('account') == self.session), None)
+        if not event:
+            raise ValueError('SOS record not found.')
+        return event
+
+    def mark_sos_shared(self, sos_id: str) -> None:
+        self._own_sos(sos_id)
+        before = self.snapshot()
+        self._own_sos(sos_id)['shared'] = True
+        self.commit(before)
+
+    def resolve_sos(self, sos_id: str, password: str = '', now: float | None = None) -> None:
+        """End an SOS ("I am safe"). An account must give its password, so that someone else holding
+        the unlocked phone cannot quietly switch it off."""
+        event = self._own_sos(sos_id)
+        if event['status'] != 'active':
+            raise ValueError('This SOS has already ended.')
+        if self.user and not acc.verify_password(password or '', self.user):
+            raise ValueError('Password is not correct.')
+        before = self.snapshot()
+        event = self._own_sos(sos_id)
+        event['status'], event['resolved'] = 'resolved', int(time.time() if now is None else now)
+        self.commit(before)
+
+    def my_sos(self) -> list[dict]:
+        return [e for e in reversed(self.sos) if e.get('account') == self.session]
 
     # ------------------------------------------------------------------ bank payments (1.5.0)
     def payment(self, payment_id: str) -> dict | None:

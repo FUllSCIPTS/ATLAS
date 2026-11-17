@@ -5,8 +5,8 @@ package.domain = org.atlas
 source.dir = .
 source.include_exts = py,png,kv,ttf,json
 source.exclude_dirs = tests,docs,releases,scripts,training,server,.venv,local-data,local-data-narrow,test-output
-version = 1.5.0
-android.numeric_version = 6
+version = 1.6.0
+android.numeric_version = 7
 requirements = python3,kivy==2.3.1,requests,certifi
 orientation = portrait
 fullscreen = 0

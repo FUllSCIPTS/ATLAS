@@ -1,17 +1,35 @@
-# ATLAS Go — Android app (version 1.5.0)
+# ATLAS Go — Android app (version 1.6.0)
 
 **README option 4:** a Python/Kivy Android app for Cork with three kinds of account — **passengers**, **drivers** and **food sellers** — a **live map**, solo and shared rides, food ordering, **bank payments and payouts** (new in 1.5.0), an optional **PostgreSQL back end** (new in 1.5.0), on-device ATLAS intelligence (Layer 1: learned dispatch, acceptance, surge outlook, supply boost, courier timing, a learning lab and the live LSTM → RL loop) and a digital twin of Cork with three agents on top (Layer 2).
 
 ATLAS Go works entirely on the phone: accounts, rides, orders, kitchens and payments are stored in private app storage, and several accounts can live on one phone. From 1.5.0 an account can also be **connected to an ATLAS server**, which keeps accounts, bank mandates, payments and payouts in PostgreSQL ([`server/`](server/README.md)). Rides and deliveries are simulated. Bank payments use a **sandbox bank**: IBANs are checked for real, but no bank is contacted and no money moves (see [What "production ready" covers](#what-production-ready-covers)).
 
-- **Source code 1.5.0, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) — app in [`atlas_go/`](atlas_go/), server in [`server/`](server/)
+- **Source code 1.6.0, open under the [MIT licence](../LICENSE):** browse it here in [`android-app/`](.) — app in [`atlas_go/`](atlas_go/), server in [`server/`](server/)
 - **Installable APK:** the latest APK in the [ATLAS Go downloads folder on Google Drive](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) (request access) is **1.4.0** (SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977`). The 1.5.0 APK is built and tested by the [Android workflow](../.github/workflows/atlas-android.yml) on every push; the owner uploads it to Drive after reviewing that run. 1.5.0 reads 1.4.0 data.
 - [1.4.0 release page](releases/1.4.0/README.md) · earlier: [1.3.0](releases/1.3.0/README.md) · [1.2.0](releases/1.2.0/README.md)
 - [User guide with screenshots of every screen](docs/USER_GUIDE.md)
-- [What changed in 1.5.0](CHANGELOG.md)
+- [What changed in 1.6.0](CHANGELOG.md)
 - [Folder hierarchy, classes and integration blueprint](docs/ARCHITECTURE.md) · [UML blueprint catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go)
 - [Privacy notice](docs/PRIVACY.md) · [Testing](docs/TESTING.md) · [Build, signing and Google Play](docs/GOOGLE_PLAY.md)
 - [▶ Demo video with the digital twin and multi-agent layer (7 min 39 s, version 1.3)](docs/video/atlas-go-demo-v1.3-twin.mp4) · [demo of 1.1.0 (4 min 52 s)](docs/video/atlas-go-demo.mp4)
+
+## What's new in 1.6.0 — pre-booked rides and SOS
+
+| Asked of the app | 1.5.0 | 1.6.0 |
+|---|---|---|
+| Pre-book an ordinary ride | Not implemented (rides start at once) | **Implemented:** choose a pickup time 15 minutes to 7 days ahead; the fare is fixed at the ordinary fare; a driver is chosen 10 minutes before pickup |
+| Pre-book a shared ride | Not implemented | **Implemented:** one or two seats are held from the moment you pre-book and released if you cancel |
+| SOS | Not implemented | **Implemented:** a red SOS button during a ride for passengers and drivers; it records ride, time and place and offers one tap to call 112 and one tap to text a trusted contact |
+
+**Pre-booking.** The ride and shared-ride screens have a **When** choice. With a later time the button becomes **Pre-book ride** or **Pre-book seat**. Upcoming pre-bookings (at most three per account) are listed on Home and Activity and can be cancelled free of charge. Ten minutes before the pickup time the pre-booking goes through the ordinary booking path: the dispatch policy picks the driver, and if you chose to pay by bank the bank is asked then. A declined payment marks the pre-booking *failed* and charges nothing. The app must be open and signed in around the pickup time; a pre-booking that cannot start within 30 minutes is marked *missed*.
+
+**SOS.** During a ride the passenger (guest or account) and the registered driver have **SOS · emergency help**. After a confirmation it records where and when, and opens the Emergency screen: **Call 112** opens the phone's dialler with the number filled in, and **Message my trusted contact** opens the messaging app with your name, route, driver, time and a map link. You place the call and send the text yourself, so the app needs no call or SMS permission. Ending an SOS needs the account password. ATLAS Go has no control room, and the screen says so: nobody is alerted until you call or send. Save the trusted contact in **You → Safety & SOS**.
+
+| Pre-book a ride | Pre-booked rides in Activity | SOS |
+|---|---|---|
+| <img src="docs/screenshots/34-prebook-ride.png" width="180" alt="Ride screen with When set to In 1 hour and a Pre-book ride button"> | <img src="docs/screenshots/35-prebooked-rides.png" width="180" alt="Activity listing a pre-booked ordinary ride and a pre-booked shared ride"> | <img src="docs/screenshots/36-sos.png" width="180" alt="Emergency screen: Call 112, message the trusted contact, recorded position"> |
+
+Source: [`atlas_go/safety.py`](atlas_go/safety.py), the *pre-booked rides* and *SOS* sections of [`atlas_go/store.py`](atlas_go/store.py) and [`atlas_go/app.py`](atlas_go/app.py), and [`tests/test_prebook_sos.py`](tests/test_prebook_sos.py).
 
 ## What's new in 1.5.0 — bank payments and a PostgreSQL back end
 
@@ -110,6 +128,8 @@ Done: input validation on every form, hashed passwords with lockout, crash-safe 
 Still needed before carrying real passengers or food — these are business and infrastructure steps, not app code:
 
 - **Matching between phones.** The 1.5.0 server holds accounts and money, but rides and orders are still per phone: a passenger on one phone cannot yet be matched to a driver on another. That needs the trip and dispatch services of the [`architecture-explorer` starter](https://github.com/FUllSCIPTS/ATLAS/tree/architecture-explorer/architecture-explorer/starter) behind the same accounts.
+- **Scheduling on a server.** Pre-booked rides are dispatched by the app on the passenger's phone, so it must be open around the pickup time. A real service schedules them on the server, reminds the passenger with a push notification and assigns a driver even when the phone is off.
+- **A monitored SOS.** SOS records the event and helps the user call 112 and text a trusted contact. A real service adds a staffed safety line or a partner monitoring centre, live trip sharing from the server, and a procedure agreed with the emergency services.
 - **Verification.** SPSV licences, vehicle registrations and food business registrations are format-checked only. A real launch needs NTA licence checks, insurance, and food-business registration with the competent authority.
 - **A licensed payment provider.** The bank is a sandbox. Real debits and payouts need a PSD2 provider (SEPA Direct Debit or open-banking payments) behind `server/bank.py`, strong customer authentication at mandate set-up, handling of returned debits and refunds, and reconciliation ([what that involves](server/README.md#before-real-money)).
 - **TLS for the server.** The app refuses plain `http://` except to a local test machine; deploy the server behind HTTPS.
@@ -138,14 +158,14 @@ Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android
 
 ## Validation
 
-| Check | 1.5.0 (run for this change, 16 November 2026) | 1.4.0 release |
+| Check | 1.6.0 (run for this change, 17 November 2026) | 1.5.0 |
 |---|---|---|
-| Python unit tests | 244 (243 passed + 1 display-only test skipped without a display) | 173 |
-| Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 353 assertions and 32 screenshots in each | 314 and 29 |
-| Server tests on PostgreSQL 16 | 59 passed, including a six-way idempotency race, a four-way payout race, the ledger triggers and the least-privilege role | — |
-| Connected mode | The Kivy screens against a live server: 71 assertions; PostgreSQL then holds 2 accounts, 1 captured payment, 1 payout and a balanced ledger | — |
-| **Android 16 emulator (CI)** | 418 assertions, 32 OS screenshots, no crash ([run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/43961614528), [evidence](releases/VALIDATION.md)) | 373 assertions, 29 OS screenshots, no crash |
-| Release bundle, 16 KB alignment, APK signature | validated in the same run: AAB checked by bundletool, 232 libraries 16 KB-aligned, release variant installed and launched | validated ([evidence](releases/1.4.0/VALIDATION.md)) |
-| Live loop and held-out simulation | Unchanged code and results | LSTM parity 2 × 10⁻⁶; forecast error 9.3 %; supply cost −18 % |
+| Python unit tests | 300 (299 passed + 1 display-only test skipped without a display) | 244 |
+| Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 412 assertions and 35 screenshots in each | 353 and 32 |
+| Server tests on PostgreSQL 16 | 59 passed (server unchanged in 1.6.0) | 59 passed, including a six-way idempotency race, a four-way payout race, the ledger triggers and the least-privilege role |
+| Connected mode | Not re-run for 1.6.0 (the server and `backend.py` are unchanged) | The Kivy screens against a live server: 71 assertions |
+| **Android 16 emulator (CI)** | Run by GitHub Actions on push; result in [releases/VALIDATION.md](releases/VALIDATION.md) | 418 assertions, 32 OS screenshots, no crash |
+| Release bundle, 16 KB alignment, APK signature | validated in the same CI run | validated in the 1.5.0 run |
+| Live loop and held-out simulation | Unchanged code and results | Unchanged code and results |
 
 The Docker files in `server/` were written but not run for this change (no Docker daemon was available); the server was started from the same file set the image copies and tested against PostgreSQL 16 directly.

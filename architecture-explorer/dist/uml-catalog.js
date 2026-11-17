@@ -56,9 +56,9 @@ const umlCatalog = {
    "concept": "Store only {salt, hash, iterations} at registration",
    "symbol": "LocalStore.register",
    "path": "android-app/atlas_go/store.py",
-   "line": 330,
+   "line": 361,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L330"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L361"
   },
   "sec-pw-test": {
    "concept": "Test: same password, different salts and hashes",
@@ -136,49 +136,49 @@ const umlCatalog = {
    "concept": "Sign in, 5 failures → 60 s lockout, generic error",
    "symbol": "LocalStore.login",
    "path": "android-app/atlas_go/store.py",
-   "line": 374,
+   "line": 405,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L374"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L405"
   },
   "sec-login-failures": {
    "concept": "Failure counter kept in memory only",
    "symbol": "self.failures = {}          # email -> [count, locked_until]; memory ...",
    "path": "android-app/atlas_go/store.py",
-   "line": 42,
+   "line": 43,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L42"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L43"
   },
   "sec-login-session": {
    "concept": "Session validated on load (must name an account)",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 107,
+   "line": 113,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L113"
   },
   "sec-login-guest": {
    "concept": "Guest mode (no identity, least privilege)",
    "symbol": "LocalStore.continue_as_guest",
    "path": "android-app/atlas_go/store.py",
-   "line": 391,
+   "line": 422,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L391"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L422"
   },
   "sec-login-logout": {
    "concept": "Sign out",
    "symbol": "LocalStore.logout",
    "path": "android-app/atlas_go/store.py",
-   "line": 396,
+   "line": 427,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L396"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L427"
   },
   "sec-login-clear": {
    "concept": "Clear the password field after submit",
    "symbol": "AtlasGoApp.submit_login",
    "path": "android-app/atlas_go/app.py",
-   "line": 651,
+   "line": 659,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L651"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L659"
   },
   "sec-login-lab": {
    "concept": "Explorer lab: LocalStore.login replica",
@@ -224,65 +224,65 @@ const umlCatalog = {
    "concept": "De-provision with re-authentication, anonymise history",
    "symbol": "LocalStore.delete_account",
    "path": "android-app/atlas_go/store.py",
-   "line": 403,
+   "line": 434,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L403"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434"
   },
   "sec-rbac-screens": {
    "concept": "RBAC layer 1: screen allow-list per role",
    "symbol": "AtlasGoApp.render",
    "path": "android-app/atlas_go/app.py",
-   "line": 449,
+   "line": 452,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L449"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L452"
   },
   "sec-rbac-online": {
    "concept": "RBAC layer 2: only drivers go online",
    "symbol": "LocalStore.set_online",
    "path": "android-app/atlas_go/store.py",
-   "line": 442,
+   "line": 478,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L442"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L478"
   },
   "sec-rbac-location": {
    "concept": "RBAC layer 2: only drivers share location",
    "symbol": "LocalStore.update_location",
    "path": "android-app/atlas_go/store.py",
-   "line": 452,
+   "line": 488,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L452"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L488"
   },
   "sec-rbac-respond": {
    "concept": "RBAC layer 2: a driver answers only their own job",
    "symbol": "LocalStore.driver_respond",
    "path": "android-app/atlas_go/store.py",
-   "line": 467,
+   "line": 503,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L467"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L503"
   },
   "sec-rbac-book": {
    "concept": "RBAC layer 2: only passengers or guests book",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 497,
+   "line": 533,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L533"
   },
   "sec-rbac-checkout": {
    "concept": "RBAC layer 2: only passengers or guests order food",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 694,
+   "line": 730,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L730"
   },
   "sec-rbac-kitchen": {
    "concept": "RBAC layer 2: a seller edits only their own kitchen",
    "symbol": "LocalStore._my_kitchen",
    "path": "android-app/atlas_go/store.py",
-   "line": 633,
+   "line": 669,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L633"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L669"
   },
   "sec-gw-routes": {
    "concept": "Route allow-list (method, role, regex)",
@@ -460,6 +460,126 @@ const umlCatalog = {
    "status": "impl",
    "source": "https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/deploy/atlas-explorer.service#L10"
   },
+  "sec-pre-when": {
+   "concept": "Pre-booking: pickup time must be a number, 15 minutes to 7 days ahead",
+   "symbol": "check_when",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 25,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L25"
+  },
+  "sec-pre-book": {
+   "concept": "Pre-book: passenger account, limits, bank linked; shared seats reserved in the same commit",
+   "symbol": "LocalStore.prebook",
+   "path": "android-app/atlas_go/store.py",
+   "line": 854,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L854"
+  },
+  "sec-pre-owner": {
+   "concept": "Only the signed-in owner can cancel or dispatch a pre-booking",
+   "symbol": "LocalStore._own_prebook",
+   "path": "android-app/atlas_go/store.py",
+   "line": 890,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L890"
+  },
+  "sec-pre-dispatch": {
+   "concept": "Dispatch through book(): bank asked then; a refusal restores state and charges nothing",
+   "symbol": "LocalStore.dispatch_prebook",
+   "path": "android-app/atlas_go/store.py",
+   "line": 919,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L919"
+  },
+  "sec-pre-validate": {
+   "concept": "Saved pre-bookings must belong to an account and hold seats that are really taken",
+   "symbol": "raise ValueError('Pre-booked seats are not held.')",
+   "path": "android-app/atlas_go/store.py",
+   "line": 216,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L216"
+  },
+  "sec-pre-record": {
+   "concept": "Pre-booking record schema check",
+   "symbol": "valid_prebook",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 50,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L50"
+  },
+  "sec-sos-raise": {
+   "concept": "SOS only for the passenger, guest or registered driver of the active ride; one per ride",
+   "symbol": "LocalStore.raise_sos",
+   "path": "android-app/atlas_go/store.py",
+   "line": 980,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L980"
+  },
+  "sec-sos-own": {
+   "concept": "An SOS record is visible only to the account that raised it",
+   "symbol": "LocalStore._own_sos",
+   "path": "android-app/atlas_go/store.py",
+   "line": 1004,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1004"
+  },
+  "sec-sos-resolve": {
+   "concept": "Step-up: ending an SOS needs the account password",
+   "symbol": "LocalStore.resolve_sos",
+   "path": "android-app/atlas_go/store.py",
+   "line": 1016,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1016"
+  },
+  "sec-sos-trusted": {
+   "concept": "Trusted contact: name and E.164 number validated, kept on the phone",
+   "symbol": "LocalStore.set_trusted",
+   "path": "android-app/atlas_go/store.py",
+   "line": 950,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L950"
+  },
+  "sec-sos-dial": {
+   "concept": "tel: link accepts digits only (no dial-string injection)",
+   "symbol": "dial_uri",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 92,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L92"
+  },
+  "sec-sos-sms": {
+   "concept": "sms: link: E.164 number, percent-encoded body",
+   "symbol": "sms_uri",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 99,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L99"
+  },
+  "sec-sos-intent": {
+   "concept": "Least privilege: ACTION_DIAL and ACTION_SENDTO, the user confirms in the other app",
+   "symbol": "open_uri",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 122,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L122"
+  },
+  "sec-sos-manifest": {
+   "concept": "Release check refuses CALL_PHONE and SEND_SMS",
+   "symbol": "# sends the text there, so CALL_PHONE and SEND_SMS must never be decl...",
+   "path": "android-app/scripts/check-manifest.py",
+   "line": 18,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/scripts/check-manifest.py#L18"
+  },
+  "sec-sos-message": {
+   "concept": "Data minimisation: the SOS text holds name, route, driver, time and a map link only",
+   "symbol": "sos_message",
+   "path": "android-app/atlas_go/safety.py",
+   "line": 110,
+   "status": "impl",
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/safety.py#L110"
+  },
   "sec-pay-iban": {
    "concept": "Validate an IBAN (country, length, ISO 7064 mod 97)",
    "symbol": "clean_iban",
@@ -544,41 +664,41 @@ const umlCatalog = {
    "concept": "Step-up authentication on the phone: password again for money settings",
    "symbol": "LocalStore._step_up",
    "path": "android-app/atlas_go/store.py",
-   "line": 804,
+   "line": 1036,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L804"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1036"
   },
   "sec-pay-link": {
    "concept": "Link a bank account: IBAN checked, mandate recorded, IBAN dropped",
    "symbol": "LocalStore.link_bank",
    "path": "android-app/atlas_go/store.py",
-   "line": 822,
+   "line": 1054,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L822"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1054"
   },
   "sec-pay-authorise": {
    "concept": "Authorise before anything is booked (a decline books nothing)",
    "symbol": "LocalStore._authorise",
    "path": "android-app/atlas_go/store.py",
-   "line": 813,
+   "line": 1045,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L813"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1045"
   },
   "sec-pay-payout": {
    "concept": "Pay out a balance: role, password, linked account, minimum",
    "symbol": "LocalStore.request_payout",
    "path": "android-app/atlas_go/store.py",
-   "line": 858,
+   "line": 1090,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L858"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1090"
   },
   "sec-pay-validate": {
    "concept": "Saved money state must balance and match its bookings",
    "symbol": "raise ValueError('The payment ledger does not balance.')",
    "path": "android-app/atlas_go/store.py",
-   "line": 192,
+   "line": 200,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L192"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L200"
   },
   "sec-pay-url": {
    "concept": "Server address: HTTPS only (plain HTTP for a local test machine)",
@@ -864,9 +984,9 @@ const umlCatalog = {
    "concept": "Teaching guide §14: threat model, sequence, database layers",
    "symbol": "## 14. Bank payments and the PostgreSQL back end — ✅ Implemented (san...",
    "path": "docs/INFORMATION_SECURITY.md",
-   "line": 2021,
+   "line": 2038,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2021"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/docs/INFORMATION_SECURITY.md?plain=1#L2038"
   },
   "sec-pay-lab": {
    "concept": "Explorer lab: IBAN check with mod 97",
@@ -1800,9 +1920,9 @@ const umlCatalog = {
    "concept": "Twin state: decision log, blocks and re-tests",
    "symbol": "LocalStore.twin_record",
    "path": "android-app/atlas_go/store.py",
-   "line": 607,
+   "line": 643,
    "status": "synth",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L607"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L643"
   },
   "ml-tw-lab": {
    "concept": "Explorer lab: Agent 1 rehearsal (twin.agent1 port)",
@@ -2032,9 +2152,9 @@ const umlCatalog = {
    "concept": "Live forecast as the dispatch policy's surge feature",
    "symbol": "AtlasGoApp.live_surge",
    "path": "android-app/atlas_go/app.py",
-   "line": 895,
+   "line": 930,
    "status": "synth",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L895"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/app.py#L930"
   },
   "ml-lp-lab": {
    "concept": "Explorer lab: the phone's LSTM in the browser",
@@ -2336,33 +2456,33 @@ const umlCatalog = {
    "concept": "ADT operation: book a ride",
    "symbol": "LocalStore.book",
    "path": "android-app/atlas_go/store.py",
-   "line": 497,
+   "line": 533,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L497"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L533"
   },
   "dsa-app-checkout": {
    "concept": "ADT operation: check out a cart",
    "symbol": "LocalStore.checkout",
    "path": "android-app/atlas_go/store.py",
-   "line": 694,
+   "line": 730,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L694"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L730"
   },
   "dsa-app-online": {
    "concept": "Linear scan: drivers that are online",
    "symbol": "LocalStore.online_drivers",
    "path": "android-app/atlas_go/store.py",
-   "line": 434,
+   "line": 470,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L434"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L470"
   },
   "dsa-app-history": {
    "concept": "Linear scan: the user's ride and order history",
    "symbol": "LocalStore.my_history",
    "path": "android-app/atlas_go/store.py",
-   "line": 940,
+   "line": 1172,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L940"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L1172"
   },
   "dsa-app-distances": {
    "concept": "2-D table lookup DISTANCES[pickup][destination]",
@@ -2496,17 +2616,17 @@ const umlCatalog = {
    "concept": "State machine: advance a ride",
    "symbol": "LocalStore.advance_ride",
    "path": "android-app/atlas_go/store.py",
-   "line": 592,
+   "line": 628,
    "status": "related",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L592"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L628"
   },
   "dsa-app-validate": {
    "concept": "Invariant check on saved state",
    "symbol": "LocalStore.validate",
    "path": "android-app/atlas_go/store.py",
-   "line": 107,
+   "line": 113,
    "status": "impl",
-   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L107"
+   "source": "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/atlas_go/store.py#L113"
   },
   "dsa-app-selftest": {
    "concept": "Self-test of the on-device models",
@@ -3201,7 +3321,22 @@ const umlCatalog = {
    "sec-srv-register",
    "sec-srv-require",
    "sec-srv-owner",
-   "sec-srv-delete"
+   "sec-srv-delete",
+   "sec-pre-when",
+   "sec-pre-book",
+   "sec-pre-owner",
+   "sec-pre-dispatch",
+   "sec-pre-validate",
+   "sec-pre-record",
+   "sec-sos-raise",
+   "sec-sos-own",
+   "sec-sos-resolve",
+   "sec-sos-trusted",
+   "sec-sos-dial",
+   "sec-sos-sms",
+   "sec-sos-intent",
+   "sec-sos-manifest",
+   "sec-sos-message"
   ],
   "security/gateway": [
    "sec-gw-routes",
