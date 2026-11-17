@@ -28,7 +28,7 @@ LSTM predicts demand → RL agent chooses actions (LSTM and RL agent in a closed
 - **Digital twin** of Cork City **(Mirror->See->Foresee)**: mirrors drivers, rides and couriers, and plays the next 30 minutes from Layer 1's forecast.
 - **Agent 1 (Foresight Evaluator)· Dispatch** rehearses Layer 1's top three drivers in the twin and sends the lowest total wait (*Why this driver · twin-tested*).
 - **Agent 2 (Foresight Evaluator)· Pricing + moves**: capped surge (never above ×2.0) and *Twin hints* for drivers and kitchens.
-- **Agent 3 (Watch->Catch->Evaluate->Place· Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back.
+- **Agent 3 (Watch->Catch->Evaluate->Place)· Guardian** checks every decision, blocks unsafe ones (e.g. a ×4 price), falls back to Layer 1, re-tests the agent 500 times and hands control back.
 - **Shared rides:** a rider is already in the car. The new rider waits while the driver comes with that rider, boards, and is **dropped only after the earlier rider's drop-off**.
 
 | Live loop (Layer 1) | Twin-tested ride | Shared car: earlier rider first | Twin tab | Guardian log |
