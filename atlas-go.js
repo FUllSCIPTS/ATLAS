@@ -1,17 +1,17 @@
-// ATLAS Go 1.5.0 — the Android app (Python/Kivy): passenger, driver and seller accounts, live map, on-device intelligence,
+// ATLAS Go 1.6.0 — the Android app (Python/Kivy): passenger, driver and seller accounts, live map, on-device intelligence,
 // bank payments and an optional PostgreSQL server. 1.2.0 introduced this map; 1.3.0 added the digital twin (Layer 2), 1.4.0 the
-// live LSTM → RL loop (goLayersSystem below) and 1.5.0 bank payments, payouts and the server (Security → Bank payments & PostgreSQL).
+// live LSTM → RL loop (goLayersSystem below) and 1.5.0 bank payments, payouts and the server (Security → Bank payments & PostgreSQL); 1.6.0 pre-booked rides and SOS (safety.py).
 // Same 900 × 500 coordinate system as atlas.js. Nodes are 188 × 56 unless they set h.
 const goSystem = {
   id: "go",
-  label: "ATLAS Go 1.5.0 app",
-  tagline: "ANDROID APP 1.5.0 / ACCOUNTS · LIVE MAP · BANK PAYMENTS · ON-DEVICE INTELLIGENCE · TWIN · LIVE LOOP",
-  intro: "ATLAS Go 1.5.0 runs on the phone with passenger, driver and food-seller accounts and a live map. New in 1.5.0: passengers pay rides and food by bank, drivers and sellers are paid out to their bank (a sandbox bank: no real money moves), and an account can be connected to a PostgreSQL server for accounts, payments and payouts — see <a class=\"sec-inline-link\" href=\"#security-payments\">Security → Bank payments & PostgreSQL</a>. Trace how a registered driver competes in the learned dispatch policy, how a seller's kitchen sets the courier timing, how journeys move on the live map, and how surges are forecast from two simulated years of Cork. Since 1.3.0 a digital twin with three agents sits on top of these models, and since 1.4.0 the LSTM runs live and retrains itself — open <strong>ATLAS Go 1.4 · two learning layers</strong> to trace them.",
+  label: "ATLAS Go 1.6.0 app",
+  tagline: "ANDROID APP 1.6.0 / ACCOUNTS · LIVE MAP · PRE-BOOK · SOS · BANK PAYMENTS · ON-DEVICE INTELLIGENCE · TWIN · LIVE LOOP",
+  intro: "ATLAS Go 1.6.0 runs on the phone with passenger, driver and food-seller accounts and a live map. New in 1.6.0: ordinary and shared rides can be <strong>pre-booked</strong> 15 minutes to 7 days ahead (fare fixed, shared seats held, driver chosen 10 minutes before pickup), and passengers and drivers have an <strong>SOS</strong> button during a ride that records where and when and opens the dialler on 112 and a text to a trusted contact — nobody is alerted until the user calls or sends. Since 1.5.0 passengers pay rides and food by bank, drivers and sellers are paid out to their bank (a sandbox bank: no real money moves), and an account can be connected to a PostgreSQL server for accounts, payments and payouts — see <a class=\"sec-inline-link\" href=\"#security-payments\">Security → Bank payments & PostgreSQL</a>. Trace how a registered driver competes in the learned dispatch policy, how a seller's kitchen sets the courier timing, how journeys move on the live map, and how surges are forecast from two simulated years of Cork. Since 1.3.0 a digital twin with three agents sits on top of these models, and since 1.4.0 the LSTM runs live and retrains itself — open <strong>ATLAS Go 1.4 · two learning layers</strong> to trace them.",
   actions: '<a class="guide-link primary" href="https://github.com/FUllSCIPTS/ATLAS/tree/main/android-app">ATLAS Go source <span aria-hidden="true">↗</span></a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md">App architecture</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md">UML blueprint</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/server/README.md">PostgreSQL server (1.5.0)</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.4.0/README.md">Download 1.4.0 APK</a><a class="guide-link" href="https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/releases/1.2.0/README.md">1.2.0 release</a>',
   root: "android-app/",
   source: "https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/",
   foldersDetail: "Browse the folders and files of the ATLAS Go Android app. Open a file to read its source on GitHub.",
-  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.5.0 source: 244 Python tests, 353 UI assertions in two screen sizes, 59 server tests on PostgreSQL 16, and 418 assertions in the Android 16 emulator click-through with 32 screenshots. 1.4.0 release: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
+  deploymentNote: ["Build and verify", "Buildozer packages the Python app for Android. 1.6.0 source: 300 Python tests, 412 UI assertions and 35 screenshots in two screen sizes, 59 server tests on PostgreSQL 16; the Android 16 emulator click-through runs in CI on every push. 1.5.0: 244 Python tests, 353 UI assertions and 418 emulator assertions with 32 screenshots. 1.4.0 release: 173 Python tests, 314 UI assertions in two screen sizes and 373 assertions in an Android 16 emulator click-through with screenshots. Signed APKs, checksums and source for 1.2.0, 1.3.0 and 1.4.0 are in android-app/releases."],
   defaultSelected: "dispatch",
   defaultFolder: "intelligence",
   openFolders: ["atlas_go", "training"],
@@ -25,10 +25,10 @@ const goSystem = {
   components: {
     rideui: {
       title: "Ride booking", tech: "Home · solo · shared", group: "screen", icon: "car", y: 50, file: "app",
-      summary: "Choose pickup, destination and comfort, book a solo ride or join a shared offer, then follow the ride through its stages.",
-      inputs: "Pickup, destination, comfort, seats and shared offer",
+      summary: "Choose pickup, destination and comfort, book a solo ride or join a shared offer, then follow the ride through its stages. Since 1.6.0 a When choice pre-books either kind of ride for later, and the live ride has an SOS button.",
+      inputs: "Pickup, destination, comfort, seats, shared offer and pickup time (now or 15 minutes to 7 days ahead)",
       outputs: "Driver card with the dispatch explanation",
-      notes: "Solo bookings use the dispatch policy's top choice. Shared rides keep the offer's driver. Stages advance only on the simulation buttons.",
+      notes: "Solo bookings use the dispatch policy's top choice. Shared rides keep the offer's driver. A pre-booked ride fixes the ordinary fare (shared: holds the seats) and is dispatched by the app 10 minutes before pickup, so the app must be open then. SOS records ride, time and place, then opens the dialler on 112 and a text to the trusted contact; it alerts nobody by itself.",
     },
     foodui: {
       title: "Food & basket", tech: "Menu · checkout · tracking", group: "screen", icon: "bag", y: 125, file: "app",
@@ -81,10 +81,10 @@ const goSystem = {
     },
     store: {
       title: "LocalStore", tech: "state.json · atomic save", group: "app", icon: "database", y: 350, file: "store",
-      summary: "Holds accounts, the basket, active ride and order, history, shared seats, bank payments and payouts (1.5.0) and UI state, and saves them atomically in app-private storage.",
-      inputs: "book(), checkout(), link_bank(), request_payout(), advance and reset commands",
+      summary: "Holds accounts, the basket, active ride and order, history, shared seats, bank payments and payouts (1.5.0), pre-booked rides and SOS records (1.6.0) and UI state, and saves them atomically in app-private storage.",
+      inputs: "book(), prebook(), dispatch_prebook(), raise_sos(), checkout(), link_bank(), request_payout(), advance and reset commands",
       outputs: "Validated state restored on the next start",
-      notes: "Validates the dispatch explanation, courier plan and outlook day on load, and since 1.5.0 rebuilds the payment ledger and refuses a file that does not balance. Damaged JSON is kept as state.invalid.json and a clean demo state is created. A linked bank account is saved as holder, country and last four characters only.",
+      notes: "Validates the dispatch explanation, courier plan and outlook day on load, and since 1.5.0 rebuilds the payment ledger and refuses a file that does not balance. Damaged JSON is kept as state.invalid.json and a clean demo state is created. A linked bank account is saved as holder, country and last four characters only. Since 1.6.0 it also refuses a file whose scheduled shared pre-bookings hold seats that are not taken.",
     },
     domain: {
       title: "Domain model", tech: "Fares · offers · cart", group: "app", icon: "layers", y: 425, file: "domain",
@@ -271,6 +271,7 @@ const goSystem = {
         { id: "app", name: "app.py", detail: "Kivy screens, charts, navigation and the intelligence and learning lab screens.", example: ["app.py"], component: "app" },
         { id: "store", name: "store.py", detail: "Atomic JSON persistence: accounts, rides, orders, kitchens, live progress, bank payments and payouts.", example: ["store.py"] },
         { id: "paymentspy", name: "payments.py", detail: "1.5.0: IBAN validation, sandbox bank, payment lifecycle, fee split and double-entry ledger; shared with the server.", example: ["payments.py"], component: "store" },
+        { id: "safetypy", name: "safety.py", detail: "1.6.0: pre-booking time rules and offered times, record validation, tel: and sms: links, SOS message text, Android dialler and messaging hand-off.", example: ["safety.py"], component: "store" },
         { id: "backendpy", name: "backend.py", detail: "1.5.0: client for the ATLAS Go server — connect, link a bank account, idempotent outbox sync, payouts.", example: ["backend.py"], component: "store" },
         { id: "accounts", name: "accounts.py", detail: "Roles, field validation and PBKDF2 password hashing.", example: ["accounts.py"], component: "acctui" },
         { id: "livemap", name: "livemap.py", detail: "LiveMap widget and TileLoader: OSM tiles, disk cache, offline layer. location.py adds the device position.", example: ["livemap.py", "location.py"], component: "mapui" },
@@ -295,7 +296,7 @@ const goSystem = {
     {
       name: "tests",
       children: [
-        { id: "tests", name: "Unit tests", detail: "244 tests (1.5.0): calendar, outlook, policy, courier timing, lab, accounts, maps, roles, domain, store, shared rides, the digital twin, the live loop, bank payments and the server client.", example: ["test_intelligence.py", "test_domain.py", "test_roles.py", "test_accounts_geo.py", "test_shared_ride.py", "test_twin.py", "test_loop.py"], component: "outlook" },
+        { id: "tests", name: "Unit tests", detail: "300 tests (1.6.0): calendar, outlook, policy, courier timing, lab, accounts, maps, roles, domain, store, shared rides, the digital twin, the live loop, bank payments, the server client, pre-booked rides and SOS.", example: ["test_intelligence.py", "test_domain.py", "test_roles.py", "test_accounts_geo.py", "test_shared_ride.py", "test_twin.py", "test_loop.py", "test_prebook_sos.py"], component: "outlook" },
       ],
     },
     {
