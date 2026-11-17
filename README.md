@@ -35,12 +35,6 @@ LSTM predicts demand → RL agent chooses actions → actual outcomes are record
 |---|---|---|---|---|
 | <img src="android-app/docs/screenshots/30-live-loop.png" alt="Live LSTM to RL loop" width="150"> | <img src="android-app/docs/screenshots/04-ride-live.png" alt="Ride booked with twin-tested driver" width="150"> | <img src="android-app/docs/screenshots/25-shared-co-drop.png" alt="Shared ride dropping the earlier rider first" width="150"> | <img src="android-app/docs/screenshots/26-twin-tab.png" alt="Twin tab" width="150"> | <img src="android-app/docs/screenshots/27-guardian-log.png" alt="Guardian log" width="150"> |
 
-**Tested (1.6.0, 17 November 2026):** 300 Python unit tests (56 new for pre-booking and SOS); 412 UI assertions and 35 screenshots in each of two desktop screen configurations; the 59 server tests still pass (server unchanged). In GitHub Actions ([run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/44033764144)) the APK and AAB were built and the Android 16 emulator click-through passed with **483 assertions and 35 screenshots**, no crash; the non-debuggable release build launches; bundle validation, the release manifest (1.6.0 / code 7, the same four permissions) and 16 KB native alignment pass ([evidence](android-app/releases/VALIDATION.md)). Not tested: the dialler and SMS hand-off on a physical phone.
-
-**Tested (1.5.0, 16 November 2026):** 244 Python unit tests; 353 UI assertions and 32 screenshots in each of two desktop screen configurations; 59 server tests on PostgreSQL 16 (including concurrent-payment and concurrent-payout races and the ledger triggers); the Kivy screens driven against a live server with the result checked in PostgreSQL. In GitHub Actions ([run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/43961614528)) the APK and AAB were built and the Android 16 emulator click-through passed 418 assertions with 32 screenshots ([evidence](android-app/releases/VALIDATION.md)). The server's Docker files were not run.
-
-**Tested (1.4.0 release):** 173 Python unit tests; 314 UI assertions in each of two desktop screen configurations; the Buildozer APK/AAB build and **373 assertions with 29 screenshots on an Android 16 emulator**, no crash; the non-debuggable release build launches; bundle validation, release manifest (1.4.0 / code 5) and 16 KB native alignment pass ([evidence](android-app/releases/1.4.0/VALIDATION.md)).
-
 # PAST WORK: 
 ## ATLAS --- The Theoretical Ground!
 ## ATLAS — Supplementary Code and Data
