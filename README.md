@@ -1,11 +1,11 @@
 # PRESENT WORK:
 ## ATLAS Go --- The Artefact!
 
-**[▶ Watch the ATLAS Go demo (7 min 39 s)](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
+**[▶ Watch the ATLAS Go --- Full Version](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.3-twin.mp4?raw=true)
 
 ### ATLAS Go — smooth version (1.6.0)
 
-**[▶ Watch the ATLAS Go smooth demo (4 min 36 s · 1080p)](android-app/docs/video/atlas-go-demo-v1.6.0.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.6.0.mp4?raw=true)
+**[▶ Watch the ATLAS Go --- Smooth Version](android-app/docs/video/atlas-go-demo-v1.6.0.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.6.0.mp4?raw=true)
 ---
 ## ATLAS Go Android app
 
