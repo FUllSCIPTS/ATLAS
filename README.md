@@ -67,9 +67,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 3) [Final handover and acceptance checks](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/FINAL_HANDOVER.md) · [UML blueprint and class/function catalog](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md)
 
-4) [ATLAS Go 1.6.0 Python Android app — accounts, live map, rides, shared rides, pre-booked rides, SOS, food, bank payments and payouts, the live LSTM → RL loop (Layer 1) and the digital twin with three agents (Layer 2)](android-app/README.md) · [PostgreSQL server for accounts and payments](android-app/server/README.md) · [Source code (MIT): browse](android-app/) or [download the 1.4.0 zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip) · [Screenshots and user guide](android-app/docs/USER_GUIDE.md) · [Google Play release guide](android-app/docs/GOOGLE_PLAY.md)
-
-5) [▶ Watch the ATLAS Go demo video (4 min 52 s) — the app (ride booking, driver gets location, food order, shop-to-home delivery); how an RL agent learns who to dispatch and when to send the courier; two years of Cork's holidays and events, with the agent's experience log helping the LSTM predict surges hours ahead; then ATLAS rewiring itself as users scale up and down: monolith → hybrid → microservices → monolith](android-app/docs/video/atlas-go-demo.mp4)
+4) [▶ Watch the ATLAS Go demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4)
 
 # Learning path ways
 
