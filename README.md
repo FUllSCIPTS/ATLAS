@@ -16,9 +16,9 @@
 
 | Open or download | Contents |
 |---|---|
-| [**Installable Android APK 1.4.0 — request access**](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) | The newest APK on Drive is 1.4.0 (without bank payments, pre-booking or SOS); the 1.6.0 APK is built by the [Android workflow](.github/workflows/atlas-android.yml) and uploaded by the owner after review. Release APK (not debuggable), built and tested in CI. Open the link and click **Request access**; once approved, download with your Google account. Installs over 1.3.0; uninstall 1.2.0 first. SHA-256 `f0a6d6472c2e0aeec3b3770e112cbd0d4a474f66e3810886f89ec0498ee50977` |
+| [**Installable Android APK 1.6.0 — request access**](https://drive.google.com/drive/folders/1iio7hs5A7p5sM2GOh3rroG2XemnXw6KV) | The tested 1.6.0 build `atlas-go-1.6.0-demo.apk` (SHA-256 `4ba860f48bb9c7322fd85f91b7c5b280f7027e471f30d5d77b36dc9abcf30bb8`), built and tested by the [Android workflow](https://github.com/FUllSCIPTS/ATLAS/actions/runs/44033764144) (483 emulator assertions, 35 screenshots). It is a debug-signed demonstration build; the Drive folder still holds the release-signed 1.4.0 APK until the owner uploads the 1.6.0 file ([details](android-app/releases/1.6.0/README.md#for-the-owner)). Click **Request access**. The demo APK has a different signing key from 1.4.0, so uninstall 1.4.0 first. |
 | **Source code 1.6.0** — [browse `android-app/`](android-app/) · [server: `android-app/server/`](android-app/server/README.md) | The complete source under the [MIT licence](LICENSE): the `atlas_go` package (new: `safety.py`; 1.5.0: `payments.py`, `backend.py`; 1.4.0: `loop.py`, `lstm_weights.py`; 1.3.0: `twin.py`) with 300 tests, the PostgreSQL server with 59 tests, training scripts, build configuration and docs. [1.4.0 source zip](https://github.com/FUllSCIPTS/ATLAS/releases/download/atlas-go-v1.4.0/atlas-go-1.4.0-source.zip), SHA-256 `7f360bc79c49e31ffc7345e58cc537620d79270e47b58a800a7e7903b92bdc76` |
-| [ATLAS Go 1.4.0 release page](android-app/releases/1.4.0/README.md) | Checksums, release notes, test evidence and the 29 Android screenshots |
+| [ATLAS Go 1.6.0 release page](android-app/releases/1.6.0/README.md) | Checksums, release notes, test evidence and the 35 Android screenshots · [1.4.0 release page](android-app/releases/1.4.0/README.md) |
 | [What changed](android-app/CHANGELOG.md) · [User guide](android-app/docs/USER_GUIDE.md) | Every screen, including pre-booking, Safety & SOS, Bank & payments, the live loop, the Twin tab and the shared-ride stop order |
 | Earlier versions | [1.3.0](android-app/releases/1.3.0/README.md) · [1.2.0](android-app/releases/1.2.0/README.md) · [1.1.0 demo video (4 min 52 s)](android-app/docs/video/atlas-go-demo.mp4) |
 
@@ -26,16 +26,28 @@
 
 LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated.
 
-| Component | 1.3.0 | 1.4.0 |
-|---|---|---|
-| LSTM training implementation | Present | Present (+ `training/export_lstm.py` for the on-device LSTM) |
-| RL agent training implementation | Present | Present (+ forecast-aware supply agent) |
-| RL experience used to train the LSTM | Connected (simulation) | Connected, offline and on the phone |
-| LSTM forecast feature in dispatch | Represented (fixed tables) | **Live** next-hour LSTM forecast |
-| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented** — every city hour |
-| Continuous online LSTM–RL retraining | Not implemented | **Implemented** — agent hourly, LSTM nightly, champion/challenger validation on held-out hours |
+| Component | 1.3.0 | 1.4.0 | 1.6.0 |
+|---|---|---|---|
+| LSTM training implementation | Present | Present (+ `training/export_lstm.py` for the on-device LSTM) | | Unchanged |
+| RL agent training implementation | Present | Present (+ forecast-aware supply agent) | | Unchanged |
+| RL experience used to train the LSTM | Connected (simulation) | Connected, offline and on the phone | | Unchanged |
+| LSTM forecast feature in dispatch | Represented (fixed tables) | **Live** next-hour LSTM forecast | | Unchanged |
+| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented** — every city hour | | Unchanged |
+| Continuous online LSTM–RL retraining | Not implemented | **Implemented** — agent hourly, LSTM nightly, champion/challenger validation on held-out hours | | Unchanged |
 
 Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent.
+
+**App components, 1.3.0 → 1.6.0**
+
+| Component | 1.3.0 | 1.4.0 | 1.6.0 |
+|---|---|---|---|
+| User registration (passenger, driver, food seller) | On the phone | On the phone | On the phone and, when connected, on the server (since 1.5.0) |
+| Bank payment option for passengers, drivers and food sellers | Not implemented | Not implemented | **Implemented** (sandbox bank, since 1.5.0): pay by bank, balances, payouts |
+| Back end using PostgreSQL | Not implemented | Not implemented | **Implemented** (since 1.5.0): [`server/`](android-app/server/README.md), optional |
+| Pre-book an ordinary ride | Not implemented | Not implemented | **Implemented**: 15 minutes to 7 days ahead, fare fixed, driver chosen 10 minutes before pickup |
+| Pre-book a shared ride | Not implemented | Not implemented | **Implemented**: seats held from the moment you pre-book |
+| SOS during a ride, trusted contact | Not implemented | Not implemented | **Implemented**: records ride, time and place; opens the dialler on 112 and a text to your contact; no new permission |
+| Android permissions | 4 | 4 | 4 |
 
 **Layer 2 — the digital twin and three agents (1.3.0, as in the video)**
 
@@ -103,7 +115,7 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 
 5) [📚 Data Structures and Algorithms — 24 illustrated lessons from O/Ω/Θ to graphs, incl. singly, doubly and circular linked lists; 30 Colab experiments with charts](docs/DATA_STRUCTURES_ALGORITHMS.md) · [Launch Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/dsa_lab/DSA_Colab_Labs.ipynb) · [Lab manual](dsa_lab/README.md) · [Live Data Structures view in the explorer](https://fullscipts.github.io/ATLAS/#dsa)
 
-6) [🐍 Python Programming — 20 illustrated beginner-to-intermediate lessons + 15 software-testing lessons with 10 real-world testing tasks + 18 real-app integration labs (button → API → database → screen; registration, bank payments and payouts on ATLAS Go itself) + 10 auto-graded app-building tickets (auth, roles, rate limiting, CSV export, migrations, outbox), every example runnable and linked to ATLAS Go code](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
+6) [🐍 Python Programming — 20 illustrated beginner-to-intermediate lessons + 15 software-testing lessons with 10 real-world testing tasks + 19 real-app integration labs (button → API → database → screen; registration, bank payments and payouts on ATLAS Go itself, and a lesson on adding SOS to a working app: front end, API, back end, testing) + 10 auto-graded app-building tickets (auth, roles, rate limiting, CSV export, migrations, outbox), every example runnable and linked to ATLAS Go code](docs/PYTHON_PROGRAMMING.md) · [Launch 20 Google Colab labs](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](python_lab/README.md) · [ATLAS Go function catalogue](android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
 
 7) [🌐 Web Technology — 23 illustrated lessons: HTTP, HTML, CSS, JavaScript, FastAPI, SQL, transactions, security, performance, testing and deployment](docs/WEB_TECHNOLOGY.md) · [Runnable full-stack lab](web_lab/README.md) · [20 Colab experiments (incl. real-browser runs)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/web_lab/Web_Technology_Colab_Labs.ipynb) · [UML catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md) · [Continue with Web Technology 2 (Kivy front end)](docs/WEB_TECHNOLOGY_2.md) · [Web Technology 2 Colab lab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) · [Web Technology 2 lab manual](kivy_lab/README.md)

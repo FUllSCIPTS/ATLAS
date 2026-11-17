@@ -1,6 +1,6 @@
 # Android downloads
 
-**Source is at 1.6.0** (pre-booked rides and SOS; 1.5.0 added bank payments and the PostgreSQL server; [changelog](../CHANGELOG.md)). The newest installable APK on Google Drive is **[1.4.0](1.4.0/README.md)**; the 1.6.0 APK and AAB are produced by the [Android workflow](../../.github/workflows/atlas-android.yml) and published by the owner after review. [VALIDATION.md](VALIDATION.md) and [SHA256SUMS](SHA256SUMS) in this folder always describe the latest build that workflow verified.
+**Source is at 1.6.0** (pre-booked rides and SOS; 1.5.0 added bank payments and the PostgreSQL server; [changelog](../CHANGELOG.md)). **[ATLAS Go 1.6.0 downloads](1.6.0/README.md)** has the checksums, release notes, validation and screenshots of the tested 1.6.0 build. The newest *release-signed* APK on Google Drive is still **[1.4.0](1.4.0/README.md)**; the 1.6.0 APK and AAB are built by the [Android workflow](../../.github/workflows/atlas-android.yml), and the owner uploads the signed APK after review. [VALIDATION.md](VALIDATION.md) and [SHA256SUMS](SHA256SUMS) in this folder always describe the latest build that workflow verified.
 
 **Current version: [ATLAS Go 1.2.0](1.2.0/README.md)** — [installable APK on Google Drive (request access)](https://drive.google.com/file/d/1lX5DF9e8ierusJ1OCuVHkeqeCoBgqQfq/view); — installable APK, unsigned AAB, SHA256SUMS, release notes and validation are in [`releases/1.2.0/`](1.2.0/). The table below covers the earlier 1.1.0 and 1.0.0 releases.
 

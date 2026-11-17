@@ -61,14 +61,27 @@ ATLAS_API_URL=http://127.0.0.1:8080 python main.py      # then You → Bank & pa
 
 **LSTM predicts demand → RL agent chooses actions → actual outcomes are recorded → both models are periodically updated and validated** — now running on the phone (`atlas_go/loop.py`, pure Python).
 
-| Component | 1.3.0 | 1.4.0 |
-|---|---|---|
-| LSTM training implementation | Present (`training/city_sim.py`) | Present; plus `training/export_lstm.py` for the on-device LSTM |
-| RL agent training implementation | Present (`training/city_sim.py`, `training/rl_sim.py`) | Present; plus the forecast-aware supply agent |
-| RL experience used to train the LSTM | Connected (simulation) | Connected, offline **and** on the phone |
-| LSTM forecast feature in dispatch | Represented (fixed hourly tables) | **Live**: the LSTM's next-hour forecast is the dispatch surge feature |
-| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented**: every city hour, 24 h window → 6 h forecast → agent's state |
-| Continuous online LSTM–RL retraining | Not implemented | **Implemented**: agent hourly (challenger), LSTM output layer nightly; champion/challenger validation on held-out hours |
+| Component | 1.3.0 | 1.4.0 | 1.6.0 |
+|---|---|---|---|
+| LSTM training implementation | Present (`training/city_sim.py`) | Present; plus `training/export_lstm.py` for the on-device LSTM | Unchanged |
+| RL agent training implementation | Present (`training/city_sim.py`, `training/rl_sim.py`) | Present; plus the forecast-aware supply agent | Unchanged |
+| RL experience used to train the LSTM | Connected (simulation) | Connected, offline **and** on the phone | Unchanged |
+| LSTM forecast feature in dispatch | Represented (fixed hourly tables) | **Live**: the LSTM's next-hour forecast is the dispatch surge feature | Unchanged |
+| Live LSTM inference feeding the on-device RL agent | Not implemented | **Implemented**: every city hour, 24 h window → 6 h forecast → agent's state | Unchanged |
+| Continuous online LSTM–RL retraining | Not implemented | **Implemented**: agent hourly (challenger), LSTM output layer nightly; champion/challenger validation on held-out hours | Unchanged |
+
+**App components, 1.3.0 → 1.6.0**
+
+| Component | 1.3.0 | 1.4.0 | 1.6.0 |
+|---|---|---|---|
+| User registration (passenger, driver, food seller) | On the phone | On the phone | On the phone and, when connected, on the server (since 1.5.0) |
+| Bank payment option for passengers, drivers and food sellers | Not implemented | Not implemented | **Implemented** (sandbox bank, since 1.5.0): pay by bank, balances, payouts |
+| Back end using PostgreSQL | Not implemented | Not implemented | **Implemented** (since 1.5.0): [`server/`](server/README.md), optional |
+| Pre-book an ordinary ride | Not implemented | Not implemented | **Implemented**: 15 minutes to 7 days ahead, fare fixed, driver chosen 10 minutes before pickup |
+| Pre-book a shared ride | Not implemented | Not implemented | **Implemented**: seats held from the moment you pre-book |
+| SOS during a ride, trusted contact | Not implemented | Not implemented | **Implemented**: records ride, time and place; opens the dialler on 112 and a text to your contact; no new permission |
+| Android permissions | 4 | 4 | 4 |
+
 
 Held-out simulation (Jul–Dec 2026): next-hour forecast error 9.3 %; supply cost −18 % against the 1.2 calendar agent. Intelligence → **Live loop** shows the forecast, the agent's decision, the model versions and each night's accept/reject; **Run 7 city days** runs a week of the loop.
 

@@ -1,6 +1,6 @@
 # Python Programming with ATLAS Go — an illustrated, standalone course
 
-**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons and 10 real-world testing tasks (Part II) + 18 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
+**Level:** absolute beginner to intermediate. **Plan:** 20 lessons (Part I) + 15 software-testing lessons and 10 real-world testing tasks (Part II) + 19 app-integration labs (Part III) + 10 graded app-building tickets (Part IV), 14–20 weeks. **Tools:** Python 3.10+, a browser, Google Colab (nothing to install). No Android device needed.
 
 [Open the 20 labs in Colab](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb) · [Lab manual](../python_lab/README.md) · [Lab source](../python_lab/experiments.py) · [ATLAS Go UML](https://github.com/FUllSCIPTS/ATLAS/blob/architecture-explorer/architecture-explorer/starter/docs/UML_BLUEPRINT.md#android-app-atlas-go) · [ATLAS Go method catalogue](https://github.com/FUllSCIPTS/ATLAS/blob/main/android-app/docs/ARCHITECTURE.md#complete-source-method-catalog)
 
@@ -1622,7 +1622,7 @@ On PostgreSQL the test passes because `Service.payout` locks the driver's accoun
 
 [Lab source](../python_lab/app_integration.py) · [Integration tests](../python_lab/tests/test_app_integration.py) · [Open in Colab (Part III section)](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/python_lab/Python_Colab_Labs.ipynb)
 
-Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it (A01–A12). Six more (A13–A18) run the same kinds of flow on ATLAS Go 1.5.0 itself: registration, bank payments and payouts through its HTTP client and its PostgreSQL server.
+Parts I and II looked at one function at a time. In a real app, **one button click crosses five layers** before any data comes back, and most bugs live *between* the layers: a form that sends a request twice, a list that repeats a row, a save that erases someone else's change, a crash that leaves half the data written. Part III builds a complete ride-booking app with the standard library only — so every hop is visible — and runs twelve labs on it (A01–A12). Six more (A13–A18) run the same kinds of flow on ATLAS Go 1.5.0 itself: registration, bank payments and payouts through its HTTP client and its PostgreSQL server. A19 is the lesson every working developer needs most: **adding a feature to an app that already works** (ATLAS Go 1.6.0's SOS button), from the requirement to the tests, across the front end, the API, the back end and the database.
 
 ~~~mermaid
 sequenceDiagram
@@ -1917,6 +1917,104 @@ After sync 2 the two sides disagree — the dangerous moment. Sync 3 sends that 
 
 The last row is not an error: it is exactly the net amount of a payment still in the outbox, and it disappears after the next sync. A difference that does *not* match an outbox entry is the one to investigate. **Exercise:** write `reconcile(store, client)` that returns the list of payments on one side only, and use it to explain a difference you create by editing `state.json`.
 
+## A19 — Adding a feature to an app that already works: SOS
+
+[Lab source](../python_lab/feature_flow.py) · [Tests](../python_lab/tests/test_feature_flow.py) · [The real feature in ATLAS Go 1.6.0](../android-app/CHANGELOG.md) · [Security view](INFORMATION_SECURITY.md#s5--rbac-least-privilege-and-state-machines)
+
+**Idea.** Labs A01–A18 *read* an app. Most of a developer's working life is the opposite: the app exists, people use it, and someone asks for **one more button**. The skill is not typing the new code; it is making the change in the right order, in the right layers, without breaking what already works. ATLAS Go 1.6.0 got an **SOS** button this way, and this lesson walks the same change on the Part III app so that every layer is visible.
+
+### 1. Start from the requirement, not the code
+
+A feature request is a sentence: *"Add an SOS option."* Turn it into rules before anything is built. Ask five questions and write the answers down; each one becomes a test later.
+
+| Question | Answer for SOS | Where the answer is enforced |
+|---|---|---|
+| **Who** may do it? | Only the passenger (or guest) of the ride in progress, and the ride's registered driver. A seller, or a stranger who knows the ride number, may not. | service (`403`) · `LocalStore.raise_sos` |
+| **When**? | Only while a ride is running. Before it starts or after it ends the answer is "call 112". | service (`409`) · state check |
+| **What is stored**, and what must not be? | Ride, role, time, position, status. Not an address book, not a recording. | table definition · data-minimisation |
+| **What if it happens twice?** | One active SOS per ride. A second tap returns the first record. | unique index + service (`200` replay) |
+| **What must the screen *not* promise?** | ATLAS Go has no control room. The screen must not say "help is on the way". | front end wording |
+
+The last row is the one beginners skip. A safety feature that over-promises is worse than none: someone waits for help that is not coming. In ATLAS Go the Emergency screen says in its first lines that the SOS **does not alert anyone by itself**, and offers **Call 112** and **Message my trusted contact**, which open the phone's own dialler and messaging app. That decision is also a *security* decision: because the app only opens those apps with the fields filled in (`ACTION_DIAL`, `ACTION_SENDTO`), it needs no `CALL_PHONE` or `SEND_SMS` permission, and `scripts/check-manifest.py` fails the release if either appears.
+
+### 2. The change, layer by layer
+
+Work from the bottom up, so that every layer you add stands on one that is already tested.
+
+~~~mermaid
+sequenceDiagram
+    actor U as Passenger
+    participant S as SosScreen (front end)
+    participant C as ApiClient
+    participant A as ApiServer (new routes)
+    participant V as SosService (back end)
+    participant D as SQLite (new table)
+    U->>S: tap SOS
+    S-->>U: "Raise an SOS? Tap again to confirm." (no request)
+    U->>S: tap again
+    S->>C: POST /api/rides/1/sos {passenger, lat, lon, source}
+    C->>A: HTTP request
+    A->>V: raise_sos(1, body)
+    V->>V: validate point, check owner
+    V->>D: BEGIN IMMEDIATE · ride assigned? · active SOS?
+    V->>D: INSERT sos · INSERT audit · COMMIT
+    D-->>V: new row
+    V-->>A: (record, created=True)
+    A-->>C: 201 + Idempotent-Replay: false
+    C-->>S: Response
+    S-->>U: "SOS recorded. Call 112 now - this app alerts nobody by itself."
+~~~
+
+| Layer | What you add | Lab (`feature_flow.py`) | ATLAS Go 1.6.0 |
+|---|---|---|---|
+| **1 Database** | A table, with the rules the database can enforce itself | `MIGRATION`: `CHECK` on latitude, longitude, source, status; a **partial unique index** `ON sos(ride_id) WHERE status = 'active'` | the `sos` list in `state.json`, checked by `LocalStore.validate` and `safety.valid_sos` |
+| **2 Back end** | The rules, in one place | `SosService.raise_sos`, `resolve` | `LocalStore.raise_sos`, `resolve_sos`, `set_trusted` |
+| **3 API** | Two routes next to the old ones | `add_sos_routes`: `POST /api/rides/{id}/sos`, `POST /api/sos/{id}/resolve` | none: the phone calls the store directly (see section 4) |
+| **4 Front end** | A button, a confirmation, honest words | `SosScreen._on_sos` | `AtlasGoApp.sos_button`, `sos_screen`, `safety_screen` |
+| **5 Tests** | The new rules, and proof the old ones held | `tests/test_feature_flow.py` | `tests/test_prebook_sos.py`, acceptance steps and screenshot `36-sos` |
+
+**The database first: a migration.** The app already has data, so the change must run on a database that exists and must be safe to run twice:
+
+~~~python
+CREATE TABLE IF NOT EXISTS sos ( ... lat REAL NOT NULL CHECK (lat BETWEEN -90 AND 90), ...
+    CHECK ((status = 'resolved') = (resolved_at IS NOT NULL)) );
+CREATE UNIQUE INDEX IF NOT EXISTS sos_one_active ON sos(ride_id) WHERE status = 'active';
+~~~
+
+Two habits are worth copying. First, the rule *"one active SOS per ride"* is a unique index, not only an `if` in Python: four taps at the same instant can all pass an `if`, but only one can pass the index (lab table A19.5: one `201`, three `200`). Second, the `CHECK`s hold even if a later change forgets a rule in the service (A19.2: the database refuses latitude 91 by itself). The lab also proves the migration changed no existing row (A19.1).
+
+**The back end: the rules, in order.** `SosService.raise_sos` validates the point *before* touching the database (a `422` costs nothing), checks ownership (`403`), then opens a transaction, re-reads the ride's state inside it (it may have changed since the first read), returns the existing SOS if there is one, and otherwise inserts the SOS and an audit row **together**, so that either both exist or neither does. The `IntegrityError` branch is the safety net for the race the `SELECT` cannot see.
+
+**The API: add, do not edit.** `ApiServer.add_route` puts the new routes in front of the old ones without touching them. Pick status codes that tell the client what to do next: `201` created, `200` the same record again (with `Idempotent-Replay: true`), `409` wrong state, `403` not yours, `422` bad input, `404` no such thing (lab table A19.4 shows each).
+
+**The front end: two taps, one request.** The first tap only asks; the second sends. A button that can summon help must not fire from a stray tap, and a second request is never sent for the first. After the reply the banner tells the truth: *SOS recorded. Call 112 now - this app alerts nobody by itself.* Errors reuse the existing `user_message`, so a `403` reads "You are not allowed to do that." instead of a stack trace.
+
+### 3. Prove the old features did not move
+
+A new feature is a change to a running system, so the test list has two halves:
+
+1. **New behaviour**, one test per rule from the table in section 1 (28 tests in `test_feature_flow.py`): the database refuses six impossible rows; the first request creates and the repeat returns the same record; a ride that has not started or has finished cannot raise one; a stranger and a missing name are refused; six bad positions get `422` and no `INSERT` is run; four simultaneous taps give one row; ending twice is `409`; a new SOS can follow an ended one.
+2. **Regression**, because the commonest way to break an app is to add to it: booking, listing, pagination headers and assignment behave exactly as before (`test_booking_listing_and_assignment_behave_as_before`), and an app without the migration has no SOS routes at all (`404`), so the feature really is additive.
+
+Add one test for the failure you hope never happens: with the table missing, the client gets `500` and a reference number, never SQL or a file path (`test_a_service_bug_is_a_500_with_a_reference_not_a_stack_trace`). ATLAS Go's own suite does the same on the phone side (`tests/test_prebook_sos.py`): 18 tampered `state.json` files, each of which must be quarantined rather than shown, and `test_driver_sos_and_privacy_between_accounts`, which proves the driver cannot see or end the passenger's SOS.
+
+### 4. What the lab has that the phone does not, and the reverse
+
+| | Lab (client and server) | ATLAS Go 1.6.0 (phone only) |
+|---|---|---|
+| Where the rules run | `SosService` behind HTTP | `LocalStore.raise_sos`, no network |
+| Who is "the user" | the passenger's name on the ride (a stand-in) | the signed-in account, or a guest |
+| Ending an SOS | the passenger's name | **the account password** (step-up), so someone holding the unlocked phone cannot switch it off |
+| Position | sent by the client | the phone's location, else the car's position on the route |
+| After the record | nothing | `tel:112` and `sms:` links handed to Android |
+| Missing | monitoring | **monitoring**: nobody watches either one |
+
+Lab table A19.6 runs the phone's code against the same situations (no ride, first, second, wrong password, right password) and gets the same answers from a different implementation. That is the point of writing the rules down first: the table in section 1 survives a change of language and a change of tier.
+
+**An honest limit.** ATLAS Go 1.6.0 has *no server API for SOS*: the record stays on the phone, so a real service would still need the server half this lab sketches (and a staffed line, live trip sharing and a retention policy). Exercise 12 asks you to design it.
+
+**Report.** Choose a feature you would add to ATLAS Go (a tip for the driver, a favourite place). Fill in the five-question table, then name for each layer the file you would change and the test you would write first.
+
 ## Part III exercises
 
 1. Add a **Delete** button for cancelled rides (`DELETE /api/rides/{id}` → 204) with a test that a requested ride cannot be deleted (409).
@@ -1928,6 +2026,9 @@ The last row is not an error: it is exactly the net amount of a payment still in
 7. **Receipts (A13, A16).** Add `GET /v1/payments/{id}/receipt` to a copy of the server returning what a passenger needs (date, route or dishes, amount, last four) and nothing a stranger could use; prove with a test that another account gets 404.
 8. **A bank that answers late (A17).** Real direct debits are confirmed hours later. Add a `pending` state between `authorised` and `captured`, list every transition that becomes legal, and extend RT03's matrix.
 9. **Run A13–A18 on PostgreSQL.** Start the server with Docker ([`android-app/server/README.md`](../android-app/server/README.md)), set `ATLAS_TEST_DATABASE_URL`, rerun the labs, then open `psql` and find the rows each lab wrote (`accounts`, `bank_accounts`, `payments`, `ledger_entries`, `payouts`, `audit_log`).
+10. **Add a new SOS rule (A19).** Ride status `assigned` is too loose: require that the driver has *accepted* (add `accepted` to the ride row in your copy of the app). Write the failing test first, then the change; list which of the 28 tests should break and why none of the regression tests should.
+11. **Resolve with a secret (A19).** Replace "the passenger's name" in `resolve` with a password check using `accounts.hash_password` and `verify_password` from ATLAS Go, in the same way `LocalStore.resolve_sos` does. Which status code should a wrong password return, and why not `401`?
+12. **Design the server half (A19).** Sketch `POST /v1/sos` for the ATLAS Go server: table, role rules from the session (not the body), idempotency key, an outbox entry like A17's so the phone can send an SOS raised offline, and what the server may *never* store. Which of A19's five layers do you reuse unchanged?
 
 ---
 
