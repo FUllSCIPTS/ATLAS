@@ -112,43 +112,68 @@ availability assumptions, system-level value of the anomaly detector, and a
 combined-factor stress test).
 
 
+| Task | Start here |
+|---|---|
+| Get the paper files | [`atlas_sim.zip`](atlas_sim.zip) · [`data.zip`](data.zip) · [`figures.zip`](figures.zip) · [`prototype.zip`](prototype.zip) · [`results.zip`](results.zip) |
+| Run the full evaluation | [`bash run_all.sh`](run_all.sh) |
+| Find the script for a specific result | [Experiment → script → result file](#experiment--script--result-file) |
+| Rebuild figures from saved results | [`python3 make_figures.py`](make_figures.py) |
+| Open teaching guides and labs | [Learning paths](#learning-path-ways) |
+
+After extraction, keep `atlas_sim/`, `data/`, `figures/`, `prototype/` and
+`results/` at the repository root. See [Quick start](#quick-start) for the Python
+setup and LSTM retraining.
+
+<details>
+<summary>Paper code, data and experiment scripts</summary>
+
 | Path | Purpose |
 |---|---|
 | `atlas_sim/traffic.py` | Synthetic workloads (one-year e-commerce trace with flash sales, connected-vehicle fleet trace) and telemetry/anomaly generators |
 | `atlas_sim/forecast.py` | LSTM / Bi-LSTM forecaster (PyTorch), Ridge-AR, seasonal-naive and persistence baselines, metrics |
 | `atlas_sim/cluster.py` | 1-s cluster simulator with continuous-time failure/recovery events; static monolith, static microservices, HANSEL-like, Predictive-Hybrid, XScale-like and ATLAS (BIP optimiser, state machine, self-healing); option `blast="process"` for the conservative whole-process blast radius |
 | `prototype/` | Process-level prototype: a stateful module served in-process or over HTTPS with mutual TLS; switching and recovery protocols measured with real timestamps |
-| `run_forecast.py` | Trains the LSTM (3 seeds), Bi-LSTM and baselines; vehicle-fleet LSTM |
-| `run_ood.py` | Out-of-distribution and cross-node tests; online forecaster selector |
-| `val_preds.py` | Forecasts on the validation period (used only for tuning) |
-| `run_anomaly.py` | Isolation Forest: full metric set, contamination and severity sensitivity |
-| `run_cluster.py` | Tuning, 30-run architecture comparison (Wilcoxon/Holm), forecaster value, ablation, offered-load sweep, sensitivity analysis |
-| `run_vehicle.py` | Connected-vehicle case study (14 held-out test days) |
-| `run_recovery_mc.py` | Event-level recovery time per crash class |
-| `run_bip_timing.py` | Measured BIP solve times (enumeration, HiGHS branch-and-bound, LP + rounding) |
-| `run_round2.py` | Second-revision experiments: exact vs. linearised optimisation (gap in the nonlinear objective), blast-radius and availability checks, system-level value of the anomaly detector (with an oracle detector), 2^4 combined-factor stress test, detector firing pattern |
-| `export_datasets.py` | Writes `data/`; `--full` writes the complete 525,600-row trace |
-| `make_figures.py` | Regenerates the data-driven figures into `figures/` (override with `ATLAS_FIG_DIR`) |
+| [`run_forecast.py`](run_forecast.py) | Trains the LSTM (3 seeds), Bi-LSTM and baselines; vehicle-fleet LSTM |
+| [`run_ood.py`](run_ood.py) | Out-of-distribution and cross-node tests; online forecaster selector |
+| [`val_preds.py`](val_preds.py) | Forecasts on the validation period (used only for tuning) |
+| [`run_anomaly.py`](run_anomaly.py) | Isolation Forest: full metric set, contamination and severity sensitivity |
+| [`run_cluster.py`](run_cluster.py) | Tuning, 30-run architecture comparison (Wilcoxon/Holm), forecaster value, ablation, offered-load sweep, sensitivity analysis |
+| [`run_vehicle.py`](run_vehicle.py) | Connected-vehicle case study (14 held-out test days) |
+| [`run_recovery_mc.py`](run_recovery_mc.py) | Event-level recovery time per crash class |
+| [`run_bip_timing.py`](run_bip_timing.py) | Measured BIP solve times (enumeration, HiGHS branch-and-bound, LP + rounding) |
+| [`run_round2.py`](run_round2.py) | Second-revision experiments: exact vs. linearised optimisation (gap in the nonlinear objective), blast-radius and availability checks, system-level value of the anomaly detector (with an oracle detector), 2^4 combined-factor stress test, detector firing pattern |
+| [`export_datasets.py`](export_datasets.py) | Writes `data/`; `--full` writes the complete 525,600-row trace |
+| [`make_figures.py`](make_figures.py) | Regenerates the data-driven figures into `figures/` (override with `ATLAS_FIG_DIR`) |
 | `data/` | Anomaly dataset, failure schedule, simulation configuration, 7-day traffic excerpt |
 | `results/` | Raw result files (JSON/NPZ) and trained model weights used in the paper |
 | `figures/` | Figures as they appear in the paper |
-| `run_all.sh` | Runs everything in order |
-| `docs/INFORMATION_SECURITY.md` | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment; 19 standalone units (S1–S13.6: what, why, how) adding STRIDE, MFA/TOTP/passkeys, access-control models, sessions/CSRF, API security, TLS 1.3, network security, OWASP Top 10, incident response, GDPR, governance and social engineering |
-| `security_lab/README.md` | Index of the labs: categories, experiments, study paths and the gaps they expose |
+| [`run_all.sh`](run_all.sh) | Runs everything in order |
+
+</details>
+
+<details>
+<summary>Teaching guides and lab files</summary>
+
+| Path | Purpose |
+|---|---|
+| [`docs/INFORMATION_SECURITY.md`](docs/INFORMATION_SECURITY.md) | Information-security teaching guide: password storage, authentication, identity management, RBAC, gateway auth, SSO, Kerberos, mTLS, secure deployment; 19 standalone units (S1–S13.6: what, why, how) adding STRIDE, MFA/TOTP/passkeys, access-control models, sessions/CSRF, API security, TLS 1.3, network security, OWASP Top 10, incident response, GDPR, governance and social engineering |
+| [`security_lab/README.md`](security_lab/README.md) | Index of the labs: categories, experiments, study paths and the gaps they expose |
 | `security_lab/lab_a_password_storage.py` … `lab_d_integrity_lifecycle.py` | Information-security lab in four categories (A stored passwords 1–8, B registration and identity 9–11, C sign-in defences 12–15, D integrity and lifecycle 16–20), each runnable on its own |
-| `security_lab/password_storage_demo.py` | Runner for all 20 experiments and the 5 study paths (shared code in `lab_common.py`) |
-| `docs/CRYPTOGRAPHY.md` | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography; 19 standalone units (C1–C10.5: what, why, how) including AES/ChaCha20, RSA, Diffie–Hellman/X25519, ECDSA/Ed25519, ML-KEM, ML-DSA/FN-DSA, SLH-DSA/LMS/XMSS, HQC and post-quantum migration |
+| [`security_lab/password_storage_demo.py`](security_lab/password_storage_demo.py) | Runner for all 20 experiments and the 5 study paths (shared code in `lab_common.py`) |
+| [`docs/CRYPTOGRAPHY.md`](docs/CRYPTOGRAPHY.md) | Cryptography teaching guide: hashes and checksums, PKI and certificates, signatures, post-quantum cryptography; 19 standalone units (C1–C10.5: what, why, how) including AES/ChaCha20, RSA, Diffie–Hellman/X25519, ECDSA/Ed25519, ML-KEM, ML-DSA/FN-DSA, SLH-DSA/LMS/XMSS, HQC and post-quantum migration |
 | `security_lab/crypto_a_hashing.py` … `crypto_e_post_quantum.py` | Cryptography lab in five categories (A hashing 1–7, B MACs/KDF/randomness 8–10, C PKI 11–14, D signatures 15–17, E post-quantum 18–20), each runnable on its own |
-| `security_lab/crypto_lab.py` | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
-| `docs/MACHINE_LEARNING_OPTIMISATION.md` | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, the digital twin and its Guardian, actor-critic, multi-agent RL with a shared critic, the LSTM + RL loop, evaluation |
-| `docs/WEB_TECHNOLOGY_2.md` | Web Technology 2 — Kivy front-end teaching guide: how ATLAS Go's screens, map and Android integration are built, from `App` and layouts to the canvas, Clock, touch, threads, pyjnius and Buildozer |
-| `kivy_lab/experiments.py` | 11 Kivy experiments (K01–K11) run against the real ATLAS Go widgets; `kivy_lab/README.md` is the lab manual |
-| `kivy_lab/Kivy_Colab_Labs.ipynb` | Colab notebook for Web Technology 2: every lesson's Try-it program and all 11 labs on a virtual display |
-| `ml_lab/ml_optimisation_lab.py` | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
-| `ml_lab/ML_Optimisation_Colab_Labs.ipynb` | Colab-ready notebook with 44 runnable illustrated teaching demonstrations (ML 01–24; OPT 01–20) |
-| `ml_lab/README.md` | Index of the 44 ML and optimisation experiments, their ATLAS data sources and study paths |
+| [`security_lab/crypto_lab.py`](security_lab/crypto_lab.py) | Runner for all 20 crypto experiments and the 5 study paths; `--verify FILE` checks a download (shared code in `crypto_common.py`) |
+| [`docs/MACHINE_LEARNING_OPTIMISATION.md`](docs/MACHINE_LEARNING_OPTIMISATION.md) | Machine-learning and optimisation teaching guide: the coupling BIP and its solvers, tuning, LSTM forecasting, Isolation Forest, reinforcement learning, the digital twin and its Guardian, actor-critic, multi-agent RL with a shared critic, the LSTM + RL loop, evaluation |
+| [`docs/WEB_TECHNOLOGY_2.md`](docs/WEB_TECHNOLOGY_2.md) | Web Technology 2 — Kivy front-end teaching guide: how ATLAS Go's screens, map and Android integration are built, from `App` and layouts to the canvas, Clock, touch, threads, pyjnius and Buildozer |
+| [`kivy_lab/experiments.py`](kivy_lab/experiments.py) | 11 Kivy experiments (K01–K11) run against the real ATLAS Go widgets; `kivy_lab/README.md` is the lab manual |
+| [`kivy_lab/Kivy_Colab_Labs.ipynb`](kivy_lab/Kivy_Colab_Labs.ipynb) | Colab notebook for Web Technology 2: every lesson's Try-it program and all 11 labs on a virtual display |
+| [`ml_lab/ml_optimisation_lab.py`](ml_lab/ml_optimisation_lab.py) | Command-line lab that runs the paper's BIP, the three solvers, gradient descent vs Adam, Isolation Forest, REINFORCE and Q-learning |
+| [`ml_lab/ML_Optimisation_Colab_Labs.ipynb`](ml_lab/ML_Optimisation_Colab_Labs.ipynb) | Colab-ready notebook with 44 runnable illustrated teaching demonstrations (ML 01–24; OPT 01–20) |
+| [`ml_lab/README.md`](ml_lab/README.md) | Index of the 44 ML and optimisation experiments, their ATLAS data sources and study paths |
 | `ml_lab/machine_learning/ml01_*.py` … `ml24_*.py` | 24 machine-learning experiments, one file each: regression to reinforcement learning, the digital twin (ML 21), actor-critic (ML 22), MAPPO with a shared critic (ML 23) and the LSTM + RL loop (ML 24) (`run_ml.py` runs them) |
 | `ml_lab/optimisation/opt01_*.py` … `opt20_*.py` | 20 optimisation experiments, one file each: gradient methods, LP/MILP, graphs, DP, metaheuristics, evolutionary, Bayesian, multi-objective (`run_optimisation.py`) |
+
+</details>
 
 ## Experiment → script → result file
 
