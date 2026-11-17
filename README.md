@@ -7,7 +7,7 @@
 
 **[▶ Watch the ATLAS Go --- Smooth Version](android-app/docs/video/atlas-go-demo-v1.6.0.mp4)** · [direct download](android-app/docs/video/atlas-go-demo-v1.6.0.mp4?raw=true)
 
-**[▶ Watch the ATLAS Go --- SciFi Version](ATLAS/blob/main/docs/videos/ATLAS_Go_Scifi.mp4)** · [direct download](ATLAS/blob/main/docs/videos/ATLAS_Go_Scifi.mp4?raw=true)
+**[▶ Watch the ATLAS Go --- SciFi Version](android-app/docs/video/ATLAS_Go_Scifi.mp4)** · [direct download](android-app/docs/video/ATLAS_Go_Scifi.mp4?raw=true)
 
 ## ATLAS Go Android app
 
