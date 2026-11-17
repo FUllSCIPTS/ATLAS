@@ -144,8 +144,8 @@ Pushing to `main` runs the [Android workflow](../.github/workflows/atlas-android
 | Desktop UI acceptance, 440 × 940 and 360 × 780 at font scale 1.2 | 353 assertions and 32 screenshots in each | 314 and 29 |
 | Server tests on PostgreSQL 16 | 59 passed, including a six-way idempotency race, a four-way payout race, the ledger triggers and the least-privilege role | — |
 | Connected mode | The Kivy screens against a live server: 71 assertions; PostgreSQL then holds 2 accounts, 1 captured payment, 1 payout and a balanced ledger | — |
-| **Android 16 emulator (CI)** | Runs in GitHub Actions when this change is pushed; see the workflow run and [releases/VALIDATION.md](releases/VALIDATION.md), which the workflow rewrites | 373 assertions, 29 OS screenshots, no crash |
-| Release bundle, 16 KB alignment, APK signature | As above: produced by the workflow, not on a developer machine | validated ([evidence](releases/1.4.0/VALIDATION.md)) |
+| **Android 16 emulator (CI)** | 418 assertions, 32 OS screenshots, no crash ([run](https://github.com/FUllSCIPTS/ATLAS/actions/runs/43961614528), [evidence](releases/VALIDATION.md)) | 373 assertions, 29 OS screenshots, no crash |
+| Release bundle, 16 KB alignment, APK signature | validated in the same run: AAB checked by bundletool, 232 libraries 16 KB-aligned, release variant installed and launched | validated ([evidence](releases/1.4.0/VALIDATION.md)) |
 | Live loop and held-out simulation | Unchanged code and results | LSTM parity 2 × 10⁻⁶; forecast error 9.3 %; supply cost −18 % |
 
 The Docker files in `server/` were written but not run for this change (no Docker daemon was available); the server was started from the same file set the image copies and tested against PostgreSQL 16 directly.
