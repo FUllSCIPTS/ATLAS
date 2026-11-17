@@ -35,28 +35,6 @@ LSTM predicts demand → RL agent chooses actions (LSTM and RL agent in a closed
 |---|---|---|---|---|
 | <img src="android-app/docs/screenshots/30-live-loop.png" alt="Live LSTM to RL loop" width="150"> | <img src="android-app/docs/screenshots/04-ride-live.png" alt="Ride booked with twin-tested driver" width="150"> | <img src="android-app/docs/screenshots/25-shared-co-drop.png" alt="Shared ride dropping the earlier rider first" width="150"> | <img src="android-app/docs/screenshots/26-twin-tab.png" alt="Twin tab" width="150"> | <img src="android-app/docs/screenshots/27-guardian-log.png" alt="Guardian log" width="150"> |
 
-# PAST WORK: 
-## ATLAS --- The Theoretical Ground!
-## ATLAS — Supplementary Code and Data
-Code, data, trained models and raw results for the article
-
-> **ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems**
-> 
-> Basker Palaniswamy and Paolo Palmieri, Dept. of C.S. & I.T., University College Cork (UCC), Ireland, European Union.
-> 
-> *Future Internet* (MDPI).
-> https://www.mdpi.com/4188140
-
-The repository reproduces every table and data-driven figure of the evaluation:
-forecasting (LSTM, Bi-LSTM and statistical baselines), out-of-distribution and
-cross-node tests, anomaly detection, the architecture comparison with
-statistical tests, the forecaster-value and ablation studies, the load and
-sensitivity sweeps, the connected-vehicle case study, recovery times and BIP
-solve times, the process-level prototype measurements, and the
-second-revision checks (exact vs. linearised optimisation, blast-radius and
-availability assumptions, system-level value of the anomaly detector, and a
-combined-factor stress test).
-
 # Live architecture explorer
 
 Explore the ride-hailing reference design, trace trip and driver events, and inspect the deployment layout.  
@@ -89,6 +67,17 @@ Explore the ride-hailing reference design, trace trip and driver events, and ins
 8) [📱 Web Technology 2 — Kivy Front End with ATLAS Go](docs/WEB_TECHNOLOGY_2.md) · [Launch Colab lab — 16 Try-it programs + 11 experiments](https://colab.research.google.com/github/FUllSCIPTS/ATLAS/blob/main/kivy_lab/Kivy_Colab_Labs.ipynb) · [Lab manual](kivy_lab/README.md)
 
 
+# PAST WORK: 
+## ATLAS --- The Theoretical Ground!
+## ATLAS — Supplementary Code and Data
+Code, data, trained models and raw results for the article
+
+> **ATLAS: Learning to Rewire the Web — Predictive Architecture Transformation for Autonomous Cloud Systems**
+> 
+> Basker Palaniswamy and Paolo Palmieri, Dept. of C.S. & I.T., University College Cork (UCC), Ireland, European Union.
+> 
+> *Future Internet* (MDPI).
+> https://www.mdpi.com/4188140
 
 ## Quick start
 
@@ -111,6 +100,17 @@ delete it to retrain. All random seeds are fixed. The prototype needs
 `prototype/certs/` (not committed).
 
 ## Reproducible Path for ATLAS
+
+The repository reproduces every table and data-driven figure of the evaluation:
+forecasting (LSTM, Bi-LSTM and statistical baselines), out-of-distribution and
+cross-node tests, anomaly detection, the architecture comparison with
+statistical tests, the forecaster-value and ablation studies, the load and
+sensitivity sweeps, the connected-vehicle case study, recovery times and BIP
+solve times, the process-level prototype measurements, and the
+second-revision checks (exact vs. linearised optimisation, blast-radius and
+availability assumptions, system-level value of the anomaly detector, and a
+combined-factor stress test).
+
 
 | Path | Purpose |
 |---|---|
