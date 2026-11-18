@@ -9,7 +9,7 @@
 
 **[▶ Watch the ATLAS Go --- SciFi Version](android-app/docs/video/ATLAS_Go_Scifi.mp4)** · [direct download](android-app/docs/video/ATLAS_Go_Scifi.mp4?raw=true)
 
-**[▶ Watch the ATLAS Go --- SciFi Version](android-app/docs/video/ATLAS_Go_Bond_Version.mp4)** · [direct download](android-app/docs/video/ATLAS_Go_Bond_Version.mp4?raw=true)
+**[▶ Watch the ATLAS Go --- Bond Version](android-app/docs/video/ATLAS_Go_Bond_Version.mp4)** · [direct download](android-app/docs/video/ATLAS_Go_Bond_Version.mp4?raw=true)
 
 ## ATLAS Go Android app
 
